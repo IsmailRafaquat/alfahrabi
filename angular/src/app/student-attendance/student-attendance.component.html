@@ -1,0 +1,370 @@
+<abp-page [title]="'::Menu:StudentAttendance' | abpLocalization">
+  <abp-page-toolbar-container class="col">
+    <div class="text-end">
+      
+        <!-- Hidden file input -->
+      <input #fileInput type="file" accept=".xlsx" class="d-none" (change)="onExcelSelectedAndImport($event)" />
+
+      <button type="button" class="btn btn-outline-primary btn-sm me-2" (click)="fileInput.click()"
+        [disabled]="importingExcel">
+        <i class="fa fa-upload me-1"></i>
+        {{ importingExcel ? ('::Importing' | abpLocalization) : ('::ImportExcel' | abpLocalization) }}
+      </button>
+
+      <button class="btn btn-outline-primary btn-sm me-2" (click)="openTemplateModal()">
+        <i class="fa fa-file-excel me-1"></i>
+        {{ '::GenerateAttendanceTemplate' | abpLocalization}}
+      </button>
+    
+       <button class="btn btn-outline-primary btn-sm" type="button" (click)="openMarkModal()">
+        <i class="fa fa-plus me-1"></i> {{ '::MarkAttendance' | abpLocalization }}
+      </button>
+
+    </div>
+  </abp-page-toolbar-container>
+
+  <!-- Search + Filters -->
+  <div class="card">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-10">
+          <div class="input-group">
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+              [(ngModel)]="filters.filter" />
+            <button type="button" class="btn btn-primary" (click)="list.get()">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="col-2 text-end">
+          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
+            {{ '::Filters' | abpLocalization }}
+            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Panel -->
+      <div *ngIf="showFilter" class="mt-2">
+        <div class="row g-2">
+          <div class="col-sm-3">
+            <label>{{ '::AdmissionNo' | abpLocalization }}</label>
+            <input class="form-control form-control-sm" [(ngModel)]="filters.admissionNo" />
+          </div>
+
+          <div class="col-sm-3">
+            <label>{{ '::FirstName' | abpLocalization }}</label>
+            <input class="form-control form-control-sm" [(ngModel)]="filters.firstName" />
+          </div>
+
+          <div class="col-sm-3">
+            <label>{{ '::LastName' | abpLocalization }}</label>
+            <input class="form-control form-control-sm" [(ngModel)]="filters.lastName" />
+          </div>
+
+          <div class="col-sm-3">
+            <label>{{ '::Status' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.status" nzAllowClear nzShowSearch nzSize="large"
+              class="form-control form-control-sm" class="w-100">
+              <nz-option *ngFor="let s of attendanceStatuses" [nzValue]="s.value"
+                [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-sm-3">
+            <label>{{ '::DateFrom' | abpLocalization }}</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.dateFrom" />
+          </div>
+
+          <div class="col-sm-3">
+            <label>{{ '::DateTo' | abpLocalization }}</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.dateTo" />
+          </div>
+
+          <div class="col-sm-auto d-flex align-items-end mt-2 gap-1">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="clearFilters()">
+              <i class="fas fa-undo"></i> {{ '::Reset' | abpLocalization }}
+            </button>
+
+            <button type="button" class="btn btn-primary btn-sm" (click)="list.get()">
+              <i class="fa fa-filter"></i> {{ '::Apply' | abpLocalization }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card mt-2">
+    <div class="card-body">
+      <ngx-datatable [rows]="attendances.items" [count]="attendances.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="170" [sortable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
+                <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+              </button>
+
+              <div ngbDropdownMenu>
+                <button ngbDropdownItem (click)="editAttendance(row.id)">
+                  {{ '::Edit' | abpLocalization }}
+                </button>
+                <button ngbDropdownItem (click)="delete(row.id)">
+                  {{ '::Delete' | abpLocalization }}
+                </button>
+                <button ngbDropdownItem (click)="viewDetails(row.id)">
+                  {{ '::ViewDetails' | abpLocalization }}
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Date' | abpLocalization" prop="attendanceDate">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.attendanceDate | date: 'mediumDate' }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.student?.admissionNo ?? row.admissionNo ?? '-' }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Student' | abpLocalization">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.student ? (row.student.firstName + ' ' + row.student.lastName) : (row.studentName ?? '-') }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span class="badge" [class.bg-success]="row.status === attendanceStatusPresent"
+              [class.bg-danger]="row.status === attendanceStatusAbsent"
+              [class.bg-warning]="row.status === attendanceStatusLate"
+              [class.bg-secondary]="row.status !== attendanceStatusPresent && row.status !== attendanceStatusAbsent && row.status !== attendanceStatusLate">
+              {{ ('::Enum:AttendanceStatus.' + row.status) | abpLocalization }}
+            </span>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Remarks' | abpLocalization" prop="remarks">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.remarks ?? '-' }}
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</abp-page>
+
+<!-- Mark/Edit Modal -->
+<abp-modal [(visible)]="isModalOpen" size="lg">
+  <ng-template #abpHeader>
+    <h3>{{ (selectedAttendance?.id ? '::EditAttendance' : '::MarkAttendance') | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form">
+      <div class="row g-2">
+        <div class="col-md-12">
+          <label class="form-label">
+            {{ '::Student' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+
+          <nz-select class="form-control" nzShowSearch nzAllowClear nzSize="large" nzServerSearch
+            [nzLoading]="studentsLoading" formControlName="studentId" class="w-100">
+            <nz-option *ngFor="let s of studentOptions" [nzValue]="s.id"
+              [nzLabel]="s.firstName + ' ' + s.lastName + ' (' + (s.admissionNo || '-') + ')'"></nz-option>
+          </nz-select>
+
+          <small class="form-text text-muted">
+            {{ '::Help:Attendance.Student' | abpLocalization }}
+          </small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            {{ '::Date' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+          <input type="date" class="form-control" formControlName="attendanceDate" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            {{ '::Status' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+
+          <nz-select class="form-control" nzAllowClear nzShowSearch nzSize="large" formControlName="status"
+            class="w-100">
+            <nz-option *ngFor="let s of attendanceStatuses" [nzValue]="s.value"
+              [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">{{ '::Remarks' | abpLocalization }}</label>
+          <textarea class="form-control" rows="3" formControlName="remarks"></textarea>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" (click)="isModalOpen = false">
+      {{ '::Cancel' | abpLocalization }}
+    </button>
+
+    <button type="button" class="btn btn-primary" (click)="save()" [disabled]="form?.invalid">
+      <i class="fas fa-check"></i> {{ '::Save' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>
+
+<!-- View Details Modal -->
+<abp-modal [(visible)]="isViewModalOpen" size="lg">
+  <ng-template #abpHeader>
+    <h3><i class="fa fa-calendar-check me-2 text-primary"></i>{{ '::AttendanceDetails' | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <div class="p-3">
+      <div class="row mb-2">
+        <div class="col-md-12 mb-1">
+          <strong>{{ '::Date' | abpLocalization }}:</strong>
+          {{ selectedAttendance?.attendanceDate | date:'mediumDate' }}
+        </div>
+
+        <div class="col-md-12 mb-1">
+          <strong>{{ '::Student' | abpLocalization }}:</strong>
+          {{ selectedAttendance?.student
+          ? (selectedAttendance.student.firstName + ' ' + selectedAttendance.student.lastName)
+          : (selectedAttendance?.studentName ?? '-') }}
+        </div>
+
+        <div class="col-md-12 mb-1">
+          <strong>{{ '::AdmissionNo' | abpLocalization }}:</strong>
+          {{ selectedAttendance?.student?.admissionNo ?? selectedAttendance?.admissionNo ?? '-' }}
+        </div>
+
+        <div class="col-md-12 mb-1">
+          <strong>{{ '::Status' | abpLocalization }}:</strong>
+          {{ ('::Enum:AttendanceStatus.' + selectedAttendance?.status) | abpLocalization }}
+        </div>
+
+        <div class="col-md-12">
+          <strong>{{ '::Remarks' | abpLocalization }}:</strong>
+          <div class="mt-1">{{ selectedAttendance?.remarks ?? '-' }}</div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" (click)="isViewModalOpen = false">
+      {{ '::Close' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>
+
+<abp-modal [(visible)]="isTemplateModalOpen" size="md">
+  <ng-template #abpHeader>
+    <h3>{{ '::GenerateAttendanceTemplate' | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="templateForm">
+      <div class="mb-2">
+        <label class="form-label">{{ '::Class' | abpLocalization }} *</label>
+        <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="gradeLevel">
+          <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+            [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">{{ '::Section' | abpLocalization }} *</label>
+        <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="section">
+          <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+            [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="row g-2">
+        <div class="col-md-6">
+          <label class="form-label">{{ '::DateFrom' | abpLocalization }} *</label>
+          <input type="date" class="form-control" formControlName="dateFrom" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">{{ '::DateTo' | abpLocalization }} *</label>
+          <input type="date" class="form-control" formControlName="dateTo" />
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" (click)="isTemplateModalOpen = false">
+      {{ '::Cancel' | abpLocalization }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="generateTemplate()" [disabled]="templateForm.invalid">
+      <i class="fa fa-download me-1"></i>
+      {{ '::Generate' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>
+<abp-modal [(visible)]="isTemplateModalOpen" size="md">
+  <ng-template #abpHeader>
+    <h3>{{ '::GenerateAttendanceTemplate' | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="templateForm">
+      <div class="mb-2">
+        <label class="form-label">{{ '::Class' | abpLocalization }} *</label>
+        <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="gradeLevel">
+          <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+            [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">{{ '::Section' | abpLocalization }} *</label>
+        <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="section">
+          <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+            [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="row g-2">
+        <div class="col-md-6">
+          <label class="form-label">{{ '::DateFrom' | abpLocalization }} *</label>
+          <input type="date" class="form-control" formControlName="dateFrom" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">{{ '::DateTo' | abpLocalization }} *</label>
+          <input type="date" class="form-control" formControlName="dateTo" />
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" (click)="isTemplateModalOpen = false">
+      {{ '::Cancel' | abpLocalization }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="generateTemplate()" [disabled]="templateForm.invalid">
+      <i class="fa fa-download me-1"></i>
+      {{ '::Generate' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>

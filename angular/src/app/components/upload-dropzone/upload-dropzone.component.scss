@@ -1,0 +1,49 @@
+.upload-dropzone {
+  border: 1px dashed #d0d5dd;
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: #fafbff;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  min-height: 260px;
+  margin-top: 24px;
+
+  &--hover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .dropzone-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.75rem auto;
+    border-radius: 999px;
+    background: #eef2ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f46e5;
+    font-size: 1.5rem;
+  }
+
+  .dropzone-title {
+    font-weight: 600;
+  }
+
+  .dropzone-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .dropzone-filename {
+    font-size: 0.85rem;
+    color: #374151;
+  }
+
+}

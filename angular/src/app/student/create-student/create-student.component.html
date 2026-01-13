@@ -1,0 +1,644 @@
+<abp-page>
+    <nz-steps [nzCurrent]="currentStep" class="mb-3" *ngIf="!isViewMode">
+        <nz-step [nzTitle]="'::StudentInfo' | abpLocalization"></nz-step>
+        <nz-step [nzTitle]="'::AddressInfo' | abpLocalization"></nz-step>
+        <nz-step [nzTitle]="'::ParentGuardian' | abpLocalization"></nz-step>
+        <nz-step [nzTitle]="'::EmergencyContact' | abpLocalization"></nz-step>
+        <nz-step [nzTitle]="'::EducationInfo' | abpLocalization"></nz-step>
+        <nz-step [nzTitle]="'::AdditionalInfo' | abpLocalization"></nz-step>
+        <nz-step [nzTitle]="'::Documents' | abpLocalization"></nz-step>
+    </nz-steps>
+
+    <!-- Header buttons (View mode like Consumer) -->
+    <div class="d-flex justify-content-between align-items-center mb-3" *ngIf="isViewMode">
+        <h2 class="h2 mb-1">
+            {{ '::StudentDetails' | abpLocalization }}
+        </h2>
+
+        <div>
+            <button class="btn btn-sm btn-primary me-2" (click)="backToList()">
+                <i class="fa fa-arrow-left"></i>
+                <span class="ms-1">{{ '::Back' | abpLocalization }}</span>
+            </button>
+
+            <button class="btn btn-sm btn-primary" (click)="enableEditMode()">
+                <i class="fa fa-pencil-square-o"></i>
+                <span class="ms-1">{{ '::Edit' | abpLocalization }}</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form [formGroup]="form">
+                <div [ngSwitch]="currentStep" class="row g-3">
+
+                    <!-- STEP 0: Student -->
+                    <ng-container *ngSwitchCase="0">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::StudentInformation' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <!-- AdmissionNo + Phone (keep/remove based on your DTO) -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::AdmissionNo' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="admissionNo" />
+                        </div>
+
+                        <div class="col-md-6"></div>
+                        <!-- <div class="col-md-6">
+              <label class="form-label">
+                {{ '::Phone' | abpLocalization }}
+              </label>
+              <input class="form-control" formControlName="phone" />
+            </div> -->
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::FirstName' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="firstName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::LastName' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="lastName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Gender' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="gender" class="w-100" nzAllowClear nzSize="large">
+                                <nz-option *ngFor="let g of genders" [nzValue]="g.value"
+                                    [nzLabel]="'::Enum:Gender.' + g.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::DOB' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" type="date" formControlName="dob" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::Email' | abpLocalization }}</label>
+                            <input class="form-control" type="text" formControlName="email" />
+                        </div>
+                    </ng-container>
+
+                    <!-- STEP 1: Address -->
+                    <ng-container *ngSwitchCase="1">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::AddressInformation' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">
+                                {{ '::StreetAddress' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="streetAddress" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::StreetAddressLine2' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="streetAddressLine2" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::City' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="city" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                                <nz-option *ngFor="let c of cities" [nzValue]="c.value"
+                                    [nzLabel]="'::Enum:City.' + c.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::State/Province' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="province" class="w-100" nzAllowClear nzShowSearch
+                                nzSize="large">
+                                <nz-option *ngFor="let p of provinces" [nzValue]="p.value"
+                                    [nzLabel]="'::Enum:Province.' + p.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Postal/ZipCode' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="zipCode" />
+                        </div>
+                    </ng-container>
+
+                    <!-- STEP 2: Parent/Guardian -->
+                    <ng-container *ngSwitchCase="2">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::ParentGuardianInformation' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::FirstName' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="pFirstName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::LastName' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="pLastName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::RelationshipToStudent' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="pRelatonShipToStudent" class="w-100" nzAllowClear nzShowSearch
+                                nzSize="large">
+                                <nz-option *ngFor="let r of relationships" [nzValue]="r.value"
+                                    [nzLabel]="'::Enum:RelationShipToStudent.' + r.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::PhoneNo' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" formControlName="pPhone" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::Email' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="pEmail" />
+                        </div>
+                    </ng-container>
+
+                    <!-- STEP 3: Emergency -->
+                    <ng-container *ngSwitchCase="3">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::EmergencyContact' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <!-- IMPORTANT: use dto keys (I fixed casing to ec* to match your view usage) -->
+                        <div class="col-md-6">
+                            <label class="form-label">{{ '::FirstName' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="ecFirstName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ '::LastName' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="ecLastName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ '::RelationshipToStudent' | abpLocalization }}</label>
+                            <nz-select formControlName="ecRelationShipToStudent" class="w-100" nzAllowClear nzShowSearch
+                                nzSize="large">
+                                <nz-option *ngFor="let r of relationships" [nzValue]="r.value"
+                                    [nzLabel]="'::Enum:RelationShipToStudent.' + r.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ '::PhoneNo' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="ecPhone" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::Email' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="ecEmail" />
+                        </div>
+                    </ng-container>
+
+                    <!-- STEP 4: Education -->
+                    <ng-container *ngSwitchCase="4">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::EducationInformation' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::GradeLevel' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="gradeLevel" class="w-100" nzAllowClear nzShowSearch
+                                nzSize="large">
+                                <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+                                    [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Section' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="section" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                                <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+                                    [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Status' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="status" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                                <nz-option *ngFor="let st of statuses" [nzValue]="st.value"
+                                    [nzLabel]="'::Enum:Status.' + st.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::EnrollmentDate' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" type="date" formControlName="enrollmentDate" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Term' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="term" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                                <nz-option *ngFor="let t of terms" [nzValue]="t.value"
+                                    [nzLabel]="'::Enum:Term.' + t.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Shift' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="shift" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                                <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value"
+                                    [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+                    </ng-container>
+
+                    <!-- STEP 5: Background + Additional -->
+                    <ng-container *ngSwitchCase="5">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::EducationalBackground' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::PreviousSchoolIfApplicable' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="perviousSchool" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                {{ '::Grade' | abpLocalization }} <span class="text-danger">*</span>
+                            </label>
+                            <nz-select formControlName="grade" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                                <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+                                    [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+                                </nz-option>
+                            </nz-select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ '::StudentIdNumberIfApplicable' | abpLocalization }}</label>
+                            <input class="form-control" formControlName="studentIdNo" />
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <h5 class="mb-2">{{ '::AdditionalInformation' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::AnyRelevantMedicalConditionsAllergiesOrMedications' |
+                                abpLocalization }}</label>
+                            <textarea class="form-control" rows="3" formControlName="medicalConditions"></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::Anyextracurricularactivitiesorinterests' | abpLocalization
+                                }}</label>
+                            <textarea class="form-control" rows="3" formControlName="extracurrucular"></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::AdditionalCommentsorNotes' | abpLocalization }}</label>
+                            <textarea class="form-control" rows="3" formControlName="commnets"></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">{{ '::SpecialNeedsOrAccommodations' | abpLocalization }}</label>
+                            <textarea class="form-control" rows="3" formControlName="accommodations"></textarea>
+                        </div>
+                    </ng-container>
+
+                    <!-- STEP 6: Documents -->
+                    <!-- STEP 6: Documents (Consumer-style design) -->
+                    <ng-container *ngSwitchCase="6">
+                        <div class="col-12">
+                            <h5 class="mb-2">{{ '::Documents' | abpLocalization }}</h5>
+                            <hr class="mt-0" />
+                        </div>
+
+                        <div class="col-12" [formGroup]="documentForm">
+                            <div class="card shadow-sm border-0 upload-doc-card">
+                                <div class="card-body">
+
+                                    <!-- Header -->
+                                    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                                        <div>
+                                            <h2 class="mb-1 h2">
+                                                {{ '::UploadStudentDocument' | abpLocalization }}
+                                            </h2>
+                                            <p class="text small mb-0">
+                                                {{ '::Help:UploadFileHintHeader' | abpLocalization }}
+                                            </p>
+                                        </div>
+
+                                        <div class="file-limit-pill">
+                                            <div class="file-limit-icon">
+                                                <i class="fa fa-shield-alt"></i>
+                                            </div>
+
+                                            <div class="file-limit-text">
+                                                <div class="file-limit-title">
+                                                    {{ '::Max10MB' | abpLocalization }} &bull;
+                                                </div>
+                                                <div class="file-limit-subtitle">
+                                                    {{ '::PDF/DOCX/JPG/PNG' | abpLocalization }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Main layout -->
+                                    <div class="row g-4 align-items-start">
+                                        <!-- LEFT: Dropzone -->
+                                        <div class="col-lg-5">
+                                            <app-upload-dropzone [accept]="docAccept" [fileName]="selectedFile?.name"
+                                                (fileSelected)="onFileSelected($event)">
+                                                <span dropzone-title>
+                                                    {{ '::DropFileHereOrClickToBrowse' | abpLocalization }}
+                                                </span>
+                                                <span dropzone-subtitle>
+                                                    {{ '::Help:AllowedFileTypes' | abpLocalization }}
+                                                </span>
+                                            </app-upload-dropzone>
+                                        </div>
+
+                                        <!-- RIGHT: Meta info -->
+                                        <div class="col-lg-7">
+                                            <div class="row g-1">
+
+                                                <!-- Document Type -->
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">
+                                                        {{ '::DocumentType' | abpLocalization }}
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+
+                                                    <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large"
+                                                        formControlName="documentType">
+                                                        <nz-option *ngFor="let t of studentDocumentTypes"
+                                                            [nzValue]="t.value"
+                                                            [nzLabel]="'::Enum:StudentDocumentType.' + t.value | abpLocalization"></nz-option>
+                                                    </nz-select>
+
+                                                    <small class="form-text text-muted">
+                                                        {{ '::Help:SelectAppropriateDocumentType' | abpLocalization }}
+                                                    </small>
+                                                </div>
+
+                                                <!-- Dates -->
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">
+                                                        {{ '::IssueDate' | abpLocalization }}
+                                                    </label>
+                                                    <input type="date" class="form-control border-secondary-subtle"
+                                                        formControlName="issueDate" />
+                                                    <small class="form-text text-muted">
+                                                        {{ '::OptionalIssueDate' | abpLocalization }}
+                                                    </small>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">
+                                                        {{ '::ExpireDate' | abpLocalization }}
+                                                    </label>
+                                                    <input type="date" class="form-control border-secondary-subtle"
+                                                        formControlName="expireDate" />
+                                                    <small class="form-text text-muted">
+                                                        {{ '::OptionalExpireDate' | abpLocalization }}
+                                                    </small>
+                                                </div>
+
+                                                <!-- Remarks -->
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">
+                                                        {{ '::Remarks' | abpLocalization }}
+                                                    </label>
+                                                    <textarea rows="2" class="form-control border-secondary-subtle"
+                                                        formControlName="description"></textarea>
+                                                    <small class="form-text text-muted">
+                                                        {{ '::Help:RemarksOptional' | abpLocalization }}
+                                                    </small>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload button -->
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button type="button" class="btn btn-outline-primary px-4" (click)="upload()">
+                                            <i class="fa fa-cloud-upload-alt me-2"></i>
+                                            {{ '::Upload' | abpLocalization }}
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4" *ngIf="uploadedDocuments.length > 0">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <h2 class="mb-2 h2">{{ '::Documents' | abpLocalization }}</h2>
+
+                                    <nz-table [nzData]="uploadedDocuments" [nzBordered]="false" [nzSize]="'middle'"
+                                        [nzShowPagination]="false">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ '::FileName' | abpLocalization }}</th>
+                                                <th>{{ '::DocumentType' | abpLocalization }}</th>
+                                                <th>{{ '::Remarks' | abpLocalization }}</th>
+                                                <th>{{ '::IssueDate' | abpLocalization }}</th>
+                                                <th>{{ '::ExpireDate' | abpLocalization }}</th>
+                                                <th>{{ '::Actions' | abpLocalization }}</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let doc of uploadedDocuments">
+                                                <!-- File -->
+                                                <td>
+                                                    <a [href]="doc.fileAttachment?.path"
+                                                        target="_blank" class="file-link"
+                                                        [title]="'::OpenFile' | abpLocalization">
+                                                        <i class="fa fa-file fa-lg text-primary me-2"></i>
+                                                        <span class="file-name">
+                                                            {{ doc.fileAttachment?.name }}
+                                                        </span>
+                                                    </a>
+                                                </td>
+
+                                                <!-- Type -->
+                                                <td>
+                                                    <ng-container
+                                                        *ngIf="editingInlineDocId === doc.id; else staticType">
+                                                        <nz-select class="w-100" nzSize="large"
+                                                            [(ngModel)]="doc.documentType"
+                                                            [ngModelOptions]="{ standalone: true }">
+                                                            <nz-option *ngFor="let t of studentDocumentTypes"
+                                                                [nzValue]="t.value"
+                                                                [nzLabel]="'::Enum:StudentDocumentType.' + t.value | abpLocalization"></nz-option>
+                                                        </nz-select>
+                                                    </ng-container>
+
+                                                    <ng-template #staticType>
+                                                        {{ ('::Enum:StudentDocumentType.' + doc.documentType) | abpLocalization }}
+
+                                                    </ng-template>
+                                                </td>
+
+                                                <!-- Remarks -->
+                                                <td>
+                                                    <ng-container
+                                                        *ngIf="editingInlineDocId === doc.id; else staticDesc">
+                                                        <input class="form-control" [(ngModel)]="doc.description"
+                                                            [ngModelOptions]="{ standalone: true }" />
+                                                    </ng-container>
+                                                    <ng-template #staticDesc>
+                                                        {{ doc.description }}
+                                                    </ng-template>
+                                                </td>
+
+                                                <!-- Issue Date -->
+                                                <td>
+                                                    <ng-container
+                                                        *ngIf="editingInlineDocId === doc.id; else staticIssueDate">
+                                                        <input type="date" class="form-control"
+                                                            [(ngModel)]="doc.issueDate"
+                                                            [ngModelOptions]="{ standalone: true }" />
+                                                    </ng-container>
+                                                    <ng-template #staticIssueDate>
+                                                        {{ doc.issueDate | date: 'mediumDate' }}
+                                                    </ng-template>
+                                                </td>
+
+                                                <!-- Expire Date -->
+                                                <td>
+                                                    <ng-container
+                                                        *ngIf="editingInlineDocId === doc.id; else staticExpireDate">
+                                                        <input type="date" class="form-control"
+                                                            [(ngModel)]="doc.expireDate"
+                                                            [ngModelOptions]="{ standalone: true }" />
+                                                    </ng-container>
+                                                    <ng-template #staticExpireDate>
+                                                        {{ doc.expireDate | date: 'mediumDate' }}
+                                                    </ng-template>
+                                                </td>
+
+                                                <!-- Actions -->
+                                                <td>
+                                                    <ng-container
+                                                        *ngIf="editingInlineDocId === doc.id; else defaultActions">
+                                                        <button class="btn btn-sm btn-success"
+                                                            (click)="saveInlineEdit(doc)">
+                                                            <i class="fa fa-check"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-secondary ms-2"
+                                                            (click)="cancelInlineEdit(doc.id)">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </ng-container>
+
+                                                    <ng-template #defaultActions>
+                                                        <button class="btn btn-sm btn-danger"
+                                                            (click)="deleteDocument(doc.id)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-primary ms-2"
+                                                            (click)="startInlineEdit(doc)">
+                                                            <i class="fa fa-edit"></i>
+                                                        </button>
+                                                    </ng-template>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </nz-table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </ng-container>
+
+
+
+                </div>
+
+                <!-- Footer -->
+                <div class="text-end mt-4" *ngIf="!isViewMode">
+                    <button type="button" class="btn btn-secondary me-2" (click)="prevStep()"
+                        [disabled]="currentStep === 0">
+                        <i class="fa fa-arrow-left me-1"></i>
+                        {{ '::Previous' | abpLocalization }}
+                    </button>
+
+                    <button *ngIf="currentStep < 5" type="button" class="btn btn-primary" (click)="saveAndNext()">
+                        <i class="fa fa-arrow-right me-1"></i>
+                        {{ '::Next' | abpLocalization }}
+                    </button>
+
+                    <!-- Step 5: Save student then go Documents -->
+                    <button *ngIf="currentStep === 5" type="button" class="btn btn-primary" (click)="saveAndNext()"
+                        [disabled]="form.invalid">
+                        <i class="fa fa-arrow-right me-1"></i>
+                        {{ '::Next' | abpLocalization }}
+                    </button>
+
+                    <!-- Step 6: Finish -->
+                    <button *ngIf="currentStep === 6" type="button" class="btn btn-primary" (click)="uploadAndFinish()">
+                        <i class="fa fa-save me-1"></i>
+                        {{ '::Save&Finish' | abpLocalization }}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</abp-page>

@@ -1,0 +1,101 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "4.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account": {
+      "version": "9.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "9.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "9.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "9.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.2.2",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "EHub.Application": {
+      "path": "src/EHub.Application/EHub.Application.abppkg",
+      "folder": "src"
+    },
+    "EHub.Application.Tests": {
+      "path": "test/EHub.Application.Tests/EHub.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "EHub.Domain.Shared": {
+      "path": "src/EHub.Domain.Shared/EHub.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "EHub.Application.Contracts": {
+      "path": "src/EHub.Application.Contracts/EHub.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "EHub.HttpApi": {
+      "path": "src/EHub.HttpApi/EHub.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "EHub.HttpApi.Client": {
+      "path": "src/EHub.HttpApi.Client/EHub.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "EHub.EntityFrameworkCore.Tests": {
+      "path": "test/EHub.EntityFrameworkCore.Tests/EHub.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "EHub.EntityFrameworkCore": {
+      "path": "src/EHub.EntityFrameworkCore/EHub.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "EHub.TestBase": {
+      "path": "test/EHub.TestBase/EHub.TestBase.abppkg",
+      "folder": "test"
+    },
+    "EHub.Domain.Tests": {
+      "path": "test/EHub.Domain.Tests/EHub.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "EHub.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/EHub.HttpApi.Client.ConsoleTestApp/EHub.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "EHub.DbMigrator": {
+      "path": "src/EHub.DbMigrator/EHub.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "EHub.HttpApi.Host": {
+      "path": "src/EHub.HttpApi.Host/EHub.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "EHub.Domain": {
+      "path": "src/EHub.Domain/EHub.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

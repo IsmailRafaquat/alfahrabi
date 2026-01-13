@@ -1,0 +1,155 @@
+<abp-page [title]="'::Menu:Students' | abpLocalization">
+  <abp-page-toolbar-container class="col">
+    <div class="text-end">
+      <button id="create" class="btn btn-primary btn-sm" type="button" (click)="createStudent()">
+        <i class="fa fa-plus me-1"></i>
+        {{ '::NewStudent' | abpLocalization }}
+      </button>
+    </div>
+  </abp-page-toolbar-container>
+
+  <!-- Header -->
+  <div class="card">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-10">
+          <div class="input-group">
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text" 
+            [(ngModel)]="filters.filter"/>
+            <button type="button" class="btn btn-primary" title="Search" (click)="this.list.get()">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-2 text-end">
+          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+            {{ '::Filters' | abpLocalization }}
+            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div *ngIf="showFilter" class="mt-2">
+        <div class="row g-2">
+          <div class="col-sm-2">
+            <label class="form-label" for="admissionNoFilter">{{ '::AdmissionNo' | abpLocalization }}</label>
+            <input id="admissionNoFilter" class="form-control form-control-sm" [(ngModel)]="filters.admissionNo" />
+          </div>
+
+          <div class="col-sm-2">
+            <label class="form-label" for="firstNameFilter">{{ '::FirstName' | abpLocalization }}</label>
+            <input id="firstNameFilter" class="form-control form-control-sm" [(ngModel)]="filters.firstName" />
+          </div>
+
+          <div class="col-sm-2">
+            <label class="form-label" for="lastNameFilter">{{ '::LastName' | abpLocalization }}</label>
+            <input id="lastNameFilter" class="form-control form-control-sm" [(ngModel)]="filters.lastName" />
+          </div>
+
+          <div class="col-sm-2">
+            <label for="genderFilter">{{ '::Gender' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.gender" class="form-control" nzAllowClear nzSize="large" class="w-100">
+            <nz-option *ngFor="let gender of genders" [nzValue]="gender.value"
+              [nzLabel]="'::Enum:Gender.' + gender.value | abpLocalization"></nz-option>
+          </nz-select>
+          </div>
+
+          <div class="col-sm-2">
+            <label for="statusFilter">{{ '::Status' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.status" class="form-control form-control-sm" nzAllowClear nzSize="large" class="w-100">
+              <nz-option *ngFor="let status of status" [nzValue]="status.value"
+                [nzLabel]="'::Enum:Status.' + status.value | abpLocalization"></nz-option>
+            </nz-select>
+          </div>
+          
+
+          <!-- <div class="col-sm-2">
+            <label class="form-label" for="enrollDateFrom">{{ '::EnrollmentDateFrom' | abpLocalization }}</label>
+            <input id="enrollDateFrom" class="form-control form-control-sm" type="date" [(ngModel)]="filters.enrollmentDateFrom" />
+          </div>
+
+          <div class="col-sm-2">
+            <label class="form-label" for="enrollDateTo">{{ '::EnrollmentDateTo' | abpLocalization }}</label>
+            <input id="enrollDateTo" class="form-control form-control-sm" type="date" [(ngModel)]="filters.enrollmentDateTo" />
+          </div> -->
+
+          <div class="col-sm-auto d-flex align-items-end mt-2 gap-1">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="clearFilters()">
+              <i class="fas fa-undo"></i> {{ '::Reset' | abpLocalization }}
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" (click)="this.list.get()">
+              <i class="fa fa-filter"></i> {{ '::Filters' | abpLocalization }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <div class="card-body">
+      <ngx-datatable [rows]="students.items" [count]="students.totalCount" [list]="list" default>
+        <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="150" [sortable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
+                <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+              </button>
+              <div ngbDropdownMenu>
+                <!-- <button ngbDropdownItem (click)="editStudent(row.id)">
+                  {{ '::Edit' | abpLocalization }}
+                </button> -->
+                <button ngbDropdownItem (click)="delete(row.id)">
+                  {{ '::Delete' | abpLocalization }}
+                </button>
+                <button ngbDropdownItem (click)="viewStudentDetails(row.id)">
+                  {{ '::ViewDetails' | abpLocalization }}
+                </button>
+                <button ngbDropdownItem (click)="openWhatsApp(row.pPhone)">
+                  {{ '::MessageToParent' | abpLocalization }}
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization" prop="admissionNo"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::FirstName' | abpLocalization" prop="firstName"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::LastName' | abpLocalization" prop="lastName"></ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Gender' | abpLocalization" prop="gender">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ '::Enum:Gender.' + row.gender | abpLocalization }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::DOB' | abpLocalization" prop="dob">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.dob | date: 'yyyy-MM-dd' }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::EnrollmentDate' | abpLocalization" prop="enrollmentDate">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.enrollmentDate | date: 'yyyy-MM-dd' }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ '::Enum:Status.' + row.status | abpLocalization }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Email' | abpLocalization" prop="email"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::ParentPhone' | abpLocalization" prop="pPhone"></ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</abp-page>
+
+
+

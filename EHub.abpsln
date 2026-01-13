@@ -1,0 +1,55 @@
+{
+  "id": "5b042b1c-42e2-4fb2-b6fe-a6793182d228",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "9.2.2",
+    "AbpStudio": "1.1.1",
+    "TargetDotnetFramework": "net9.0"
+  },
+  "modules": {
+    "EHub": {
+      "path": "EHub.abpmdl"
+    }
+  },
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+      
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "1.1.1",
+    "tiered": "false",
+    "runInstallLibs": "true",
+    "useLocalReferences": "false",
+    "multiTenancy": "true",
+    "includeTests": "true",
+    "kubernetesConfiguration": "false",
+    "uiFramework": "angular",
+    "mobileFramework": "none",
+    "distributedEventBus": "none",
+    "databaseProvider": "ef",
+    "runDbMigrator": "true",
+    "databaseManagementSystem": "sqlserver",
+    "separateTenantSchema": "false",
+    "createInitialMigration": "true",
+    "theme": "leptonx-lite",
+    "themeStyle": "",
+    "themeMenuPlacement": "",
+    "mobileFramework": "none",
+    "progressiveWebApp": "false",
+    "runProgressiveWebAppSupport": "false",
+    "publicWebsite": "false",
+    "socialLogin": "true",
+    "selectedLanguages": ["English", "English (United Kingdom)", "简体中文", "Español", "العربية", "हिन्दी", "Português (Brasil)", "Français", "Русский", "Deutsch (Deutschland)", "Türkçe", "Italiano", "Čeština", "Magyar", "Română (România)", "Svenska", "Suomi", "Slovenčina", "Íslenska", "繁體中文", ],
+    "defaultLanguage": "English",
+    "createCommand": "abp new EHub -t app --ui-framework angular --database-provider ef --database-management-system sqlserver --theme leptonx-lite --without-cms-kit --dont-run-bundling -no-file-management"
+  }
+}

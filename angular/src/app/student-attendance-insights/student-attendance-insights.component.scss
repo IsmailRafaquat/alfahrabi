@@ -1,0 +1,9 @@
+.chart-box {
+  height: 360px; // important so Chart.js has space
+}
+
+@media (max-width: 991.98px) {
+  .chart-box {
+    height: 320px;
+  }
+}

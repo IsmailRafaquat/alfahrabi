@@ -1,0 +1,35 @@
+<div
+  class="upload-dropzone"
+  [class.upload-dropzone--hover]="isDragOver"
+  [class.upload-dropzone--disabled]="disabled"
+  (click)="onZoneClick()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <input
+    #fileInput
+    type="file"
+    class="d-none"
+    [accept]="accept"
+    (change)="onFileChange($event)"
+    [disabled]="disabled"
+  />
+
+  <div class="dropzone-icon">
+    <i class="fa fa-cloud-upload-alt"></i>
+  </div>
+
+  <p class="dropzone-title mb-1">
+    <ng-content select="[dropzone-title]"></ng-content>
+  </p>
+
+  <p class="dropzone-subtitle mb-0">
+    <ng-content select="[dropzone-subtitle]"></ng-content>
+  </p>
+
+  <!-- Yahan parent se aya hua fileName show hoga -->
+  <p class="dropzone-filename mt-2">
+    {{ fileName }}
+  </p>
+</div>
