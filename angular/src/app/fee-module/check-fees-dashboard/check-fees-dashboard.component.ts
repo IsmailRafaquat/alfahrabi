@@ -119,17 +119,24 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
     this.feeHeadBarChart?.destroy();
     this.collectionDoughnutChart?.destroy();
 
-    // ---------- BAR (Stacked) + LINE (Net) ----------
+    // ---------- HORIZONTAL BAR (Modern & Professional) ----------
     const barCtx = this.feeHeadBarCanvas.nativeElement.getContext('2d')!;
-    const paidGradient = this.makeVerticalGradient(
+    
+    // Create sophisticated gradients
+    const netGradient = this.makeHorizontalGradient(
       barCtx,
-      'rgba(59,130,246,0.35)',
-      'rgba(59,130,246,0.05)',
+      'rgba(99, 102, 241, 0.15)',
+      'rgba(99, 102, 241, 0.85)',
     );
-    const pendingGradient = this.makeVerticalGradient(
+    const paidGradient = this.makeHorizontalGradient(
       barCtx,
-      'rgba(244,63,94,0.35)',
-      'rgba(244,63,94,0.05)',
+      'rgba(16, 185, 129, 0.15)',
+      'rgba(16, 185, 129, 0.85)',
+    );
+    const pendingGradient = this.makeHorizontalGradient(
+      barCtx,
+      'rgba(251, 146, 60, 0.15)',
+      'rgba(251, 146, 60, 0.85)',
     );
 
     this.feeHeadBarChart = new Chart(barCtx, {
@@ -138,80 +145,118 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
         labels: [],
         datasets: [
           {
-            type: 'bar',
-            label: 'Paid',
+            label: 'Net Amount',
+            data: [],
+            backgroundColor: netGradient,
+            borderColor: 'rgba(99, 102, 241, 1)',
+            borderWidth: 1.5,
+            borderRadius: 8,
+            borderSkipped: false,
+            barThickness: 28,
+            order: 3,
+          },
+          {
+            label: 'Collected',
             data: [],
             backgroundColor: paidGradient,
-            borderColor: 'rgba(59,130,246,0.85)',
-            borderWidth: 1,
-            borderRadius: 10,
+            borderColor: 'rgba(16, 185, 129, 1)',
+            borderWidth: 1.5,
+            borderRadius: 8,
             borderSkipped: false,
-            maxBarThickness: 42,
-            stack: 'amount',
+            barThickness: 28,
+            order: 2,
           },
           {
-            type: 'bar',
-            label: 'Pending',
+            label: 'Outstanding',
             data: [],
             backgroundColor: pendingGradient,
-            borderColor: 'rgba(244,63,94,0.85)',
-            borderWidth: 1,
-            borderRadius: 10,
+            borderColor: 'rgba(251, 146, 60, 1)',
+            borderWidth: 1.5,
+            borderRadius: 8,
             borderSkipped: false,
-            maxBarThickness: 42,
-            stack: 'amount',
-          },
-          {
-            type: 'line',
-            label: 'Net',
-            data: [],
-            borderColor: 'rgba(15,23,42,0.75)',
-            backgroundColor: 'rgba(15,23,42,0.05)',
-            pointRadius: 2,
-            pointHoverRadius: 4,
-            tension: 0.35,
-            borderWidth: 2,
-            yAxisID: 'y',
+            barThickness: 28,
+            order: 1,
           },
         ],
       },
       options: {
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        layout: { padding: { top: 8, left: 8, right: 12, bottom: 4 } },
+        interaction: { mode: 'nearest', intersect: false },
+        layout: { padding: { top: 12, left: 8, right: 24, bottom: 8 } },
         plugins: {
           legend: {
             position: 'top',
             align: 'end',
-            labels: { usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14 },
+            labels: { 
+              usePointStyle: true, 
+              boxWidth: 10, 
+              boxHeight: 10, 
+              padding: 18,
+              font: { size: 11, weight: 500 }
+            },
           },
           tooltip: {
-            padding: 12,
-            cornerRadius: 10,
+            padding: 14,
+            cornerRadius: 12,
             displayColors: true,
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: 'rgba(255, 255, 255, 0.95)',
+            bodyColor: 'rgba(255, 255, 255, 0.85)',
+            borderColor: 'rgba(99, 102, 241, 0.3)',
+            borderWidth: 1,
+            titleFont: { size: 13, weight: 600 },
+            bodyFont: { size: 12 },
             callbacks: {
+              title: (items) => {
+                return items[0]?.label || '';
+              },
               label: ctx => {
                 const v = Number(ctx.raw ?? 0);
-                return `${ctx.dataset.label}: ${v.toLocaleString()}`;
+                const total = this.calculateTotalForFeeHead(ctx.dataIndex);
+                const percentage = total > 0 ? ((v / total) * 100).toFixed(1) : '0';
+                return `${ctx.dataset.label}: ${v.toLocaleString()} (${percentage}%)`;
               },
+              afterBody: (items) => {
+                if (items.length > 0) {
+                  const idx = items[0].dataIndex;
+                  const total = this.calculateTotalForFeeHead(idx);
+                  return `\nTotal: ${total.toLocaleString()}`;
+                }
+                return '';
+              }
             },
           },
         },
         scales: {
           x: {
-            stacked: true,
-            grid: { display: false },
-            border: { display: false },
-            ticks: { maxRotation: 0, autoSkip: true },
-          },
-          y: {
-            stacked: true,
             beginAtZero: true,
-            grid: { display: true },
+            grid: { 
+              display: true,
+              color: 'rgba(148, 163, 184, 0.1)',
+              lineWidth: 1,
+            },
             border: { display: false },
             ticks: {
-              callback: v => Number(v).toLocaleString(),
+              callback: v => {
+                const num = Number(v);
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+                return num.toLocaleString();
+              },
+              font: { size: 10 },
+              color: 'rgba(100, 116, 139, 0.8)',
+            },
+          },
+          y: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              autoSkip: false,
+              font: { size: 11, weight: 500 },
+              color: 'rgba(51, 65, 85, 0.9)',
+              padding: 8,
             },
           },
         },
@@ -235,8 +280,8 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
         datasets: [
           {
             data: [0, 0],
-            backgroundColor: ['rgba(59,130,246,0.85)', 'rgba(244,63,94,0.85)'],
-            hoverBackgroundColor: ['rgba(59,130,246,1)', 'rgba(244,63,94,1)'],
+            backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(251, 146, 60, 0.85)'],
+            hoverBackgroundColor: ['rgba(16, 185, 129, 1)', 'rgba(251, 146, 60, 1)'],
             borderWidth: 0,
             spacing: 4,
             borderRadius: 12, // rounded ends
@@ -274,20 +319,20 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
     const feeHeads = (res.byFeeHead ?? [])
       .slice()
       .filter(x => Number(x.net ?? 0) > 0 || Number(x.paid ?? 0) > 0 || Number(x.pending ?? 0) > 0)
-      .sort((a, b) => Number(b.pending ?? 0) - Number(a.pending ?? 0))
+      .sort((a, b) => Number(b.net ?? 0) - Number(a.net ?? 0))
       .slice(0, 10);
 
     const labels = feeHeads.map(x => (x.feeHeadName?.trim() ? x.feeHeadName : '—'));
+    const net = feeHeads.map(x => Number(x.net ?? 0));
     const paid = feeHeads.map(x => Number(x.paid ?? 0));
     const pending = feeHeads.map(x => Number(x.pending ?? 0));
-    const net = feeHeads.map(x => Number(x.net ?? 0));
 
     if (this.feeHeadBarChart) {
       this.feeHeadBarChart.data.labels = labels;
-      // Datasets order: Paid(bar), Pending(bar), Net(line)
-      this.feeHeadBarChart.data.datasets[0].data = paid as any;
-      this.feeHeadBarChart.data.datasets[1].data = pending as any;
-      this.feeHeadBarChart.data.datasets[2].data = net as any;
+      // Datasets order: Net, Collected, Outstanding
+      this.feeHeadBarChart.data.datasets[0].data = net as any;
+      this.feeHeadBarChart.data.datasets[1].data = paid as any;
+      this.feeHeadBarChart.data.datasets[2].data = pending as any;
       this.feeHeadBarChart.update();
     }
 
@@ -302,11 +347,28 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
 
   // ---------------- Helpers ----------------
 
+  private calculateTotalForFeeHead(index: number): number {
+    if (!this.feeHeadBarChart) return 0;
+    // Return only the Net Amount (first dataset) which is already the total after discount
+    // Net = Collected + Outstanding (they are components, not additions)
+    const netDataset = this.feeHeadBarChart.data.datasets[0];
+    const value = netDataset.data[index];
+    return typeof value === 'number' ? value : 0;
+  }
+
   private makeVerticalGradient(ctx: CanvasRenderingContext2D, top: string, bottom: string) {
     const h = ctx.canvas.height || 300;
     const g = ctx.createLinearGradient(0, 0, 0, h);
     g.addColorStop(0, top);
     g.addColorStop(1, bottom);
+    return g;
+  }
+
+  private makeHorizontalGradient(ctx: CanvasRenderingContext2D, left: string, right: string) {
+    const w = ctx.canvas.width || 600;
+    const g = ctx.createLinearGradient(0, 0, w, 0);
+    g.addColorStop(0, left);
+    g.addColorStop(1, right);
     return g;
   }
 
