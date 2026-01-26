@@ -111,26 +111,26 @@ function configureRoutes() {
     // -------------------------
     // Academics (optional parent for subjects)
     // -------------------------
-    {
-      name: '::Menu:Academics',
-      iconClass: 'fas fa-book',
-      order: 30,
-      layout: eLayoutType.application,
-    },
-    {
-      path: '/subjects',
-      name: '::Menu:Subjects',
-      parentName: '::Menu:Academics',
-      iconClass: 'fas fa-book-open',
-      order: 1,
-      layout: eLayoutType.application,
-    },
+    // {
+    //   name: '::Menu:Academics',
+    //   iconClass: 'fas fa-book',
+    //   order: 30,
+    //   layout: eLayoutType.application,
+    // },
+    // {
+    //   path: '/subjects',
+    //   name: '::Menu:Subjects',
+    //   parentName: '::Menu:Academics',
+    //   iconClass: 'fas fa-book-open',
+    //   order: 1,
+    //   layout: eLayoutType.application,
+    // },
     {
       name: '::Menu:Fees',
       iconClass: 'fas fa-money-bill-wave',
       order: 40,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.FeeMenu', // optional (remove if you don't use it)
+      requiredPolicy: 'EHub.FeeMenu',
     },
     {
       path: '/fee-heads',
@@ -139,7 +139,7 @@ function configureRoutes() {
       iconClass: 'fas fa-list',
       order: 1,
       layout: eLayoutType.application,
-      requiredPolicy: 'EHub.FeeHeads', // optional
+      requiredPolicy: 'EHub.FeeMenu.FeeHead',
     },
     {
       path: '/fee-structures',
@@ -148,7 +148,7 @@ function configureRoutes() {
       iconClass: 'fas fa-sitemap',
       order: 2,
       layout: eLayoutType.application,
-      requiredPolicy: 'EHub.FeeStructures', // optional
+      requiredPolicy: 'EHub.FeeMenu.FeeStructure',
     },
     {
       path: '/fee-structure-items',
@@ -157,7 +157,7 @@ function configureRoutes() {
       iconClass: 'fas fa-layer-group',
       order: 3,
       layout: eLayoutType.application,
-      requiredPolicy: 'EHub.FeeStructures', // optional
+      requiredPolicy: 'EHub.FeeMenu.FeeStructureItem',
     },
     {
       path: '/student-fee-profiles',
@@ -166,7 +166,7 @@ function configureRoutes() {
       iconClass: 'fas fa-layer-group',
       order: 4,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.StudentFeeProfiles ', // optional
+      requiredPolicy: 'EHub.FeeMenu.StudentFeeProfile',
     },
     {
       path: '/student-fee-discounts',
@@ -175,7 +175,7 @@ function configureRoutes() {
       iconClass: 'fas fa-percent',
       order: 5,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.StudentFeeDiscounts', // optional
+      requiredPolicy: 'EHub.FeeMenu.StudentFeeDiscount',
     },
     {
       path: '/late-fee-polices',
@@ -184,7 +184,7 @@ function configureRoutes() {
       iconClass: 'fas fa-clock',
       order: 6,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.LateFeePolicies', // optional
+      requiredPolicy: 'EHub.FeeMenu.LateFeePolicie',
     },
     {
       path: '/student-monthly-fees',
@@ -193,7 +193,7 @@ function configureRoutes() {
       iconClass: 'fas fa-calendar-alt',
       order: 7,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.StudentMonthlyFees', // optional
+      requiredPolicy: 'EHub.FeeMenu.StudentMonthlyFee',
     },
     {
       path: '/student-monthly-fee-lines',
@@ -202,14 +202,14 @@ function configureRoutes() {
       iconClass: 'fas fa-list-ul',
       order: 8,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.StudentMonthlyFeeLines',
+      requiredPolicy: 'EHub.FeeMenu.StudentMonthlyFeeLine',
     },
     {
       path: '/check-fees-dashboard',
       name: '::Menu:CheckFees',
-      parentName: '::Menu:Fees', // or '::Menu:Administration' if you want
+      parentName: '::Menu:Fees',
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.Fees.CheckFees', // set your permission OR remove if not needed
+      requiredPolicy: 'EHub.FeeMenu.CheckFee',
       order: 10,
       iconClass: 'fas fa-receipt',
     },

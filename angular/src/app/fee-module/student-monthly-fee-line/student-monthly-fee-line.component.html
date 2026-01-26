@@ -36,9 +36,9 @@
       </div>
 
       <!-- Filter Panel -->
-      <div *ngIf="showFilter" class="mt-3">
-        <div class="row g-3">
-          <div class="col-sm-6">
+      <div *ngIf="showFilter" class="mt-2">
+        <div class="row g-2">
+          <div class="col-sm-4">
             <label class="form-label">{{ '::StudentMonthlyFee' | abpLocalization }}</label>
             <nz-select
               class="w-100"
@@ -52,7 +52,7 @@
             </nz-select>
           </div>
 
-          <div class="col-sm-6">
+          <div class="col-sm-4">
             <label class="form-label">{{ '::FeeHead' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.feeHeadId">
               <nz-option
@@ -62,11 +62,11 @@
             </nz-select>
           </div>
 
-          <div class="col-12 d-flex gap-2 justify-content-end">
-            <button type="button" class="btn btn-outline-primary" (click)="clearFilters()">
+          <div class="col-sm-4 gap-2 justify-content-end mt-3">
+            <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="clearFilters()">
               <i class="fas fa-undo me-1"></i> {{ '::Reset' | abpLocalization }}
             </button>
-            <button type="button" class="btn btn-primary" (click)="list.get()">
+            <button type="button" class="btn btn-sm btn-primary" (click)="list.get()">
               <i class="fa fa-filter me-1"></i> {{ '::Apply' | abpLocalization }}
             </button>
           </div>

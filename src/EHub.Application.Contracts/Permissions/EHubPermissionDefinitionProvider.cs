@@ -14,7 +14,6 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         var studentMainPermission =
           myGroup.AddPermission(EHubPermissions.StudentMenuItems.StudentMain, L("Permission:StudentMain"));
 
-
         studentMainPermission.AddChild(EHubPermissions.StudentMenuItems.StudentList, L("Permission:StudentList"));
         studentMainPermission.AddChild(EHubPermissions.StudentMenuItems.StudentAttendance, L("Permission:StudentAttendance"));
         studentMainPermission.AddChild(EHubPermissions.StudentMenuItems.StudentAttendanceInsights, L("Permission:StudentAttendanceInsights"));
@@ -29,6 +28,22 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         staffMainPermission.AddChild(EHubPermissions.StaffMenuItems.StaffList, L("Permission:StaffList"));
         staffMainPermission.AddChild(EHubPermissions.StaffMenuItems.StaffAttendance, L("Permission:StaffAttendance"));
         staffMainPermission.AddChild(EHubPermissions.StaffMenuItems.StaffAttendanceInsights, L("Permission:StaffAttendanceInsights"));
+
+        var feeMainPermission =
+            myGroup.AddPermission(EHubPermissions.FeeMenuItems.StudentMain, L("Permission:FeeMenu"));
+
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.FeeHead, L("Permission:FeeHead"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.FeeStructure, L("Permission:FeeStructure"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.FeeStructureItem, L("Permission:FeeStructureItem"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.StudentFeeProfiles, L("Permission:StudentFeeProfile"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.StudentFeeDiscount, L("Permission:StudentFeeDiscount"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.LateFeePolicie, L("Permission:LateFeePolicie"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.StudentMonthlyFee, L("Permission:StudentMonthlyFee"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.StudentMonthlyFeeLine, L("Permission:StudentMonthlyFeeLine"));
+        feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.CheckFee, L("Permission:CheckFee"));
+
+
+
 
         var staffsPermission = myGroup.AddPermission(EHubPermissions.Staffs.Default, L("Permission:Staffs"));
         staffsPermission.AddChild(EHubPermissions.Staffs.Create, L("Permission:Staffs.Create"));

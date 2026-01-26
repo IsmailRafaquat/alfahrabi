@@ -304,10 +304,13 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
 
         if (input.AsOfDate.HasValue)
         {
-            var asOfExclusive = input.AsOfDate.Value.Date.AddDays(1); // include entire day
+            var dayStart = input.AsOfDate.Value.Date;
+            var dayEnd = dayStart.AddDays(1);
+
+            // ✅ Records that were ADDED/CREATED on the selected day
             monthlyFeesQ = monthlyFeesQ.Where(x =>
-                x.DueDate.HasValue &&
-                x.DueDate.Value < asOfExclusive);
+                x.CreationTime >= dayStart &&
+                x.CreationTime < dayEnd);
         }
 
         // 3) Lines + FeeHead join

@@ -12,6 +12,20 @@ public static class EHubPermissions
         public const string StudentAttendanceInsights = StudentMain + ".StudentAttendanceInsights";
     }
 
+    public static class FeeMenuItems
+    {
+        public const string StudentMain = GroupName + ".FeeMenu";
+        public const string FeeHead = StudentMain + ".FeeHead";
+        public const string FeeStructure = StudentMain + ".FeeStructure";
+        public const string FeeStructureItem = StudentMain + ".FeeStructureItem";
+        public const string StudentFeeProfiles = StudentMain + ".StudentFeeProfile";
+        public const string StudentFeeDiscount = StudentMain + ".StudentFeeDiscount";
+        public const string LateFeePolicie = StudentMain + ".LateFeePolicie";
+        public const string StudentMonthlyFee = StudentMain + ".StudentMonthlyFee";
+        public const string StudentMonthlyFeeLine = StudentMain + ".StudentMonthlyFeeLine";
+        public const string CheckFee = StudentMain + ".CheckFee";
+    }
+
     public static class Students
     {
         public const string Default = GroupName + ".Students";

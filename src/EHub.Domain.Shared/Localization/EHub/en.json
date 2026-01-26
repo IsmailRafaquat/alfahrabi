@@ -30,6 +30,16 @@
     "Permission:StudentList": "Student List",
     "Permission:StudentAttendance": "Student Attendance",
     "Permission:StudentAttendanceInsights": "Student Attendance Insights",
+    "Permission:FeeMenu": "Fee (Module)",
+    "Permission:FeeHead": "Fee Heads",
+    "Permission:FeeStructure": "Fee Structures",
+    "Permission:FeeStructureItem": "Fee Structure Items",
+    "Permission:StudentFeeProfile": "Student Fee Profiles",
+    "Permission:StudentFeeDiscount": "Student Fee Discounts",
+    "Permission:LateFeePolicie": "Late Fee Policies",
+    "Permission:StudentMonthlyFee": "Student Monthly Fees",
+    "Permission:StudentMonthlyFeeLine": "Student Monthly Fee Lines",
+    "Permission:CheckFee": "Check Fee",
 
     "Permission:Staffs": "Staff Management",
     "Permission:Staffs.Create": "Create",
@@ -611,6 +621,7 @@
     "Downloading": "Downloading...",
     "DownloadStarted": "Download started.",
     "DownloadFailed": "Download failed. Please try again.",
-    "ImportStudents": "Import Students"
+    "ImportStudents": "Import Students",
+    "AsOfDate": "As Of Date"
   }
 }

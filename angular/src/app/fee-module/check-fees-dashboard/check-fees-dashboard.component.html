@@ -4,21 +4,20 @@
   <div class="filters card shadow-soft">
     <div class="card-body">
       <form [formGroup]="form" class="row g-3 align-items-end">
-        <div class="col-12 col-lg-3">
+        <div class="col-12 col-md-3">
           <label class="form-label">{{ '::Month' | abpLocalization }}</label>
-          <input type="month" class="form-control form-control-lg" formControlName="month" />
+          <input type="month" class="form-control" formControlName="month" />
         </div>
         <div class="col-12 col-md-3">
-  <label class="form-label">{{ '::AsOfDate' | abpLocalization }}</label>
-  <input type="date" class="form-control month-like-nz" formControlName="asOfDate" />
-</div>
+          <label class="form-label">{{ '::AsOfDate' | abpLocalization }}</label>
+          <input type="date" class="form-control" formControlName="asOfDate" />
+        </div>
 
 
         <div class="col-6 col-lg-2">
           <label class="form-label">{{ '::GradeLevel' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="gradeLevel">
-            <nz-option *ngFor="let g of gradeLevels"
-              [nzValue]="g.value"
+            <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
               [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
             </nz-option>
           </nz-select>
@@ -27,8 +26,7 @@
         <div class="col-6 col-lg-2">
           <label class="form-label">{{ '::Section' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="section">
-            <nz-option *ngFor="let s of sections"
-              [nzValue]="s.value"
+            <nz-option *ngFor="let s of sections" [nzValue]="s.value"
               [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
             </nz-option>
           </nz-select>
@@ -37,8 +35,7 @@
         <div class="col-6 col-lg-2">
           <label class="form-label">{{ '::Shift' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="shift">
-            <nz-option *ngFor="let sh of shifts"
-              [nzValue]="sh.value"
+            <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value"
               [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization">
             </nz-option>
           </nz-select>
@@ -47,8 +44,7 @@
         <div class="col-6 col-lg-2">
           <label class="form-label">{{ '::Term' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="term">
-            <nz-option *ngFor="let t of terms"
-              [nzValue]="t.value"
+            <nz-option *ngFor="let t of terms" [nzValue]="t.value"
               [nzLabel]="'::Enum:Term.' + t.value | abpLocalization">
             </nz-option>
           </nz-select>

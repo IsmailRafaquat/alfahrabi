@@ -75,7 +75,8 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
     const asOfDate = this.parseDateValue(v.asOfDate);
 
     const input: CheckFeesDashboardInput = {
-      month: monthDate as any, // ABP proxy sometimes expects "any" date wire type
+      month: monthDate, // ABP proxy sometimes expects "any" date wire type
+      asOfDate: asOfDate,
       gradeLevel: v.gradeLevel,
       section: v.section,
       shift: v.shift,
@@ -367,13 +368,12 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   private parseDateValue(v: any): Date | null {
-  // v expected "YYYY-MM-DD" from <input type="date">
-  if (!v || typeof v !== 'string' || v.length < 10) return null;
+    // v expected "YYYY-MM-DD" from <input type="date">
+    if (!v || typeof v !== 'string' || v.length < 10) return null;
 
-  const [yy, mm, dd] = v.split('-').map(x => Number(x));
-  if (!yy || !mm || !dd) return null;
+    const [yy, mm, dd] = v.split('-').map(x => Number(x));
+    if (!yy || !mm || !dd) return null;
 
-  return new Date(yy, mm - 1, dd);
-}
-
+    return new Date(yy, mm - 1, dd);
+  }
 }
