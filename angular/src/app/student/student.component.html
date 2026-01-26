@@ -1,10 +1,25 @@
 <abp-page [title]="'::Menu:Students' | abpLocalization">
   <abp-page-toolbar-container class="col">
-    <div class="text-end">
+    <div class="text-end gap-2">
+      <button class="btn btn-outline-primary btn-sm mb-0 me-2" type="button" (click)="excelInput.click()"
+        [disabled]="importingExcel">
+        <i class="fa fa-upload me-1"></i>
+        {{ '::ImportStudents' | abpLocalization }}
+        <span *ngIf="importingExcel" class="ms-2 spinner-border spinner-border-sm"></span>
+      </button>
+
+      <input #excelInput type="file" accept=".xlsx" hidden (change)="onExcelSelectedAndImport($event)" />
+
+
+      <button class="btn btn-outline-primary btn-sm me-2" type="button" (click)="openTemplateModal()">
+        <i class="fa fa-file-excel me-1"></i>
+        {{ '::DownloadImportTemplate' | abpLocalization }}
+      </button>
       <button id="create" class="btn btn-primary btn-sm" type="button" (click)="createStudent()">
         <i class="fa fa-plus me-1"></i>
         {{ '::NewStudent' | abpLocalization }}
       </button>
+
     </div>
   </abp-page-toolbar-container>
 
@@ -14,8 +29,8 @@
       <div class="row align-items-center">
         <div class="col-10">
           <div class="input-group">
-            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text" 
-            [(ngModel)]="filters.filter"/>
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
+              [(ngModel)]="filters.filter" />
             <button type="button" class="btn btn-primary" title="Search" (click)="this.list.get()">
               <i class="fa fa-search"></i>
             </button>
@@ -49,21 +64,21 @@
           </div>
 
           <div class="col-sm-2">
-            <label for="genderFilter">{{ '::Gender' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.gender" class="form-control" nzAllowClear nzSize="large" class="w-100">
-            <nz-option *ngFor="let gender of genders" [nzValue]="gender.value"
-              [nzLabel]="'::Enum:Gender.' + gender.value | abpLocalization"></nz-option>
-          </nz-select>
+            <label>{{ '::Gender' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.gender" class="form-control-sm" nzAllowClear class="w-100">
+              <nz-option *ngFor="let gender of genders" [nzValue]="gender.value"
+                [nzLabel]="'::Enum:Gender.' + gender.value | abpLocalization"></nz-option>
+            </nz-select>
           </div>
 
           <div class="col-sm-2">
-            <label for="statusFilter">{{ '::Status' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.status" class="form-control form-control-sm" nzAllowClear nzSize="large" class="w-100">
+            <label>{{ '::Status' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.status" class="form-control-sm" nzAllowClear class="w-100">
               <nz-option *ngFor="let status of status" [nzValue]="status.value"
                 [nzLabel]="'::Enum:Status.' + status.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
-          
+
 
           <!-- <div class="col-sm-2">
             <label class="form-label" for="enrollDateFrom">{{ '::EnrollmentDateFrom' | abpLocalization }}</label>
@@ -151,5 +166,59 @@
   </div>
 </abp-page>
 
+<abp-modal [(visible)]="isTemplateModalOpen" [options]="{ size: 'lg' }">
+  <ng-template #abpHeader>
+    <h5 class="mb-0">{{ '::DownloadImportTemplate' | abpLocalization }}</h5>
+  </ng-template>
 
+  <ng-template #abpBody>
+    <form [formGroup]="templateForm" class="row g-3">
 
+      <div class="col-12 col-md-6">
+        <label class="form-label">{{ '::GradeLevel' | abpLocalization }}</label>
+        <nz-select class="w-100" nzShowSearch nzAllowClear formControlName="gradeLevel">
+          <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+            [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label">{{ '::Section' | abpLocalization }}</label>
+        <nz-select class="w-100" nzShowSearch nzAllowClear formControlName="section">
+          <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+            [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="col-12">
+        <div class="form-check mt-2">
+          <input id="includeExisting" class="form-check-input" type="checkbox"
+            formControlName="includeExistingStudents" />
+          <label class="form-check-label" for="includeExisting">
+            {{ '::IncludeExistingStudents' | abpLocalization }}
+          </label>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label">{{ '::ExtraEmptyRows' | abpLocalization }}</label>
+        <input type="number" class="form-control" min="0" max="500" formControlName="extraEmptyRows" />
+        <small class="text-muted">{{ '::ExtraEmptyRowsHelp' | abpLocalization }}</small>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button class="btn btn-light" type="button" (click)="closeTemplateModal()">
+      {{ '::Cancel' | abpLocalization }}
+    </button>
+
+    <button class="btn btn-primary" type="button" (click)="generateTemplate()" [disabled]="templateForm.invalid">
+      <i class="fa fa-download me-1"></i>
+      {{ '::Download' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>

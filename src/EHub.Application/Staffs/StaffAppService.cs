@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EHub.Students;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -144,5 +146,18 @@ public class StaffAppService : ApplicationService, IStaffAppService
     public async Task DeleteAsync(Guid id)
     {
         await _staffRepository.DeleteAsync(id);
+    }
+
+    public async Task<List<StaffLookupDto>> GetStaffLookupAsync()
+    {
+        var students = await _staffRepository.GetStaffLookupAsync();
+
+        return students.Select(x => new StaffLookupDto
+        {
+            Id = x.Id,
+            EmployeeCode = x.EmployeeCode,
+            FirstName = x.FirstName,
+            LastName = x.LastName
+        }).ToList();
     }
 }

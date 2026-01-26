@@ -1,0 +1,179 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col col-md-6">
+                <h5 class="card-title">
+                    {{ '::Menu:FeeStructures' | abpLocalization }}
+                </h5>
+            </div>
+
+            <div class="text-end col col-md-6">
+                <div class="text-lg-end pt-2">
+                    <button *abpPermission="'EHub.FeeStructures.Create'" class="btn btn-primary" type="button"
+                        (click)="create()">
+                        <i class="fa fa-plus me-1"></i>
+                        <span>{{ '::NewFeeStructure' | abpLocalization }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <ngx-datatable [rows]="feeStructures.items" [count]="feeStructures.totalCount" [list]="list" default>
+
+            <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="180" [sortable]="false">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <div ngbDropdown container="body" class="d-inline-block">
+                        <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
+                            <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+                        </button>
+
+                        <div ngbDropdownMenu>
+                            <button *abpPermission="'EHub.FeeStructures.Edit'" ngbDropdownItem (click)="edit(row.id)">
+                                {{ '::Edit' | abpLocalization }}
+                            </button>
+
+                            <button *abpPermission="'EHub.FeeStructures.Edit'" ngbDropdownItem
+                                (click)="toggleActive(row)">
+                                {{ (row.isActive ? '::Deactivate' : '::Activate') | abpLocalization }}
+                            </button>
+
+                            <button *abpPermission="'EHub.FeeStructures.Delete'" ngbDropdownItem
+                                (click)="delete(row.id)">
+                                {{ '::Delete' | abpLocalization }}
+                            </button>
+                        </div>
+                    </div>
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [name]="'::GradeLevel' | abpLocalization">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ ('::Enum:GradeLevel.' + row.gradeLevel) | abpLocalization }}
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [name]="'::Shift' | abpLocalization">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ ('::Enum:Shift.' + row.shift) | abpLocalization }}
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [name]="'::Term' | abpLocalization">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ ('::Enum:Term.' + row.term) | abpLocalization }}
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [name]="'::EffectiveFrom' | abpLocalization">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.effectiveFrom | date }}
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [name]="'::EffectiveTo' | abpLocalization">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.effectiveTo ? (row.effectiveTo | date) : '-' }}
+                </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [name]="'::IsActive' | abpLocalization" [maxWidth]="130">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <span class="badge" [ngClass]="row.isActive ? 'bg-success' : 'bg-secondary'">
+                        {{ (row.isActive ? '::Yes' : '::No') | abpLocalization }}
+                    </span>
+                </ng-template>
+            </ngx-datatable-column>
+
+        </ngx-datatable>
+    </div>
+</div>
+
+<abp-modal [(visible)]="isModalOpen">
+    <ng-template #abpHeader>
+        <h3>{{ (selected.id ? '::EditFeeStructure' : '::NewFeeStructure') | abpLocalization }}</h3>
+    </ng-template>
+
+    <ng-template #abpBody>
+        <form [formGroup]="form" (ngSubmit)="save()">
+
+            <div class="row">
+                <!-- GradeLevel -->
+                <div class="col-md-4">
+                    <label class="form-label">
+                        {{ '::GradeLevel' | abpLocalization }} <span class="text-danger">*</span>
+                    </label>
+
+                    <nz-select formControlName="gradeLevel" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                        <nz-option *ngFor="let o of gradeLevelOptions" [nzValue]="o.value"
+                            [nzLabel]="('::Enum:GradeLevel.' + o.value) | abpLocalization">
+                        </nz-option>
+                    </nz-select>
+                </div>
+
+                <!-- Shift -->
+                <div class="col-md-4">
+                    <label class="form-label">
+                        {{ '::Shift' | abpLocalization }} <span class="text-danger">*</span>
+                    </label>
+
+                    <nz-select formControlName="shift" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                        <nz-option *ngFor="let o of shiftOptions" [nzValue]="o.value"
+                            [nzLabel]="('::Enum:Shift.' + o.value) | abpLocalization">
+                        </nz-option>
+                    </nz-select>
+                </div>
+
+                <!-- Term -->
+                <div class="col-md-4">
+                    <label class="form-label">
+                        {{ '::Term' | abpLocalization }} <span class="text-danger">*</span>
+                    </label>
+
+                    <nz-select formControlName="term" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+                        <nz-option *ngFor="let o of termOptions" [nzValue]="o.value"
+                            [nzLabel]="('::Enum:Term.' + o.value) | abpLocalization">
+                        </nz-option>
+                    </nz-select>
+                </div>
+            </div>
+
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ '::EffectiveFrom' | abpLocalization }}</label><span class="text-danger"> * </span>
+                        <input type="date" class="form-control" formControlName="effectiveFrom" />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ '::EffectiveTo' | abpLocalization }}</label>
+                        <input type="date" class="form-control" formControlName="effectiveTo" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" id="fee-structure-active" formControlName="isActive" />
+                <label class="form-check-label" for="fee-structure-active">
+                    {{ '::IsActive' | abpLocalization }}
+                </label>
+            </div>
+
+        </form>
+    </ng-template>
+
+    <ng-template #abpFooter>
+        <button type="button" class="btn btn-secondary" abpClose>
+            {{ '::Close' | abpLocalization }}
+        </button>
+
+        <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid">
+            <i class="fa fa-check mr-1"></i>
+            {{ '::Save' | abpLocalization }}
+        </button>
+    </ng-template>
+</abp-modal>

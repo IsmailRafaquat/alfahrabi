@@ -1,0 +1,88 @@
+﻿using EHub.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore;
+
+namespace EHub.FeeModule.StudentMonthlyFees;
+
+public class EfCoreStudentMonthlyFeeRepository
+    : EfCoreRepository<EHubDbContext, StudentMonthlyFee, Guid>, IStudentMonthlyFeeRepository
+{
+    public EfCoreStudentMonthlyFeeRepository(IDbContextProvider<EHubDbContext> dbContextProvider)
+        : base(dbContextProvider)
+    {
+    }
+
+    private static DateTime NormalizeMonth(DateTime dt) => new(dt.Year, dt.Month, 1);
+
+    public async Task<StudentMonthlyFee?> FindByStudentAndMonthAsync(Guid studentId, DateTime month)
+    {
+        var dbSet = await GetDbSetAsync();
+        var m = NormalizeMonth(month);
+
+        return await dbSet.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.StudentId == studentId && x.Month == m);
+    }
+
+    public async Task<StudentMonthlyFee?> GetByIdAsync(Guid id)
+    {
+        var dbSet = await GetDbSetAsync();
+        return await dbSet.FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<bool> ExistsAsync(Guid studentId, DateTime month, Guid? exceptId = null)
+    {
+        var dbSet = await GetDbSetAsync();
+        var m = NormalizeMonth(month);
+
+        return await dbSet.AnyAsync(x =>
+            x.StudentId == studentId &&
+            x.Month == m &&
+            (!exceptId.HasValue || x.Id != exceptId.Value));
+    }
+
+    public async Task<long> GetCountAsync(string? filter, Guid? studentId, DateTime? month)
+    {
+        var q = await GetFiltersAsync(filter, studentId, month);
+        return await q.LongCountAsync();
+    }
+
+    public async Task<List<StudentMonthlyFee>> GetListAsync(
+        int skipCount,
+        int maxResultCount,
+        string sorting,
+        string? filter,
+        Guid? studentId,
+        DateTime? month)
+    {
+        var q = await GetFiltersAsync(filter, studentId, month);
+
+        return await q
+            .OrderBy(sorting)
+            .PageBy(skipCount, maxResultCount)
+            .ToListAsync();
+    }
+
+    private async Task<IQueryable<StudentMonthlyFee>> GetFiltersAsync(string? filter, Guid? studentId, DateTime? month)
+    {
+        var q = (await GetQueryableAsync()).AsNoTracking();
+
+        if (month.HasValue)
+        {
+            var m = NormalizeMonth(month.Value);
+            q = q.Where(x => x.Month == m);
+        }
+
+        q = q
+            .WhereIf(studentId.HasValue, x => x.StudentId == studentId)
+            .WhereIf(!string.IsNullOrWhiteSpace(filter),
+                x => x.StudentId.ToString().Contains(filter!));
+
+        return q;
+    }
+}

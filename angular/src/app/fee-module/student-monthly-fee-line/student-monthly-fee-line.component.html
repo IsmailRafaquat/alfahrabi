@@ -1,0 +1,490 @@
+<abp-page [title]="'::Menu:StudentMonthlyFeeLines' | abpLocalization">
+  <abp-page-toolbar-container class="col">
+    <div class="text-end">
+      <button
+        *abpPermission="'EHub.StudentMonthlyFeeLines.Create'"
+        class="btn btn-outline-primary btn-sm"
+        type="button"
+        (click)="create()">
+        <i class="fa fa-plus me-1"></i> {{ '::NewStudentMonthlyFeeLine' | abpLocalization }}
+      </button>
+    </div>
+  </abp-page-toolbar-container>
+
+  <!-- Search + Filters -->
+  <div class="card">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-10">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              [placeholder]="'::SearchHere' | abpLocalization"/>
+            <button type="button" class="btn btn-primary" (click)="list.get()">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="col-2 text-end">
+          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
+            {{ '::Filters' | abpLocalization }}
+            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Panel -->
+      <div *ngIf="showFilter" class="mt-3">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="form-label">{{ '::StudentMonthlyFee' | abpLocalization }}</label>
+            <nz-select
+              class="w-100"
+              nzAllowClear
+              nzShowSearch
+              [(ngModel)]="filters.studentMonthlyFeeId">
+              <nz-option
+                *ngFor="let fee of monthlyFeeOptions"
+                [nzValue]="fee.id"
+                [nzLabel]="monthlyFeeLabel(fee)"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-sm-6">
+            <label class="form-label">{{ '::FeeHead' | abpLocalization }}</label>
+            <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.feeHeadId">
+              <nz-option
+                *ngFor="let fh of feeHeadOptions"
+                [nzValue]="fh.id"
+                [nzLabel]="fh.name"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-outline-primary" (click)="clearFilters()">
+              <i class="fas fa-undo me-1"></i> {{ '::Reset' | abpLocalization }}
+            </button>
+            <button type="button" class="btn btn-primary" (click)="list.get()">
+              <i class="fa fa-filter me-1"></i> {{ '::Apply' | abpLocalization }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card mt-2">
+    <div class="card-body">
+      <ngx-datatable [rows]="feeLines.items" [count]="feeLines.totalCount" [list]="list" default>
+        <!-- Actions Column -->
+        <ngx-datatable-column
+          [name]="'::Actions' | abpLocalization"
+          [maxWidth]="150"
+          [sortable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
+                <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+              </button>
+
+              <div ngbDropdownMenu>
+                <button
+                  *abpPermission="'EHub.StudentMonthlyFeeLines.Edit'"
+                  ngbDropdownItem
+                  (click)="edit(row.id)">
+                  {{ '::Edit' | abpLocalization }}
+                </button>
+
+                <button
+                  *abpPermission="'EHub.StudentMonthlyFeeLines.Delete'"
+                  ngbDropdownItem
+                  (click)="delete(row.id)">
+                  {{ '::Delete' | abpLocalization }}
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Student Monthly Fee Column -->
+        <ngx-datatable-column [name]="'::StudentMonthlyFee' | abpLocalization" [width]="250">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ monthlyFeeById(row.studentMonthlyFeeId) }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Fee Head Column -->
+        <ngx-datatable-column [name]="'::FeeHead' | abpLocalization" [width]="150">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ feeHeadNameById(row.feeHeadId) }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Expected Amount Column -->
+        <ngx-datatable-column
+          [name]="'::ExpectedAmount' | abpLocalization"
+          [width]="130"
+          prop="expectedAmount">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.expectedAmount | number: '1.2-2' }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Discount Amount Column -->
+        <ngx-datatable-column
+          [name]="'::DiscountAmount' | abpLocalization"
+          [width]="130"
+          prop="discountAmount">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span>{{ row.discountAmount | number: '1.2-2' }}</span>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Adjustment Amount Column -->
+        <ngx-datatable-column
+          [name]="'::AdjustmentAmount' | abpLocalization"
+          [width]="140"
+          prop="adjustmentAmount">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span>
+              {{ row.adjustmentAmount | number: '1.2-2' }}
+            </span>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Late Fee Amount Column -->
+        <ngx-datatable-column
+          [name]="'::LateFeeAmount' | abpLocalization"
+          [width]="130"
+          prop="lateFeeAmount">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span>{{ row.lateFeeAmount | number: '1.2-2' }}</span>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Net Amount Column -->
+        <ngx-datatable-column [name]="'::NetAmount' | abpLocalization" [width]="130">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <strong>{{ calculateNetAmount(row) | number: '1.2-2' }}</strong>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Paid Amount Column -->
+        <ngx-datatable-column
+          [name]="'::PaidAmount' | abpLocalization"
+          [width]="130"
+          prop="paidAmount">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.paidAmount | number: '1.2-2' }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- Balance Column -->
+        <ngx-datatable-column [name]="'::Balance' | abpLocalization" [width]="130">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <strong
+              [class.text-danger]="calculateBalance(row) > 0"
+              [class.text-success]="calculateBalance(row) <= 0">
+              {{ calculateBalance(row) | number: '1.2-2' }}
+            </strong>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</abp-page>
+
+<!-- Create/Edit Modal -->
+<abp-modal [(visible)]="isModalOpen" [busy]="isCalculating" [options]="{ size : 'lg'}">
+  <ng-template #abpHeader>
+    <h3>
+      {{
+        (selected.id ? '::EditStudentMonthlyFeeLine' : '::NewStudentMonthlyFeeLine')
+          | abpLocalization
+      }}
+    </h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <!-- Monthly Fee Selection -->
+      <div class="row">
+        <div class="col-md-6">
+          <label class="form-label">
+            {{ '::StudentMonthlyFee' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+          <nz-select
+            formControlName="studentMonthlyFeeId"
+            class="w-100"
+            nzAllowClear
+            nzShowSearch
+            nzSize="large">
+            <nz-option
+              *ngFor="let fee of monthlyFeeOptions"
+              [nzValue]="fee.id"
+              [nzLabel]="monthlyFeeLabel(fee)"></nz-option>
+          </nz-select>
+        </div>
+
+      <!-- Fee Head Selection -->
+        <div class="col-md-6">
+          <label class="form-label">
+            {{ '::FeeHead' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+          <nz-select
+            formControlName="feeHeadId"
+            class="w-100"
+            nzAllowClear
+            nzShowSearch
+            nzSize="large">
+            <nz-option
+              *ngFor="let fh of feeHeadOptions"
+              [nzValue]="fh.id"
+              [nzLabel]="fh.name"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+
+      <!-- Calculation Status Messages -->
+      <div *ngIf="isCalculating" class="alert alert-info mt-3 mb-0">
+        <i class="fas fa-spinner fa-spin me-2"></i>
+        <strong>{{ '::CalculatingAmounts' | abpLocalization }}</strong>
+      </div>
+
+      <div *ngIf="calculatedAmounts && !isCalculating" class="alert alert-success mt-3 mb-0">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>{{ '::AmountsAutoCalculated' | abpLocalization }}</strong>
+      </div>
+
+      <!-- Expected Amount (Auto-calculated from FeeStructureItem) -->
+      <div class="row mt-3">
+        <div class="col-md-11">
+          <label class="form-label">
+            {{ '::ExpectedAmount' | abpLocalization }} <span class="text-danger">*</span>
+            <span class="badge bg-primary ms-1">
+              <i class="fas fa-magic"></i> {{ '::FromFeeStructure' | abpLocalization }}
+            </span>
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-sm bg-light"
+            formControlName="expectedAmount"
+            readonly
+            step="0.01" />
+          <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            {{ '::AutoPopulatedFromFeeStructure' | abpLocalization }}
+          </small>
+        </div>
+        <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary w-100"
+            (click)="enableExpectedAmountOverride()"
+            *ngIf="form.get('expectedAmount')?.disabled"
+            [title]="'::ManualOverride' | abpLocalization">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Discount Amount (Auto-calculated from StudentFeeDiscount) -->
+      <div class="row mt-3">
+        <div class="col-md-11">
+          <label class="form-label">
+            {{ '::DiscountAmount' | abpLocalization }}
+            <span class="badge bg-success ms-1" *ngIf="form.get('discountAmount')?.disabled">
+              <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
+            </span>
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-sm bg-light"
+            formControlName="discountAmount"
+            readonly
+            step="0.01"
+            min="0" />
+          <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            {{ '::FromDiscountPolicy' | abpLocalization }}
+          </small>
+        </div>
+        <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary w-100"
+            (click)="enableDiscountOverride()"
+            *ngIf="form.get('discountAmount')?.disabled"
+            [title]="'::ManualOverride' | abpLocalization">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Adjustment Amount (Manual entry) -->
+      <div class="row mt-3">
+        <div class="col-md-11">
+          <label class="form-label">{{ '::AdjustmentAmount' | abpLocalization }}</label>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            formControlName="adjustmentAmount"
+            step="0.01" />
+          <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            {{ '::AdjustmentCanBeNegative' | abpLocalization }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Late Fee Amount (Auto-calculated from LateFeePolicy) -->
+      <div class="row mt-3">
+        <div class="col-md-11">
+          <label class="form-label">
+            {{ '::LateFeeAmount' | abpLocalization }}
+            <span class="badge bg-success ms-1" *ngIf="form.get('lateFeeAmount')?.disabled">
+              <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
+            </span>
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-sm bg-light"
+            formControlName="lateFeeAmount"
+            readonly
+            step="0.01"
+            min="0" />
+          <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            {{ '::FromLateFeePolicy' | abpLocalization }}
+          </small>
+        </div>
+        <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary w-100"
+            (click)="enableLateFeeOverride()"
+            *ngIf="form.get('lateFeeAmount')?.disabled"
+            [title]="'::ManualOverride' | abpLocalization">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Paid Amount & Net Amount Row -->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="form-label">{{ '::PaidAmount' | abpLocalization }}</label>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            formControlName="paidAmount"
+            min="0"
+            step="0.01"
+            placeholder="0.00" />
+          <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            {{ '::EnterAmountPaid' | abpLocalization }}
+          </small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            {{ '::NetAmount' | abpLocalization }}
+            <span class="badge bg-info ms-1">
+              <i class="fas fa-calculator"></i> {{ '::Calculated' | abpLocalization }}
+            </span>
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-sm bg-light fw-bold "
+            [value]="calculateFormNetAmount()"
+            readonly
+            disabled />
+          <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            Expected - Discount + Adjustment + Late Fee
+          </small>
+        </div>
+      </div>
+
+      <!-- Summary Card (Optional) -->
+      <div class="card bg-light mt-3" *ngIf="calculatedAmounts">
+        <div class="card-body">
+          <h6 class="card-title mb-3">
+            <i class="fas fa-receipt me-1"></i> {{ '::FeeSummary' | abpLocalization }}
+          </h6>
+          <div class="row g-2">
+            <div class="col-6">
+              <small class="text-muted">{{ '::ExpectedAmount' | abpLocalization }}:</small>
+              <div class="fw-bold">
+                {{ form.get('expectedAmount')?.value | number: '1.2-2' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">{{ '::DiscountAmount' | abpLocalization }}:</small>
+              <div class="fw-bold text-success">
+                -{{ form.get('discountAmount')?.value | number: '1.2-2' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">{{ '::AdjustmentAmount' | abpLocalization }}:</small>
+              <div
+                class="fw-bold"
+                [class.text-success]="form.get('adjustmentAmount')?.value < 0"
+                [class.text-warning]="form.get('adjustmentAmount')?.value > 0">
+                {{ form.get('adjustmentAmount')?.value | number: '1.2-2' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">{{ '::LateFeeAmount' | abpLocalization }}:</small>
+              <div class="fw-bold text-danger">
+                +{{ form.get('lateFeeAmount')?.value | number: '1.2-2' }}
+              </div>
+            </div>
+            <div class="col-12">
+              <hr class="my-2" />
+            </div>
+            <div class="col-6">
+              <small class="text-muted">{{ '::NetAmount' | abpLocalization }}:</small>
+              <div class="fw-bold text-primary fs-5">
+                {{ calculateFormNetAmount() | number: '1.2-2' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">{{ '::Balance' | abpLocalization }}:</small>
+              <div
+                class="fw-bold fs-5"
+                [class.text-danger]="
+                  calculateFormNetAmount() - (form.get('paidAmount')?.value || 0) > 0
+                "
+                [class.text-success]="
+                  calculateFormNetAmount() - (form.get('paidAmount')?.value || 0) <= 0
+                ">
+                {{
+                  calculateFormNetAmount() - (form.get('paidAmount')?.value || 0)
+                    | number: '1.2-2'
+                }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      <i class="fas fa-times me-1"></i>
+      {{ '::Close' | abpLocalization }}
+    </button>
+
+    <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid || isCalculating">
+      <i class="fa fa-check me-1"></i>
+      {{ '::Save' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>

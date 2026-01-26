@@ -34,6 +34,18 @@ const routes: Routes = [
   { path: 'create-staff', loadChildren: () => import('./staff/create-staff/create-staff.module').then(m => m.CreateStaffModule) },
   { path: 'student-attendance', loadChildren: () => import('./student-attendance/student-attendance.module').then(m => m.StudentAttendanceModule) },
   { path: 'student-attendance-insights', loadChildren: () => import('./student-attendance-insights/student-attendance-insights.module').then(m => m.StudentAttendanceInsightsModule) },
+  { path: 'staff-attendances', loadChildren: () => import('./staff-attendance/staff-attendance.module').then(m => m.StaffAttendanceModule) },
+  { path: 'staff-attendance-insights', loadChildren: () => import('./staff-attendance-insights/staff-attendance-insights.module').then(m => m.StaffAttendanceInsightsModule) },
+  { path: 'fee-heads', loadChildren: () => import('./fee-module/fee-head/fee-head.module').then(m => m.FeeHeadModule) },
+  { path: 'fee-heads', loadChildren: () => import('./fee-module/fee-head/fee-head.module').then(m => m.FeeHeadModule) },
+  { path: 'fee-structures', loadChildren: () => import('./fee-module/fee-structure/fee-structure.module').then(m => m.FeeStructureModule) },
+  { path: 'fee-structure-items', loadChildren: () => import('./fee-module/fee-structure-item/fee-structure-item.module').then(m => m.FeeStructureItemModule) },
+  { path: 'student-fee-profiles', loadChildren: () => import('./fee-module/student-fee-profile/student-fee-profile.module').then(m => m.StudentFeeProfileModule) },
+  { path: 'student-fee-discounts', loadChildren: () => import('./fee-module/student-fee-discount/student-fee-discount.module').then(m => m.StudentFeeDiscountModule) },
+  { path: 'late-fee-polices', loadChildren: () => import('./fee-module/late-fee-policy/late-fee-policy.module').then(m => m.LateFeePolicyModule) },
+  { path: 'student-monthly-fees', loadChildren: () => import('./fee-module/student-monthly-fee/student-monthly-fee.module').then(m => m.StudentMonthlyFeeModule) },
+  { path: 'student-monthly-fee-lines', loadChildren: () => import('./fee-module/student-monthly-fee-line/student-monthly-fee-line.module').then(m => m.StudentMonthlyFeeLineModule) },
+  { path: 'check-fees-dashboard', loadChildren: () => import('./fee-module/check-fees-dashboard/check-fees-dashboard.module').then(m => m.CheckFeesDashboardModule) },
 ];
 
 @NgModule({

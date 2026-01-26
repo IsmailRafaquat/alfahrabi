@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EHub.Application\EHub.Application.csproj" />
     <ProjectReference Include="..\EHub.Domain\EHub.Domain.csproj" />
   </ItemGroup>
 

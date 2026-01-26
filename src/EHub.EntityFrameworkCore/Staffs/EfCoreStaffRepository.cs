@@ -101,4 +101,13 @@ public class EfCoreStaffRepository : EfCoreRepository<EHubDbContext, Staff, Guid
             .Where(x => x.Id == id)
             .FirstOrDefaultAsync();
     }
+
+    public async Task<List<Staff>> GetStaffLookupAsync()
+    {
+        var dbSet = await GetDbSetAsync();
+
+        return await dbSet
+            .OrderBy(x => x.FirstName)
+            .ToListAsync();
+    }
 }

@@ -1,0 +1,158 @@
+// /* Layout polish */
+// .filter-card {
+//   border-radius: 12px;
+// }
+
+// .section-title {
+//   font-weight: 700;
+//   font-size: 0.95rem;
+//   margin-bottom: 0.75rem;
+// }
+
+// /* Summary cards */
+// .stat-card {
+//   border-radius: 12px;
+//   height: 100%;
+// }
+
+// .stat-label {
+//   font-size: 0.75rem;
+//   color: #6c757d;
+//   letter-spacing: 0.02em;
+// }
+
+// .stat-value {
+//   font-size: 1.15rem;
+//   font-weight: 800;
+//   margin-top: 0.15rem;
+// }
+
+// /* Charts */
+// .chart-box {
+//   min-height: 280px;
+//   position: relative;
+// }
+
+// .chart-box canvas {
+//   display: block;
+//   width: 100% !important;
+//   height: 280px !important; /* fixed height for stable rendering */
+// }
+
+// /* Tables */
+// .fee-table th,
+// .fee-table td,
+// .student-table th,
+// .student-table td {
+//   vertical-align: middle;
+// }
+
+// .text-truncate {
+//   max-width: 320px;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+//   white-space: nowrap;
+// }
+
+// .empty-hint {
+//   font-size: 0.85rem;
+//   color: #6c757d;
+//   margin-top: 0.75rem;
+// }
+
+:host {
+  display: block;
+}
+
+.shadow-soft {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+}
+
+.filters {
+  border-radius: 18px;
+}
+
+.chart-box {
+  min-height: 340px;
+  position: relative;
+}
+
+.empty-hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* KPI Tiles */
+.kpi-tile {
+  overflow: hidden;
+  position: relative;
+}
+
+.kpi-title {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.2px;
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-top: 6px;
+}
+
+.kpi-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+/* Gradient tones (6 tiles) */
+.t1 { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+.t2 { background: linear-gradient(135deg, #2563eb, #60a5fa); }
+.t3 { background: linear-gradient(135deg, #ef4444, #fb7185); }
+.t4 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.t5 { background: linear-gradient(135deg, #14b8a6, #5eead4); }
+.t6 { background: linear-gradient(135deg, #111827, #6b7280); }
+
+/* Tables */
+.modern-table table {
+  margin-bottom: 0;
+}
+
+.modern-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.modern-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.modern-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.modern-table td, .modern-table th {
+  padding: 0.85rem 0.85rem;
+}
+

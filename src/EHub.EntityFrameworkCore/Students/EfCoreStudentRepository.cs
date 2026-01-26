@@ -28,19 +28,34 @@ public class EfCoreStudentRepository : EfCoreRepository<EHubDbContext, Student, 
         return await dbSet.FirstOrDefaultAsync(x => x.Email == email);
     }
 
-    public async Task<long> GetCountAsync(string? filter, string? admissionNo, string? firstName, string? lastName, DateTime? dob, Gender? gender, Status? status)
+    public async Task<long> GetCountAsync(string? filter, string? admissionNo, string? firstName, string? lastName,
+         GradeLevel? gradeLevel,
+         Section? section,
+         Shift? shift,
+         Term? term,
+        DateTime? dob, Gender? gender, Status? status)
     {
-        var data = await GetFiltersAsync(filter, admissionNo, firstName, lastName, dob, gender, status);
+        var data = await GetFiltersAsync(filter, admissionNo, firstName, lastName, gradeLevel, section, shift, term, dob, gender, status);
         return await data.LongCountAsync();
     }
 
-    public async Task<List<Student>> GetListAsync(int skipCount, int maxResultCount, string sorting, string? filter, string? admissionNo, string? firstName, string? lastName, DateTime? dob, Gender? gender, Status? status)
+    public async Task<List<Student>> GetListAsync(int skipCount, int maxResultCount, string sorting, string? filter, string? admissionNo, string? firstName, string? lastName,
+         GradeLevel? gradeLevel,
+         Section? section,
+         Shift? shift,
+         Term? term,
+        DateTime? dob, Gender? gender, Status? status)
     {
-        var data = await GetFiltersAsync(filter, admissionNo, firstName, lastName, dob, gender, status);
+        var data = await GetFiltersAsync(filter, admissionNo, firstName, lastName, gradeLevel, section, shift, term, dob, gender, status);
         return await data.OrderBy(sorting).PageBy(skipCount, maxResultCount).ToListAsync();
     }
 
-    public async Task<IQueryable<Student>> GetFiltersAsync(string? filter, string? admissionNo, string? firstName, string? lastName, DateTime? DOB, Gender? gender, Status? status)
+    public async Task<IQueryable<Student>> GetFiltersAsync(string? filter, string? admissionNo, string? firstName, string? lastName,
+         GradeLevel? gradeLevel,
+         Section? section,
+         Shift? shift,
+         Term? term,
+        DateTime? DOB, Gender? gender, Status? status)
     {
         var queryable = await GetQueryableAsync();
 
@@ -52,7 +67,11 @@ public class EfCoreStudentRepository : EfCoreRepository<EHubDbContext, Student, 
             .WhereIf(!string.IsNullOrWhiteSpace(lastName), x => x.LastName.ToLower().Contains(lastName!.ToLower()))
             .WhereIf(!string.IsNullOrWhiteSpace(admissionNo), x => x.AdmissionNo.ToLower().Contains(admissionNo!.ToLower()))
             .WhereIf(status.HasValue, x => x.Status == status)
-            .WhereIf(gender.HasValue, x => x.Gender == gender);
+            .WhereIf(gender.HasValue, x => x.Gender == gender)
+            .WhereIf(gradeLevel.HasValue, x => x.GradeLevel == gradeLevel)
+            .WhereIf(section.HasValue, x => x.Section == section)
+            .WhereIf(term.HasValue, x => x.Term == term)
+            .WhereIf(shift.HasValue, x => x.Shift == shift);
         return query;
     }
 

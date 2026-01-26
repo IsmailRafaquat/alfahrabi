@@ -1,0 +1,316 @@
+import { ListService, PagedResultDto } from '@abp/ng.core';
+import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  StudentMonthlyFeeLineDto,
+  GetStudentMonthlyFeeLineListInput,
+  StudentMonthlyFeeLineService,
+  CreateUpdateStudentMonthlyFeeLineDto,
+  CalculateFeeLineAmountsInput,
+  CalculatedAmountsDto,
+} from 'src/app/proxy/fee-module/student-monthly-fee-lines';
+import {
+  StudentMonthlyFeeDto,
+  StudentMonthlyFeeService,
+} from 'src/app/proxy/fee-module/student-monthly-fees';
+import { FeeHeadDto, FeeHeadService } from 'src/app/proxy/fee-module/fee-heads';
+import { StudentLookupDto, StudentService } from 'src/app/proxy/students';
+
+@Component({
+  selector: 'app-student-monthly-fee-line',
+  standalone: false,
+  templateUrl: './student-monthly-fee-line.component.html',
+  styleUrl: './student-monthly-fee-line.component.scss',
+  providers: [ListService],
+})
+export class StudentMonthlyFeeLineComponent implements OnInit {
+  feeLines = { items: [], totalCount: 0 } as PagedResultDto<StudentMonthlyFeeLineDto>;
+
+  showFilter = false;
+
+  isModalOpen = false;
+  form!: FormGroup;
+  selected = {} as StudentMonthlyFeeLineDto;
+
+  filters = {} as GetStudentMonthlyFeeLineListInput;
+
+  // Lookup options
+  studentOptions: StudentLookupDto[] = [];
+  monthlyFeeOptions: StudentMonthlyFeeDto[] = [];
+  feeHeadOptions: FeeHeadDto[] = [];
+
+  // Auto-calculation state
+  isCalculating = false;
+  calculatedAmounts: CalculatedAmountsDto | null = null;
+
+  public readonly list = inject(ListService);
+  private readonly service = inject(StudentMonthlyFeeLineService);
+  private readonly studentService = inject(StudentService);
+  private readonly monthlyFeeService = inject(StudentMonthlyFeeService);
+  private readonly feeHeadService = inject(FeeHeadService);
+
+  private readonly fb = inject(FormBuilder);
+  private readonly confirmation = inject(ConfirmationService);
+  private readonly toaster = inject(ToasterService);
+
+  ngOnInit(): void {
+    const streamCreator = (query: GetStudentMonthlyFeeLineListInput) => {
+      return this.service.getList({ ...query, ...this.filters });
+    };
+
+    this.list.hookToQuery(streamCreator).subscribe(res => (this.feeLines = res));
+
+    this.loadLookups();
+  }
+
+  private loadLookups(): void {
+    // Load students for display purposes
+    this.studentService.getStudentLookup().subscribe(res => {
+      this.studentOptions = res || [];
+    });
+
+    // Load monthly fees
+    this.monthlyFeeService.getList({ maxResultCount: 1000, skipCount: 0 } as any).subscribe(res => {
+      this.monthlyFeeOptions = res.items || [];
+    });
+
+    // Load fee heads
+    this.feeHeadService.getList({ maxResultCount: 1000, skipCount: 0 } as any).subscribe(res => {
+      this.feeHeadOptions = res.items || [];
+    });
+  }
+
+  clearFilters(): void {
+    this.filters = {
+      studentMonthlyFeeId: null,
+      feeHeadId: null,
+    } as any;
+
+    this.list.get();
+  }
+
+  create(): void {
+    this.selected = {} as StudentMonthlyFeeLineDto;
+    this.calculatedAmounts = null;
+    this.buildForm();
+    this.setupFormListeners();
+    this.isModalOpen = true;
+  }
+
+  edit(id: string): void {
+    this.service.get(id).subscribe(dto => {
+      this.selected = dto;
+      this.calculatedAmounts = null;
+      this.buildForm();
+      this.setupFormListeners();
+      this.isModalOpen = true;
+    });
+  }
+
+  private setupFormListeners(): void {
+    // Trigger calculation when Monthly Fee or Fee Head changes
+    this.form.get('studentMonthlyFeeId')?.valueChanges.subscribe(() => this.autoCalculateAmounts());
+    this.form.get('feeHeadId')?.valueChanges.subscribe(() => this.autoCalculateAmounts());
+    // No need to listen to expectedAmount anymore
+  }
+
+  enableExpectedAmountOverride(): void {
+    this.form.get('expectedAmount')?.enable();
+  }
+
+  private autoCalculateAmounts(): void {
+    const monthlyFeeId = this.form.get('studentMonthlyFeeId')?.value;
+    const feeHeadId = this.form.get('feeHeadId')?.value;
+
+    // Only need monthlyFeeId and feeHeadId now
+    if (!monthlyFeeId || !feeHeadId) {
+      return;
+    }
+
+    const input: CalculateFeeLineAmountsInput = {
+      studentMonthlyFeeId: monthlyFeeId,
+      feeHeadId: feeHeadId,
+      // expectedAmount removed - will come from FeeStructureItem
+    };
+
+    this.isCalculating = true;
+
+    this.service.calculateAmounts(input).subscribe({
+      next: result => {
+        this.calculatedAmounts = result;
+
+        // Auto-populate ALL amounts from the calculation
+        this.form.patchValue(
+          {
+            expectedAmount: result.expectedAmount, // ← Now from FeeStructureItem
+            discountAmount: result.discountAmount,
+            lateFeeAmount: result.lateFeeAmount,
+          },
+          { emitEvent: false },
+        );
+
+        this.isCalculating = false;
+      },
+      error: err => {
+        console.error('Failed to calculate amounts:', err);
+        this.isCalculating = false;
+      },
+    });
+  }
+
+  save(): void {
+    if (this.form.invalid) return;
+
+    const v = this.form.getRawValue();
+
+    const input: CreateUpdateStudentMonthlyFeeLineDto = {
+      studentMonthlyFeeId: v.studentMonthlyFeeId,
+      feeHeadId: v.feeHeadId,
+      expectedAmount: v.expectedAmount ?? 0,
+      discountAmount: v.discountAmount ?? 0,
+      adjustmentAmount: v.adjustmentAmount ?? 0,
+      lateFeeAmount: v.lateFeeAmount ?? 0,
+      paidAmount: v.paidAmount ?? 0,
+    };
+
+    if (this.selected.id) {
+      this.service.update(this.selected.id, input).subscribe({
+        next: () => {
+          this.toaster.success('::UpdatedSuccessfully');
+          this.closeModalAndRefresh();
+        },
+        error: err => this.handleError(err),
+      });
+    } else {
+      this.service.create(input).subscribe({
+        next: () => {
+          this.toaster.success('::CreatedSuccessfully');
+          this.closeModalAndRefresh();
+        },
+        error: err => this.handleError(err),
+      });
+    }
+  }
+
+  delete(id: string): void {
+    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
+      if (status === Confirmation.Status.confirm) {
+        this.service.delete(id).subscribe({
+          next: () => {
+            this.toaster.success('::DeletedSuccessfully');
+            this.list.get();
+          },
+          error: err => this.handleError(err),
+        });
+      }
+    });
+  }
+
+  private buildForm(): void {
+    this.form = this.fb.group({
+      studentMonthlyFeeId: [this.selected.studentMonthlyFeeId || null, Validators.required],
+      feeHeadId: [this.selected.feeHeadId || null, Validators.required],
+      expectedAmount: [
+        { value: this.selected.expectedAmount || 0, disabled: true }, // ← Disabled
+        [Validators.required, Validators.min(0)],
+      ],
+      discountAmount: [
+        { value: this.selected.discountAmount || 0, disabled: true },
+        Validators.min(0),
+      ],
+      adjustmentAmount: [this.selected.adjustmentAmount || 0],
+      lateFeeAmount: [
+        { value: this.selected.lateFeeAmount || 0, disabled: true },
+        Validators.min(0),
+      ],
+      paidAmount: [this.selected.paidAmount || 0, Validators.min(0)],
+    });
+  }
+
+  // Allow manual override of discount
+  enableDiscountOverride(): void {
+    this.form.get('discountAmount')?.enable();
+  }
+
+  // Allow manual override of late fee
+  enableLateFeeOverride(): void {
+    this.form.get('lateFeeAmount')?.enable();
+  }
+
+  private closeModalAndRefresh(): void {
+    this.isModalOpen = false;
+    this.form.reset();
+    this.calculatedAmounts = null;
+    this.list.get();
+  }
+
+  // -------- Helper methods --------
+
+  studentLabel(s: StudentLookupDto): string {
+    const name = `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim();
+    return s.admissionNo ? `${name} (${s.admissionNo})` : name;
+  }
+
+  studentNameById(id: string): string {
+    const s = this.studentOptions.find(x => x.id === id);
+    return s ? this.studentLabel(s) : id;
+  }
+
+  monthlyFeeLabel(fee: StudentMonthlyFeeDto): string {
+    const student = this.studentOptions.find(s => s.id === fee.studentId);
+    const studentName = student ? this.studentLabel(student) : 'Unknown';
+    const monthStr = this.formatMonth(fee.month);
+    return `${studentName} - ${monthStr}`;
+  }
+
+  monthlyFeeById(id: string): string {
+    const fee = this.monthlyFeeOptions.find(x => x.id === id);
+    return fee ? this.monthlyFeeLabel(fee) : id;
+  }
+
+  feeHeadNameById(id: string): string {
+    const feeHead = this.feeHeadOptions.find(x => x.id === id);
+    return feeHead?.name || id;
+  }
+
+  private formatMonth(value: any): string {
+    if (!value) return '-';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${yyyy}-${mm}`;
+  }
+
+  calculateNetAmount(line: StudentMonthlyFeeLineDto): number {
+    return (
+      (line.expectedAmount || 0) -
+      (line.discountAmount || 0) +
+      (line.adjustmentAmount || 0) +
+      (line.lateFeeAmount || 0)
+    );
+  }
+
+  // Calculate net amount from form values
+  calculateFormNetAmount(): number {
+    if (!this.form) return 0;
+
+    return (
+      (this.form.get('expectedAmount')?.value || 0) -
+      (this.form.get('discountAmount')?.value || 0) +
+      (this.form.get('adjustmentAmount')?.value || 0) +
+      (this.form.get('lateFeeAmount')?.value || 0)
+    );
+  }
+
+  calculateBalance(line: StudentMonthlyFeeLineDto): number {
+    return this.calculateNetAmount(line) - (line.paidAmount || 0);
+  }
+
+  private handleError(err: any): void {
+    const msg =
+      err?.error?.error?.message || err?.error?.message || err?.message || '::UnexpectedError';
+    this.toaster.error(msg);
+  }
+}

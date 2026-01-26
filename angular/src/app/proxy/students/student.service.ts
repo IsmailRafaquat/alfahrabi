@@ -1,4 +1,4 @@
-import type { CreateStudentDto, GetStudentListDto, StudentDto, StudentLookupDto, UpdateStudentDto } from './models';
+import type { CreateStudentDto, GenerateStudentImportTemplateDto, GetStudentListDto, StudentDto, StudentLookupDto, UpdateStudentDto } from './models';
 import { RestService, Rest } from '@abp/ng.core';
 import type { PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
@@ -27,6 +27,16 @@ export class StudentService {
     { apiName: this.apiName,...config });
   
 
+  downloadImportTemplate = (input: GenerateStudentImportTemplateDto, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, Blob>({
+      method: 'POST',
+      responseType: 'blob',
+      url: '/api/app/students/download-import-template',
+      body: input,
+    },
+    { apiName: this.apiName,...config });
+  
+
   get = (id: string, config?: Partial<Rest.Config>) =>
     this.restService.request<any, StudentDto>({
       method: 'GET',
@@ -39,7 +49,7 @@ export class StudentService {
     this.restService.request<any, PagedResultDto<StudentDto>>({
       method: 'GET',
       url: '/api/app/students',
-      params: { filter: input.filter, admissionNo: input.admissionNo, firstName: input.firstName, lastName: input.lastName, dob: input.dob, gender: input.gender, status: input.status, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+      params: { filter: input.filter, admissionNo: input.admissionNo, firstName: input.firstName, lastName: input.lastName, gradeLevel: input.gradeLevel, section: input.section, term: input.term, shift: input.shift, dob: input.dob, gender: input.gender, status: input.status, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
     },
     { apiName: this.apiName,...config });
   

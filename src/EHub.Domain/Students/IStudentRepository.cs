@@ -19,6 +19,10 @@ public interface IStudentRepository : IRepository<Student, Guid>
           string? admissionNo,
           string? firstName,
           string? lastName,
+          GradeLevel? gradeLevel,
+          Section? section,
+          Shift? shift,
+          Term? term,
           DateTime? dob,
           Gender? gender,
           Status? status
@@ -29,6 +33,10 @@ public interface IStudentRepository : IRepository<Student, Guid>
           string? admissionNo,
           string? firstName,
           string? lastName,
+          GradeLevel? gradeLevel,
+          Section? section,
+          Shift? shift,
+          Term? term,
           DateTime? dob,
           Gender? gender,
           Status? status

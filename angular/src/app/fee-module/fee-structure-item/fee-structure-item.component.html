@@ -1,0 +1,168 @@
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">{{ '::Menu:FeeStructureItems' | abpLocalization }}</h5>
+      </div>
+
+      <div class="text-end col col-md-6">
+        <div class="text-lg-end pt-2">
+          <button
+            *abpPermission="'EHub.FeeStructureItems.Create'"
+            class="btn btn-primary"
+            type="button"
+            (click)="create()"
+          >
+            <i class="fa fa-plus me-1"></i>
+            <span>{{ '::NewFeeStructureItem' | abpLocalization }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <ngx-datatable [rows]="items.items" [count]="items.totalCount" [list]="list" default>
+      <ngx-datatable-column
+        [name]="'::Actions' | abpLocalization"
+        [maxWidth]="180"
+        [sortable]="false"
+      >
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
+              <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+
+            <div ngbDropdownMenu>
+              <button
+                *abpPermission="'EHub.FeeStructureItems.Edit'"
+                ngbDropdownItem
+                (click)="edit(row.id)"
+              >
+                {{ '::Edit' | abpLocalization }}
+              </button>
+
+              <button
+                *abpPermission="'EHub.FeeStructureItems.Delete'"
+                ngbDropdownItem
+                (click)="delete(row.id)"
+              >
+                {{ '::Delete' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::FeeStructure' | abpLocalization">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.feeStructureName }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::FeeHead' | abpLocalization">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.feeHeadName }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::MonthlyAmount' | abpLocalization" prop="monthlyAmount">
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::IsMandatory' | abpLocalization" [maxWidth]="140">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="row.isMandatory ? 'bg-info' : 'bg-secondary'">
+            {{ (row.isMandatory ? '::Yes' : '::No') | abpLocalization }}
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+
+<abp-modal [(visible)]="isModalOpen">
+  <ng-template #abpHeader>
+    <h3>{{ (selected.id ? '::EditFeeStructureItem' : '::NewFeeStructureItem') | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="row">
+        <div class="col-md-12">
+          <label class="form-label">
+            {{ '::FeeStructure' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+
+          <nz-select
+            formControlName="feeStructureId"
+            class="w-100"
+            nzAllowClear
+            nzSize="large"
+          >
+            <nz-option
+              *ngFor="let o of feeStructureOptions"
+              [nzValue]="o.id"
+              [nzLabel]="o.displayName"
+            ></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-md-12 mt-2">
+          <label class="form-label">
+            {{ '::FeeHead' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+
+          <nz-select
+            formControlName="feeHeadId"
+            class="w-100"
+            nzAllowClear
+            nzSize="large"
+          >
+            <nz-option
+              *ngFor="let o of feeHeadOptions"
+              [nzValue]="o.id"
+              [nzLabel]="o.name"
+            ></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="form-label">
+            {{ '::MonthlyAmount' | abpLocalization }} <span class="text-danger">*</span>
+          </label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="monthlyAmount"
+            min="0"
+            step="0.01"
+          />
+        </div>
+
+        <div class="col-md-6 d-flex align-items-end">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="fsi-mandatory" formControlName="isMandatory" />
+            <label class="form-check-label" for="fsi-mandatory">
+              {{ '::IsMandatory' | abpLocalization }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      {{ '::Close' | abpLocalization }}
+    </button>
+
+    <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid">
+      <i class="fa fa-check me-1"></i>
+      {{ '::Save' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>

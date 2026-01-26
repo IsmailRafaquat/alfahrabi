@@ -1,0 +1,186 @@
+<abp-page [title]="'::Menu:CheckFees' | abpLocalization">
+
+  <!-- Top Filter Bar -->
+  <div class="filters card shadow-soft">
+    <div class="card-body">
+      <form [formGroup]="form" class="row g-3 align-items-end">
+        <div class="col-12 col-lg-3">
+          <label class="form-label">{{ '::Month' | abpLocalization }}</label>
+          <input type="month" class="form-control form-control-lg" formControlName="month" />
+        </div>
+        <div class="col-12 col-md-3">
+  <label class="form-label">{{ '::AsOfDate' | abpLocalization }}</label>
+  <input type="date" class="form-control month-like-nz" formControlName="asOfDate" />
+</div>
+
+
+        <div class="col-6 col-lg-2">
+          <label class="form-label">{{ '::GradeLevel' | abpLocalization }}</label>
+          <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="gradeLevel">
+            <nz-option *ngFor="let g of gradeLevels"
+              [nzValue]="g.value"
+              [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <label class="form-label">{{ '::Section' | abpLocalization }}</label>
+          <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="section">
+            <nz-option *ngFor="let s of sections"
+              [nzValue]="s.value"
+              [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <label class="form-label">{{ '::Shift' | abpLocalization }}</label>
+          <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="shift">
+            <nz-option *ngFor="let sh of shifts"
+              [nzValue]="sh.value"
+              [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <label class="form-label">{{ '::Term' | abpLocalization }}</label>
+          <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="term">
+            <nz-option *ngFor="let t of terms"
+              [nzValue]="t.value"
+              [nzLabel]="'::Enum:Term.' + t.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-12 col-lg-auto d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary px-4" (click)="clear()">
+            {{ '::Reset' | abpLocalization }}
+          </button>
+
+          <button type="button" class="btn btn-primary px-4" (click)="search()" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ '::Apply' | abpLocalization }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- KPI Tiles -->
+  <div class="row g-3 mt-3" *ngIf="data">
+    <div class="col-12 col-sm-6 col-xl-2" *ngFor="let c of [
+      { key:'net',      title: 'Net',       value: data.totalNet,      icon:'fa-wallet',      tone:'t1' },
+      { key:'paid',     title: 'Collected', value: data.totalPaid,     icon:'fa-circle-check',tone:'t2' },
+      { key:'pending',  title: 'Pending',   value: data.totalPending,  icon:'fa-triangle-exclamation', tone:'t3' },
+      { key:'discount', title: 'Discount',  value: data.totalDiscount, icon:'fa-tag',         tone:'t4' },
+      { key:'late',     title: 'Late Fee',  value: data.totalLateFee,  icon:'fa-clock',       tone:'t5' },
+      { key:'students', title: 'Students',  value: data.totalStudents, icon:'fa-users',       tone:'t6' }
+    ]">
+      <div class="kpi-tile card shadow-soft" [ngClass]="c.tone">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <div class="kpi-title">{{ c.title }}</div>
+            <div class="kpi-value">{{ c.value | number:'1.0-0' }}</div>
+          </div>
+          <div class="kpi-icon">
+            <i class="fa-solid" [ngClass]="c.icon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-3 mt-3">
+    <div class="col-12 col-xl-8">
+      <div class="card shadow-soft">
+        <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between">
+          <div class="fw-semibold">Top Fee Heads</div>
+          <div class="text-muted small">Net / Paid / Pending</div>
+        </div>
+        <div class="card-body chart-box">
+          <canvas #feeHeadBarCanvas></canvas>
+          <div class="empty-hint" *ngIf="!data || !(data.byFeeHead?.length)">
+            No fee head data for this selection.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card shadow-soft">
+        <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between">
+          <div class="fw-semibold">Analytics</div>
+          <div class="text-muted small">Collected vs Pending</div>
+        </div>
+        <div class="card-body chart-box">
+          <canvas #collectionDoughnutCanvas></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="row g-3 mt-3" *ngIf="data">
+
+    <div class="col-12 col-xl-7">
+      <div class="card shadow-soft">
+        <div class="card-header bg-transparent border-0 fw-semibold">
+          Fee Heads Summary
+        </div>
+
+        <div class="card-body table-responsive modern-table">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Fee Head</th>
+                <th class="text-end">Net</th>
+                <th class="text-end">Paid</th>
+                <th class="text-end">Pending</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let x of data.byFeeHead">
+                <td class="fw-semibold">{{ x.feeHeadName || '—' }}</td>
+                <td class="text-end">{{ x.net | number:'1.0-0' }}</td>
+                <td class="text-end">{{ x.paid | number:'1.0-0' }}</td>
+                <td class="text-end fw-bold text-danger">{{ x.pending | number:'1.0-0' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+      <div class="card shadow-soft">
+        <div class="card-header bg-transparent border-0 fw-semibold">
+          Top Pending Students (Top 200)
+        </div>
+
+        <div class="card-body table-responsive modern-table">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th class="text-end">Pending</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of data.byStudent">
+                <td class="fw-semibold">{{ s.studentName || '—' }}</td>
+                <td class="text-end fw-bold text-danger">{{ s.pending | number:'1.0-0' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</abp-page>

@@ -1,4 +1,5 @@
-﻿using EHub.StaffDocuments;
+﻿using EHub.StaffAttendances;
+using EHub.StaffDocuments;
 using EHub.Students;
 using System;
 using System.Collections.Generic;
@@ -46,10 +47,12 @@ public class Staff : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public string? Remarks { get; set; }
 
     public virtual ICollection<StaffDocument> StaffDocuments { get; set; }
+    public virtual ICollection<StaffAttendance> StaffAttendances { get; set; }
 
     private Staff()
     {
         StaffDocuments = new List<StaffDocument>();
+        StaffAttendances = new List<StaffAttendance>();
     }
 
     internal Staff(

@@ -45,7 +45,7 @@
           </div>
           <div class="col-sm-2">
             <label>{{ '::Department' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.department" nzAllowClear nzShowSearch nzSize="large" class="form-control" class="w-100">
+            <nz-select [(ngModel)]="filters.department" nzAllowClear nzShowSearch class="form-control-sm" class="w-100">
               <nz-option
                 *ngFor="let d of departments"
                 [nzValue]="d.value"
@@ -55,7 +55,7 @@
           </div>
           <div class="col-sm-2">
             <label>{{ '::JobStatus' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.jobStatus" nzAllowClear nzShowSearch nzSize="large" class="form-control" class="w-100">
+            <nz-select [(ngModel)]="filters.jobStatus" nzAllowClear nzShowSearch  class="form-control-sm" class="w-100">
               <nz-option
                 *ngFor="let j of statuses"
                 [nzValue]="j.value"

@@ -19,4 +19,86 @@ public static class EHubPermissions
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class StaffMenuItems
+    {
+        public const string StaffMain = GroupName + ".StaffMenu";
+        public const string StaffList = StaffMain + ".StaffList";
+        public const string StaffAttendance = StaffMain + ".StaffAttendance";
+        public const string StaffAttendanceInsights = StaffMain + ".StaffAttendanceInsights";
+    }
+
+    public static class Staffs
+    {
+        public const string Default = GroupName + ".Staffs";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class FeeHeads
+    {
+        public const string Default = GroupName + ".FeeHeads";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class FeeStructures
+    {
+        public const string Default = GroupName + ".FeeStructures";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class FeeStructureItems
+    {
+        public const string Default = GroupName + ".FeeStructureItems";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class StudentFeeProfiles
+    {
+        public const string Default = GroupName + ".StudentFeeProfiles";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class StudentFeeDiscounts
+    {
+        public const string Default = GroupName + ".StudentFeeDiscounts";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class LateFeePolicies
+    {
+        public const string Default = GroupName + ".LateFeePolicies";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class StudentMonthlyFees
+    {
+        public const string Default = GroupName + ".StudentMonthlyFees";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class StudentMonthlyFeeLines
+    {
+        public const string Default = GroupName + ".StudentMonthlyFeeLines";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+
 }

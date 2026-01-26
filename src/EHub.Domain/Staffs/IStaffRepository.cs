@@ -30,4 +30,5 @@ public interface IStaffRepository : IRepository<Staff, Guid>
         JobStatus? jobStatus,
         Shift? shift);
     Task<Staff?> GetByIdAsync(Guid id);
+    Task<List<Staff>> GetStaffLookupAsync();
 }

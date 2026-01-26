@@ -1,0 +1,14 @@
+.chart-box {
+  position: relative;
+  height: 340px;       // keep or adjust
+  overflow: visible;   // IMPORTANT: do not clip tooltip
+}
+
+.card,
+.card-body {
+  overflow: visible;   // IMPORTANT: allow tooltip to render outside
+}
+
+canvas {
+  display: block;
+}

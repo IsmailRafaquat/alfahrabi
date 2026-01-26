@@ -1,4 +1,4 @@
-import type { CreateStaffDto, GetStaffListDto, StaffDto, UpdateStaffDto } from './models';
+import type { CreateStaffDto, GetStaffListDto, StaffDto, StaffLookupDto, UpdateStaffDto } from './models';
 import { RestService, Rest } from '@abp/ng.core';
 import type { PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
@@ -40,6 +40,14 @@ export class StaffService {
       method: 'GET',
       url: '/api/app/staffs',
       params: { filter: input.filter, firstName: input.firstName, lastName: input.lastName, department: input.department, jobStatus: input.jobStatus, shift: input.shift, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getStaffLookup = (config?: Partial<Rest.Config>) =>
+    this.restService.request<any, StaffLookupDto[]>({
+      method: 'GET',
+      url: '/api/app/staffs/get-staff-lookup-async',
     },
     { apiName: this.apiName,...config });
   

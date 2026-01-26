@@ -1,4 +1,27 @@
+using EHub.FeeModule;
+using EHub.FeeModule.FeeHeads;
+using EHub.FeeModule.FeeStructureItems;
+using EHub.FeeModule.FeeStructures;
+using EHub.FeeModule.LateFeePolicies;
+using EHub.FeeModule.StudentFeeDiscounts;
+using EHub.FeeModule.StudentFeeProfiles;
+using EHub.FeeModule.StudentMonthlyFeeLines;
+using EHub.FeeModule.StudentMonthlyFees;
+using EHub.FileAttachments;
+using EHub.StaffAttendances;
+using EHub.StaffDocuments;
+using EHub.Staffs;
+using EHub.StudentAttendances;
+using EHub.StudentDocuments;
+using EHub.Students;
+using EHub.Subjects;
+using EHub.Teaching;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -9,24 +32,11 @@ using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
 using Volo.Abp.Identity;
 using Volo.Abp.Identity.EntityFrameworkCore;
+using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
-using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
-using EHub.Students;
-using EHub.Staffs;
-using EHub.Subjects;
-using EHub.Teaching;
-using System.Linq;
-using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Collections.Generic;
-using EHub.StudentDocuments;
-using EHub.FileAttachments;
-using EHub.StaffDocuments;
-using EHub.StudentAttendances;
 
 namespace EHub.EntityFrameworkCore;
 
@@ -48,6 +58,15 @@ public class EHubDbContext :
     public DbSet<StaffDocument> StaffDocuments { get; set; }
 
     public DbSet<StudentAttendance> StudentAttendances { get; set; }
+    public DbSet<StaffAttendance> StaffAttendances { get; set; }
+    public DbSet<FeeHead> FeeHeads { get; set; }
+    public DbSet<FeeStructure> FeeStructures { get; set; }
+    public DbSet<FeeStructureItem> FeeStructureItems { get; set; }
+    public DbSet<StudentFeeProfile> StudentFeeProfiles { get; set; }
+    public DbSet<StudentFeeDiscount> StudentFeeDiscounts { get; set; }
+    public DbSet<LateFeePolicy> lateFeePolicies { get; set; }
+    public DbSet<StudentMonthlyFee> StudentMonthlyFees { get; set; }
+    public DbSet<StudentMonthlyFeeLine> StudentMonthlyFeeLines { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -476,7 +495,201 @@ public class EHubDbContext :
                     .HasForeignKey(x => x.StudentId)
                         .OnDelete(DeleteBehavior.Cascade);
 
-            b.HasIndex(x => new { x.TenantId, x.StudentId, x.AttendanceDate });
+        });
+
+        builder.Entity<StaffAttendance>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "StaffAttendances", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.AttendanceDate).IsRequired();
+            b.Property(x => x.Status).IsRequired();
+
+            b.Property(x => x.Remarks).HasMaxLength(512);
+
+            b.HasOne(x => x.Staff)
+                .WithMany(x => x.StaffAttendances)
+                    .HasForeignKey(x => x.StaffId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+        });
+
+        builder.Entity<FeeHead>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "FeeHeads", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(FeeModuleConsts.NameMaxLength);
+
+            b.Property(x => x.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
+        });
+
+        builder.Entity<FeeStructure>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "FeeStructures", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.GradeLevel)
+                .IsRequired();
+
+            b.Property(x => x.Shift)
+                .IsRequired();
+
+            b.Property(x => x.Term)
+                .IsRequired();
+
+            b.Property(x => x.EffectiveFrom)
+                .IsRequired();
+
+            b.Property(x => x.EffectiveTo);
+
+            b.Property(x => x.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
+        });
+
+        builder.Entity<FeeStructureItem>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "FeeStructureItems", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.FeeStructureId).IsRequired();
+            b.Property(x => x.FeeHeadId).IsRequired();
+
+            b.Property(x => x.MonthlyAmount)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            b.Property(x => x.IsMandatory)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            b.HasOne(x => x.FeeStructure)
+                .WithMany()
+                .HasForeignKey(x => x.FeeStructureId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
+
+            b.HasOne(x => x.FeeHead)
+                .WithMany()
+                .HasForeignKey(x => x.FeeHeadId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
+
+        });
+        builder.Entity<StudentFeeProfile>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "StudentFeeProfiles", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.StudentId).IsRequired();
+            b.Property(x => x.FeeStructureId).IsRequired();
+
+            b.Property(x => x.EffectiveFrom).IsRequired();
+            b.Property(x => x.EffectiveTo);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+
+            b.HasOne(x => x.Student)
+                .WithMany()
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.FeeStructure)
+                .WithMany()
+                .HasForeignKey(x => x.FeeStructureId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<StudentFeeDiscount>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "StudentFeeDiscounts", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.StudentId).IsRequired();
+            b.Property(x => x.FeeHeadId); // nullable
+            b.Property(x => x.DiscountType).IsRequired();
+            b.Property(x => x.Value).IsRequired().HasPrecision(18, 2);
+            b.Property(x => x.StartMonth); // nullable
+            b.Property(x => x.EndMonth); // nullable
+            b.Property(x => x.Reason).IsRequired().HasMaxLength(500);
+            b.Property(x => x.ApprovedByStaffId); // nullable
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+
+            // Foreign Keys
+            b.HasOne(x => x.Student)
+                .WithMany()
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.FeeHead)
+                .WithMany()
+                .HasForeignKey(x => x.FeeHeadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ApprovedByStaff)
+                .WithMany()
+                .HasForeignKey(x => x.ApprovedByStaffId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<LateFeePolicy>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "LateFeePolicies", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.GradeLevel); // nullable enum
+            b.Property(x => x.Section); // nullable enum
+            b.Property(x => x.Shift); // nullable enum
+            b.Property(x => x.Term); // nullable enum
+            b.Property(x => x.GraceDays).IsRequired();
+            b.Property(x => x.Type).IsRequired();
+            b.Property(x => x.Value).IsRequired().HasPrecision(18, 2);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+        });
+        builder.Entity<StudentMonthlyFee>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "StudentMonthlyFees", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.StudentId).IsRequired();
+            b.Property(x => x.Month).IsRequired();
+            b.Property(x => x.DueDate);
+            b.Property(x => x.Remarks).HasMaxLength(1024);
+
+            b.HasOne(x => x.Student)
+                .WithMany()
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<StudentMonthlyFeeLine>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "StudentMonthlyFeeLines", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.StudentMonthlyFeeId).IsRequired();
+            b.Property(x => x.FeeHeadId).IsRequired();
+
+            b.Property(x => x.ExpectedAmount).HasPrecision(18, 2);
+            b.Property(x => x.DiscountAmount).HasPrecision(18, 2);
+            b.Property(x => x.AdjustmentAmount).HasPrecision(18, 2);
+            b.Property(x => x.LateFeeAmount).HasPrecision(18, 2);
+            b.Property(x => x.PaidAmount).HasPrecision(18, 2);
+
+            b.Property(x => x.NetAmount).HasPrecision(18, 2);
+            b.Property(x => x.OutstandingAmount).HasPrecision(18, 2);
+
+
+            b.HasOne(x => x.StudentMonthlyFee)
+                .WithMany() // or .WithMany(x => x.Lines) if you add navigation on StudentMonthlyFee
+                .HasForeignKey(x => x.StudentMonthlyFeeId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            b.HasOne(x => x.FeeHead)
+                .WithMany()
+                .HasForeignKey(x => x.FeeHeadId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
     }
 }

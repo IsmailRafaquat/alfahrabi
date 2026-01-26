@@ -493,6 +493,8 @@ public class StudentAttendanceAppService : ApplicationService, IStudentAttendanc
     }
 
 
+
+
     private static DateTime NormalizeDate(DateTime d)
         => new DateTime(d.Year, d.Month, d.Day, 0, 0, 0, DateTimeKind.Unspecified);
 

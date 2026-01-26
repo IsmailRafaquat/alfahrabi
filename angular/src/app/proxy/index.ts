@@ -1,9 +1,11 @@
 import * as AttendanceStatuss from './attendance-statuss';
+import * as FeeModule from './fee-module';
 import * as FileAttachments from './file-attachments';
+import * as StaffAttendances from './staff-attendances';
 import * as StaffDocuments from './staff-documents';
 import * as Staffs from './staffs';
 import * as StudentAttendances from './student-attendances';
 import * as StudentDocuments from './student-documents';
 import * as Students from './students';
 import * as Subjects from './subjects';
-export { AttendanceStatuss, FileAttachments, StaffDocuments, Staffs, StudentAttendances, StudentDocuments, Students, Subjects };
+export { AttendanceStatuss, FeeModule, FileAttachments, StaffAttendances, StaffDocuments, Staffs, StudentAttendances, StudentDocuments, Students, Subjects };

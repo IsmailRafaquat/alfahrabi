@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
@@ -36,6 +37,12 @@ public class StaffController(IStaffAppService staffAppService) : AbpController, 
     public Task<PagedResultDto<StaffDto>> GetListAsync(GetStaffListDto input)
     {
         return staffAppService.GetListAsync(input);
+    }
+
+    [HttpGet("get-staff-lookup-async")]
+    public async Task<List<StaffLookupDto>> GetStaffLookupAsync()
+    {
+        return await staffAppService.GetStaffLookupAsync();
     }
 
     [HttpPut("{id}")]

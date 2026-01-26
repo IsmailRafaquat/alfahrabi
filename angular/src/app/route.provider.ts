@@ -69,6 +69,7 @@ function configureRoutes() {
       iconClass: 'fas fa-user-tie',
       order: 20,
       layout: eLayoutType.application,
+      requiredPolicy: 'EHub.StaffMenu',
     },
     {
       path: '/staffs',
@@ -77,6 +78,25 @@ function configureRoutes() {
       iconClass: 'fas fa-list',
       order: 1,
       layout: eLayoutType.application,
+      requiredPolicy: 'EHub.StaffMenu.StaffList',
+    },
+    {
+      path: '/staff-attendances',
+      name: '::Menu:StaffAttendance',
+      parentName: '::Menu:Staff',
+      iconClass: 'fas fa-clipboard-check',
+      order: 2,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.StaffMenu.StaffAttendance',
+    },
+    {
+      path: '/staff-attendance-insights',
+      name: '::Menu:StaffAttendanceInsights',
+      parentName: '::Menu:Staff',
+      iconClass: 'fas fa-chart-bar',
+      order: 3,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.StaffMenu.StaffAttendanceInsights',
     },
     // Example future routes:
     // {
@@ -104,6 +124,94 @@ function configureRoutes() {
       iconClass: 'fas fa-book-open',
       order: 1,
       layout: eLayoutType.application,
+    },
+    {
+      name: '::Menu:Fees',
+      iconClass: 'fas fa-money-bill-wave',
+      order: 40,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.FeeMenu', // optional (remove if you don't use it)
+    },
+    {
+      path: '/fee-heads',
+      name: '::Menu:FeeHeads',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-list',
+      order: 1,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.FeeHeads', // optional
+    },
+    {
+      path: '/fee-structures',
+      name: '::Menu:FeeStructures',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-sitemap',
+      order: 2,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.FeeStructures', // optional
+    },
+    {
+      path: '/fee-structure-items',
+      name: '::Menu:FeeStructureItems',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-layer-group',
+      order: 3,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.FeeStructures', // optional
+    },
+    {
+      path: '/student-fee-profiles',
+      name: '::Menu:StudentFeeProfiles',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-layer-group',
+      order: 4,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.StudentFeeProfiles ', // optional
+    },
+    {
+      path: '/student-fee-discounts',
+      name: '::Menu:StudentFeeDiscounts',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-percent',
+      order: 5,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.StudentFeeDiscounts', // optional
+    },
+    {
+      path: '/late-fee-polices',
+      name: '::Menu:LateFeePolicies',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-clock',
+      order: 6,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.LateFeePolicies', // optional
+    },
+    {
+      path: '/student-monthly-fees',
+      name: '::Menu:StudentMonthlyFees',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-calendar-alt',
+      order: 7,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.StudentMonthlyFees', // optional
+    },
+    {
+      path: '/student-monthly-fee-lines',
+      name: '::Menu:StudentMonthlyFeeLines',
+      parentName: '::Menu:Fees',
+      iconClass: 'fas fa-list-ul',
+      order: 8,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.StudentMonthlyFeeLines',
+    },
+    {
+      path: '/check-fees-dashboard',
+      name: '::Menu:CheckFees',
+      parentName: '::Menu:Fees', // or '::Menu:Administration' if you want
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.Fees.CheckFees', // set your permission OR remove if not needed
+      order: 10,
+      iconClass: 'fas fa-receipt',
     },
   ]);
 }

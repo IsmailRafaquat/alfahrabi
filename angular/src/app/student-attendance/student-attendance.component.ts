@@ -16,6 +16,7 @@ import {
   StudentLookupDto,
   gradeLevelOptions,
   sectionOptions,
+  Section,
 } from '../proxy/students';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { StudentAttendanceDownloadService } from 'src/custom-services/student-attendance-template/student-attendance-download-service';
@@ -197,6 +198,11 @@ export class StudentAttendanceComponent implements OnInit {
     this.isTemplateModalOpen = true;
   }
 
+  private getSectionName(value: number | null | undefined): string {
+    if (value === null || value === undefined) return '';
+    return Section[value] ?? String(value);
+  }
+
   generateTemplate(): void {
     if (this.templateForm.invalid) {
       this.templateForm.markAllAsTouched();
@@ -207,7 +213,8 @@ export class StudentAttendanceComponent implements OnInit {
 
     this.downloadService.downloadTemplate(input).subscribe({
       next: (blob: Blob) => {
-        const fileName = `Attendance_${input.gradeLevel}_${input.section}_${input.dateFrom}_${input.dateTo}.xlsx`;
+        const secrionName = this.getSectionName(input.section);
+        const fileName = `Attendance_${input.gradeLevel}_${secrionName}_${input.dateFrom}_${input.dateTo}.xlsx`;
         this.downloadBlob(blob, fileName);
         this.toaster.success('::TemplateGenerated');
         this.isTemplateModalOpen = false;
@@ -243,6 +250,8 @@ export class StudentAttendanceComponent implements OnInit {
 
     return match[1].trim().replace(/"/g, '');
   }
+
+
 
   onExcelSelectedAndImport(event: Event): void {
     const input = event.target as HTMLInputElement;

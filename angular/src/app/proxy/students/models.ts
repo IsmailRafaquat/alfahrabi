@@ -47,11 +47,22 @@ export interface CreateStudentDto {
   accommodations?: string;
 }
 
+export interface GenerateStudentImportTemplateDto extends EntityDto {
+  gradeLevel?: GradeLevel;
+  section?: Section;
+  extraEmptyRows: number;
+  includeExistingStudents: boolean;
+}
+
 export interface GetStudentListDto extends PagedAndSortedResultRequestDto {
   filter?: string;
   admissionNo?: string;
   firstName?: string;
   lastName?: string;
+  gradeLevel?: GradeLevel;
+  section?: Section;
+  term?: Term;
+  shift?: Shift;
   dob?: string;
   gender?: Gender;
   status?: Status;

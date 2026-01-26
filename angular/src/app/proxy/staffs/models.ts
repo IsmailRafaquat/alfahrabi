@@ -80,6 +80,12 @@ export interface StaffDto extends EntityDto<string> {
   staffDocuments: StaffDocumentDto[];
 }
 
+export interface StaffLookupDto extends EntityDto<string> {
+  employeeCode?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface UpdateStaffDto {
   firstName: string;
   lastName: string;
