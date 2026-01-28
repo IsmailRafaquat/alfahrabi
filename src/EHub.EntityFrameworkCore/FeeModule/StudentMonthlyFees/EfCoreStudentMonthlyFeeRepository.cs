@@ -78,7 +78,12 @@ public class EfCoreStudentMonthlyFeeRepository
             q = q.Where(x => x.Month == m);
         }
 
-        q = q
+        var f = filter?.Trim();
+
+        q = q.Include(x => x.Student)
+            .WhereIf(!f.IsNullOrWhiteSpace(), x=> x.Student.FirstName.Trim().ToLower().Contains(f!.ToLower())
+                || x.Student.LastName.Trim().ToLower().Contains(f!.ToLower())
+                || x.Student.AdmissionNo.Trim().ToLower().Contains(f!.ToLower()))
             .WhereIf(studentId.HasValue, x => x.StudentId == studentId)
             .WhereIf(!string.IsNullOrWhiteSpace(filter),
                 x => x.StudentId.ToString().Contains(filter!));

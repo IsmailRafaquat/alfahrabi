@@ -11,16 +11,13 @@ import {
 } from '../proxy/student-attendances';
 import {
   StudentService,
-  GetStudentListDto,
-  StudentDto,
   StudentLookupDto,
   gradeLevelOptions,
   sectionOptions,
   Section,
 } from '../proxy/students';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { StudentAttendanceDownloadService } from 'src/custom-services/student-attendance-template/student-attendance-download-service';
-import { environment } from 'src/environments/environment';
 import {
   ImportStudentAttendanceResultDto,
   StudentAttendanceImportApi,
@@ -71,7 +68,6 @@ export class StudentAttendanceComponent implements OnInit {
     private fb: FormBuilder,
     private confirmation: ConfirmationService,
     private toaster: ToasterService,
-    private http: HttpClient
   ) {
     this.templateForm = this.fb.group({
       gradeLevel: [null, Validators.required],

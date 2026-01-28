@@ -58,7 +58,7 @@ public class EfCoreStudentAttendanceRepository : EfCoreRepository<EHubDbContext,
     {
         var q = await GetFiltersAsync(filter, studentId, dateFrom, dateTo, status, firstName, lastName, admissionNo);
 
-        sorting = string.IsNullOrWhiteSpace(sorting) ? "AttendanceDate desc" : sorting;
+        //sorting = string.IsNullOrWhiteSpace(sorting) ? "AttendanceDate desc" : sorting;
 
         return await q
             .OrderBy(sorting)

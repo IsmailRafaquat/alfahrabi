@@ -70,7 +70,7 @@ public class StudentAttendanceAppService : ApplicationService, IStudentAttendanc
 
         return new PagedResultDto<StudentAttendanceDto>(
             totalCount,
-            ObjectMapper.Map<System.Collections.Generic.List<StudentAttendance>, System.Collections.Generic.List<StudentAttendanceDto>>(items)
+            ObjectMapper.Map<List<StudentAttendance>, List<StudentAttendanceDto>>(items)
         );
     }
 
