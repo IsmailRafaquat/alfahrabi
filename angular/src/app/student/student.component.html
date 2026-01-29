@@ -4,7 +4,7 @@
       <button class="btn btn-outline-primary btn-sm mb-0 me-2" type="button" (click)="excelInput.click()"
         [disabled]="importingExcel">
         <i class="fa fa-upload me-1"></i>
-        {{ '::ImportStudents' | abpLocalization }}
+        <span class="d-none d-sm-inline">{{ '::ImportStudents' | abpLocalization }}</span>
         <span *ngIf="importingExcel" class="ms-2 spinner-border spinner-border-sm"></span>
       </button>
 
@@ -13,7 +13,7 @@
 
       <button class="btn btn-outline-primary btn-sm me-2" type="button" (click)="openTemplateModal()">
         <i class="fa fa-file-excel me-1"></i>
-        {{ '::DownloadImportTemplate' | abpLocalization }}
+        <span class="d-none d-sm-inline">{{ '::DownloadImportTemplate' | abpLocalization }}</span>
       </button>
       <button id="create" class="btn btn-primary btn-sm" type="button" (click)="createStudent()">
         <i class="fa fa-plus me-1"></i>
@@ -27,7 +27,7 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-10">
+        <div class="col-9 col-sm-10">
           <div class="input-group">
             <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
               [(ngModel)]="filters.filter" />
@@ -36,9 +36,10 @@
             </button>
           </div>
         </div>
-        <div class="col-2 text-end">
+        <div class="col-3 col-sm-2 text-end">
           <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
-            {{ '::Filters' | abpLocalization }}
+            <i class="fas fa-filter d-sm-none"></i>
+            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
             <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
             <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
           </button>

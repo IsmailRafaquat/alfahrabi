@@ -1,102 +1,101 @@
 <abp-page [title]="'Staff Attendance Insights' | abpLocalization">
-     <abp-page-toolbar-container class="col">
+  <abp-page-toolbar-container class="col">
     <div class="text-end">
       <button class="btn btn-outline-primary" type="button" (click)="load()" [disabled]="loading">
         <i class="fas fa-chart-bar me-1"></i>
-        {{ loading ? 'Loading...' : 'Select Staff' }}
-    </button>
+        <span class="d-none d-sm-inline">
+          {{ loading ? 'Loading...' : 'Select Staff' }}
+        </span>
+      </button>
     </div>
   </abp-page-toolbar-container>
-<div class="card mb-3">
-  <div class="card-body">
-    <form [formGroup]="form" class="row g-3">
-      <div class="col-12 col-md-3">
-        <label class="form-label">Department</label>
-        <nz-select formControlName="department" class="w-100 from-control" nzShowSearch nzAllowClear nzSize="large">
-          <nz-option
-            *ngFor="let d of departments"
-            [nzValue]="d.value"
-            [nzLabel]="'::Enum:Department.' + d.value | abpLocalization"
-          >
-          </nz-option>
-        </nz-select>
-      </div>
+  <div class="card mb-3">
+    <div class="card-body">
+      <form [formGroup]="form" class="row g-3">
+        <div class="col-12 col-md-3">
+          <label class="form-label">Department</label>
+          <nz-select formControlName="department" class="w-100 from-control" nzShowSearch nzAllowClear nzSize="large">
+            <nz-option *ngFor="let d of departments" [nzValue]="d.value"
+              [nzLabel]="'::Enum:Department.' + d.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
 
-      <div class="col-12 col-md-3">
-        <label class="form-label">Count</label>
-        <input type="number" class="form-control" formControlName="count" />
-      </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Count</label>
+          <input type="number" class="form-control" formControlName="count" />
+        </div>
 
-      <div class="col-12 col-md-3">
-        <label class="form-label">Order</label>
-        <select class="form-select" formControlName="order">
-          <option [ngValue]="1">Top</option>
-          <option [ngValue]="2">Bottom</option>
-        </select>
-      </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Order</label>
+          <select class="form-select" formControlName="order">
+            <option [ngValue]="1">Top</option>
+            <option [ngValue]="2">Bottom</option>
+          </select>
+        </div>
 
-      <div class="col-12 col-md-3">
-        <label class="form-label">Date From</label>
-        <input type="date" class="form-control" formControlName="dateFrom" />
-      </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Date From</label>
+          <input type="date" class="form-control" formControlName="dateFrom" />
+        </div>
 
-      <div class="col-12 col-md-3">
-        <label class="form-label">Date To</label>
-        <input type="date" class="form-control" formControlName="dateTo" />
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="row g-3">
-  <div class="col-12 col-lg-8">
-    <div class="card">
-      <div class="card-header fw-semibold">Top/Bottom Staff (Attendance Rate %)</div>
-      <div class="card-body chart-box">
-        <canvas #barCanvas></canvas>
-      </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Date To</label>
+          <input type="date" class="form-control" formControlName="dateTo" />
+        </div>
+      </form>
     </div>
   </div>
 
-  <div class="col-12 col-lg-4">
-    <div class="card">
-      <div class="card-header fw-semibold">Status Distribution</div>
-      <div class="card-body chart-box">
-        <canvas #doughnutCanvas></canvas>
+  <div class="row g-3">
+    <div class="col-12 col-lg-8">
+      <div class="card">
+        <div class="card-header fw-semibold">Top/Bottom Staff (Attendance Rate %)</div>
+        <div class="card-body chart-box">
+          <canvas #barCanvas></canvas>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="col-12" *ngIf="data">
-    <div class="card">
-      <div class="card-header fw-semibold">Staff</div>
-      <div class="card-body table-responsive">
-        <table class="table table-sm align-middle">
-          <thead>
-            <tr>
-              <th>Employee Code</th>
-              <th>Staff</th>
-              <th class="text-end">Attendance %</th>
-              <th class="text-end">Present</th>
-              <th class="text-end">Absent</th>
-              <th class="text-end">Late</th>
-              <th class="text-end">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of data.items">
-              <td>{{ s.employeeCode }}</td>
-              <td>{{ s.fullName }}</td>
-              <td class="text-end">{{ s.attendanceRate | number: '1.0-2' }}</td>
-              <td class="text-end">{{ s.presentDays }}</td>
-              <td class="text-end">{{ s.absentDays }}</td>
-              <td class="text-end">{{ s.lateDays }}</td>
-              <td class="text-end">{{ s.totalDays }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="col-12 col-lg-4">
+      <div class="card">
+        <div class="card-header fw-semibold">Status Distribution</div>
+        <div class="card-body chart-box">
+          <canvas #doughnutCanvas></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12" *ngIf="data">
+      <div class="card">
+        <div class="card-header fw-semibold">Staff</div>
+        <div class="card-body table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Employee Code</th>
+                <th>Staff</th>
+                <th class="text-end">Attendance %</th>
+                <th class="text-end">Present</th>
+                <th class="text-end">Absent</th>
+                <th class="text-end">Late</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of data.items">
+                <td>{{ s.employeeCode }}</td>
+                <td>{{ s.fullName }}</td>
+                <td class="text-end">{{ s.attendanceRate | number: '1.0-2' }}</td>
+                <td class="text-end">{{ s.presentDays }}</td>
+                <td class="text-end">{{ s.absentDays }}</td>
+                <td class="text-end">{{ s.lateDays }}</td>
+                <td class="text-end">{{ s.totalDays }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </abp-page>

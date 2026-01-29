@@ -3,12 +3,14 @@
     <div class="text-end">
       <button *abpPermission="'EHub.StudentFeeDiscounts.Create'" class="btn btn-outline-primary btn-sm me-2"
         type="button" (click)="openBulkAssign()">
-        <i class="fas fa-users me-1"></i> {{ '::BulkAssignStudentFeeDiscounts' | abpLocalization }}
+        <i class="fas fa-users me-1"></i> 
+        <span  class="d-none d-sm-inline">{{ '::BulkAssignStudentFeeDiscounts' | abpLocalization }}</span>
       </button>
 
       <button *abpPermission="'EHub.StudentFeeDiscounts.Create'" class="btn btn-outline-primary btn-sm" type="button"
         (click)="create()">
-        <i class="fa fa-plus me-1"></i> {{ '::NewStudentFeeDiscount' | abpLocalization }}
+        <i class="fa fa-plus me-1"></i>
+        <span  class="d-none d-sm-inline"> {{ '::NewStudentFeeDiscount' | abpLocalization }} </span>
       </button>
     </div>
   </abp-page-toolbar-container>
@@ -17,7 +19,7 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-10">
+        <div class="col-9 col-sm-10">
           <div class="input-group">
             <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
               [(ngModel)]="filters.filter" />
@@ -27,10 +29,13 @@
           </div>
         </div>
 
-        <div class="col-2 text-end">
-          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
-            {{ '::Filters' | abpLocalization }}
-            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+
+        <div class="col-3 col-sm-2 text-end">
+          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+            <i class="fas fa-filter d-sm-none"></i>
+            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
           </button>
         </div>
       </div>

@@ -1,13 +1,10 @@
 <abp-page [title]="'::Menu:LateFeePolicies' | abpLocalization">
   <abp-page-toolbar-container class="col">
     <div class="text-end">
-      <button
-        *abpPermission="'EHub.LateFeePolicies.Create'"
-        class="btn btn-outline-primary btn-sm"
-        type="button"
-        (click)="create()"
-      >
-        <i class="fa fa-plus me-1"></i> {{ '::NewLateFeePolicy' | abpLocalization }}
+      <button *abpPermission="'EHub.LateFeePolicies.Create'" class="btn btn-outline-primary btn-sm" type="button"
+        (click)="create()">
+        <i class="fa fa-plus me-1"></i> 
+        <span  class="d-none d-sm-inline">{{ '::NewLateFeePolicy' | abpLocalization }}</span>
       </button>
     </div>
   </abp-page-toolbar-container>
@@ -16,24 +13,22 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-10">
+        <div class="col-9 col-sm-10">
           <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              [placeholder]="'::SearchHere' | abpLocalization"
-              [(ngModel)]="filters.filter"
-            />
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+              [(ngModel)]="filters.filter" />
             <button type="button" class="btn btn-primary" (click)="list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
 
-        <div class="col-2 text-end">
-          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
-            {{ '::Filters' | abpLocalization }}
-            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+        <div class="col-3 col-sm-2 text-end">
+          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+            <i class="fas fa-filter d-sm-none"></i>
+            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
           </button>
         </div>
       </div>
@@ -44,55 +39,40 @@
           <div class="col-sm-3">
             <label>{{ '::GradeLevel' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear [(ngModel)]="filters.gradeLevel">
-              <nz-option
-                *ngFor="let g of gradeLevels"
-                [nzValue]="g.value"
-                [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"
-              ></nz-option>
+              <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+                [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
 
           <div class="col-sm-3">
             <label>{{ '::Section' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear [(ngModel)]="filters.section">
-              <nz-option
-                *ngFor="let s of sections"
-                [nzValue]="s.value"
-                [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"
-              ></nz-option>
+              <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+                [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
 
           <div class="col-sm-2">
             <label>{{ '::Shift' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear [(ngModel)]="filters.shift">
-              <nz-option
-                *ngFor="let sh of shifts"
-                [nzValue]="sh.value"
-                [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"
-              ></nz-option>
+              <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value"
+                [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
 
           <div class="col-sm-2">
             <label>{{ '::Term' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear [(ngModel)]="filters.term">
-              <nz-option
-                *ngFor="let t of terms"
-                [nzValue]="t.value"
-                [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"
-              ></nz-option>
+              <nz-option *ngFor="let t of terms" [nzValue]="t.value"
+                [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
 
           <div class="col-sm-2">
             <label>{{ '::LateFeeType' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear [(ngModel)]="filters.type">
-              <nz-option
-                *ngFor="let lt of lateFeeTypes"
-                [nzValue]="lt.value"
-                [nzLabel]="'::Enum:LateFeeType.' + lt.value | abpLocalization"
-              ></nz-option>
+              <nz-option *ngFor="let lt of lateFeeTypes" [nzValue]="lt.value"
+                [nzLabel]="'::Enum:LateFeeType.' + lt.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
         </div>
@@ -139,19 +119,11 @@
               </button>
 
               <div ngbDropdownMenu>
-                <button
-                  *abpPermission="'EHub.LateFeePolicies.Edit'"
-                  ngbDropdownItem
-                  (click)="edit(row.id)"
-                >
+                <button *abpPermission="'EHub.LateFeePolicies.Edit'" ngbDropdownItem (click)="edit(row.id)">
                   {{ '::Edit' | abpLocalization }}
                 </button>
 
-                <button
-                  *abpPermission="'EHub.LateFeePolicies.Delete'"
-                  ngbDropdownItem
-                  (click)="delete(row.id)"
-                >
+                <button *abpPermission="'EHub.LateFeePolicies.Delete'" ngbDropdownItem (click)="delete(row.id)">
                   {{ '::Delete' | abpLocalization }}
                 </button>
               </div>
@@ -160,42 +132,42 @@
         </ngx-datatable-column>
 
         <ngx-datatable-column [name]="'::AppliesTo' | abpLocalization">
-            <ng-template let-row="row" ngx-datatable-cell-template>
-                <span class="badge bg-info" *ngIf="row.isGlobal">
-                {{ '::AllStudents' | abpLocalization }}
-                </span>
-                <span *ngIf="!row.isGlobal">
-                <span *ngIf="row.gradeLevel !== null && row.gradeLevel !== undefined">
-                    {{ ('::Enum:GradeLevel.' + row.gradeLevel) | abpLocalization }}
-                </span>
-                <span *ngIf="row.section !== null && row.section !== undefined">
-                    / {{ ('::Enum:Section.' + row.section) | abpLocalization }}
-                </span>
-                <span *ngIf="row.shift !== null && row.shift !== undefined">
-                    / {{ ('::Enum:Shift.' + row.shift) | abpLocalization }}
-                </span>
-                <span *ngIf="row.term !== null && row.term !== undefined">
-                    / {{ ('::Enum:Term.' + row.term) | abpLocalization }}
-                </span>
-                </span>
-            </ng-template>
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span class="badge bg-info" *ngIf="row.isGlobal">
+              {{ '::AllStudents' | abpLocalization }}
+            </span>
+            <span *ngIf="!row.isGlobal">
+              <span *ngIf="row.gradeLevel !== null && row.gradeLevel !== undefined">
+                {{ ('::Enum:GradeLevel.' + row.gradeLevel) | abpLocalization }}
+              </span>
+              <span *ngIf="row.section !== null && row.section !== undefined">
+                / {{ ('::Enum:Section.' + row.section) | abpLocalization }}
+              </span>
+              <span *ngIf="row.shift !== null && row.shift !== undefined">
+                / {{ ('::Enum:Shift.' + row.shift) | abpLocalization }}
+              </span>
+              <span *ngIf="row.term !== null && row.term !== undefined">
+                / {{ ('::Enum:Term.' + row.term) | abpLocalization }}
+              </span>
+            </span>
+          </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::GraceDays' | abpLocalization" prop="graceDays" >
+        <ngx-datatable-column [name]="'::GraceDays' | abpLocalization" prop="graceDays">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ row.graceDays }} {{ '::Days' | abpLocalization }}
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::LateFeeType' | abpLocalization" >
+        <ngx-datatable-column [name]="'::LateFeeType' | abpLocalization">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ ('::Enum:LateFeeType.' + row.type) | abpLocalization }}
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::Value' | abpLocalization" prop="value" >
+        <ngx-datatable-column [name]="'::Value' | abpLocalization" prop="value">
           <ng-template let-row="row" ngx-datatable-cell-template>
-            {{ row.value  }}
+            {{ row.value }}
           </ng-template>
         </ngx-datatable-column>
 
@@ -243,22 +215,16 @@
         <div class="col-md-6">
           <label class="form-label">{{ '::GradeLevel' | abpLocalization }}</label>
           <nz-select formControlName="gradeLevel" class="w-100" nzAllowClear nzShowSearch>
-            <nz-option
-              *ngFor="let g of gradeLevels"
-              [nzValue]="g.value"
-              [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+              [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">{{ '::Section' | abpLocalization }}</label>
           <nz-select formControlName="section" class="w-100" nzAllowClear nzShowSearch>
-            <nz-option
-              *ngFor="let s of sections"
-              [nzValue]="s.value"
-              [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+              [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -267,22 +233,16 @@
         <div class="col-md-6">
           <label class="form-label">{{ '::Shift' | abpLocalization }}</label>
           <nz-select formControlName="shift" class="w-100" nzAllowClear nzShowSearch>
-            <nz-option
-              *ngFor="let sh of shifts"
-              [nzValue]="sh.value"
-              [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value"
+              [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">{{ '::Term' | abpLocalization }}</label>
           <nz-select formControlName="term" class="w-100" nzAllowClear nzShowSearch>
-            <nz-option
-              *ngFor="let t of terms"
-              [nzValue]="t.value"
-              [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let t of terms" [nzValue]="t.value"
+              [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -295,13 +255,8 @@
           <label class="form-label">
             {{ '::GraceDays' | abpLocalization }} <span class="text-danger">*</span>
           </label>
-          <input
-            type="number"
-            class="form-control form-control-sm"
-            formControlName="graceDays"
-            min="0"
-            [placeholder]="'::EnterGraceDays' | abpLocalization"
-          />
+          <input type="number" class="form-control form-control-sm" formControlName="graceDays" min="0"
+            [placeholder]="'::EnterGraceDays' | abpLocalization" />
           <small class="text-muted">{{ '::GraceDaysHelp' | abpLocalization }}</small>
         </div>
 
@@ -310,11 +265,8 @@
             {{ '::LateFeeType' | abpLocalization }} <span class="text-danger">*</span>
           </label>
           <nz-select formControlName="type" class="w-100">
-            <nz-option
-              *ngFor="let lt of lateFeeTypes"
-              [nzValue]="lt.value"
-              [nzLabel]="'::Enum:LateFeeType.' + lt.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let lt of lateFeeTypes" [nzValue]="lt.value"
+              [nzLabel]="'::Enum:LateFeeType.' + lt.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
 
@@ -322,14 +274,8 @@
           <label class="form-label">
             {{ '::Value' | abpLocalization }} <span class="text-danger">*</span>
           </label>
-          <input
-            type="number"
-            class="form-control form-control-sm"
-            formControlName="value"
-            min="0"
-            step="0.01"
-            [placeholder]="'::EnterAmount' | abpLocalization"
-          />
+          <input type="number" class="form-control form-control-sm" formControlName="value" min="0" step="0.01"
+            [placeholder]="'::EnterAmount' | abpLocalization" />
         </div>
       </div>
 

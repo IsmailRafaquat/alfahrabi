@@ -1,13 +1,15 @@
 <abp-page [title]="'::Menu:StudentMonthlyFees' | abpLocalization">
     <abp-page-toolbar-container class="col">
         <div class="text-end">
-            <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm me-2" type="button"
-                (click)="openBulkModal()">
-                <i class="fa fa-bolt me-1"></i> {{ '::BulkGenerate' | abpLocalization }}
+            <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm me-2"
+                type="button" (click)="openBulkModal()">
+                <i class="fa fa-bolt me-1"></i>
+                <span class="d-none d-sm-inline">{{ '::BulkGenerate' | abpLocalization }} </span>
             </button>
             <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm"
                 type="button" (click)="create()">
-                <i class="fa fa-plus me-1"></i> {{ '::NewStudentMonthlyFee' | abpLocalization }}
+                <i class="fa fa-plus me-1"></i>
+                <span class="d-none d-sm-inline"> {{ '::NewStudentMonthlyFee' | abpLocalization }} </span>
             </button>
         </div>
     </abp-page-toolbar-container>
@@ -16,7 +18,7 @@
     <div class="card">
         <div class="card-body">
             <div class="row align-items-center">
-                <div class="col-10">
+                <div class="col-9 col-sm-10">
                     <div class="input-group">
                         <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
                             [(ngModel)]="filters.filter" />
@@ -26,10 +28,13 @@
                     </div>
                 </div>
 
-                <div class="col-2 text-end">
-                    <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
-                        {{ '::Filters' | abpLocalization }}
-                        <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+
+                <div class="col-3 col-sm-2 text-end">
+                    <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+                        <i class="fas fa-filter d-sm-none"></i>
+                        <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+                        <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+                        <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
                     </button>
                 </div>
             </div>
@@ -178,87 +183,96 @@
 </abp-modal>
 
 <abp-modal [(visible)]="isBulkModalOpen">
-  <ng-template #abpHeader>
-    <h3>{{ '::BulkGenerateStudentMonthlyFee' | abpLocalization }}</h3>
-  </ng-template>
+    <ng-template #abpHeader>
+        <h3>{{ '::BulkGenerateStudentMonthlyFee' | abpLocalization }}</h3>
+    </ng-template>
 
-  <ng-template #abpBody>
-    <form [formGroup]="bulkForm">
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label class="form-label">
-            {{ '::Month' | abpLocalization }} <span class="text-danger">*</span>
-          </label>
-          <input type="month" class="form-control" formControlName="month" />
-        </div>
+    <ng-template #abpBody>
+        <form [formGroup]="bulkForm">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        {{ '::Month' | abpLocalization }} <span class="text-danger">*</span>
+                    </label>
+                    <input type="month" class="form-control" formControlName="month" />
+                </div>
 
-        <div class="col-md-6">
-          <label class="form-label">{{ '::DueDate' | abpLocalization }}</label>
-          <input type="date" class="form-control" formControlName="dueDate" />
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ '::DueDate' | abpLocalization }}</label>
+                    <input type="date" class="form-control" formControlName="dueDate" />
+                </div>
 
-        <div class="col-md-12">
-          <label class="form-label">{{ '::Remarks' | abpLocalization }}</label>
-          <input type="text" class="form-control" formControlName="remarks" />
-        </div>
+                <div class="col-md-12">
+                    <label class="form-label">{{ '::Remarks' | abpLocalization }}</label>
+                    <input type="text" class="form-control" formControlName="remarks" />
+                </div>
 
-        <div class="col-md-6">
-          <label class="form-label">{{ '::GradeLevel' | abpLocalization }}</label>
-          <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.gradeLevel" [ngModelOptions]="{standalone:true}">
-            <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value" [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"></nz-option>
-          </nz-select>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ '::GradeLevel' | abpLocalization }}</label>
+                    <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.gradeLevel"
+                        [ngModelOptions]="{standalone:true}">
+                        <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+                            [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"></nz-option>
+                    </nz-select>
+                </div>
 
-        <div class="col-md-6">
-          <label class="form-label">{{ '::Section' | abpLocalization }}</label>
-          <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.section" [ngModelOptions]="{standalone:true}">
-            <nz-option *ngFor="let s of sections" [nzValue]="s.value" [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"></nz-option>
-          </nz-select>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ '::Section' | abpLocalization }}</label>
+                    <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.section"
+                        [ngModelOptions]="{standalone:true}">
+                        <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+                            [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"></nz-option>
+                    </nz-select>
+                </div>
 
-        <div class="col-md-6">
-          <label class="form-label">{{ '::Shift' | abpLocalization }}</label>
-          <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.shift" [ngModelOptions]="{standalone:true}">
-            <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value" [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"></nz-option>
-          </nz-select>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ '::Shift' | abpLocalization }}</label>
+                    <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.shift"
+                        [ngModelOptions]="{standalone:true}">
+                        <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value"
+                            [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"></nz-option>
+                    </nz-select>
+                </div>
 
-        <div class="col-md-6">
-          <label class="form-label">{{ '::Term' | abpLocalization }}</label>
-          <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.term" [ngModelOptions]="{standalone:true}">
-            <nz-option *ngFor="let t of terms" [nzValue]="t.value" [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"></nz-option>
-          </nz-select>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ '::Term' | abpLocalization }}</label>
+                    <nz-select class="w-100" nzAllowClear [(ngModel)]="bulkFilters.term"
+                        [ngModelOptions]="{standalone:true}">
+                        <nz-option *ngFor="let t of terms" [nzValue]="t.value"
+                            [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"></nz-option>
+                    </nz-select>
+                </div>
 
-        <div class="col-md-12 mt-2">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="skipIfExists" formControlName="skipIfExists" />
-            <label class="form-check-label" for="skipIfExists">
-              {{ '::SkipIfExists' | abpLocalization }}
-            </label>
-          </div>
-        </div>
+                <div class="col-md-12 mt-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="skipIfExists"
+                            formControlName="skipIfExists" />
+                        <label class="form-check-label" for="skipIfExists">
+                            {{ '::SkipIfExists' | abpLocalization }}
+                        </label>
+                    </div>
+                </div>
 
-        <div class="col-md-12" *ngIf="bulkResult">
-          <div class="alert alert-info mb-0">
-            <strong>{{ '::Result' | abpLocalization }}:</strong>
-            {{ '::TotalStudents' | abpLocalization }}: {{ bulkResult.totalStudents }},
-            {{ '::Created' | abpLocalization }}: {{ bulkResult.created }},
-            {{ '::Skipped' | abpLocalization }}: {{ bulkResult.skipped }}
-          </div>
-        </div>
-      </div>
-    </form>
-  </ng-template>
+                <div class="col-md-12" *ngIf="bulkResult">
+                    <div class="alert alert-info mb-0">
+                        <strong>{{ '::Result' | abpLocalization }}:</strong>
+                        {{ '::TotalStudents' | abpLocalization }}: {{ bulkResult.totalStudents }},
+                        {{ '::Created' | abpLocalization }}: {{ bulkResult.created }},
+                        {{ '::Skipped' | abpLocalization }}: {{ bulkResult.skipped }}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </ng-template>
 
-  <ng-template #abpFooter>
-    <button type="button" class="btn btn-secondary" abpClose>
-      {{ '::Close' | abpLocalization }}
-    </button>
+    <ng-template #abpFooter>
+        <button type="button" class="btn btn-secondary" abpClose>
+            {{ '::Close' | abpLocalization }}
+        </button>
 
-    <button class="btn btn-primary" (click)="bulkGenerate()" [disabled]="bulkForm.invalid || bulkLoading">
-      <i class="fa fa-bolt me-1"></i>
-      {{ bulkLoading ? ('::Processing' | abpLocalization) : ('::Generate' | abpLocalization) }}
-    </button>
-  </ng-template>
+        <button class="btn btn-primary" (click)="bulkGenerate()" [disabled]="bulkForm.invalid || bulkLoading">
+            <i class="fa fa-bolt me-1"></i>
+            {{ bulkLoading ? ('::Processing' | abpLocalization) : ('::Generate' | abpLocalization) }}
+        </button>
+    </ng-template>
 </abp-modal>

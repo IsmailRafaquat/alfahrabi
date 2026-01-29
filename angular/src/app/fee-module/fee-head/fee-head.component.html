@@ -8,7 +8,7 @@
       </div>
 
       <div class="text-end col col-md-6">
-        <div class="text-lg-end pt-2">
+        <div class="text-lg-end">
           <button
             *abpPermission="'EHub.FeeHeads.Create'"
             id="create"
@@ -17,7 +17,7 @@
             (click)="create()"
           >
             <i class="fa fa-plus me-1"></i>
-            <span>{{ '::NewFeeHead' | abpLocalization }}</span>
+            <span class="d-none d-sm-inline">{{ '::NewFeeHead' | abpLocalization }}</span>
           </button>
         </div>
       </div>

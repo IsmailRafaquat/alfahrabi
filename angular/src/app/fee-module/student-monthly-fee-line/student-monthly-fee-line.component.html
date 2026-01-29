@@ -1,12 +1,10 @@
 <abp-page [title]="'::Menu:StudentMonthlyFeeLines' | abpLocalization">
   <abp-page-toolbar-container class="col">
     <div class="text-end">
-      <button
-        *abpPermission="'EHub.StudentMonthlyFeeLines.Create'"
-        class="btn btn-outline-primary btn-sm"
-        type="button"
+      <button *abpPermission="'EHub.StudentMonthlyFeeLines.Create'" class="btn btn-outline-primary btn-sm" type="button"
         (click)="create()">
-        <i class="fa fa-plus me-1"></i> {{ '::NewStudentMonthlyFeeLine' | abpLocalization }}
+        <i class="fa fa-plus me-1"></i> 
+        <span  class="d-none d-sm-inline">{{ '::NewStudentMonthlyFeeLine' | abpLocalization }}</span>
       </button>
     </div>
   </abp-page-toolbar-container>
@@ -15,23 +13,20 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-10">
+        <div class="col-9 col-sm-10">
           <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              [placeholder]="'::SearchHere' | abpLocalization"
-              />
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" />
             <button type="button" class="btn btn-primary" (click)="list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
-
-        <div class="col-2 text-end">
-          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
-            {{ '::Filters' | abpLocalization }}
-            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+        <div class="col-3 col-sm-2 text-end">
+          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+            <i class="fas fa-filter d-sm-none"></i>
+            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
           </button>
         </div>
       </div>
@@ -41,14 +36,8 @@
         <div class="row g-2">
           <div class="col-sm-4">
             <label class="form-label">{{ '::StudentMonthlyFee' | abpLocalization }}</label>
-            <nz-select
-              class="w-100"
-              nzAllowClear
-              nzShowSearch
-              [(ngModel)]="filters.studentMonthlyFeeId">
-              <nz-option
-                *ngFor="let fee of monthlyFeeOptions"
-                [nzValue]="fee.id"
+            <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.studentMonthlyFeeId">
+              <nz-option *ngFor="let fee of monthlyFeeOptions" [nzValue]="fee.id"
                 [nzLabel]="monthlyFeeLabel(fee)"></nz-option>
             </nz-select>
           </div>
@@ -56,10 +45,7 @@
           <div class="col-sm-4">
             <label class="form-label">{{ '::FeeHead' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.feeHeadId">
-              <nz-option
-                *ngFor="let fh of feeHeadOptions"
-                [nzValue]="fh.id"
-                [nzLabel]="fh.name"></nz-option>
+              <nz-option *ngFor="let fh of feeHeadOptions" [nzValue]="fh.id" [nzLabel]="fh.name"></nz-option>
             </nz-select>
           </div>
 
@@ -81,10 +67,7 @@
     <div class="card-body">
       <ngx-datatable [rows]="feeLines.items" [count]="feeLines.totalCount" [list]="list" default>
         <!-- Actions Column -->
-        <ngx-datatable-column
-          [name]="'::Actions' | abpLocalization"
-          [maxWidth]="150"
-          [sortable]="false">
+        <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="150" [sortable]="false">
           <ng-template let-row="row" ngx-datatable-cell-template>
             <div ngbDropdown container="body" class="d-inline-block">
               <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
@@ -92,17 +75,11 @@
               </button>
 
               <div ngbDropdownMenu>
-                <button
-                  *abpPermission="'EHub.StudentMonthlyFeeLines.Edit'"
-                  ngbDropdownItem
-                  (click)="edit(row.id)">
+                <button *abpPermission="'EHub.StudentMonthlyFeeLines.Edit'" ngbDropdownItem (click)="edit(row.id)">
                   {{ '::Edit' | abpLocalization }}
                 </button>
 
-                <button
-                  *abpPermission="'EHub.StudentMonthlyFeeLines.Delete'"
-                  ngbDropdownItem
-                  (click)="delete(row.id)">
+                <button *abpPermission="'EHub.StudentMonthlyFeeLines.Delete'" ngbDropdownItem (click)="delete(row.id)">
                   {{ '::Delete' | abpLocalization }}
                 </button>
               </div>
@@ -125,30 +102,21 @@
         </ngx-datatable-column>
 
         <!-- Expected Amount Column -->
-        <ngx-datatable-column
-          [name]="'::ExpectedAmount' | abpLocalization"
-          [width]="130"
-          prop="expectedAmount">
+        <ngx-datatable-column [name]="'::ExpectedAmount' | abpLocalization" [width]="130" prop="expectedAmount">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ row.expectedAmount | number: '1.2-2' }}
           </ng-template>
         </ngx-datatable-column>
 
         <!-- Discount Amount Column -->
-        <ngx-datatable-column
-          [name]="'::DiscountAmount' | abpLocalization"
-          [width]="130"
-          prop="discountAmount">
+        <ngx-datatable-column [name]="'::DiscountAmount' | abpLocalization" [width]="130" prop="discountAmount">
           <ng-template let-row="row" ngx-datatable-cell-template>
             <span>{{ row.discountAmount | number: '1.2-2' }}</span>
           </ng-template>
         </ngx-datatable-column>
 
         <!-- Adjustment Amount Column -->
-        <ngx-datatable-column
-          [name]="'::AdjustmentAmount' | abpLocalization"
-          [width]="140"
-          prop="adjustmentAmount">
+        <ngx-datatable-column [name]="'::AdjustmentAmount' | abpLocalization" [width]="140" prop="adjustmentAmount">
           <ng-template let-row="row" ngx-datatable-cell-template>
             <span>
               {{ row.adjustmentAmount | number: '1.2-2' }}
@@ -157,10 +125,7 @@
         </ngx-datatable-column>
 
         <!-- Late Fee Amount Column -->
-        <ngx-datatable-column
-          [name]="'::LateFeeAmount' | abpLocalization"
-          [width]="130"
-          prop="lateFeeAmount">
+        <ngx-datatable-column [name]="'::LateFeeAmount' | abpLocalization" [width]="130" prop="lateFeeAmount">
           <ng-template let-row="row" ngx-datatable-cell-template>
             <span>{{ row.lateFeeAmount | number: '1.2-2' }}</span>
           </ng-template>
@@ -174,10 +139,7 @@
         </ngx-datatable-column>
 
         <!-- Paid Amount Column -->
-        <ngx-datatable-column
-          [name]="'::PaidAmount' | abpLocalization"
-          [width]="130"
-          prop="paidAmount">
+        <ngx-datatable-column [name]="'::PaidAmount' | abpLocalization" [width]="130" prop="paidAmount">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ row.paidAmount | number: '1.2-2' }}
           </ng-template>
@@ -186,9 +148,7 @@
         <!-- Balance Column -->
         <ngx-datatable-column [name]="'::Balance' | abpLocalization" [width]="130">
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <strong
-              [class.text-danger]="calculateBalance(row) > 0"
-              [class.text-success]="calculateBalance(row) <= 0">
+            <strong [class.text-danger]="calculateBalance(row) > 0" [class.text-success]="calculateBalance(row) <= 0">
               {{ calculateBalance(row) | number: '1.2-2' }}
             </strong>
           </ng-template>
@@ -203,8 +163,8 @@
   <ng-template #abpHeader>
     <h3>
       {{
-        (selected.id ? '::EditStudentMonthlyFeeLine' : '::NewStudentMonthlyFeeLine')
-          | abpLocalization
+      (selected.id ? '::EditStudentMonthlyFeeLine' : '::NewStudentMonthlyFeeLine')
+      | abpLocalization
       }}
     </h3>
   </ng-template>
@@ -217,34 +177,19 @@
           <label class="form-label">
             {{ '::StudentMonthlyFee' | abpLocalization }} <span class="text-danger">*</span>
           </label>
-          <nz-select
-            formControlName="studentMonthlyFeeId"
-            class="w-100"
-            nzAllowClear
-            nzShowSearch
-            nzSize="large">
-            <nz-option
-              *ngFor="let fee of monthlyFeeOptions"
-              [nzValue]="fee.id"
+          <nz-select formControlName="studentMonthlyFeeId" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+            <nz-option *ngFor="let fee of monthlyFeeOptions" [nzValue]="fee.id"
               [nzLabel]="monthlyFeeLabel(fee)"></nz-option>
           </nz-select>
         </div>
 
-      <!-- Fee Head Selection -->
+        <!-- Fee Head Selection -->
         <div class="col-md-6">
           <label class="form-label">
             {{ '::FeeHead' | abpLocalization }} <span class="text-danger">*</span>
           </label>
-          <nz-select
-            formControlName="feeHeadId"
-            class="w-100"
-            nzAllowClear
-            nzShowSearch
-            nzSize="large">
-            <nz-option
-              *ngFor="let fh of feeHeadOptions"
-              [nzValue]="fh.id"
-              [nzLabel]="fh.name"></nz-option>
+          <nz-select formControlName="feeHeadId" class="w-100" nzAllowClear nzShowSearch nzSize="large">
+            <nz-option *ngFor="let fh of feeHeadOptions" [nzValue]="fh.id" [nzLabel]="fh.name"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -270,11 +215,7 @@
               <i class="fas fa-magic"></i> {{ '::FromFeeStructure' | abpLocalization }}
             </span>
           </label>
-          <input
-            type="number"
-            class="form-control form-control-sm bg-light"
-            formControlName="expectedAmount"
-            readonly
+          <input type="number" class="form-control form-control-sm bg-light" formControlName="expectedAmount" readonly
             step="0.01" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
@@ -282,12 +223,8 @@
           </small>
         </div>
         <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary w-100"
-            (click)="enableExpectedAmountOverride()"
-            *ngIf="form.get('expectedAmount')?.disabled"
-            [title]="'::ManualOverride' | abpLocalization">
+          <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="enableExpectedAmountOverride()"
+            *ngIf="form.get('expectedAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
             <i class="fas fa-edit"></i>
           </button>
         </div>
@@ -302,25 +239,16 @@
               <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
             </span>
           </label>
-          <input
-            type="number"
-            class="form-control form-control-sm bg-light"
-            formControlName="discountAmount"
-            readonly
-            step="0.01"
-            min="0" />
+          <input type="number" class="form-control form-control-sm bg-light" formControlName="discountAmount" readonly
+            step="0.01" min="0" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::FromDiscountPolicy' | abpLocalization }}
           </small>
         </div>
         <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary w-100"
-            (click)="enableDiscountOverride()"
-            *ngIf="form.get('discountAmount')?.disabled"
-            [title]="'::ManualOverride' | abpLocalization">
+          <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="enableDiscountOverride()"
+            *ngIf="form.get('discountAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
             <i class="fas fa-edit"></i>
           </button>
         </div>
@@ -330,11 +258,7 @@
       <div class="row mt-3">
         <div class="col-md-11">
           <label class="form-label">{{ '::AdjustmentAmount' | abpLocalization }}</label>
-          <input
-            type="number"
-            class="form-control form-control-sm"
-            formControlName="adjustmentAmount"
-            step="0.01" />
+          <input type="number" class="form-control form-control-sm" formControlName="adjustmentAmount" step="0.01" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::AdjustmentCanBeNegative' | abpLocalization }}
@@ -351,25 +275,16 @@
               <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
             </span>
           </label>
-          <input
-            type="number"
-            class="form-control form-control-sm bg-light"
-            formControlName="lateFeeAmount"
-            readonly
-            step="0.01"
-            min="0" />
+          <input type="number" class="form-control form-control-sm bg-light" formControlName="lateFeeAmount" readonly
+            step="0.01" min="0" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::FromLateFeePolicy' | abpLocalization }}
           </small>
         </div>
         <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary w-100"
-            (click)="enableLateFeeOverride()"
-            *ngIf="form.get('lateFeeAmount')?.disabled"
-            [title]="'::ManualOverride' | abpLocalization">
+          <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="enableLateFeeOverride()"
+            *ngIf="form.get('lateFeeAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
             <i class="fas fa-edit"></i>
           </button>
         </div>
@@ -379,12 +294,7 @@
       <div class="row mt-3">
         <div class="col-md-6">
           <label class="form-label">{{ '::PaidAmount' | abpLocalization }}</label>
-          <input
-            type="number"
-            class="form-control form-control-sm"
-            formControlName="paidAmount"
-            min="0"
-            step="0.01"
+          <input type="number" class="form-control form-control-sm" formControlName="paidAmount" min="0" step="0.01"
             placeholder="0.00" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
@@ -399,12 +309,8 @@
               <i class="fas fa-calculator"></i> {{ '::Calculated' | abpLocalization }}
             </span>
           </label>
-          <input
-            type="number"
-            class="form-control form-control-sm bg-light fw-bold "
-            [value]="calculateFormNetAmount()"
-            readonly
-            disabled />
+          <input type="number" class="form-control form-control-sm bg-light fw-bold " [value]="calculateFormNetAmount()"
+            readonly disabled />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             Expected - Discount + Adjustment + Late Fee
@@ -433,9 +339,7 @@
             </div>
             <div class="col-6">
               <small class="text-muted">{{ '::AdjustmentAmount' | abpLocalization }}:</small>
-              <div
-                class="fw-bold"
-                [class.text-success]="form.get('adjustmentAmount')?.value < 0"
+              <div class="fw-bold" [class.text-success]="form.get('adjustmentAmount')?.value < 0"
                 [class.text-warning]="form.get('adjustmentAmount')?.value > 0">
                 {{ form.get('adjustmentAmount')?.value | number: '1.2-2' }}
               </div>
@@ -457,17 +361,14 @@
             </div>
             <div class="col-6">
               <small class="text-muted">{{ '::Balance' | abpLocalization }}:</small>
-              <div
-                class="fw-bold fs-5"
-                [class.text-danger]="
+              <div class="fw-bold fs-5" [class.text-danger]="
                   calculateFormNetAmount() - (form.get('paidAmount')?.value || 0) > 0
-                "
-                [class.text-success]="
+                " [class.text-success]="
                   calculateFormNetAmount() - (form.get('paidAmount')?.value || 0) <= 0
                 ">
                 {{
-                  calculateFormNetAmount() - (form.get('paidAmount')?.value || 0)
-                    | number: '1.2-2'
+                calculateFormNetAmount() - (form.get('paidAmount')?.value || 0)
+                | number: '1.2-2'
                 }}
               </div>
             </div>

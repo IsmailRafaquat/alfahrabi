@@ -1,22 +1,16 @@
 <abp-page [title]="'::Menu:StudentFeeProfiles' | abpLocalization">
   <abp-page-toolbar-container class="col">
     <div class="text-end">
-      <button
-        *abpPermission="'EHub.StudentFeeProfiles.Create'"
-        class="btn btn-outline-primary btn-sm me-2"
-        type="button"
-        (click)="openBulkAssign()"
-      >
-        <i class="fas fa-users me-1"></i> {{ '::BulkAssignStudentFeeProfiles' | abpLocalization }}
+      <button *abpPermission="'EHub.StudentFeeProfiles.Create'" class="btn btn-outline-primary btn-sm me-2"
+        type="button" (click)="openBulkAssign()">
+        <i class="fas fa-users me-1"></i> <span class="d-none d-sm-inline"> {{ '::BulkAssignStudentFeeProfiles' |
+          abpLocalization }} </span>
       </button>
 
-      <button
-        *abpPermission="'EHub.StudentFeeProfiles.Create'"
-        class="btn btn-outline-primary btn-sm"
-        type="button"
-        (click)="create()"
-      >
-        <i class="fa fa-plus me-1"></i> {{ '::NewStudentFeeProfile' | abpLocalization }}
+      <button *abpPermission="'EHub.StudentFeeProfiles.Create'" class="btn btn-outline-primary btn-sm" type="button"
+        (click)="create()">
+        <i class="fa fa-plus me-1"></i> <span class="d-none d-sm-inline"> {{ '::NewStudentFeeProfile' | abpLocalization
+          }}</span>
       </button>
     </div>
   </abp-page-toolbar-container>
@@ -25,24 +19,23 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-10">
+        <div class="col-9 sol-sm-10">
           <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              [placeholder]="'::SearchHere' | abpLocalization"
-              [(ngModel)]="filters.filter"
-            />
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+              [(ngModel)]="filters.filter" />
             <button type="button" class="btn btn-primary" (click)="list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
 
-        <div class="col-2 text-end">
-          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
-            {{ '::Filters' | abpLocalization }}
-            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+
+        <div class="col-3 col-sm-2 text-end">
+          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+            <i class="fas fa-filter d-sm-none"></i>
+            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
           </button>
         </div>
       </div>
@@ -52,33 +45,16 @@
         <div class="row g-2">
           <div class="col-sm-3">
             <label>{{ '::Student' | abpLocalization }}</label>
-            <nz-select
-              class="w-100"
-              nzAllowClear
-              nzShowSearch
-              [(ngModel)]="filters.studentId"
-            >
-              <nz-option
-                *ngFor="let s of studentOptions"
-                [nzValue]="s.id"
-                [nzLabel]="studentLabel(s)"
-              ></nz-option>
+            <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.studentId">
+              <nz-option *ngFor="let s of studentOptions" [nzValue]="s.id" [nzLabel]="studentLabel(s)"></nz-option>
             </nz-select>
           </div>
 
           <div class="col-sm-3">
             <label>{{ '::FeeStructure' | abpLocalization }}</label>
-            <nz-select
-              class="w-100"
-              nzAllowClear
-              nzShowSearch
-              [(ngModel)]="filters.feeStructureId"
-            >
-              <nz-option
-                *ngFor="let f of feeStructureOptions"
-                [nzValue]="f.id"
-                [nzLabel]="feeStructureLabel(f)"
-              ></nz-option>
+            <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.feeStructureId">
+              <nz-option *ngFor="let f of feeStructureOptions" [nzValue]="f.id"
+                [nzLabel]="feeStructureLabel(f)"></nz-option>
             </nz-select>
           </div>
 
@@ -125,19 +101,11 @@
               </button>
 
               <div ngbDropdownMenu>
-                <button
-                  *abpPermission="'EHub.StudentFeeProfiles.Edit'"
-                  ngbDropdownItem
-                  (click)="edit(row.id)"
-                >
+                <button *abpPermission="'EHub.StudentFeeProfiles.Edit'" ngbDropdownItem (click)="edit(row.id)">
                   {{ '::Edit' | abpLocalization }}
                 </button>
 
-                <button
-                  *abpPermission="'EHub.StudentFeeProfiles.Delete'"
-                  ngbDropdownItem
-                  (click)="delete(row.id)"
-                >
+                <button *abpPermission="'EHub.StudentFeeProfiles.Delete'" ngbDropdownItem (click)="delete(row.id)">
                   {{ '::Delete' | abpLocalization }}
                 </button>
               </div>
@@ -198,11 +166,7 @@
           </label>
 
           <nz-select formControlName="studentId" class="w-100" nzAllowClear nzShowSearch>
-            <nz-option
-              *ngFor="let s of studentOptions"
-              [nzValue]="s.id"
-              [nzLabel]="studentLabel(s)"
-            ></nz-option>
+            <nz-option *ngFor="let s of studentOptions" [nzValue]="s.id" [nzLabel]="studentLabel(s)"></nz-option>
           </nz-select>
         </div>
 
@@ -212,11 +176,8 @@
           </label>
 
           <nz-select formControlName="feeStructureId" class="w-100" nzAllowClear nzShowSearch>
-            <nz-option
-              *ngFor="let f of feeStructureOptions"
-              [nzValue]="f.id"
-              [nzLabel]="feeStructureLabel(f)"
-            ></nz-option>
+            <nz-option *ngFor="let f of feeStructureOptions" [nzValue]="f.id"
+              [nzLabel]="feeStructureLabel(f)"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -270,22 +231,16 @@
             {{ '::GradeLevel' | abpLocalization }} <span class="text-danger">*</span>
           </label>
           <nz-select class="w-100" nzAllowClear nzShowSearch formControlName="gradeLevel">
-            <nz-option
-              *ngFor="let g of gradeLevels"
-              [nzValue]="g.value"
-              [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
+              [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">{{ '::Section' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzShowSearch formControlName="section">
-            <nz-option
-              *ngFor="let s of sections"
-              [nzValue]="s.value"
-              [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let s of sections" [nzValue]="s.value"
+              [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -294,22 +249,16 @@
         <div class="col-md-6">
           <label class="form-label">{{ '::Shift' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzShowSearch formControlName="shift">
-            <nz-option
-              *ngFor="let sh of shifts"
-              [nzValue]="sh.value"
-              [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let sh of shifts" [nzValue]="sh.value"
+              [nzLabel]="'::Enum:Shift.' + sh.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">{{ '::Term' | abpLocalization }}</label>
           <nz-select class="w-100" nzAllowClear nzShowSearch formControlName="term">
-            <nz-option
-              *ngFor="let t of terms"
-              [nzValue]="t.value"
-              [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let t of terms" [nzValue]="t.value"
+              [nzLabel]="'::Enum:Term.' + t.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -320,11 +269,8 @@
             {{ '::FeeStructure' | abpLocalization }} <span class="text-danger">*</span>
           </label>
           <nz-select class="w-100" nzAllowClear nzShowSearch formControlName="feeStructureId">
-            <nz-option
-              *ngFor="let f of feeStructureOptions"
-              [nzValue]="f.id"
-              [nzLabel]="feeStructureLabel(f)"
-            ></nz-option>
+            <nz-option *ngFor="let f of feeStructureOptions" [nzValue]="f.id"
+              [nzLabel]="feeStructureLabel(f)"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -377,14 +323,10 @@
       {{ '::Close' | abpLocalization }}
     </button>
 
-    <button
-      class="btn btn-primary"
-      [disabled]="!bulkForm || bulkForm.invalid || isBulkSubmitting"
-      (click)="bulkAssign()"
-    >
+    <button class="btn btn-primary" [disabled]="!bulkForm || bulkForm.invalid || isBulkSubmitting"
+      (click)="bulkAssign()">
       <i class="fas fa-check me-1"></i>
       {{ '::Assign' | abpLocalization }}
     </button>
   </ng-template>
 </abp-modal>
-

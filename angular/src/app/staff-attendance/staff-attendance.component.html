@@ -2,31 +2,24 @@
   <abp-page-toolbar-container class="col">
     <div class="text-end">
       <!-- Hidden file input -->
-      <input
-        #fileInput
-        type="file"
-        accept=".xlsx"
-        class="d-none"
-        (change)="onExcelSelectedAndImport($event)"
-      />
+      <input #fileInput type="file" accept=".xlsx" class="d-none" (change)="onExcelSelectedAndImport($event)" />
 
-      <button
-        type="button"
-        class="btn btn-outline-primary btn-sm me-2"
-        (click)="fileInput.click()"
-        [disabled]="importingExcel"
-      >
+      <button type="button" class="btn btn-outline-primary btn-sm me-2" (click)="fileInput.click()"
+        [disabled]="importingExcel">
         <i class="fa fa-upload me-1"></i>
-        {{ importingExcel ? ('::Importing' | abpLocalization) : ('::ImportExcel' | abpLocalization) }}
+        <span class="d-none d-sm-inline">
+          {{ importingExcel ? ('::Importing' | abpLocalization) : ('::ImportExcel' | abpLocalization) }}
+        </span>
       </button>
 
       <button class="btn btn-outline-primary btn-sm me-2" (click)="openTemplateModal()">
         <i class="fa fa-file-excel me-1"></i>
-        {{ '::GenerateAttendanceTemplate' | abpLocalization }}
+        <span class="d-none d-sm-inline">{{ '::GenerateAttendanceTemplate' | abpLocalization }}</span>
       </button>
 
       <button class="btn btn-outline-primary btn-sm" type="button" (click)="openMarkModal()">
-        <i class="fa fa-plus me-1"></i> {{ '::MarkAttendance' | abpLocalization }}
+        <i class="fa fa-plus me-1"></i> 
+        <span class="d-none d-sm-inline"> {{ '::MarkAttendance' | abpLocalization }}</span>
       </button>
     </div>
   </abp-page-toolbar-container>
@@ -35,24 +28,23 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-10">
+        <div class="col-9 col-sm-10">
           <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              [placeholder]="'::SearchHere' | abpLocalization"
-              [(ngModel)]="filters.filter"
-            />
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+              [(ngModel)]="filters.filter" />
             <button type="button" class="btn btn-primary" (click)="list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
 
-        <div class="col-2 text-end">
-          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
-            {{ '::Filters' | abpLocalization }}
-            <i class="fas" [ngClass]="showFilter ? 'fa-angle-up' : 'fa-angle-down'"></i>
+
+        <div class="col-3 col-sm-2 text-end">
+          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+            <i class="fas fa-filter d-sm-none"></i>
+            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
           </button>
         </div>
       </div>
@@ -77,18 +69,9 @@
 
           <div class="col-sm-3">
             <label>{{ '::Status' | abpLocalization }}</label>
-            <nz-select
-              [(ngModel)]="filters.status"
-              nzAllowClear
-              nzShowSearch
-              nzSize="large"
-              class="w-100"
-            >
-              <nz-option
-                *ngFor="let s of attendanceStatuses"
-                [nzValue]="s.value"
-                [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization"
-              ></nz-option>
+            <nz-select [(ngModel)]="filters.status" nzAllowClear nzShowSearch nzSize="large" class="w-100">
+              <nz-option *ngFor="let s of attendanceStatuses" [nzValue]="s.value"
+                [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
 
@@ -162,13 +145,10 @@
 
         <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <span
-              class="badge"
-              [class.bg-success]="row.status === attendanceStatusPresent"
+            <span class="badge" [class.bg-success]="row.status === attendanceStatusPresent"
               [class.bg-danger]="row.status === attendanceStatusAbsent"
               [class.bg-warning]="row.status === attendanceStatusLate"
-              [class.bg-secondary]="row.status !== attendanceStatusPresent && row.status !== attendanceStatusAbsent && row.status !== attendanceStatusLate"
-            >
+              [class.bg-secondary]="row.status !== attendanceStatusPresent && row.status !== attendanceStatusAbsent && row.status !== attendanceStatusLate">
               {{ ('::Enum:AttendanceStatus.' + row.status) | abpLocalization }}
             </span>
           </ng-template>
@@ -198,20 +178,10 @@
             {{ '::Staff' | abpLocalization }} <span class="text-danger">*</span>
           </label>
 
-          <nz-select
-            class="w-100"
-            nzShowSearch
-            nzAllowClear
-            nzSize="large"
-            nzServerSearch
-            [nzLoading]="staffLoading"
-            formControlName="staffId"
-          >
-            <nz-option
-              *ngFor="let s of staffOptions"
-              [nzValue]="s.id"
-              [nzLabel]="(s.firstName + ' ' + s.lastName + ' (' + (s.employeeCode || '-') + ')')"
-            ></nz-option>
+          <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" nzServerSearch [nzLoading]="staffLoading"
+            formControlName="staffId">
+            <nz-option *ngFor="let s of staffOptions" [nzValue]="s.id"
+              [nzLabel]="(s.firstName + ' ' + s.lastName + ' (' + (s.employeeCode || '-') + ')')"></nz-option>
           </nz-select>
 
           <small class="form-text text-muted">
@@ -232,11 +202,8 @@
           </label>
 
           <nz-select class="w-100" nzAllowClear nzShowSearch nzSize="large" formControlName="status">
-            <nz-option
-              *ngFor="let s of attendanceStatuses"
-              [nzValue]="s.value"
-              [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization"
-            ></nz-option>
+            <nz-option *ngFor="let s of attendanceStatuses" [nzValue]="s.value"
+              [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization"></nz-option>
           </nz-select>
         </div>
 
@@ -276,8 +243,8 @@
         <div class="col-md-12 mb-1">
           <strong>{{ '::Staff' | abpLocalization }}:</strong>
           {{ selectedAttendance?.staff
-              ? (selectedAttendance.staff.firstName + ' ' + selectedAttendance.staff.lastName)
-              : (selectedAttendance?.staffName ?? '-') }}
+          ? (selectedAttendance.staff.firstName + ' ' + selectedAttendance.staff.lastName)
+          : (selectedAttendance?.staffName ?? '-') }}
         </div>
 
         <div class="col-md-12 mb-1">
@@ -316,11 +283,8 @@
       <div class="mb-2">
         <label class="form-label">{{ '::Department' | abpLocalization }} *</label>
         <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="department">
-          <nz-option
-            *ngFor="let d of departments"
-            [nzValue]="d.value"
-            [nzLabel]="'::Enum:Department.' + d.value | abpLocalization"
-          ></nz-option>
+          <nz-option *ngFor="let d of departments" [nzValue]="d.value"
+            [nzLabel]="'::Enum:Department.' + d.value | abpLocalization"></nz-option>
         </nz-select>
       </div>
 

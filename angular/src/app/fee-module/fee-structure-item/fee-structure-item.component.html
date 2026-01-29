@@ -6,7 +6,7 @@
       </div>
 
       <div class="text-end col col-md-6">
-        <div class="text-lg-end pt-2">
+        <div class="text-lg-end">
           <button
             *abpPermission="'EHub.FeeStructureItems.Create'"
             class="btn btn-primary"
@@ -14,7 +14,7 @@
             (click)="create()"
           >
             <i class="fa fa-plus me-1"></i>
-            <span>{{ '::NewFeeStructureItem' | abpLocalization }}</span>
+            <span  class="d-none d-sm-inline">{{ '::NewFeeStructureItem' | abpLocalization }}</span>
           </button>
         </div>
       </div>
