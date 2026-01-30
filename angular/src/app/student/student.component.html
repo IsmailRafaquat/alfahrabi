@@ -1,6 +1,6 @@
 <abp-page [title]="'::Menu:Students' | abpLocalization">
   <abp-page-toolbar-container class="col">
-    <div class="text-end gap-2">
+    <!-- <div class="text-end gap-2">
       <button class="btn btn-outline-primary btn-sm mb-0 me-2" type="button" (click)="excelInput.click()"
         [disabled]="importingExcel">
         <i class="fa fa-upload me-1"></i>
@@ -20,24 +20,79 @@
         {{ '::NewStudent' | abpLocalization }}
       </button>
 
+    </div> -->
+    <div class="text-end">
+
+      <!-- Desktop / tablet (sm and up) -->
+      <div class="d-none d-sm-flex justify-content-end gap-2">
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="excelInput.click()"
+          [disabled]="importingExcel">
+          <i class="fa fa-upload me-1"></i>
+          {{ '::ImportStudents' | abpLocalization }}
+          <span *ngIf="importingExcel" class="ms-2 spinner-border spinner-border-sm"></span>
+        </button>
+
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="openTemplateModal()">
+          <i class="fa fa-file-excel me-1"></i>
+          {{ '::DownloadImportTemplate' | abpLocalization }}
+        </button>
+
+        <button id="create" class="btn btn-primary btn-sm" type="button" (click)="createStudent()">
+          <i class="fa fa-plus me-1"></i>
+          {{ '::NewStudent' | abpLocalization }}
+        </button>
+      </div>
+
+      <!-- Mobile (xs only) -->
+      <div class="d-flex d-sm-none justify-content-end">
+        <div ngbDropdown class="dropdown">
+          <button class="btn btn-primary btn-sm" ngbDropdownToggle type="button" [disabled]="importingExcel">
+            <i class="fa fa-ellipsis-v me-1"></i>
+            {{ '::Actions' | abpLocalization }}
+            <span *ngIf="importingExcel" class="ms-2 spinner-border spinner-border-sm"></span>
+          </button>
+
+          <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item" type="button" (click)="excelInput.click()" [disabled]="importingExcel">
+              <i class="fa fa-upload me-2"></i>
+              {{ '::ImportStudents' | abpLocalization }}
+            </button>
+
+            <button class="dropdown-item" type="button" (click)="openTemplateModal()">
+              <i class="fa fa-file-excel me-2"></i>
+              {{ '::DownloadImportTemplate' | abpLocalization }}
+            </button>
+
+            <div class="dropdown-divider"></div>
+
+            <button class="dropdown-item" type="button" (click)="createStudent()">
+              <i class="fa fa-plus me-2"></i>
+              {{ '::NewStudent' | abpLocalization }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <input #excelInput type="file" accept=".xlsx" hidden (change)="onExcelSelectedAndImport($event)" />
     </div>
+
   </abp-page-toolbar-container>
 
   <!-- Header -->
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-9 col-sm-10">
-          <div class="input-group">
+        <div class="col-8 col-sm-10">
+          <div class="input-group input-group-sm">
             <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
               [(ngModel)]="filters.filter" />
-            <button type="button" class="btn btn-primary" title="Search" (click)="this.list.get()">
+            <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="this.list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
-        <div class="col-3 col-sm-2 text-end">
-          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+        <div class="col-4 col-sm-2 text-end">
+          <button class="btn btn-outline-primary btn-sm w-100" type="button" (click)="showFilter = !showFilter">
             <i class="fas fa-filter d-sm-none"></i>
             <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
             <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
@@ -106,7 +161,7 @@
 
   <!-- Data Table -->
   <div class="card">
-    <div class="card-body">
+    <div class="card-body table-responsive">
       <ngx-datatable [rows]="students.items" [count]="students.totalCount" [list]="list" default>
         <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="150" [sortable]="false">
           <ng-template let-row="row" ngx-datatable-cell-template>

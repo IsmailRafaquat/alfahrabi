@@ -1,36 +1,76 @@
 <abp-page [title]="'::Menu:StudentMonthlyFees' | abpLocalization">
     <abp-page-toolbar-container class="col">
-        <div class="text-end">
-            <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm me-2"
-                type="button" (click)="openBulkModal()">
-                <i class="fa fa-bolt me-1"></i>
-                <span class="d-none d-sm-inline">{{ '::BulkGenerate' | abpLocalization }} </span>
-            </button>
-            <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm"
-                type="button" (click)="create()">
-                <i class="fa fa-plus me-1"></i>
-                <span class="d-none d-sm-inline"> {{ '::NewStudentMonthlyFee' | abpLocalization }} </span>
-            </button>
-        </div>
+       <div class="text-end">
+
+  <!-- Desktop / tablet (sm and up) -->
+  <div class="d-none d-sm-inline">
+    <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
+            class="btn btn-outline-primary btn-sm me-2"
+            type="button"
+            (click)="openBulkModal()">
+      <i class="fa fa-bolt me-1"></i>
+      <span class="d-none d-sm-inline">{{ '::BulkGenerate' | abpLocalization }}</span>
+    </button>
+
+    <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
+            class="btn btn-outline-primary btn-sm"
+            type="button"
+            (click)="create()">
+      <i class="fa fa-plus me-1"></i>
+      <span class="d-none d-sm-inline">{{ '::New' | abpLocalization }}</span>
+    </button>
+  </div>
+
+  <!-- Mobile (xs only): single Actions dropdown -->
+  <div class="d-flex d-sm-none justify-content-end">
+    <div ngbDropdown class="dropdown">
+      <button class="btn btn-primary btn-sm" ngbDropdownToggle type="button">
+        <i class="fa fa-ellipsis-v me-1"></i>
+        <!-- {{ '::Actions' | abpLocalization }} -->
+      </button>
+
+      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+        <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
+                class="dropdown-item"
+                type="button"
+                (click)="openBulkModal()">
+          <i class="fa fa-bolt me-2"></i>
+          {{ '::BulkGenerate' | abpLocalization }}
+        </button>
+
+        <div class="dropdown-divider"></div>
+
+        <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
+                class="dropdown-item"
+                type="button"
+                (click)="create()">
+          <i class="fa fa-plus me-2"></i>
+          {{ '::New' | abpLocalization }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
     </abp-page-toolbar-container>
 
     <!-- Search + Filters -->
     <div class="card">
         <div class="card-body">
             <div class="row align-items-center">
-                <div class="col-9 col-sm-10">
-                    <div class="input-group">
+                <div class="col-8 col-sm-10">
+                    <div class="input-group input-group-sm">
                         <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
-                            [(ngModel)]="filters.filter" />
-                        <button type="button" class="btn btn-primary" (click)="list.get()">
+                            id="filter-text" [(ngModel)]="filters.filter" />
+                        <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="this.list.get()">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
                 </div>
-
-
-                <div class="col-3 col-sm-2 text-end">
-                    <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+                <div class="col-4 col-sm-2 text-end">
+                    <button class="btn btn-outline-primary btn-sm w-100" type="button"
+                        (click)="showFilter = !showFilter">
                         <i class="fas fa-filter d-sm-none"></i>
                         <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
                         <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>

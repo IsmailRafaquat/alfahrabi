@@ -502,38 +502,73 @@
         </div>
 
         <div class="text-end mt-4" *ngIf="!isViewMode">
-          <button type="button" class="btn btn-secondary me-2" (click)="backToList()">
-            <i class="fa fa-arrow-left"></i>
-            {{ '::Back' | abpLocalization }}
-          </button>
 
-          <button type="button" class="btn btn-secondary me-2" (click)="prevStep()"
-            [disabled]="currentStep === 0 || isViewMode">
-            <i class="fa fa-arrow-left me-1"></i>
-            {{ '::Previous' | abpLocalization }}
-          </button>
+          <!-- Desktop / tablet (sm and up) -->
+          <div class="d-none d-sm-inline">
+            <button type="button" class="btn btn-secondary me-2" (click)="backToList()">
+              <i class="fa fa-arrow-left"></i>
+              {{ '::Back' | abpLocalization }}
+            </button>
 
-          <!-- Steps 0..2: Next -->
-          <button *ngIf="currentStep < 3" type="button" class="btn btn-primary" (click)="saveAndNext()"
-            [disabled]="isViewMode">
-            <i class="fa fa-arrow-right me-1"></i>
-            {{ '::Next' | abpLocalization }}
-          </button>
+            <button type="button" class="btn btn-secondary me-2" (click)="prevStep()"
+              [disabled]="currentStep === 0 || isViewMode">
+              <i class="fa fa-arrow-left me-1"></i>
+              {{ '::Previous' | abpLocalization }}
+            </button>
 
-          <!-- Step 3: Next (saves staff then goes to Documents) -->
-          <button *ngIf="currentStep === 3" type="button" class="btn btn-primary" (click)="saveAndNext()"
-            [disabled]="isViewMode || form.invalid">
-            <i class="fa fa-arrow-right me-1"></i>
-            {{ '::Next' | abpLocalization }}
-          </button>
+            <button *ngIf="currentStep < 3" type="button" class="btn btn-primary" (click)="saveAndNext()"
+              [disabled]="isViewMode">
+              <i class="fa fa-arrow-right me-1"></i>
+              {{ '::Next' | abpLocalization }}
+            </button>
 
-          <!-- Step 4: Save & Finish -->
-          <button *ngIf="currentStep === 4" type="button" class="btn btn-primary" (click)="uploadAndFinish()"
-            [disabled]="isViewMode">
-            <i class="fa fa-save me-1"></i>
-            {{ '::Save&Finish' | abpLocalization }}
-          </button>
+            <button *ngIf="currentStep === 3" type="button" class="btn btn-primary" (click)="saveAndNext()"
+              [disabled]="isViewMode || form.invalid">
+              <i class="fa fa-arrow-right me-1"></i>
+              {{ '::Next' | abpLocalization }}
+            </button>
+
+            <button *ngIf="currentStep === 4" type="button" class="btn btn-primary" (click)="uploadAndFinish()"
+              [disabled]="isViewMode">
+              <i class="fa fa-save me-1"></i>
+              {{ '::Save&Finish' | abpLocalization }}
+            </button>
+          </div>
+
+          <!-- Mobile (xs only) -->
+          <div class="d-flex d-sm-none justify-content-end gap-2 flex-wrap">
+            <button type="button" class="btn btn-secondary btn-sm" (click)="backToList()">
+              <i class="fa fa-arrow-left"></i>
+              {{ '::Back' | abpLocalization }}
+            </button>
+
+            <button type="button" class="btn btn-secondary btn-sm" (click)="prevStep()"
+              [disabled]="currentStep === 0 || isViewMode">
+              <i class="fa fa-arrow-left"></i>
+              {{ '::Previous' | abpLocalization }}
+            </button>
+
+            <button *ngIf="currentStep < 3" type="button" class="btn btn-primary btn-sm" (click)="saveAndNext()"
+              [disabled]="isViewMode">
+              <i class="fa fa-arrow-right"></i>
+              {{ '::Next' | abpLocalization }}
+            </button>
+
+            <button *ngIf="currentStep === 3" type="button" class="btn btn-primary btn-sm" (click)="saveAndNext()"
+              [disabled]="isViewMode || form.invalid">
+              <i class="fa fa-arrow-right"></i>
+              {{ '::Next' | abpLocalization }}
+            </button>
+
+            <button *ngIf="currentStep === 4" type="button" class="btn btn-primary btn-sm" (click)="uploadAndFinish()"
+              [disabled]="isViewMode">
+              <i class="fa fa-save"></i>
+              {{ '::Save&Finish' | abpLocalization }}
+            </button>
+          </div>
+
         </div>
+
 
       </form>
     </div>

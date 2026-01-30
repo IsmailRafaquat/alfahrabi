@@ -1,8 +1,6 @@
 <abp-page [title]="'::Menu:StudentAttendance' | abpLocalization">
   <abp-page-toolbar-container class="col">
-    <div class="text-end">
-
-      <!-- Hidden file input -->
+    <!-- <div class="text-end">
       <input #fileInput type="file" accept=".xlsx" class="d-none" (change)="onExcelSelectedAndImport($event)" />
 
       <button type="button" class="btn btn-outline-primary btn-sm me-2" (click)="fileInput.click()"
@@ -26,34 +24,81 @@
           }}</span>
       </button>
 
+    </div> -->
+    <div class="text-end">
+
+      <!-- Hidden file input -->
+      <input #fileInput type="file" accept=".xlsx" class="d-none" (change)="onExcelSelectedAndImport($event)" />
+
+      <!-- Desktop / tablet (sm and up) -->
+      <div class="d-none d-sm-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="fileInput.click()"
+          [disabled]="importingExcel">
+          <i class="fa fa-upload me-1"></i>
+          {{ importingExcel ? ('::Importing' | abpLocalization) : ('::ImportExcel' | abpLocalization) }}
+          <span *ngIf="importingExcel" class="ms-2 spinner-border spinner-border-sm"></span>
+        </button>
+
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="openTemplateModal()">
+          <i class="fa fa-file-excel me-1"></i>
+          {{ '::GenerateAttendanceTemplate' | abpLocalization }}
+        </button>
+
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="openMarkModal()">
+          <i class="fa fa-plus me-1"></i>
+          {{ '::MarkAttendance' | abpLocalization }}
+        </button>
+      </div>
+
+      <!-- Mobile (xs only) -->
+      <div class="d-flex d-sm-none justify-content-end">
+        <div ngbDropdown class="dropdown">
+          <button class="btn btn-primary btn-sm" ngbDropdownToggle type="button" [disabled]="importingExcel">
+            <i class="fa fa-ellipsis-v me-1"></i>
+            {{ '::Actions' | abpLocalization }}
+            <span *ngIf="importingExcel" class="ms-2 spinner-border spinner-border-sm"></span>
+          </button>
+
+          <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item" type="button" (click)="fileInput.click()" [disabled]="importingExcel">
+              <i class="fa fa-upload me-2"></i>
+              {{ importingExcel ? ('::Importing' | abpLocalization) : ('::ImportExcel' | abpLocalization) }}
+            </button>
+
+            <button class="dropdown-item" type="button" (click)="openTemplateModal()">
+              <i class="fa fa-file-excel me-2"></i>
+              {{ '::GenerateAttendanceTemplate' | abpLocalization }}
+            </button>
+
+            <div class="dropdown-divider"></div>
+
+            <button class="dropdown-item" type="button" (click)="openMarkModal()">
+              <i class="fa fa-plus me-2"></i>
+              {{ '::MarkAttendance' | abpLocalization }}
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
+
   </abp-page-toolbar-container>
 
   <!-- Search + Filters -->
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-9 col-sm-10">
-          <div class="input-group">
-            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+        <div class="col-8 col-sm-10">
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
               [(ngModel)]="filters.filter" />
-            <button type="button" class="btn btn-primary" (click)="list.get()">
+            <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="this.list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
-
-        <!-- <div class="col-3 col-sm-2 text-end">
-          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
-            <i class="fas fa-filter d-sm-none"></i>
-            <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
-            <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
-            <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
-          </button>
-        </div> -->
-
-        <div class="col-3 col-sm-2 text-end">
-          <button class="btn btn-outline-primary w-100" (click)="showFilter = !showFilter">
+        <div class="col-4 col-sm-2 text-end">
+          <button class="btn btn-outline-primary btn-sm w-100" type="button" (click)="showFilter = !showFilter">
             <i class="fas fa-filter d-sm-none"></i>
             <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
             <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
@@ -61,7 +106,6 @@
           </button>
         </div>
       </div>
-
       <!-- Filter Panel -->
       <div *ngIf="showFilter" class="mt-2">
         <div class="row g-2">

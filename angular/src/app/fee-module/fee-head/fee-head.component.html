@@ -1,23 +1,23 @@
 <div class="card">
   <div class="card-header">
     <div class="row">
-      <div class="col col-md-6">
+      <div class="col col-md-4">
         <h5 class="card-title">
           {{ '::Menu:FeeHeads' | abpLocalization }}
         </h5>
       </div>
 
-      <div class="text-end col col-md-6">
+      <div class="text-end col col-md-8">
         <div class="text-lg-end">
           <button
             *abpPermission="'EHub.FeeHeads.Create'"
             id="create"
-            class="btn btn-primary"
+            class="btn btn-outline-primary btn-sm"
             type="button"
             (click)="create()"
           >
             <i class="fa fa-plus me-1"></i>
-            <span class="d-none d-sm-inline">{{ '::NewFeeHead' | abpLocalization }}</span>
+            <span>{{ '::New' | abpLocalization }}</span>
           </button>
         </div>
       </div>

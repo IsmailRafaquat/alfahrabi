@@ -26,7 +26,6 @@ public class UpdateStudentDto
     [Required]
     public DateTime DOB { get; set; }
 
-    [EmailAddress]
     [StringLength(StudentConsts.EmailMaxLength)]
     public string? Email { get; set; }
 
@@ -64,7 +63,6 @@ public class UpdateStudentDto
     [StringLength(StudentConsts.PhoneMaxLength)]
     public string PPhone { get; set; } = default!;
 
-    [EmailAddress]
     [StringLength(StudentConsts.EmailMaxLength)]
     public string? PEmail { get; set; }
 
@@ -80,7 +78,6 @@ public class UpdateStudentDto
     [StringLength(StudentConsts.PhoneMaxLength)]
     public string? ECPhone { get; set; }
 
-    [EmailAddress]
     [StringLength(StudentConsts.EmailMaxLength)]
     public string? ECEmail { get; set; }
 

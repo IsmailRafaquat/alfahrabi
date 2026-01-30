@@ -3,8 +3,8 @@
     <div class="text-end">
       <button *abpPermission="'EHub.StudentMonthlyFeeLines.Create'" class="btn btn-outline-primary btn-sm" type="button"
         (click)="create()">
-        <i class="fa fa-plus me-1"></i> 
-        <span  class="d-none d-sm-inline">{{ '::NewStudentMonthlyFeeLine' | abpLocalization }}</span>
+        <i class="fa fa-plus me-1"></i>
+        <span>{{ '::New' | abpLocalization }}</span>
       </button>
     </div>
   </abp-page-toolbar-container>
@@ -13,16 +13,17 @@
   <div class="card">
     <div class="card-body">
       <div class="row align-items-center">
-        <div class="col-9 col-sm-10">
-          <div class="input-group">
-            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" />
-            <button type="button" class="btn btn-primary" (click)="list.get()">
+        <div class="col-8 col-sm-10">
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
+              [(ngModel)]="filters.filter" />
+            <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="this.list.get()">
               <i class="fa fa-search"></i>
             </button>
           </div>
         </div>
-        <div class="col-3 col-sm-2 text-end">
-          <button class="btn btn-outline-primary w-100" type="button" (click)="showFilter = !showFilter">
+        <div class="col-4 col-sm-2 text-end">
+          <button class="btn btn-outline-primary btn-sm w-100" type="button" (click)="showFilter = !showFilter">
             <i class="fas fa-filter d-sm-none"></i>
             <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
             <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>

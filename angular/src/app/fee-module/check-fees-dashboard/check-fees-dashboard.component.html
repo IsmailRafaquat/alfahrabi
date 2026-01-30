@@ -50,15 +50,32 @@
           </nz-select>
         </div>
 
-        <div class="col-12 col-lg-auto d-flex gap-2">
-          <button type="button" class="btn btn-outline-primary px-4" (click)="clear()">
-            {{ '::Reset' | abpLocalization }}
-          </button>
+        <div class="col-12 col-lg-auto d-flex gap-2 justify-content-end">
 
-          <button type="button" class="btn btn-primary px-4" (click)="search()" [disabled]="loading">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            {{ '::Apply' | abpLocalization }}
-          </button>
+          <!-- Desktop / tablet (sm and up) -->
+          <div class="d-none d-sm-flex gap-2">
+            <button type="button" class="btn btn-outline-primary px-4" (click)="clear()">
+              {{ '::Reset' | abpLocalization }}
+            </button>
+
+            <button type="button" class="btn btn-primary px-4" (click)="search()" [disabled]="loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              {{ '::Apply' | abpLocalization }}
+            </button>
+          </div>
+
+          <!-- Mobile (xs only) -->
+          <div class="d-flex d-sm-none gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm px-3" (click)="clear()">
+              {{ '::Reset' | abpLocalization }}
+            </button>
+
+            <button type="button" class="btn btn-primary btn-sm px-3" (click)="search()" [disabled]="loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              {{ '::Apply' | abpLocalization }}
+            </button>
+          </div>
+
         </div>
       </form>
     </div>
@@ -95,7 +112,8 @@
         <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between">
           <div>
             <div class="fw-semibold chart-title">Top 10 Fee Heads Overview</div>
-            <div class="text-muted small chart-subtitle">Comparative analysis of net, collected, and outstanding amounts</div>
+            <div class="text-muted small chart-subtitle">Comparative analysis of net, collected, and outstanding amounts
+            </div>
           </div>
         </div>
         <div class="card-body chart-box chart-box-horizontal">
