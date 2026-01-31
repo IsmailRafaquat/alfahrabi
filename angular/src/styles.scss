@@ -440,3 +440,17 @@ label {
     border-bottom-left-radius: 0 !important;
     border-top-left-radius: 0 !important;
 }
+
+.dt-actions .dt-action-btn {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.dt-actions .dt-action-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}

@@ -4,7 +4,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace EHub.StaffAttendances;
 
-public class StaffAttendanceDto : EntityDto<Guid>
+public class StaffAttendanceDto : FullAuditedEntityDto<Guid>
 {
     public Guid StaffId { get; set; }
     public DateTime AttendanceDate { get; set; }
