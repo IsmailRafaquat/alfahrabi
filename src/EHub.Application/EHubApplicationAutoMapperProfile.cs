@@ -1,4 +1,6 @@
 using AutoMapper;
+using EHub.Expenses.ExpenseCategories;
+using EHub.Expenses.ExpenseEntries;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
 using EHub.FeeModule.FeeStructures;
@@ -72,5 +74,8 @@ public class EHubApplicationAutoMapperProfile : Profile
 
         CreateMap<StudentMonthlyFeeLine, StudentMonthlyFeeLineDto>()
             .ForMember(d => d.FeeHeadName, opt => opt.MapFrom(src => src.FeeHead != null ? src.FeeHead.Name : null));
+
+        CreateMap<ExpenseCategory, ExpenseCategoryDto>();
+        CreateMap<ExpenseEntry, ExpenseEntryDto>();
     }
 }

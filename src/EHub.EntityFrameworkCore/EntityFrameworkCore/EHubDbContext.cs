@@ -1,3 +1,5 @@
+using EHub.Expenses.ExpenseCategories;
+using EHub.Expenses.ExpenseEntries;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -67,6 +69,9 @@ public class EHubDbContext :
     public DbSet<LateFeePolicy> lateFeePolicies { get; set; }
     public DbSet<StudentMonthlyFee> StudentMonthlyFees { get; set; }
     public DbSet<StudentMonthlyFeeLine> StudentMonthlyFeeLines { get; set; }
+
+    public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
+    public DbSet<ExpenseEntry> ExpenseEntries { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -691,5 +696,51 @@ public class EHubDbContext :
                 .HasForeignKey(x => x.FeeHeadId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
+        builder.Entity<ExpenseCategory>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "ExpenseCategories", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(128);
+
+            b.Property(x => x.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
+        });
+
+        builder.Entity<ExpenseEntry>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "ExpenseEntries", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.ExpenseDate)
+                .IsRequired();
+
+            b.Property(x => x.ExpenseCategoryId)
+                .IsRequired();
+
+            b.Property(x => x.Title)
+                .IsRequired()
+                .HasMaxLength(128);
+
+            b.Property(x => x.Amount)
+                .IsRequired()
+                .HasPrecision(18, 2);
+
+            b.Property(x => x.PaidTo)
+                .HasMaxLength(128);
+
+            b.Property(x => x.Remarks)
+                .HasMaxLength(1024);
+
+            b.HasOne(x => x.ExpenseCategory)
+                .WithMany()
+                .HasForeignKey(x => x.ExpenseCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
     }
 }

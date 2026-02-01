@@ -49,6 +49,14 @@
     "Permission:FeeHeads.Create": "Create",
     "Permission:FeeHeads.Edit": "Edit",
     "Permission:FeeHeads.Delete": "Delete",
+    "Permission:ExpenseCategories": "Expense Category Management",
+    "Permission:ExpenseCategories.Create": "Create",
+    "Permission:ExpenseCategories.Edit": "Edit",
+    "Permission:ExpenseCategories.Delete": "Delete",
+    "Permission:ExpenseEntries": "Expense Entry Management",
+    "Permission:ExpenseEntries.Create": "Create",
+    "Permission:ExpenseEntries.Edit": "Edit",
+    "Permission:ExpenseEntries.Delete": "Delete",
     "Permission:FeeStructures": "Fee Structure Management",
     "Permission:FeeStructures.Create": "Create",
     "Permission:FeeStructures.Edit": "Edit",
@@ -622,6 +630,22 @@
     "DownloadStarted": "Download started.",
     "DownloadFailed": "Download failed. Please try again.",
     "ImportStudents": "Import Students",
-    "AsOfDate": "As Of Date"
+    "AsOfDate": "As Of Date",
+    "Menu:ExpenseCategories": "Expense Categories",
+
+    "NewExpenseCategory": "New Expense Category",
+    "EditExpenseCategory": "Edit Expense Category",
+
+    "ExpenseCategoryActivated": "Expense category activated successfully.",
+    "ExpenseCategoryDeactivated": "Expense category deactivated successfully.",
+    "Menu:Expenses": "Expenses",
+    "Menu:ExpenseEntry": "Expense Entry",
+    "ExpenseCategory": "Expense Category",
+    "FromDate": "From Date",
+    "ToDate": "To Date",
+    "EditExpense": "Edit Expense",
+    "NewExpense": "New Expense",
+    "Amount": "Amount",
+    "PaidTo": "Paid To"
   }
 }

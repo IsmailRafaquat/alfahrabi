@@ -46,6 +46,8 @@ const routes: Routes = [
   { path: 'student-monthly-fees', loadChildren: () => import('./fee-module/student-monthly-fee/student-monthly-fee.module').then(m => m.StudentMonthlyFeeModule) },
   { path: 'student-monthly-fee-lines', loadChildren: () => import('./fee-module/student-monthly-fee-line/student-monthly-fee-line.module').then(m => m.StudentMonthlyFeeLineModule) },
   { path: 'check-fees-dashboard', loadChildren: () => import('./fee-module/check-fees-dashboard/check-fees-dashboard.module').then(m => m.CheckFeesDashboardModule) },
+  { path: 'expense-categories', loadChildren: () => import('./expense-module/expense-category/expense-category.module').then(m => m.ExpenseCategoryModule) },
+  { path: 'expense-entries', loadChildren: () => import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule) },
 ];
 
 @NgModule({

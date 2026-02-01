@@ -213,5 +213,34 @@ function configureRoutes() {
       order: 10,
       iconClass: 'fas fa-receipt',
     },
+
+    // -------------------------
+    // Expenses (Parent)
+    // -------------------------
+    {
+      name: '::Menu:Expenses',
+      iconClass: 'fas fa-file-invoice-dollar',
+      order: 50,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.ExpenseMenu',
+    },
+    {
+      path: '/expense-categories',
+      name: '::Menu:ExpenseCategories',
+      parentName: '::Menu:Expenses',
+      iconClass: 'fas fa-list',
+      order: 1,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.ExpenseMenu.ExpenseCategory',
+    },
+    {
+      path: '/expense-entries',
+      name: '::Menu:ExpenseEntry',
+      parentName: '::Menu:Expenses',
+      iconClass: 'fas fa-receipt',
+      order: 2,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.ExpenseMenu.ExpenseEntry',
+    },
   ]);
 }

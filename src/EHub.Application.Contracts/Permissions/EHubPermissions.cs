@@ -114,5 +114,20 @@ public static class EHubPermissions
         public const string Delete = Default + ".Delete";
     }
 
+    public static class ExpenseCategories
+    {
+        public const string Default = GroupName + ".ExpenseCategories";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+    public static class ExpenseEntries
+    {
+        public const string Default = GroupName + ".ExpenseEntries";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
 
 }

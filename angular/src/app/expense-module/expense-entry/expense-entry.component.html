@@ -1,0 +1,172 @@
+<abp-page [title]="'::Menu:ExpenseEntry' | abpLocalization">
+    <!-- Toolbar -->
+    <abp-page-toolbar-container class="col">
+        <div class="text-end">
+            <button *abpPermission="'EHub.ExpenseEntries.Create'" class="btn btn-outline-primary btn-sm" type="button"
+                (click)="create()">
+                <i class="fa fa-plus me-1"></i>
+                {{ '::New' | abpLocalization }}
+            </button>
+        </div>
+    </abp-page-toolbar-container>
+
+    <!-- Filters -->
+    <!-- Header (Search + Filters toggle) -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-8 col-sm-10">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+                            [(ngModel)]="filters.filter" />
+                        <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="list.get()">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-4 col-sm-2 text-end">
+                    <button class="btn btn-outline-primary btn-sm w-100" type="button"
+                        (click)="showFilter = !showFilter">
+                        <i class="fas fa-filter d-sm-none"></i>
+                        <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
+                        <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
+                        <i class="fas fa-angle-up ms-1" *ngIf="showFilter"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters panel (collapsed/expanded) -->
+            <div *ngIf="showFilter" class="mt-2">
+                <div class="row g-2">
+                    <div class="col-sm-4">
+                        <label>{{ '::ExpenseCategory' | abpLocalization }}</label>
+                        <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.expenseCategoryId">
+                            <nz-option *ngFor="let c of categoryOptions" [nzValue]="c.id"
+                                [nzLabel]="c.name"></nz-option>
+                        </nz-select>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="form-label">{{ '::FromDate' | abpLocalization }}</label>
+                        <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.fromDate" />
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="form-label">{{ '::ToDate' | abpLocalization }}</label>
+                        <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.toDate" />
+                    </div>
+
+                    <div class="col-sm-auto d-flex align-items-end mt-2 gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="clearFilters()">
+                            <i class="fas fa-undo"></i> {{ '::Reset' | abpLocalization }}
+                        </button>
+
+                        <button type="button" class="btn btn-primary btn-sm" (click)="list.get()">
+                            <i class="fa fa-filter"></i> {{ '::Apply' | abpLocalization }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Table -->
+    <div class="card mt-2">
+        <div class="card-body">
+            <ngx-datatable [rows]="expenses.items" [count]="expenses.totalCount" [list]="list" default>
+                <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="140" [sortable]="false">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <div ngbDropdown container="body">
+                            <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
+                                {{ '::Actions' | abpLocalization }}
+                            </button>
+                            <div ngbDropdownMenu>
+                                <button ngbDropdownItem (click)="edit(row.id)">
+                                    {{ '::Edit' | abpLocalization }}
+                                </button>
+                                <button ngbDropdownItem (click)="delete(row.id)">
+                                    {{ '::Delete' | abpLocalization }}
+                                </button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column [name]="'::Date' | abpLocalization" prop="expenseDate">
+                    <ng-template ngx-datatable-cell-template let-row="row">
+                        {{ row.expenseDate | date:'yyyy-MM-dd' }}
+                    </ng-template>
+                </ngx-datatable-column>
+
+
+                <ngx-datatable-column [name]="'::Category' | abpLocalization" prop="expenseCategoryName" />
+
+                <ngx-datatable-column [name]="'::Title' | abpLocalization" prop="title" />
+
+                <ngx-datatable-column [name]="'::Amount' | abpLocalization" [maxWidth]="120">
+                    <ng-template let-row="row">
+                        {{ row.amount | number:'1.2-2' }}
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column [name]="'::PaidTo' | abpLocalization" prop="paidTo" />
+            </ngx-datatable>
+        </div>
+    </div>
+</abp-page>
+
+<!-- Create / Edit Modal -->
+<abp-modal [(visible)]="isModalOpen">
+    <ng-template #abpHeader>
+        <h3>
+            {{ selected.id ? ('::EditExpense' | abpLocalization) : ('::NewExpense' | abpLocalization) }}
+        </h3>
+    </ng-template>
+
+    <ng-template #abpBody>
+        <form [formGroup]="form">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label>{{ '::Date' | abpLocalization }}</label><span class="text-danger"> *</span>
+                    <input type="date" class="form-control form-control-sm" formControlName="expenseDate" />
+                </div>
+
+                <div class="col-md-6">
+                    <label>{{ '::ExpenseCategory' | abpLocalization }}</label><span class="text-danger"> *</span>
+                    <nz-select formControlName="expenseCategoryId" class="w-100">
+                        <nz-option *ngFor="let c of categoryOptions" [nzValue]="c.id" [nzLabel]="c.name" />
+                    </nz-select>
+                </div>
+
+                <div class="col-md-12">
+                    <label>{{ '::Title' | abpLocalization }}</label><span class="text-danger"> *</span>
+                    <input class="form-control form-control-sm" formControlName="title" />
+                </div>
+
+                <div class="col-md-6">
+                    <label>{{ '::Amount' | abpLocalization }}</label><span class="text-danger"> *</span>
+                    <input type="number" class="form-control form-control-sm" formControlName="amount" />
+                </div>
+
+                <div class="col-md-6">
+                    <label>{{ '::PaidTo' | abpLocalization }}</label>
+                    <input class="form-control form-control-sm" formControlName="paidTo" />
+                </div>
+
+                <div class="col-md-12">
+                    <label>{{ '::Remarks' | abpLocalization }}</label>
+                    <textarea class="form-control form-control-sm" rows="2" formControlName="remarks"></textarea>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template #abpFooter>
+        <button class="btn btn-secondary" abpClose>{{ '::Close' | abpLocalization }}</button>
+        <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid">
+            {{ '::Save' | abpLocalization }}
+        </button>
+    </ng-template>
+</abp-modal>
