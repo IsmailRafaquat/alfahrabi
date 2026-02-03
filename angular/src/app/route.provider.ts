@@ -222,7 +222,7 @@ function configureRoutes() {
       iconClass: 'fas fa-file-invoice-dollar',
       order: 50,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.ExpenseMenu',
+      requiredPolicy: 'EHub.Expenses',
     },
     {
       path: '/expense-categories',
@@ -231,7 +231,7 @@ function configureRoutes() {
       iconClass: 'fas fa-list',
       order: 1,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.ExpenseMenu.ExpenseCategory',
+      requiredPolicy: 'EHub.Expenses.ExpenseCategory',
     },
     {
       path: '/expense-entries',
@@ -240,7 +240,25 @@ function configureRoutes() {
       iconClass: 'fas fa-receipt',
       order: 2,
       layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.ExpenseMenu.ExpenseEntry',
+      requiredPolicy: 'EHub.Expenses.ExpenseEntry',
+    },
+    {
+      path: '/staff-salary-payments',
+      name: '::Menu:StaffSalaryPayments',
+      parentName: '::Menu:Expenses',
+      iconClass: 'fas fa-money-check-alt',
+      order: 3,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.Expenses.StaffSalaryPayment',
+    },
+    {
+      path: '/expense-dashboard',
+      name: '::Menu:ExpensesDashboard',
+      parentName: '::Menu:Expenses',
+      iconClass: 'fas fa-chart-pie',
+      order: 4,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.Expenses.ExpenseDashboard',
     },
   ]);
 }

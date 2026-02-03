@@ -43,6 +43,13 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         feeMainPermission.AddChild(EHubPermissions.FeeMenuItems.CheckFee, L("Permission:CheckFee"));
 
 
+        var expenseMainPermission = myGroup.AddPermission(EHubPermissions.Expenses.ExpenseMain, L("Permission:ExpensesMenu"));
+
+        expenseMainPermission.AddChild(EHubPermissions.Expenses.ExpenseCategory, L("Permission:ExpenseCategory"));
+        expenseMainPermission.AddChild(EHubPermissions.Expenses.ExpenseEntry, L("Permission:ExpenseEntry"));
+        expenseMainPermission.AddChild(EHubPermissions.Expenses.StaffSalaryPayment, L("Permission:StaffSalaryPayment"));
+        expenseMainPermission.AddChild(EHubPermissions.Expenses.ExpenseDashboard, L("Permission:ExpenseDashboard"));
+
 
 
         var staffsPermission = myGroup.AddPermission(EHubPermissions.Staffs.Default, L("Permission:Staffs"));
@@ -99,6 +106,11 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         expenseEntriesPermission.AddChild(EHubPermissions.ExpenseEntries.Create, L("Permission:ExpenseEntries.Create"));
         expenseEntriesPermission.AddChild(EHubPermissions.ExpenseEntries.Edit, L("Permission:ExpenseEntries.Edit"));
         expenseEntriesPermission.AddChild(EHubPermissions.ExpenseEntries.Delete, L("Permission:ExpenseEntries.Delete"));
+
+        var staffSalaryPaymentsPermission = myGroup.AddPermission(EHubPermissions.StaffSalaryPayments.Default, L("Permission:StaffSalaryPayments"));
+        staffSalaryPaymentsPermission.AddChild(EHubPermissions.StaffSalaryPayments.Create, L("Permission:StaffSalaryPayments.Create"));
+        staffSalaryPaymentsPermission.AddChild(EHubPermissions.StaffSalaryPayments.Edit, L("Permission:StaffSalaryPayments.Edit"));
+        staffSalaryPaymentsPermission.AddChild(EHubPermissions.StaffSalaryPayments.Delete, L("Permission:StaffSalaryPayments.Delete"));
 
     }
 

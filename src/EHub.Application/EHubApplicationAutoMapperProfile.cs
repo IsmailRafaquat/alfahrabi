@@ -1,6 +1,7 @@
 using AutoMapper;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
+using EHub.Expenses.StaffSalaryPayments;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
 using EHub.FeeModule.FeeStructures;
@@ -77,5 +78,6 @@ public class EHubApplicationAutoMapperProfile : Profile
 
         CreateMap<ExpenseCategory, ExpenseCategoryDto>();
         CreateMap<ExpenseEntry, ExpenseEntryDto>();
+        CreateMap<StaffSalaryPayment, StaffSalaryPaymentDto>();
     }
 }

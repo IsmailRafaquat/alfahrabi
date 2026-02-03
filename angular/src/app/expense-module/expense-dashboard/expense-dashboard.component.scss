@@ -1,0 +1,321 @@
+// Enhanced Professional Styling for Check Fees Dashboard
+
+.filters {
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(51, 65, 85, 0.9);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control,
+  nz-select {
+    border-radius: 8px;
+  }
+
+  .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// KPI Tiles
+.kpi-tile {
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, currentColor, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  .kpi-title {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(100, 116, 139, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.375rem;
+  }
+
+  .kpi-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: rgba(15, 23, 42, 0.95);
+    line-height: 1.2;
+  }
+
+  .kpi-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+    opacity: 0.85;
+    transition: all 0.3s ease;
+  }
+
+  &:hover .kpi-icon {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  // Tone colors
+  &.t1 {
+    .kpi-icon {
+      color: rgba(99, 102, 241, 0.9);
+      background: rgba(99, 102, 241, 0.1);
+    }
+    &::before {
+      color: rgba(99, 102, 241, 0.8);
+    }
+  }
+
+  &.t2 {
+    .kpi-icon {
+      color: rgba(16, 185, 129, 0.9);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    &::before {
+      color: rgba(16, 185, 129, 0.8);
+    }
+  }
+
+  &.t3 {
+    .kpi-icon {
+      color: rgba(251, 146, 60, 0.9);
+      background: rgba(251, 146, 60, 0.1);
+    }
+    &::before {
+      color: rgba(251, 146, 60, 0.8);
+    }
+  }
+
+  &.t4 {
+    .kpi-icon {
+      color: rgba(168, 85, 247, 0.9);
+      background: rgba(168, 85, 247, 0.1);
+    }
+    &::before {
+      color: rgba(168, 85, 247, 0.8);
+    }
+  }
+
+  &.t5 {
+    .kpi-icon {
+      color: rgba(236, 72, 153, 0.9);
+      background: rgba(236, 72, 153, 0.1);
+    }
+    &::before {
+      color: rgba(236, 72, 153, 0.8);
+    }
+  }
+
+  &.t6 {
+    .kpi-icon {
+      color: rgba(14, 165, 233, 0.9);
+      background: rgba(14, 165, 233, 0.1);
+    }
+    &::before {
+      color: rgba(14, 165, 233, 0.8);
+    }
+  }
+}
+
+// Modern Chart Cards
+.modern-chart-card {
+  border-radius: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem 1rem;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.5) 0%, transparent 100%);
+
+    .chart-title {
+      font-size: 1rem;
+      color: rgba(15, 23, 42, 0.95);
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-subtitle {
+      font-size: 0.8125rem;
+      color: rgba(100, 116, 139, 0.85);
+      line-height: 1.4;
+    }
+  }
+}
+
+// Chart Box
+.chart-box {
+  position: relative;
+  height: 360px;        // ✅ fixed height (not only min-height)
+  min-height: 360px;
+  padding: 1.5rem;
+  overflow: hidden;
+  min-width: 0;
+
+  canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;   // ✅ fill the fixed-height container
+  }
+}
+
+
+
+// Modern Table Styling
+.modern-table {
+  .table {
+    margin-bottom: 0;
+
+    thead th {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(100, 116, 139, 0.9);
+      border-bottom: 2px solid rgba(226, 232, 240, 0.8);
+      padding: 0.875rem 1rem;
+    }
+
+    tbody {
+      tr {
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: rgba(248, 250, 252, 0.6);
+          transform: scale(1.005);
+        }
+
+        td {
+          padding: 0.875rem 1rem;
+          border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+          font-size: 0.9375rem;
+
+          &.text-danger {
+            color: rgba(239, 68, 68, 0.95) !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Shadow Soft Utility
+.shadow-soft {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+// Responsive Adjustments
+@media (max-width: 1200px) {
+  .chart-box {
+    min-height: 320px;
+    
+    &.chart-box-horizontal {
+      min-height: 400px;
+    }
+  }
+
+  .kpi-tile {
+    .kpi-value {
+      font-size: 1.5rem;
+    }
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      font-size: 1.25rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-box {
+    min-height: 280px;
+    padding: 1rem;
+    
+    &.chart-box-horizontal {
+      min-height: 350px;
+    }
+  }
+
+  .modern-chart-card .card-header {
+    padding: 1rem 1.25rem 0.75rem;
+  }
+
+  .kpi-tile .kpi-value {
+    font-size: 1.375rem;
+  }
+}
+
+// Loading State
+.btn {
+  .spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-width: 0.15em;
+  }
+}
+
+// Animation for chart appearance
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modern-chart-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.kpi-tile {
+  animation: fadeInUp 0.5s ease-out;
+  
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}

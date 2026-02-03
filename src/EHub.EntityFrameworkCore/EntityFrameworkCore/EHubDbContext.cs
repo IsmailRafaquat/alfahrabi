@@ -1,5 +1,6 @@
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
+using EHub.Expenses.StaffSalaryPayments;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -72,6 +73,7 @@ public class EHubDbContext :
 
     public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
     public DbSet<ExpenseEntry> ExpenseEntries { get; set; }
+    public DbSet<StaffSalaryPayment> StaffSalaryPayments { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -742,5 +744,26 @@ public class EHubDbContext :
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        builder.Entity<StaffSalaryPayment>(b =>
+        {
+            b.ToTable(EHubConsts.DbTablePrefix + "StaffSalaryPayments", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.StaffId).IsRequired();
+            b.Property(x => x.SalaryMonth).IsRequired();
+            b.Property(x => x.PaymentDate).IsRequired();
+
+            b.Property(x => x.SalaryAmount)
+                .IsRequired()
+                .HasPrecision(18, 2);
+
+            b.Property(x => x.Remarks)
+                .HasMaxLength(1024);
+
+            b.HasOne<Staff>()
+                .WithMany()
+                .HasForeignKey(x => x.StaffId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
     }
 }

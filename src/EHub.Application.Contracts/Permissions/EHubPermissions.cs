@@ -26,6 +26,15 @@ public static class EHubPermissions
         public const string CheckFee = StudentMain + ".CheckFee";
     }
 
+    public static class Expenses
+    {
+        public const string ExpenseMain = GroupName + ".Expenses";
+        public const string ExpenseCategory = ExpenseMain + ".ExpenseCategory";
+        public const string ExpenseEntry = ExpenseMain + ".ExpenseEntry";
+        public const string StaffSalaryPayment = ExpenseMain + ".StaffSalaryPayment";
+        public const string ExpenseDashboard = ExpenseMain + ".ExpenseDashboard";
+    }
+
     public static class Students
     {
         public const string Default = GroupName + ".Students";
@@ -124,6 +133,14 @@ public static class EHubPermissions
     public static class ExpenseEntries
     {
         public const string Default = GroupName + ".ExpenseEntries";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class StaffSalaryPayments
+    {
+        public const string Default = GroupName + ".StaffSalaryPayments";
         public const string Create = Default + ".Create";
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";

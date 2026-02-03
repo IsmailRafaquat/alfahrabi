@@ -40,6 +40,11 @@
     "Permission:StudentMonthlyFee": "Student Monthly Fees",
     "Permission:StudentMonthlyFeeLine": "Student Monthly Fee Lines",
     "Permission:CheckFee": "Check Fee",
+    "Permission:Expenses Menu": "Expenses",
+    "Permission:ExpenseCategory": "Expense Categories",
+    "Permission:ExpenseEntry": "Expense Entries",
+    "Permission:StaffSalaryPayment": "Staff Salary Payments",
+    "Permission:ExpenseDashboard": "Expenses Dashboard",
 
     "Permission:Staffs": "Staff Management",
     "Permission:Staffs.Create": "Create",
@@ -57,6 +62,10 @@
     "Permission:ExpenseEntries.Create": "Create",
     "Permission:ExpenseEntries.Edit": "Edit",
     "Permission:ExpenseEntries.Delete": "Delete",
+    "Permission:StaffSalaryPayments": "Staff Salary Payment Management",
+    "Permission:StaffSalaryPayments.Create": "Create",
+    "Permission:StaffSalaryPayments.Edit": "Edit",
+    "Permission:StaffSalaryPayments.Delete": "Delete",
     "Permission:FeeStructures": "Fee Structure Management",
     "Permission:FeeStructures.Create": "Create",
     "Permission:FeeStructures.Edit": "Edit",
@@ -646,6 +655,32 @@
     "EditExpense": "Edit Expense",
     "NewExpense": "New Expense",
     "Amount": "Amount",
-    "PaidTo": "Paid To"
+    "PaidTo": "Paid To",
+    "Menu:StaffSalaryPayments": "Staff Salary Payments",
+    "NewStaffSalaryPayment": "New Staff Salary Payment",
+    "EditStaffSalaryPayment": "Edit Staff Salary Payment",
+    "SalaryMonth": "Salary Month",
+    "PaymentDate": "Payment Date",
+    "Staff": "Staff",
+    "Menu:ExpensesDashboard": "Expenses Dashboard",
+    "Refresh": "Refresh",
+    "Optional": "Optional",
+
+    "TotalExpense": "Total Expense",
+    "StaffSalaryPayments": "Staff Salary Payments",
+    "OtherExpenses": "Other Expenses",
+    "Transactions": "Transactions",
+
+    "TopExpenseCategories": "Top Expense Categories",
+    "TopExpenseCategoriesHint": "Top categories by amount",
+
+    "ExpenseTrend": "Expense Trend",
+    "ExpenseTrendHint": "Daily totals for selected filters",
+
+    "CategorySummary": "Category Summary",
+    "RecentExpenses": "Recent Expenses",
+
+    "NoData": "No data found"
+
   }
 }

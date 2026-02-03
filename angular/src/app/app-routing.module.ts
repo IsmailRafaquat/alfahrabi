@@ -48,6 +48,8 @@ const routes: Routes = [
   { path: 'check-fees-dashboard', loadChildren: () => import('./fee-module/check-fees-dashboard/check-fees-dashboard.module').then(m => m.CheckFeesDashboardModule) },
   { path: 'expense-categories', loadChildren: () => import('./expense-module/expense-category/expense-category.module').then(m => m.ExpenseCategoryModule) },
   { path: 'expense-entries', loadChildren: () => import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule) },
+  { path: 'staff-salary-payments', loadChildren: () => import('./expense-module/staff-salary-payment/staff-salary-payment.module').then(m => m.StaffSalaryPaymentModule) },
+  { path: 'expense-dashboard', loadChildren: () => import('./expense-module/expense-dashboard/expense-dashboard.module').then(m => m.ExpenseDashboardModule) },
 ];
 
 @NgModule({

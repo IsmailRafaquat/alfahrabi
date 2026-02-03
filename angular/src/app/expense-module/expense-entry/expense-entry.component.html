@@ -118,7 +118,7 @@
 </abp-page>
 
 <!-- Create / Edit Modal -->
-<abp-modal [(visible)]="isModalOpen">
+<abp-modal [(visible)]="isModalOpen" [options]="{ size: 'lg' }">
     <ng-template #abpHeader>
         <h3>
             {{ selected.id ? ('::EditExpense' | abpLocalization) : ('::NewExpense' | abpLocalization) }}
@@ -130,34 +130,34 @@
             <div class="row g-2">
                 <div class="col-md-6">
                     <label>{{ '::Date' | abpLocalization }}</label><span class="text-danger"> *</span>
-                    <input type="date" class="form-control form-control-sm" formControlName="expenseDate" />
+                    <input type="date" class="form-control" formControlName="expenseDate" />
                 </div>
 
                 <div class="col-md-6">
                     <label>{{ '::ExpenseCategory' | abpLocalization }}</label><span class="text-danger"> *</span>
-                    <nz-select formControlName="expenseCategoryId" class="w-100">
+                    <nz-select formControlName="expenseCategoryId" class="w-100" nzShowSearch nzAllowClear nzSize="large">
                         <nz-option *ngFor="let c of categoryOptions" [nzValue]="c.id" [nzLabel]="c.name" />
                     </nz-select>
                 </div>
 
                 <div class="col-md-12">
                     <label>{{ '::Title' | abpLocalization }}</label><span class="text-danger"> *</span>
-                    <input class="form-control form-control-sm" formControlName="title" />
+                    <input class="form-control" formControlName="title" />
                 </div>
 
                 <div class="col-md-6">
                     <label>{{ '::Amount' | abpLocalization }}</label><span class="text-danger"> *</span>
-                    <input type="number" class="form-control form-control-sm" formControlName="amount" />
+                    <input type="number" class="form-control" formControlName="amount" />
                 </div>
 
                 <div class="col-md-6">
                     <label>{{ '::PaidTo' | abpLocalization }}</label>
-                    <input class="form-control form-control-sm" formControlName="paidTo" />
+                    <input class="form-control" formControlName="paidTo" />
                 </div>
 
                 <div class="col-md-12">
                     <label>{{ '::Remarks' | abpLocalization }}</label>
-                    <textarea class="form-control form-control-sm" rows="2" formControlName="remarks"></textarea>
+                    <textarea class="form-control" rows="2" formControlName="remarks"></textarea>
                 </div>
             </div>
         </form>
