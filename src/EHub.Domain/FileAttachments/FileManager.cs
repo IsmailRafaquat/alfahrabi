@@ -31,8 +31,20 @@ public class FileManager(IBlobContainer<FileContainer> blobContainer, IConfigura
         var cleanedFolder = folder?.Trim('/').Replace("\\", "/") ?? "misc";
         var blobName = $"{cleanedFolder}/{Guid.NewGuid()}{fileExtension}";
 
-        var rootPath = _configuration["LocalStorageSetting:StoragePath"] ?? "images/files";
-        var fullFolderPath = Path.Combine(Environment.CurrentDirectory, "wwwroot", rootPath, cleanedFolder);
+        var rootPath = _configuration["LocalStorageSetting:StoragePath"] ?? "images";
+
+        var scopeSegment = _currentTenant.IsAvailable
+            ? Path.Combine("tenants", _currentTenant.Id!.ToString())
+            : "host";
+
+        var fullFolderPath = Path.Combine(
+            Environment.CurrentDirectory,
+            "wwwroot",
+            rootPath,
+            scopeSegment,
+            "files",
+            cleanedFolder
+        );
 
         if (!Directory.Exists(fullFolderPath))
         {
@@ -44,7 +56,7 @@ public class FileManager(IBlobContainer<FileContainer> blobContainer, IConfigura
 
         var fileAttachment = new FileAttachment(fileName, filePath, blobName);
 
-        return  fileAttachment;
+        return fileAttachment;
     }
 
 
@@ -55,16 +67,18 @@ public class FileManager(IBlobContainer<FileContainer> blobContainer, IConfigura
 
         await _blobContainer.DeleteAsync(attachment.BlobName);
 
-        var baseUrl = _configuration["LocalStorageSetting:BaseUrl"] ?? "https://localhost:44322/";
-        var relativeUrl = attachment.Path.Replace(baseUrl.TrimEnd('/') + "/", "");
+        // Convert URL -> absolute path under wwwroot
+        var uri = new Uri(attachment.Path, UriKind.Absolute);
+        var relPath = uri.AbsolutePath.TrimStart('/'); // e.g. images/tenants/.../file.png
 
-        var fullPath = Path.Combine(Environment.CurrentDirectory, "wwwroot",
-            relativeUrl.Replace("/", Path.DirectorySeparatorChar.ToString()));
+        var fullPath = Path.Combine(
+            Environment.CurrentDirectory,
+            "wwwroot",
+            relPath.Replace("/", Path.DirectorySeparatorChar.ToString())
+        );
 
         if (File.Exists(fullPath))
-        {
             File.Delete(fullPath);
-        }
     }
 
     public async Task<byte[]> GetAllBytesAsync(string fileName, CancellationToken cancellationToken = default)
@@ -80,27 +94,27 @@ public class FileManager(IBlobContainer<FileContainer> blobContainer, IConfigura
     }
 
 
-    private string BuildUrl(string fileName)
+    private string BuildUrl(string blobName)
     {
-        var containerName = BlobContainerNameAttribute.GetContainerName<FileContainer>();
-        var baseUrl = _configuration["LocalStorageSetting:BaseUrl"]!.TrimEnd('/');
-        var basePath = _configuration["LocalStorageSetting:StoragePath"]!.Trim('/');
-        var tenantSegment = _currentTenant.IsAvailable ? $"tenants/{_currentTenant.Id}" : string.Empty;
+        // blobName example: "student-documents/xxxx.png"
+        var baseUrl = (_configuration["LocalStorageSetting:BaseUrl"] ?? "").TrimEnd('/');
+        var basePath = (_configuration["LocalStorageSetting:StoragePath"] ?? "images").Trim('/');
 
-        var urlParts = new[]
-        {
-            baseUrl,
-            basePath,
-            "host",
-            containerName,
-            tenantSegment,
-            fileName
-        };
+        // Your actual folder layout in wwwroot:
+        // /images/tenants/{tenantId}/files/{blobName}
+        // or /images/host/files/{blobName} (host side)
+        var scopeSegment = _currentTenant.IsAvailable
+            ? $"tenants/{_currentTenant.Id}"
+            : "host";
 
-        return string.Join('/', urlParts.Where(part => !string.IsNullOrWhiteSpace(part)));
+        var relative = $"{basePath}/{scopeSegment}/files/{blobName}".Replace("\\", "/");
 
-        // return $"{baseUrl}/{basePath}/{containerName}/{tenantSegment}/{fileName}".Replace("\\", "/");
+        return string.IsNullOrWhiteSpace(baseUrl)
+            ? "/" + relative
+            : baseUrl + "/" + relative;
     }
+
+
 
 
     private static void ValidateFileName(string fileName)
