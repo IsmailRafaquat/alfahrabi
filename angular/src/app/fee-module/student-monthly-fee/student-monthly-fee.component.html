@@ -1,57 +1,49 @@
 <abp-page [title]="'::Menu:StudentMonthlyFees' | abpLocalization">
     <abp-page-toolbar-container class="col">
-       <div class="text-end">
+        <div class="text-end">
 
-  <!-- Desktop / tablet (sm and up) -->
-  <div class="d-none d-sm-inline">
-    <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
-            class="btn btn-outline-primary btn-sm me-2"
-            type="button"
-            (click)="openBulkModal()">
-      <i class="fa fa-bolt me-1"></i>
-      <span class="d-none d-sm-inline">{{ '::BulkGenerate' | abpLocalization }}</span>
-    </button>
+            <!-- Desktop / tablet (sm and up) -->
+            <div class="d-none d-sm-inline">
+                <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm me-2"
+                    type="button" (click)="openBulkModal()">
+                    <i class="fa fa-bolt me-1"></i>
+                    <span class="d-none d-sm-inline">{{ '::BulkGenerate' | abpLocalization }}</span>
+                </button>
 
-    <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
-            class="btn btn-outline-primary btn-sm"
-            type="button"
-            (click)="create()">
-      <i class="fa fa-plus me-1"></i>
-      <span class="d-none d-sm-inline">{{ '::New' | abpLocalization }}</span>
-    </button>
-  </div>
+                <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="btn btn-outline-primary btn-sm"
+                    type="button" (click)="create()">
+                    <i class="fa fa-plus me-1"></i>
+                    <span class="d-none d-sm-inline">{{ '::New' | abpLocalization }}</span>
+                </button>
+            </div>
 
-  <!-- Mobile (xs only): single Actions dropdown -->
-  <div class="d-flex d-sm-none justify-content-end">
-    <div ngbDropdown class="dropdown">
-      <button class="btn btn-primary btn-sm" ngbDropdownToggle type="button">
-        <i class="fa fa-ellipsis-v me-1"></i>
-        <!-- {{ '::Actions' | abpLocalization }} -->
-      </button>
+            <!-- Mobile (xs only): single Actions dropdown -->
+            <div class="d-flex d-sm-none justify-content-end">
+                <div ngbDropdown class="dropdown">
+                    <button class="btn btn-primary btn-sm" ngbDropdownToggle type="button">
+                        <i class="fa fa-ellipsis-v me-1"></i>
+                        <!-- {{ '::Actions' | abpLocalization }} -->
+                    </button>
 
-      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
-        <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
-                class="dropdown-item"
-                type="button"
-                (click)="openBulkModal()">
-          <i class="fa fa-bolt me-2"></i>
-          {{ '::BulkGenerate' | abpLocalization }}
-        </button>
+                    <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+                        <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="dropdown-item" type="button"
+                            (click)="openBulkModal()">
+                            <i class="fa fa-bolt me-2"></i>
+                            {{ '::BulkGenerate' | abpLocalization }}
+                        </button>
 
-        <div class="dropdown-divider"></div>
+                        <div class="dropdown-divider"></div>
 
-        <button *abpPermission="'EHub.StudentMonthlyFees.Create'"
-                class="dropdown-item"
-                type="button"
-                (click)="create()">
-          <i class="fa fa-plus me-2"></i>
-          {{ '::New' | abpLocalization }}
-        </button>
-      </div>
-    </div>
-  </div>
+                        <button *abpPermission="'EHub.StudentMonthlyFees.Create'" class="dropdown-item" type="button"
+                            (click)="create()">
+                            <i class="fa fa-plus me-2"></i>
+                            {{ '::New' | abpLocalization }}
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-</div>
+        </div>
 
     </abp-page-toolbar-container>
 
@@ -122,11 +114,12 @@
     <div class="card mt-2">
         <div class="card-body">
             <ngx-datatable [rows]="fees.items" [count]="fees.totalCount" [list]="list" default>
-                <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="150" [sortable]="false">
-                    <ng-template let-row="row" ngx-datatable-cell-template>
+                <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+                    [resizeable]="false">
+                    <ng-template ngx-datatable-cell-template let-row="row">
                         <div ngbDropdown container="body" class="d-inline-block">
-                            <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
-                                <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+                            <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
 
                             <div ngbDropdownMenu>
@@ -143,7 +136,6 @@
                         </div>
                     </ng-template>
                 </ngx-datatable-column>
-
                 <ngx-datatable-column [name]="'::Student' | abpLocalization">
                     <ng-template let-row="row" ngx-datatable-cell-template>
                         {{ studentNameById(row.studentId) }}

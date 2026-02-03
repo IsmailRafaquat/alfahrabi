@@ -2,12 +2,8 @@
   <!-- Toolbar -->
   <abp-page-toolbar-container class="col">
     <div class="text-end">
-      <button
-        *abpPermission="'EHub.StaffSalaryPayments.Create'"
-        class="btn btn-outline-primary btn-sm"
-        type="button"
-        (click)="create()"
-      >
+      <button *abpPermission="'EHub.StaffSalaryPayments.Create'" class="btn btn-outline-primary btn-sm" type="button"
+        (click)="create()">
         <i class="fa fa-plus me-1"></i>
         {{ '::New' | abpLocalization }}
       </button>
@@ -20,12 +16,8 @@
       <div class="row align-items-center">
         <div class="col-8 col-sm-10">
           <div class="input-group input-group-sm">
-            <input
-              type="text"
-              class="form-control"
-              [placeholder]="'::SearchHere' | abpLocalization"
-              [(ngModel)]="filters.filter"
-            />
+            <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization"
+              [(ngModel)]="filters.filter" />
             <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="list.get()">
               <i class="fa fa-search"></i>
             </button>
@@ -33,11 +25,7 @@
         </div>
 
         <div class="col-4 col-sm-2 text-end">
-          <button
-            class="btn btn-outline-primary btn-sm w-100"
-            type="button"
-            (click)="showFilter = !showFilter"
-          >
+          <button class="btn btn-outline-primary btn-sm w-100" type="button" (click)="showFilter = !showFilter">
             <i class="fas fa-filter d-sm-none"></i>
             <span class="d-none d-sm-inline">{{ '::Filters' | abpLocalization }}</span>
             <i class="fas fa-angle-down ms-1" *ngIf="!showFilter"></i>
@@ -59,8 +47,8 @@
           <!-- <div class="col-sm-3">
             <label>{{ '::SalaryMonth' | abpLocalization }}</label>
             < month picker (simple): use input type="month" -->
-            <!-- <input type="month" class="form-control form-control-sm" [(ngModel)]="salaryMonthUi" />
-          </div> --> 
+          <!-- <input type="month" class="form-control form-control-sm" [(ngModel)]="salaryMonthUi" />
+          </div> -->
 
           <div class="col-sm-2">
             <label>{{ '::FromDate' | abpLocalization }}</label>
@@ -90,11 +78,12 @@
   <div class="card mt-2">
     <div class="card-body">
       <ngx-datatable [rows]="payments.items" [count]="payments.totalCount" [list]="list" default>
-        <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="140" [sortable]="false">
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            <div ngbDropdown container="body">
-              <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
-                {{ '::Actions' | abpLocalization }}
+        <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+                <i class="fas fa-ellipsis-v"></i>
               </button>
 
               <div ngbDropdownMenu>
@@ -109,7 +98,6 @@
             </div>
           </ng-template>
         </ngx-datatable-column>
-
         <ngx-datatable-column [name]="'::Staff' | abpLocalization" prop="staffName"></ngx-datatable-column>
 
         <ngx-datatable-column [name]="'::SalaryMonth' | abpLocalization" prop="salaryMonth">

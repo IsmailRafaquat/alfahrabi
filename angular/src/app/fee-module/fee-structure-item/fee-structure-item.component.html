@@ -7,12 +7,8 @@
 
       <div class="text-end col col-md-6">
         <div class="text-lg-end">
-          <button
-            *abpPermission="'EHub.FeeStructureItems.Create'"
-            class="btn btn-outline-primary"
-            type="button"
-            (click)="create()"
-          >
+          <button *abpPermission="'EHub.FeeStructureItems.Create'" class="btn btn-outline-primary" type="button"
+            (click)="create()">
             <i class="fa fa-plus me-1"></i>
             <span>{{ '::New' | abpLocalization }}</span>
           </button>
@@ -23,38 +19,26 @@
 
   <div class="card-body">
     <ngx-datatable [rows]="items.items" [count]="items.totalCount" [list]="list" default>
-      <ngx-datatable-column
-        [name]="'::Actions' | abpLocalization"
-        [maxWidth]="180"
-        [sortable]="false"
-      >
-        <ng-template let-row="row" ngx-datatable-cell-template>
+      <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
           <div ngbDropdown container="body" class="d-inline-block">
-            <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
-              <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+            <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+              <i class="fas fa-ellipsis-v"></i>
             </button>
 
             <div ngbDropdownMenu>
-              <button
-                *abpPermission="'EHub.FeeStructureItems.Edit'"
-                ngbDropdownItem
-                (click)="edit(row.id)"
-              >
+              <button *abpPermission="'EHub.FeeStructureItems.Edit'" ngbDropdownItem (click)="edit(row.id)">
                 {{ '::Edit' | abpLocalization }}
               </button>
 
-              <button
-                *abpPermission="'EHub.FeeStructureItems.Delete'"
-                ngbDropdownItem
-                (click)="delete(row.id)"
-              >
+              <button *abpPermission="'EHub.FeeStructureItems.Delete'" ngbDropdownItem (click)="delete(row.id)">
                 {{ '::Delete' | abpLocalization }}
               </button>
             </div>
           </div>
         </ng-template>
       </ngx-datatable-column>
-
       <ngx-datatable-column [name]="'::FeeStructure' | abpLocalization">
         <ng-template let-row="row" ngx-datatable-cell-template>
           {{ row.feeStructureName }}
@@ -94,17 +78,8 @@
             {{ '::FeeStructure' | abpLocalization }} <span class="text-danger">*</span>
           </label>
 
-          <nz-select
-            formControlName="feeStructureId"
-            class="w-100"
-            nzAllowClear
-            nzSize="large"
-          >
-            <nz-option
-              *ngFor="let o of feeStructureOptions"
-              [nzValue]="o.id"
-              [nzLabel]="o.displayName"
-            ></nz-option>
+          <nz-select formControlName="feeStructureId" class="w-100" nzAllowClear nzSize="large">
+            <nz-option *ngFor="let o of feeStructureOptions" [nzValue]="o.id" [nzLabel]="o.displayName"></nz-option>
           </nz-select>
         </div>
 
@@ -113,17 +88,8 @@
             {{ '::FeeHead' | abpLocalization }} <span class="text-danger">*</span>
           </label>
 
-          <nz-select
-            formControlName="feeHeadId"
-            class="w-100"
-            nzAllowClear
-            nzSize="large"
-          >
-            <nz-option
-              *ngFor="let o of feeHeadOptions"
-              [nzValue]="o.id"
-              [nzLabel]="o.name"
-            ></nz-option>
+          <nz-select formControlName="feeHeadId" class="w-100" nzAllowClear nzSize="large">
+            <nz-option *ngFor="let o of feeHeadOptions" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
           </nz-select>
         </div>
       </div>
@@ -133,13 +99,7 @@
           <label class="form-label">
             {{ '::MonthlyAmount' | abpLocalization }} <span class="text-danger">*</span>
           </label>
-          <input
-            type="number"
-            class="form-control"
-            formControlName="monthlyAmount"
-            min="0"
-            step="0.01"
-          />
+          <input type="number" class="form-control" formControlName="monthlyAmount" min="0" step="0.01" />
         </div>
 
         <div class="col-md-6 d-flex align-items-end">

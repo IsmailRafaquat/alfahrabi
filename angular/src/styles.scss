@@ -454,3 +454,23 @@ label {
 .dt-actions .dt-action-btn:hover {
   background: rgba(0, 0, 0, 0.06);
 }
+
+.ngx-actions-btn {
+  border: 0;
+  background: transparent;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ngx-actions-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.ngx-actions-btn.dropdown-toggle::after {
+  display: none !important;   // hides the ▼ caret
+}
+

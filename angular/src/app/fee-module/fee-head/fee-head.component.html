@@ -26,23 +26,16 @@
 
   <div class="card-body">
     <ngx-datatable [rows]="feeHeads.items" [count]="feeHeads.totalCount" [list]="list" default>
-      <ngx-datatable-column
-        [name]="'::Actions' | abpLocalization"
-        [maxWidth]="180"
-        [sortable]="false"
-      >
-        <ng-template let-row="row" ngx-datatable-cell-template>
-          <div ngbDropdown container="body" class="d-inline-block">
-            <button
-              class="btn btn-primary btn-sm dropdown-toggle"
-              aria-haspopup="true"
-              ngbDropdownToggle
-            >
-              <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
-            </button>
+         <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
 
-            <div ngbDropdownMenu>
-              <button
+              <div ngbDropdownMenu>
+                  <button
                 *abpPermission="'EHub.FeeHeads.Edit'"
                 ngbDropdownItem
                 (click)="edit(row.id)"
@@ -65,10 +58,11 @@
               >
                 {{ '::Delete' | abpLocalization }}
               </button>
+              </div>
             </div>
-          </div>
-        </ng-template>
-      </ngx-datatable-column>
+          </ng-template>
+        </ngx-datatable-column>
+
 
       <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name"></ngx-datatable-column>
 

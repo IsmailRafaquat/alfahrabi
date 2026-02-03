@@ -158,23 +158,24 @@
   <div class="card mt-2">
     <div class="card-body">
       <ngx-datatable [rows]="attendances.items" [count]="attendances.totalCount" [list]="list" default>
-        <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="170" [sortable]="false">
-          <ng-template let-row="row" ngx-datatable-cell-template>
+         <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row">
             <div ngbDropdown container="body" class="d-inline-block">
-              <button class="btn btn-primary btn-sm dropdown-toggle" ngbDropdownToggle>
-                <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+              <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+                <i class="fas fa-ellipsis-v"></i>
               </button>
 
               <div ngbDropdownMenu>
-                <button ngbDropdownItem (click)="editAttendance(row.id)">
+                 <button ngbDropdownItem (click)="editAttendance(row.id)">
                   {{ '::Edit' | abpLocalization }}
                 </button>
                 <button ngbDropdownItem (click)="delete(row.id)">
                   {{ '::Delete' | abpLocalization }}
                 </button>
-                <button ngbDropdownItem (click)="viewDetails(row.id)">
+                <!-- <button ngbDropdownItem (click)="viewDetails(row.id)">
                   {{ '::ViewDetails' | abpLocalization }}
-                </button>
+                </button> -->
               </div>
             </div>
           </ng-template>

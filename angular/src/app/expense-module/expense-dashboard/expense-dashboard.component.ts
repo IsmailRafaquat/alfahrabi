@@ -287,9 +287,10 @@ export class ExpenseDashboardComponent implements AfterViewInit, OnDestroy {
       .sort((a: any, b: any) => this.toNumber(b?.amount) - this.toNumber(a?.amount))
       .slice(0, 10);
 
-    const barLabels = top.map((x: any) =>
-      String(x?.categoryName ?? '').trim() ? String(x.categoryName) : '—',
-    );
+    const barLabels = top.map((x: any) => {
+      const name = String(x?.expenseCategoryName ?? '').trim();
+      return name ? name : '—';
+    });
     const barValues = top.map((x: any) => this.toNumber(x?.amount));
 
     if (this.categoryBarChart) {

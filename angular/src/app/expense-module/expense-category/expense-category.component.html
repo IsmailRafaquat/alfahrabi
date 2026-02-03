@@ -9,13 +9,8 @@
 
       <div class="text-end col col-md-8">
         <div class="text-lg-end">
-          <button
-            *abpPermission="'EHub.ExpenseCategories.Create'"
-            id="create"
-            class="btn btn-outline-primary btn-sm"
-            type="button"
-            (click)="create()"
-          >
+          <button *abpPermission="'EHub.ExpenseCategories.Create'" id="create" class="btn btn-outline-primary btn-sm"
+            type="button" (click)="create()">
             <i class="fa fa-plus me-1"></i>
             <span>{{ '::New' | abpLocalization }}</span>
           </button>
@@ -25,60 +20,32 @@
   </div>
 
   <div class="card-body">
-    <ngx-datatable
-      [rows]="expenseCategories.items"
-      [count]="expenseCategories.totalCount"
-      [list]="list"
-      default
-    >
-      <ngx-datatable-column
-        [name]="'::Actions' | abpLocalization"
-        [maxWidth]="180"
-        [sortable]="false"
-      >
-        <ng-template let-row="row" ngx-datatable-cell-template>
+    <ngx-datatable [rows]="expenseCategories.items" [count]="expenseCategories.totalCount" [list]="list" default>
+      <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
           <div ngbDropdown container="body" class="d-inline-block">
-            <button
-              class="btn btn-primary btn-sm dropdown-toggle"
-              aria-haspopup="true"
-              ngbDropdownToggle
-            >
-              <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+            <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+              <i class="fas fa-ellipsis-v"></i>
             </button>
 
             <div ngbDropdownMenu>
-              <button
-                *abpPermission="'EHub.ExpenseCategories.Edit'"
-                ngbDropdownItem
-                (click)="edit(row.id)"
-              >
+              <button *abpPermission="'EHub.ExpenseCategories.Edit'" ngbDropdownItem (click)="edit(row.id)">
                 {{ '::Edit' | abpLocalization }}
               </button>
 
-              <button
-                *abpPermission="'EHub.ExpenseCategories.Edit'"
-                ngbDropdownItem
-                (click)="toggleActive(row)"
-              >
+              <button *abpPermission="'EHub.ExpenseCategories.Edit'" ngbDropdownItem (click)="toggleActive(row)">
                 {{ (row.isActive ? '::Deactivate' : '::Activate') | abpLocalization }}
               </button>
 
-              <button
-                *abpPermission="'EHub.ExpenseCategories.Delete'"
-                ngbDropdownItem
-                (click)="delete(row.id)"
-              >
+              <button *abpPermission="'EHub.ExpenseCategories.Delete'" ngbDropdownItem (click)="delete(row.id)">
                 {{ '::Delete' | abpLocalization }}
               </button>
             </div>
           </div>
         </ng-template>
       </ngx-datatable-column>
-
-      <ngx-datatable-column
-        [name]="'::Name' | abpLocalization"
-        prop="name"
-      ></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name"></ngx-datatable-column>
 
       <ngx-datatable-column [name]="'::IsActive' | abpLocalization" [maxWidth]="130">
         <ng-template let-row="row" ngx-datatable-cell-template>
@@ -101,24 +68,12 @@
   <ng-template #abpBody>
     <form [formGroup]="form" (ngSubmit)="save()">
       <div class="form-group">
-        <label for="expensecategory-name">{{ '::Name' | abpLocalization }}</label
-        ><span class="text-danger"> * </span>
-        <input
-          type="text"
-          id="expensecategory-name"
-          class="form-control"
-          formControlName="name"
-          autofocus
-        />
+        <label for="expensecategory-name">{{ '::Name' | abpLocalization }}</label><span class="text-danger"> * </span>
+        <input type="text" id="expensecategory-name" class="form-control" formControlName="name" autofocus />
       </div>
 
       <div class="form-check mt-3">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          id="expensecategory-active"
-          formControlName="isActive"
-        />
+        <input class="form-check-input" type="checkbox" id="expensecategory-active" formControlName="isActive" />
         <label class="form-check-label" for="expensecategory-active">
           {{ '::IsActive' | abpLocalization }}
         </label>
