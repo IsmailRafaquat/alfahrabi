@@ -4,6 +4,11 @@ public static class EHubPermissions
 {
     public const string GroupName = "EHub";
 
+    public static class Dashboards
+    {
+        public const string Dashboard = GroupName + ".Dashboard";
+    }
+
     public static class StudentMenuItems
     {
         public const string StudentMain = GroupName + ".StudentMenu";

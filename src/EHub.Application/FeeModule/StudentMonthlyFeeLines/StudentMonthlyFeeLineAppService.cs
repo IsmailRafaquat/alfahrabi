@@ -68,12 +68,13 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
         if (input.Sorting.IsNullOrWhiteSpace())
             input.Sorting = nameof(StudentMonthlyFeeLine.CreationTime) + " DESC";
 
-        var total = await _repo.GetCountAsync(input.StudentMonthlyFeeId, input.FeeHeadId);
+        var total = await _repo.GetCountAsync(input.Filter,input.StudentMonthlyFeeId, input.FeeHeadId);
 
         var list = await _repo.GetListAsync(
             input.SkipCount,
             input.MaxResultCount,
             input.Sorting,
+            input.Filter,
             input.StudentMonthlyFeeId,
             input.FeeHeadId);
 
@@ -329,6 +330,7 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
             {
                 StudentId = s.Id,
                 StudentName = ((s.FirstName ?? "") + " " + (s.LastName ?? "")).Trim(),
+                ParentContact = s.PPhone,
                 line.FeeHeadId,
                 FeeHeadName = fh != null ? (fh.Name ?? "") : "",
 
@@ -385,6 +387,7 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
                 Net = g.Sum(x => x.Net),
                 Paid = g.Sum(x => x.Paid),
                 Pending = g.Sum(x => x.Net) - g.Sum(x => x.Paid),
+                ParentContact = g.Select(x => x.ParentContact).FirstOrDefault()
             })
             .Where(x => x.Pending > 0)
             .OrderByDescending(x => x.Pending)

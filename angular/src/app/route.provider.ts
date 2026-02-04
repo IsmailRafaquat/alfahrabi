@@ -24,6 +24,7 @@ function configureRoutes() {
       iconClass: 'fas fa-chart-line',
       order: 2,
       layout: eLayoutType.application,
+      requiredPolicy: 'EHub.Dashboard',
     },
 
     {

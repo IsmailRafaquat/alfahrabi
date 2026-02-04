@@ -13,12 +13,13 @@ public interface IStudentMonthlyFeeLineRepository : IRepository<StudentMonthlyFe
 
     Task<StudentMonthlyFeeLine?> FindByMonthlyFeeAndHeadAsync(Guid studentMonthlyFeeId, Guid feeHeadId);
 
-    Task<long> GetCountAsync(Guid? studentMonthlyFeeId, Guid? feeHeadId);
+    Task<long> GetCountAsync(string? filters, Guid? studentMonthlyFeeId, Guid? feeHeadId);
 
     Task<List<StudentMonthlyFeeLine>> GetListAsync(
         int skipCount,
         int maxResultCount,
         string sorting,
+        string? filters,
         Guid? studentMonthlyFeeId,
         Guid? feeHeadId
     );

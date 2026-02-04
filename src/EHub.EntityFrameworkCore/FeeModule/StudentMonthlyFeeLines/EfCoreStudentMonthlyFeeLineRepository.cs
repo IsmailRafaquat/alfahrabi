@@ -43,7 +43,7 @@ public class EfCoreStudentMonthlyFeeLineRepository
             x.FeeHeadId == feeHeadId);
     }
 
-    public async Task<long> GetCountAsync(Guid? studentMonthlyFeeId, Guid? feeHeadId)
+    public async Task<long> GetCountAsync(string? filters, Guid? studentMonthlyFeeId, Guid? feeHeadId)
     {
         var q = await GetQueryableAsync();
         q = q.WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
@@ -55,12 +55,26 @@ public class EfCoreStudentMonthlyFeeLineRepository
         int skipCount,
         int maxResultCount,
         string sorting,
+        string? filters,
         Guid? studentMonthlyFeeId,
         Guid? feeHeadId)
     {
         var q = await GetQueryableAsync();
-        q = q.WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
-             .WhereIf(feeHeadId.HasValue, x => x.FeeHeadId == feeHeadId);
+
+        q = q.Include(x => x.StudentMonthlyFee)
+                .ThenInclude(x => x.Student)
+                 .WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
+                 .WhereIf(feeHeadId.HasValue, x => x.FeeHeadId == feeHeadId)
+                 .WhereIf(!filters.IsNullOrWhiteSpace(), x =>
+                    (x.StudentMonthlyFee != null &&
+                     x.StudentMonthlyFee.Student != null) &&
+                    (
+                        ((x.StudentMonthlyFee.Student.FirstName ?? "").ToLower().Contains(filters!.ToLower())) ||
+                        ((x.StudentMonthlyFee.Student.LastName ?? "").ToLower().Contains(filters!.ToLower())) ||
+                        ((x.StudentMonthlyFee.Student.AdmissionNo ?? "").ToLower().Contains(filters!.ToLower())) ||
+                        ((x.StudentMonthlyFee.Student.AdmissionNo ?? "").ToLower().Contains(filters!.ToLower()))
+                    )
+    );
 
         return await q.OrderBy(sorting).PageBy(skipCount, maxResultCount).ToListAsync();
     }

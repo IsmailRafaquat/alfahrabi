@@ -85,8 +85,8 @@
   <div class="row g-3 mt-3" *ngIf="data">
     <div class="col-12 col-sm-6 col-xl-2" *ngFor="let c of [
       { key:'net',      title: 'Net',       value: data.totalNet,      icon:'fa-wallet',      tone:'t1' },
-      { key:'paid',     title: 'Collected', value: data.totalPaid,     icon:'fa-circle-check',tone:'t2' },
-      { key:'pending',  title: 'Pending',   value: data.totalPending,  icon:'fa-triangle-exclamation', tone:'t3' },
+      { key:'paid',     title: 'Collected', value: data.totalPaid,     icon:'fa-check-circle',tone:'t2' },
+      { key:'pending',  title: 'Pending',   value: data.totalPending,  icon:'fa-exclamation-triangle', tone:'t3' },
       { key:'discount', title: 'Discount',  value: data.totalDiscount, icon:'fa-tag',         tone:'t4' },
       { key:'late',     title: 'Late Fee',  value: data.totalLateFee,  icon:'fa-clock',       tone:'t5' },
       { key:'students', title: 'Students',  value: data.totalStudents, icon:'fa-users',       tone:'t6' }
@@ -98,7 +98,7 @@
             <div class="kpi-value">{{ c.value | number:'1.0-0' }}</div>
           </div>
           <div class="kpi-icon">
-            <i class="fa-solid" [ngClass]="c.icon"></i>
+            <i class="fas" [ngClass]="c.icon"></i>
           </div>
         </div>
       </div>
@@ -176,25 +176,54 @@
 
     <div class="col-12 col-xl-5">
       <div class="card shadow-soft">
-        <div class="card-header bg-transparent border-0 fw-semibold">
-          Top Pending Students (Top 200)
+        <div class="card-header bg-transparent border-0 fw-semibold d-flex align-items-center justify-content-between">
+          <span>Top Pending Students (Top 200)</span>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" type="button" (click)="selectedStudentIds.clear()"
+              [disabled]="selectedStudentIds.size === 0">
+              <i class="fas fa-eraser me-1"></i>
+
+            </button>
+
+            <button class="btn btn-success btn-sm" type="button" (click)="openWhatsAppForSelected()"
+              [disabled]="loading || selectedStudentIds.size === 0">
+              <i class="fas fa-comment-dots me-1"></i> ({{ selectedStudentIds.size }})
+            </button>
+          </div>
         </div>
+
 
         <div class="card-body table-responsive modern-table">
           <table class="table align-middle">
             <thead>
               <tr>
+                <th style="width:36px;">
+                  <input type="checkbox"
+                    [checked]="data?.byStudent?.length && selectedStudentIds.size === data.byStudent.length"
+                    (change)="toggleAll($any($event.target).checked)" />
+                </th>
                 <th>Student</th>
                 <th class="text-end">Pending</th>
               </tr>
             </thead>
+
             <tbody>
               <tr *ngFor="let s of data.byStudent">
+                <td>
+                  <input type="checkbox" [checked]="selectedStudentIds.has(s.studentId)"
+                    (change)="toggleRow(s.studentId, $any($event.target).checked)" />
+                </td>
+
                 <td class="fw-semibold">{{ s.studentName || '—' }}</td>
-                <td class="text-end fw-bold text-danger">{{ s.pending | number:'1.0-0' }}</td>
+
+                <td class="text-end fw-bold text-danger">
+                  {{ s.pending | number:'1.0-0' }}
+                </td>
               </tr>
             </tbody>
           </table>
+
         </div>
 
       </div>

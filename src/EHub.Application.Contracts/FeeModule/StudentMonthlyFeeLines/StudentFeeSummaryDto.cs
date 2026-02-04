@@ -9,4 +9,5 @@ public class StudentFeeSummaryDto
     public decimal Net { get; set; }
     public decimal Paid { get; set; }
     public decimal Pending { get; set; }
+    public string? ParentContact { get; set; }
 }

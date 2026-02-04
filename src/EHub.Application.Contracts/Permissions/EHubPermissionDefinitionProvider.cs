@@ -11,6 +11,10 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
     {
         var myGroup = context.AddGroup(EHubPermissions.GroupName);
 
+
+        var dashboardPermission =
+          myGroup.AddPermission(EHubPermissions.Dashboards.Dashboard, L("Permission:Dashboard"));
+
         var studentMainPermission =
           myGroup.AddPermission(EHubPermissions.StudentMenuItems.StudentMain, L("Permission:StudentMain"));
 

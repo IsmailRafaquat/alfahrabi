@@ -15,6 +15,7 @@ import {
   shiftOptions,
   termOptions,
 } from 'src/app/proxy/students';
+import { ToasterService } from '@abp/ng.theme.shared';
 
 @Component({
   selector: 'app-check-fees-dashboard',
@@ -25,9 +26,12 @@ import {
 export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(StudentMonthlyFeeLineService);
+  private readonly toaster = inject(ToasterService);
 
   loading = false;
   data?: CheckFeesDashboardDto;
+
+  selectedStudentIds = new Set<string>();
 
   // Enum options for dropdowns
   gradeLevels = gradeLevelOptions;
@@ -121,7 +125,7 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
 
     // ---------- HORIZONTAL BAR (Modern & Professional) ----------
     const barCtx = this.feeHeadBarCanvas.nativeElement.getContext('2d')!;
-    
+
     // Create sophisticated gradients
     const netGradient = this.makeHorizontalGradient(
       barCtx,
@@ -189,12 +193,12 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
           legend: {
             position: 'top',
             align: 'end',
-            labels: { 
-              usePointStyle: true, 
-              boxWidth: 10, 
-              boxHeight: 10, 
+            labels: {
+              usePointStyle: true,
+              boxWidth: 10,
+              boxHeight: 10,
               padding: 18,
-              font: { size: 11, weight: 500 }
+              font: { size: 11, weight: 500 },
             },
           },
           tooltip: {
@@ -209,7 +213,7 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
             titleFont: { size: 13, weight: 600 },
             bodyFont: { size: 12 },
             callbacks: {
-              title: (items) => {
+              title: items => {
                 return items[0]?.label || '';
               },
               label: ctx => {
@@ -218,21 +222,21 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
                 const percentage = total > 0 ? ((v / total) * 100).toFixed(1) : '0';
                 return `${ctx.dataset.label}: ${v.toLocaleString()} (${percentage}%)`;
               },
-              afterBody: (items) => {
+              afterBody: items => {
                 if (items.length > 0) {
                   const idx = items[0].dataIndex;
                   const total = this.calculateTotalForFeeHead(idx);
                   return `\nTotal: ${total.toLocaleString()}`;
                 }
                 return '';
-              }
+              },
             },
           },
         },
         scales: {
           x: {
             beginAtZero: true,
-            grid: { 
+            grid: {
               display: true,
               color: 'rgba(148, 163, 184, 0.1)',
               lineWidth: 1,
@@ -437,5 +441,117 @@ export class CheckFeesDashboardComponent implements AfterViewInit, OnDestroy {
     if (!yy || !mm || !dd) return null;
 
     return new Date(yy, mm - 1, dd);
+  }
+
+  toggleRow(id: string, checked: boolean) {
+    if (checked) this.selectedStudentIds.add(id);
+    else this.selectedStudentIds.delete(id);
+  }
+
+  toggleAll(checked: boolean) {
+    const rows = this.data?.byStudent ?? [];
+    if (checked) rows.forEach(r => this.selectedStudentIds.add(r.studentId));
+    else this.selectedStudentIds.clear();
+  }
+
+  // ---------- WhatsApp ----------
+  openWhatsAppForSelected(): void {
+    const selected = Array.from(this.selectedStudentIds);
+    const rows = (this.data?.byStudent ?? []).filter(x => selected.includes(x.studentId));
+
+    if (rows.length === 0) {
+      this.toaster.warn('Please select at least one student.');
+      return;
+    }
+
+    const monthText = this.form.value.month ?? ''; // "YYYY-MM"
+    const monthLabel = this.formatMonthLabel(monthText); // "Feb 2026" etc.
+
+    // Group by parent phone (dedupe)
+    const grouped = new Map<string, { e164: string; items: { name: string; pending: number }[] }>();
+
+    for (const r of rows as any[]) {
+      const rawPhone = r.parentContact as string | null | undefined;
+      const e164 = this.normalizePkToE164(rawPhone);
+      if (!e164) continue;
+
+      const waKey = this.toWaMeNumber(e164); // digits only
+
+      const pending = Number(r.pending ?? 0);
+      if (!Number.isFinite(pending) || pending <= 0) continue;
+
+      if (!grouped.has(waKey)) grouped.set(waKey, { e164, items: [] });
+
+      grouped.get(waKey)!.items.push({
+        name: (r.studentName ?? '—').trim(),
+        pending: pending,
+      });
+    }
+
+    if (grouped.size === 0) {
+      this.toaster.error('No valid parent phone numbers with pending amount found.');
+      return;
+    }
+
+    // Build WhatsApp URLs (one per phone)
+    const targets = Array.from(grouped.entries()).map(([waNum, data]) => {
+      const total = data.items.reduce((sum, x) => sum + x.pending, 0);
+
+      const lines = data.items
+        .map(x => `- ${x.name}: PKR ${Math.round(x.pending).toLocaleString()}`)
+        .join('\n');
+
+      const msg = `Fee Reminder (${monthLabel})
+Pending details:
+${lines}
+
+Total Pending: PKR ${Math.round(total).toLocaleString()}
+Please clear the pending fee. Thank you.`;
+
+      const url = `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`;
+      return { url };
+    });
+
+    // Must be triggered by click; throttle popup opens
+    targets.forEach((t, i) => {
+      setTimeout(() => window.open(t.url, '_blank', 'noopener,noreferrer'), i * 350);
+    });
+
+    this.toaster.info(`Opened ${targets.length} WhatsApp chat(s).`);
+  }
+
+  // --- helpers ---
+  private normalizePkToE164(raw?: string | null): string | null {
+    if (!raw) return null;
+    const digits = String(raw).replace(/\D/g, '');
+
+    // already has country code 92 (without +)
+    if (digits.startsWith('92') && digits.length >= 12) return `+${digits}`;
+
+    // PK local mobile: 03XXXXXXXXX
+    if (digits.startsWith('03') && digits.length === 11) return `+92${digits.substring(1)}`;
+
+    // 0XXXXXXXXXX -> assume PK
+    if (digits.startsWith('0') && digits.length >= 10) return `+92${digits.substring(1)}`;
+
+    // fallback as E.164 without plus
+    if (digits.length >= 10 && digits.length <= 15) return `+${digits}`;
+
+    return null;
+  }
+
+  private toWaMeNumber(e164: string): string {
+    // wa.me requires digits only
+    return e164.replace(/\D/g, '');
+  }
+
+  private formatMonthLabel(v: string): string {
+    // v expected "YYYY-MM"
+    if (!v || v.length < 7) return v || '';
+    const [yy, mm] = v.split('-').map(x => Number(x));
+    if (!yy || !mm) return v;
+
+    const d = new Date(yy, mm - 1, 1);
+    return d.toLocaleString('en-US', { month: 'short', year: 'numeric' }); // "Feb 2026"
   }
 }

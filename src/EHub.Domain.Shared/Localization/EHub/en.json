@@ -22,6 +22,7 @@
     "EHub:StudentDocumentEmpty": "Student document was not found.",
     "EHub:StaffDocumentEmpty": "Staff document was not found.",
 
+    "Permission:Dashboard": "Dashboard",
     "Permission:Students": "Student Management",
     "Permission:Students.Create": "Create",
     "Permission:Students.Edit": "Edit",
@@ -680,7 +681,42 @@
     "CategorySummary": "Category Summary",
     "RecentExpenses": "Recent Expenses",
 
-    "NoData": "No data found"
+    "Dashboard": "Dashboard",
+    "Apply": "Apply",
+    "NoData": "No data available",
+
+    "TotalEarn": "Total Earned",
+    "NetProfit": "Net Profit",
+
+    "IncomeVsExpenseTrend": "Income vs Expense Trend",
+    "IncomeVsExpenseTrendHint": "Daily totals for selected filters",
+    "Expense": "Expense",
+    "Earn": "Earn",
+    "Total": "Total",
+
+    "StudentAttendanceStatusDistribution": "Student Attendance Status Distribution",
+    "StaffAttendanceStatusDistribution": "Staff Attendance Status Distribution",
+    "StatusDistributionHint": "Distribution by status",
+
+    "StudentAttendanceByClass": "Student Attendance By Class",
+    "StudentAttendanceByClassHint": "Attendance rate by class/section",
+
+    "TopStudentsAcrossAllClasses": "Top Students Across All Classes",
+    "TopStudentsAcrossAllClassesHint": "Best attendance performers overall",
+
+    "TopStaff": "Top Staff",
+    "TopStaffHint": "Top attendance performers",
+
+    "AttendanceRate": "Attendance Rate",
+
+    "Present": "Present",
+    "Absent": "Absent",
+    "Late": "Late",
+    "Excused": "Excused",
+    "Sick": "Sick",
+    "Leave": "Leave",
+    "Holiday": "Holiday",
+    "Other": "Other"
 
   }
 }

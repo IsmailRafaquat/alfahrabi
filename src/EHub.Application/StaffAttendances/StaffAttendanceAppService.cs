@@ -461,7 +461,7 @@ public class StaffAttendanceAppService : ApplicationService, IStaffAttendanceApp
                     x.Status != AttendanceStatus.Late &&
                     x.Status != AttendanceStatus.Excused &&
                     x.Status != AttendanceStatus.Sick &&
-                    x.Status != AttendanceStatus.Leave &&
+                    x.Status != AttendanceStatus.Leave && 
                     x.Status != AttendanceStatus.Holiday)
             };
 

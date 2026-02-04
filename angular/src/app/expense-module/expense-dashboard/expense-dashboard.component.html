@@ -93,7 +93,8 @@
         { title: '::TotalExpense',        value: data.totalExpenses,       icon:'fa-wallet',          tone:'t1' },
         { title: '::StaffSalaryPayments', value: data.totalSalaryPayments, icon:'fa-money-bill-wave', tone:'t2' },
         { title: '::OtherExpenses',       value: data.totalOtherExpenses,  icon:'fa-receipt',         tone:'t3' },
-        { title: '::Transactions',        value: data.totalTransactions,   icon:'fa-list-check',      tone:'t4' }
+        { title: '::Transactions', value: data.totalTransactions, icon: 'fa-clipboard-list', tone: 't4' }
+
       ]"
     >
       <div class="kpi-tile card shadow-soft" [ngClass]="c.tone">
@@ -103,7 +104,7 @@
             <div class="kpi-value">{{ (c.value || 0) | number:'1.0-0' }}</div>
           </div>
           <div class="kpi-icon">
-            <i class="fa-solid" [ngClass]="c.icon"></i>
+            <i class="fas" [ngClass]="c.icon"></i>
           </div>
         </div>
       </div>
