@@ -5,3 +5,62 @@
 :root .abp-account-layout .lpx-brand-logo{
     --lpx-logo: url('/images/logo/leptonxlite/logo-dark.png');
 }
+
+.lpx-brand-name.lpx-login-name {
+    font-weight: 700;
+    color: #062953;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #062953;
+    --bs-btn-border-color: #062953;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #062953;
+    --bs-btn-hover-border-color: #062953;
+    --bs-btn-focus-shadow-rgb: 6, 41, 83;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #062953;
+    --bs-btn-active-border-color: #062953;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #062953;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: #062953;
+    --bs-gradient: none;
+}
+
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #062953;
+    --bs-btn-border-color: #062953;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #051f3f; /* darker */
+    --bs-btn-hover-border-color: #051f3f; /* darker */
+
+    --bs-btn-focus-shadow-rgb: 6, 41, 83;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #041a35; /* more darker */
+    --bs-btn-active-border-color: #041a35;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #062953;
+    --bs-btn-disabled-border-color: #062953;
+}
+
+.modal-header h1, .modal-header .h1, .modal-header h2, .modal-header .h2, .modal-header h3, .modal-header .h3, .modal-header h4, .modal-header .h4, .modal-header h5, .modal-header .h5, .modal-header h6, .modal-header .h6 {
+    font-size: 1.125em;
+    font-weight: bold;
+    color: #062953;
+}
+
+a {
+    color: #062953;
+    text-decoration: underline;
+}
+
+@media (min-width: 1200px) {
+    h4, .h4 {
+        font-size: 1.3125rem;
+        font-weight: bold;
+        color: #062953;
+    }
+}

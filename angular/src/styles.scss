@@ -5,6 +5,10 @@
   --lpx-logo-icon: url('/assets/images/logo/logo-light.png');
 }
 
+:root .abp-account-layout .lpx-brand-logo {
+    --lpx-logo: url('/assets/images/logo/logo-light.png');
+}
+
 :root {
   --navy-900: #021024;
   --navy-800: #052659;
@@ -47,6 +51,10 @@
   --color-primary-active: var(--navy-900);
 
   --shadow-focus: 0 0 0 0.25rem rgba(84, 131, 179, 0.35);
+}
+
+.lpx-brand-name.lpx-login-name {
+    font-weight: 700 !important;
 }
 
 .btn-primary {
