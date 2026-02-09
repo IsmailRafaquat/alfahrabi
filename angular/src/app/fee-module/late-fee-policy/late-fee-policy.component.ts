@@ -2,7 +2,13 @@ import { ListService, PagedResultDto } from '@abp/ng.core';
 import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme.shared';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { LateFeePolicyDto, GetLateFeePolicyListDto, LateFeeType, LateFeePolicyService, CreateUpdateLateFeePolicyDto } from 'src/app/proxy/fee-module/late-fee-policies';
+import {
+  LateFeePolicyDto,
+  GetLateFeePolicyListDto,
+  LateFeeType,
+  LateFeePolicyService,
+  CreateUpdateLateFeePolicyDto,
+} from 'src/app/proxy/fee-module/late-fee-policies';
 
 import {
   gradeLevelOptions,
@@ -12,15 +18,16 @@ import {
   GradeLevel,
   Section,
   Shift,
-  Term
+  Term,
 } from 'src/app/proxy/students';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-late-fee-policy',
   standalone: false,
   templateUrl: './late-fee-policy.component.html',
   styleUrl: './late-fee-policy.component.scss',
-  providers: [ListService]
+  providers: [ListService],
 })
 export class LateFeePolicyComponent implements OnInit {
   policies = { items: [], totalCount: 0 } as PagedResultDto<LateFeePolicyDto>;
@@ -40,7 +47,7 @@ export class LateFeePolicyComponent implements OnInit {
 
   lateFeeTypes = [
     { value: LateFeeType.FixedOnce, label: '::Enum:LateFeeType.FixedOnce' },
-    { value: LateFeeType.FixedPerDay, label: '::Enum:LateFeeType.FixedPerDay' }
+    { value: LateFeeType.FixedPerDay, label: '::Enum:LateFeeType.FixedPerDay' },
   ];
 
   public readonly list = inject(ListService);
@@ -48,6 +55,7 @@ export class LateFeePolicyComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
@@ -90,13 +98,13 @@ export class LateFeePolicyComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe(() => {
-          this.toaster.success('::DeletedSuccessfully');
-          this.list.get();
-        });
-      }
+    this.customConfirmation.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.toaster.success('::DeletedSuccessfully');
+        this.list.get();
+      });
     });
   }
 
@@ -114,10 +122,10 @@ export class LateFeePolicyComponent implements OnInit {
       graceDays: [this.selected.graceDays || 0, [Validators.required, Validators.min(0)]],
       type: [
         this.selected.id !== undefined ? this.selected.type : LateFeeType.FixedOnce,
-        Validators.required
+        Validators.required,
       ],
       value: [this.selected.value || 0, [Validators.required, Validators.min(0)]],
-      isActive: [this.selected.id ? this.selected.isActive : true]
+      isActive: [this.selected.id ? this.selected.isActive : true],
     });
   }
 

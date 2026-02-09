@@ -1,4 +1,5 @@
 ﻿using EHub.EntityFrameworkCore;
+using EHub.StaffAttendances;
 using EHub.Students;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -110,4 +111,18 @@ public class EfCoreStaffRepository : EfCoreRepository<EHubDbContext, Staff, Guid
             .OrderBy(x => x.FirstName)
             .ToListAsync();
     }
+
+
+
+    public async Task<List<string>> GetDeleteBlockersAsync(Guid staffId)
+    {
+        var blockers = new List<string>();
+        var db = await GetDbContextAsync();
+
+        if (await db.Set<StaffAttendance>().AnyAsync(x => x.StaffId == staffId))
+            blockers.Add("Staff Attendance");
+
+        return blockers;
+    }
+
 }

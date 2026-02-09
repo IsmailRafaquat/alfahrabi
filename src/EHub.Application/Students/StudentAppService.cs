@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using EHub.FeeModule.StudentMonthlyFees;
+using EHub.StudentAttendances;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -155,6 +157,16 @@ public class StudentAppService : ApplicationService, IStudentAppService
 
     public async Task DeleteAsync(Guid id)
     {
+        var blockers = await _studentRepository.GetDeleteBlockersAsync(id);
+
+        if (blockers.Count > 0)
+        {
+            throw new UserFriendlyException(
+                $"This student cannot be deleted because it is used in: {string.Join(", ", blockers)}. " +
+                "Please remove those related records first, then try again."
+            );
+        }
+
         await _studentRepository.DeleteAsync(id);
     }
 
@@ -162,7 +174,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
     {
         var students = await _studentRepository.GetStudentLookupAsync();
 
-       return students.Select(x => new StudentLookupDto
+        return students.Select(x => new StudentLookupDto
         {
             Id = x.Id,
             AdmissionNo = x.AdmissionNo,
@@ -927,5 +939,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
 
         throw new UserFriendlyException($"Invalid value '{s}'.");
     }
+
+
 
 }

@@ -1,4 +1,5 @@
-﻿using EHub.Students;
+﻿using EHub.FeeModule.FeeStructureItems;
+using EHub.Students;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,14 @@ namespace EHub.FeeModule.FeeStructures;
 public class FeeStructureAppService : ApplicationService, IFeeStructureAppService
 {
     private readonly IRepository<FeeStructure, Guid> _repository;
+    private readonly IRepository<FeeStructureItem, Guid> _feeStructureItemRepository;
 
-    public FeeStructureAppService(IRepository<FeeStructure, Guid> repository)
+    public FeeStructureAppService(
+        IRepository<FeeStructure, Guid> repository,
+        IRepository<FeeStructureItem, Guid> feeStructureItemRepository)
     {
         _repository = repository;
+        _feeStructureItemRepository = feeStructureItemRepository;
     }
 
     public async Task<FeeStructureDto> GetAsync(Guid id)
@@ -104,6 +109,21 @@ public class FeeStructureAppService : ApplicationService, IFeeStructureAppServic
 
     public async Task DeleteAsync(Guid id)
     {
+        var blockers = new List<string>();
+
+        if (await _feeStructureItemRepository.AnyAsync(x => x.FeeStructureId == id))
+        {
+            blockers.Add("Fee Structure Items");
+        }
+
+        if (blockers.Count > 0)
+        {
+            throw new UserFriendlyException(
+                $"This fee structure cannot be deleted because it is used in: {string.Join(", ", blockers)}. " +
+                "Please remove those related records first, then try again."
+            );
+        }
+
         await _repository.DeleteAsync(id);
     }
 

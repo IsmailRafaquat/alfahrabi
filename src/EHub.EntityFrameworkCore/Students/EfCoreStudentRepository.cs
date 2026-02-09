@@ -1,4 +1,6 @@
 ﻿using EHub.EntityFrameworkCore;
+using EHub.FeeModule.StudentMonthlyFees;
+using EHub.StudentAttendances;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -102,5 +104,21 @@ public class EfCoreStudentRepository : EfCoreRepository<EHubDbContext, Student, 
             .Where(x => x.GradeLevel == gradeLevel && x.Section == section && x.Status == Status.Active)
             .OrderBy(x => x.AdmissionNo)
             .ToListAsync();
+    }
+
+
+    public async Task<List<string>> GetDeleteBlockersAsync(Guid studentId)
+    {
+        var blockers = new List<string>();
+
+        if (await (await GetDbContextAsync()).Set<StudentMonthlyFee>()
+            .AnyAsync(x => x.StudentId == studentId))
+            blockers.Add("Monthly Fees");
+
+        if (await (await GetDbContextAsync()).Set<StudentAttendance>()
+            .AnyAsync(x => x.StudentId == studentId))
+            blockers.Add("Attendance");
+
+        return blockers;
     }
 }

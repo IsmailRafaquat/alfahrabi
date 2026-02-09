@@ -21,6 +21,7 @@ import {
 import { Router } from '@angular/router';
 import { Form, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ImportStudentResultDto, StudentImportApi } from 'src/custom-services/import-student';
+import { ConfirmationHelperService } from '../shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-student',
@@ -60,6 +61,7 @@ export class StudentComponent implements OnInit {
     private router: Router,
     private fb: FormBuilder,
     private studentImportApi: StudentImportApi,
+    private customConfirmation: ConfirmationHelperService
   ) {
     this.templateForm = this.fb.group({
       gradeLevel: [null, Validators.required],
@@ -75,14 +77,14 @@ export class StudentComponent implements OnInit {
   }
 
   delete(id: string) {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.studentService.delete(id).subscribe(() => {
+    this.customConfirmation.confirmDelete().subscribe((status) => {
+      if (status !== 'confirm') return;
+
+      this.studentService.delete(id).subscribe(() => {
           this.list.get();
           this.toaster.success('::SuccessfullyDeleted');
-        });
-      }
-    });
+      })
+    })
   }
 
   clearFilters() {

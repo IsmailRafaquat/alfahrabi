@@ -22,6 +22,7 @@ import {
   ImportStudentAttendanceResultDto,
   StudentAttendanceImportApi,
 } from 'src/custom-services/import-student-attendance';
+import { ConfirmationHelperService } from '../shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-student-attendance',
@@ -67,6 +68,7 @@ export class StudentAttendanceComponent implements OnInit {
     private studentService: StudentService,
     private fb: FormBuilder,
     private confirmation: ConfirmationService,
+    private customConfirmation: ConfirmationHelperService,
     private toaster: ToasterService,
   ) {
     this.templateForm = this.fb.group({
@@ -150,13 +152,13 @@ export class StudentAttendanceComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.attendanceService.delete(id).subscribe(() => {
-          this.list.get();
-          this.toaster.success('::SuccessfullyDeleted');
-        });
-      }
+    this.customConfirmation.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.attendanceService.delete(id).subscribe(() => {
+        this.list.get();
+        this.toaster.success('::SuccessfullyDeleted');
+      });
     });
   }
 
@@ -246,8 +248,6 @@ export class StudentAttendanceComponent implements OnInit {
 
     return match[1].trim().replace(/"/g, '');
   }
-
-
 
   onExcelSelectedAndImport(event: Event): void {
     const input = event.target as HTMLInputElement;

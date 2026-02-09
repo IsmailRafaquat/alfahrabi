@@ -3,6 +3,7 @@ import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ExpenseCategoryDto, ExpenseCategoryService, GetExpenseCategoryListInput, CreateUpdateExpenseCategoryDto } from 'src/app/proxy/expenses/expense-categories';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-expense-category',
@@ -22,6 +23,7 @@ expenseCategories = { items: [], totalCount: 0 } as PagedResultDto<ExpenseCatego
   private readonly service = inject(ExpenseCategoryService);
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfimration = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
@@ -78,17 +80,14 @@ expenseCategories = { items: [], totalCount: 0 } as PagedResultDto<ExpenseCatego
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe({
-          next: () => {
-            this.toaster.success('::DeletedSuccessfully');
-            this.list.get();
-          },
-          error: (err) => this.handleError(err),
-        });
-      }
-    });
+      this.customConfimration.confirmDelete().subscribe((status) => {
+      if(status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.list.get()
+        this.toaster.success('::DeletedSuccessfully');
+      });
+    })
   }
 
   toggleActive(row: ExpenseCategoryDto): void {

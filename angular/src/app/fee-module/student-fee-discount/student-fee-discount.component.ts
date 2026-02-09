@@ -22,6 +22,7 @@ import {
   termOptions,
   StudentService,
 } from 'src/app/proxy/students';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-student-fee-discount',
@@ -83,6 +84,7 @@ export class StudentFeeDiscountComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfimration = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
@@ -146,13 +148,13 @@ export class StudentFeeDiscountComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe(() => {
-          this.toaster.success('::DeletedSuccessfully');
-          this.list.get();
-        });
-      }
+    this.customConfimration.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.toaster.success('::DeletedSuccessfully');
+        this.list.get();
+      });
     });
   }
 

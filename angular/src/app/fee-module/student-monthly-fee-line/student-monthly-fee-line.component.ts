@@ -16,6 +16,7 @@ import {
 } from 'src/app/proxy/fee-module/student-monthly-fees';
 import { FeeHeadDto, FeeHeadService } from 'src/app/proxy/fee-module/fee-heads';
 import { StudentLookupDto, StudentService } from 'src/app/proxy/students';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-student-monthly-fee-line',
@@ -52,6 +53,7 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
@@ -194,16 +196,13 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe({
-          next: () => {
-            this.toaster.success('::DeletedSuccessfully');
-            this.list.get();
-          },
-          error: err => this.handleError(err),
-        });
-      }
+    this.customConfirmation.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.toaster.success('::DeletedSuccessfully');
+        this.list.get();
+      });
     });
   }
 

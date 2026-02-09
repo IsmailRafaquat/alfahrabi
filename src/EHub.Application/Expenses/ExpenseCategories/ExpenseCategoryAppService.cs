@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EHub.Expenses.ExpenseEntries;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -7,6 +8,7 @@ using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using static EHub.Permissions.EHubPermissions;
 
 namespace EHub.Expenses.ExpenseCategories;
 
@@ -14,10 +16,14 @@ namespace EHub.Expenses.ExpenseCategories;
 public class ExpenseCategoryAppService : ApplicationService, IExpenseCategoryAppService
 {
     private readonly IRepository<ExpenseCategory, Guid> _repository;
+    private readonly IRepository<ExpenseEntry, Guid> _expenseRepository;
 
-    public ExpenseCategoryAppService(IRepository<ExpenseCategory, Guid> repository)
+    public ExpenseCategoryAppService(
+        IRepository<ExpenseCategory, Guid> repository,
+        IRepository<ExpenseEntry, Guid> expenseRepository)
     {
         _repository = repository;
+        _expenseRepository = expenseRepository;
     }
 
     public async Task<ExpenseCategoryDto> GetAsync(Guid id)
@@ -82,6 +88,21 @@ public class ExpenseCategoryAppService : ApplicationService, IExpenseCategoryApp
 
     public async Task DeleteAsync(Guid id)
     {
+        var blockers = new List<string>();
+
+        if (await _expenseRepository.AnyAsync(x => x.ExpenseCategoryId == id))
+        {
+            blockers.Add("Expenses");
+        }
+
+        if (blockers.Count > 0)
+        {
+            throw new UserFriendlyException(
+                $"This expense category cannot be deleted because it is used in: {string.Join(", ", blockers)}. " +
+                "Please remove those related records first, then try again."
+            );
+        }
+
         await _repository.DeleteAsync(id);
     }
 

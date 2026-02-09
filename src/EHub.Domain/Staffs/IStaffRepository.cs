@@ -31,4 +31,5 @@ public interface IStaffRepository : IRepository<Staff, Guid>
         Shift? shift);
     Task<Staff?> GetByIdAsync(Guid id);
     Task<List<Staff>> GetStaffLookupAsync();
+    Task<List<string>> GetDeleteBlockersAsync(Guid staffId);
 }

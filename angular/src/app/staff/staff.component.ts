@@ -1,5 +1,5 @@
 import { PagedResultDto, ListService } from '@abp/ng.core';
-import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme.shared';
+import { ToasterService } from '@abp/ng.theme.shared';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {
@@ -12,26 +12,10 @@ import {
   employmentTypeOptions,
   jobStatusOptions,
   StaffService,
-  Nationality,
-  RelationshipStatus,
-  DisabilityStatus,
-  Department,
-  EmploymentType,
-  JobStatus,
-  UpdateStaffDto,
-  CreateStaffDto,
 } from '../proxy/staffs';
-import {
-  genderOptions,
-  cityOptions,
-  provinceOptions,
-  shiftOptions,
-  Gender,
-  City,
-  Province,
-  Shift,
-} from '../proxy/students';
+import { genderOptions, cityOptions, provinceOptions, shiftOptions } from '../proxy/students';
 import { Router } from '@angular/router';
+import { ConfirmationHelperService } from '../shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-staff',
@@ -65,10 +49,9 @@ export class StaffComponent implements OnInit {
   constructor(
     public readonly list: ListService,
     private staffService: StaffService,
-    private fb: FormBuilder,
-    private confirmation: ConfirmationService,
+    private customConfimration: ConfirmationHelperService,
     private toaster: ToasterService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -77,13 +60,13 @@ export class StaffComponent implements OnInit {
   }
 
   delete(id: string) {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.staffService.delete(id).subscribe(() => {
-          this.list.get();
-          this.toaster.success('::SuccessfullyDeleted');
-        });
-      }
+    this.customConfimration.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.staffService.delete(id).subscribe(() => {
+        this.list.get();
+        this.toaster.success('::SuccessfullyDeleted');
+      });
     });
   }
 
@@ -104,7 +87,7 @@ export class StaffComponent implements OnInit {
     }
 
     const message = encodeURIComponent(
-      'Hello! This is a message from EHub regarding your employment information.'
+      'Hello! This is a message from EHub regarding your employment information.',
     );
     window.open(`https://wa.me/${normalized}?text=${message}`, '_blank');
   }

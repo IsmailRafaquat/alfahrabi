@@ -9,6 +9,7 @@ import {
   CreateUpdateStaffSalaryPaymentDto,
 } from 'src/app/proxy/expenses/staff-salary-payments';
 import { StaffLookupDto, StaffService } from 'src/app/proxy/staffs';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-staff-salary-payment',
@@ -38,6 +39,7 @@ export class StaffSalaryPaymentComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
@@ -118,13 +120,13 @@ export class StaffSalaryPaymentComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe(() => {
-          this.toaster.success('::DeletedSuccessfully');
-          this.list.get();
-        });
-      }
+    this.customConfirmation.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.list.get();
+        this.toaster.success('::DeletedSuccessfully');
+      });
     });
   }
 

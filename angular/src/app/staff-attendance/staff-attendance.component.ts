@@ -14,6 +14,7 @@ import {
 import { StaffAttendanceDownloadService } from 'src/custom-services/staff-attendance-template/staff-attendance-download-service';
 import { StaffAttendanceDto, GetStaffAttendanceListDto, StaffAttendanceService, MarkStaffAttendanceDto } from '../proxy/staff-attendances';
 import { ImportStaffAttendanceResultDto, StaffAttendanceImportApi } from 'src/custom-services/import-staff-attendance';
+import { ConfirmationHelperService } from '../shared/services/confirmation-helper.service';
 
 
 @Component({
@@ -60,6 +61,7 @@ export class StaffAttendanceComponent implements OnInit {
     private staffService: StaffService,
     private fb: FormBuilder,
     private confirmation: ConfirmationService,
+    private customConfirmation: ConfirmationHelperService,
     private toaster: ToasterService
   ) {
     this.templateForm = this.fb.group({
@@ -147,14 +149,15 @@ export class StaffAttendanceComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.attendanceService.delete(id).subscribe(() => {
+
+     this.customConfirmation.confirmDelete().subscribe((status) => {
+      if(status !== 'confirm') return;
+
+       this.attendanceService.delete(id).subscribe(() => {
           this.list.get();
           this.toaster.success('::SuccessfullyDeleted');
         });
-      }
-    });
+    })
   }
 
   viewDetails(id: string): void {

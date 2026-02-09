@@ -2,19 +2,37 @@ import { ListService, PagedResultDto } from '@abp/ng.core';
 import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme.shared';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { FeeStructureLookupDto, FeeStructureService } from 'src/app/proxy/fee-module/fee-structures';
-import { StudentFeeProfileDto, GetStudentFeeProfileListInput, StudentFeeProfileService, CreateUpdateStudentFeeProfileDto, BulkAssignStudentFeeProfileResultDto, BulkAssignStudentFeeProfileDto } from 'src/app/proxy/fee-module/student-fee-profiles';
-import { gradeLevelOptions, sectionOptions, shiftOptions, StudentLookupDto, StudentService, termOptions } from 'src/app/proxy/students';
+import {
+  FeeStructureLookupDto,
+  FeeStructureService,
+} from 'src/app/proxy/fee-module/fee-structures';
+import {
+  StudentFeeProfileDto,
+  GetStudentFeeProfileListInput,
+  StudentFeeProfileService,
+  CreateUpdateStudentFeeProfileDto,
+  BulkAssignStudentFeeProfileResultDto,
+  BulkAssignStudentFeeProfileDto,
+} from 'src/app/proxy/fee-module/student-fee-profiles';
+import {
+  gradeLevelOptions,
+  sectionOptions,
+  shiftOptions,
+  StudentLookupDto,
+  StudentService,
+  termOptions,
+} from 'src/app/proxy/students';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-student-fee-profile',
   standalone: false,
   templateUrl: './student-fee-profile.component.html',
   styleUrl: './student-fee-profile.component.scss',
-  providers: [ListService]
+  providers: [ListService],
 })
-export class StudentFeeProfileComponent implements OnInit{
- profiles = { items: [], totalCount: 0 } as PagedResultDto<StudentFeeProfileDto>;
+export class StudentFeeProfileComponent implements OnInit {
+  profiles = { items: [], totalCount: 0 } as PagedResultDto<StudentFeeProfileDto>;
 
   showFilter = false;
 
@@ -27,7 +45,7 @@ export class StudentFeeProfileComponent implements OnInit{
   studentOptions: StudentLookupDto[] = [];
   feeStructureOptions: FeeStructureLookupDto[] = [];
 
-   // ---- BULK ASSIGN ----
+  // ---- BULK ASSIGN ----
   isBulkModalOpen = false;
   bulkForm!: FormGroup;
 
@@ -47,6 +65,7 @@ export class StudentFeeProfileComponent implements OnInit{
 
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
@@ -105,13 +124,13 @@ export class StudentFeeProfileComponent implements OnInit{
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe(() => {
-          this.toaster.success('::DeletedSuccessfully');
-          this.list.get();
-        });
-      }
+    this.customConfirmation.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.toaster.success('::DeletedSuccessfully');
+        this.list.get();
+      });
     });
   }
 
@@ -170,22 +189,25 @@ export class StudentFeeProfileComponent implements OnInit{
     return `${yyyy}-${mm}-${dd}`;
   }
 
-    openBulkAssign(): void {
+  openBulkAssign(): void {
     this.bulkResult = undefined;
 
     this.bulkForm = this.fb.group({
-      gradeLevel: [ this.selectedBulk.gradeLevel || null, Validators.required],
-      section: [ this.selectedBulk.section || null],
-      shift: [ this.selectedBulk.shift || null],
-      term: [ this.selectedBulk.term || null],
+      gradeLevel: [this.selectedBulk.gradeLevel || null, Validators.required],
+      section: [this.selectedBulk.section || null],
+      shift: [this.selectedBulk.shift || null],
+      term: [this.selectedBulk.term || null],
 
-      feeStructureId: [ this.selectedBulk.feeStructureId || null, Validators.required],
+      feeStructureId: [this.selectedBulk.feeStructureId || null, Validators.required],
 
-      effectiveFrom: [ this.selectedBulk.effectiveFrom || this.toDateInput(new Date()), Validators.required],
-      effectiveTo: [ this.selectedBulk.effectiveTo || null],
+      effectiveFrom: [
+        this.selectedBulk.effectiveFrom || this.toDateInput(new Date()),
+        Validators.required,
+      ],
+      effectiveTo: [this.selectedBulk.effectiveTo || null],
 
-      isActive: [ this.selectedBulk.isActive || true],
-      skipIfSameExists: [ this.selectedBulk.skipExisting || true],
+      isActive: [this.selectedBulk.isActive || true],
+      skipIfSameExists: [this.selectedBulk.skipExisting || true],
     });
 
     this.isBulkModalOpen = true;
@@ -224,21 +246,17 @@ export class StudentFeeProfileComponent implements OnInit{
     // input.effectiveFrom = v.effectiveFrom; input.effectiveTo = v.effectiveTo;
 
     this.service.bulkAssign(input).subscribe({
-      next: (res) => {
+      next: res => {
         this.bulkResult = res;
         this.toaster.success('::BulkAssignedSuccessfully');
         this.list.get(); // refresh table
       },
-      error: (err) => {
+      error: err => {
         const msg =
-          err?.error?.error?.message ||
-          err?.error?.message ||
-          err?.message ||
-          '::UnexpectedError';
+          err?.error?.error?.message || err?.error?.message || err?.message || '::UnexpectedError';
         this.toaster.error(msg);
       },
       complete: () => (this.isBulkSubmitting = false),
     });
   }
-
 }

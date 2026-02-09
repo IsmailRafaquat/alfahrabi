@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EHub.FeeModule.FeeStructureItems;
+using EHub.FeeModule.StudentMonthlyFeeLines;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -14,10 +16,17 @@ namespace EHub.FeeModule.FeeHeads;
 public class FeeHeadAppService : ApplicationService, IFeeHeadAppService
 {
     private readonly IRepository<FeeHead, Guid> _repository;
+    private readonly IRepository<FeeStructureItem, Guid> _feeStructureItemRepo;
+    private readonly IRepository<StudentMonthlyFeeLine, Guid> _studentMonthlyFeeLineRepo;
 
-    public FeeHeadAppService(IRepository<FeeHead, Guid> repository)
+    public FeeHeadAppService(
+        IRepository<FeeHead, Guid> repository,
+        IRepository<FeeStructureItem, Guid> feeStructureItemRepo,
+        IRepository<StudentMonthlyFeeLine, Guid> studentMonthlyFeeLineRepo)
     {
         _repository = repository;
+        _feeStructureItemRepo = feeStructureItemRepo;
+        _studentMonthlyFeeLineRepo = studentMonthlyFeeLineRepo;
     }
 
     public async Task<FeeHeadDto> GetAsync(Guid id)
@@ -82,8 +91,25 @@ public class FeeHeadAppService : ApplicationService, IFeeHeadAppService
 
     public async Task DeleteAsync(Guid id)
     {
+        var blockers = new List<string>();
+
+        if (await _feeStructureItemRepo.AnyAsync(x => x.FeeHeadId == id))
+            blockers.Add("Fee Structure Items");
+
+        if (await _studentMonthlyFeeLineRepo.AnyAsync(x => x.FeeHeadId == id))
+            blockers.Add("Student Monthly Fees");
+
+        if (blockers.Count > 0)
+        {
+            throw new UserFriendlyException(
+                $"This fee head cannot be deleted because it is used in: {string.Join(", ", blockers)}. " +
+                "Please remove those related records first, then try again."
+            );
+        }
+
         await _repository.DeleteAsync(id);
     }
+
 
     public async Task SetActiveAsync(Guid id, bool isActive)
     {

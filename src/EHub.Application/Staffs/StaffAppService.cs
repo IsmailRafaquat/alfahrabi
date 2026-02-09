@@ -145,6 +145,16 @@ public class StaffAppService : ApplicationService, IStaffAppService
 
     public async Task DeleteAsync(Guid id)
     {
+        var blockers = await _staffRepository.GetDeleteBlockersAsync(id);
+
+        if (blockers.Count > 0)
+        {
+            throw new UserFriendlyException(
+                $"This staff member cannot be deleted because it is used in: {string.Join(", ", blockers)}. " +
+                "Please remove those related records first, then try again."
+            );
+        }
+
         await _staffRepository.DeleteAsync(id);
     }
 

@@ -6,8 +6,9 @@ import {
   FeeHeadDto,
   FeeHeadService,
   GetFeeHeadListInput,
-  CreateUpdateFeeHeadDto
+  CreateUpdateFeeHeadDto,
 } from 'src/app/proxy/fee-module/fee-heads';
+import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
   selector: 'app-fee-head',
@@ -27,12 +28,13 @@ export class FeeHeadComponent implements OnInit {
   private readonly service = inject(FeeHeadService);
   private readonly fb = inject(FormBuilder);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly customConfimration = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   ngOnInit(): void {
     const streamCreator = (query: GetFeeHeadListInput) => this.service.getList(query);
 
-    this.list.hookToQuery(streamCreator).subscribe((response) => {
+    this.list.hookToQuery(streamCreator).subscribe(response => {
       this.feeHeads = response;
     });
   }
@@ -44,7 +46,7 @@ export class FeeHeadComponent implements OnInit {
   }
 
   edit(id: string): void {
-    this.service.get(id).subscribe((dto) => {
+    this.service.get(id).subscribe(dto => {
       this.selected = dto;
       this.buildForm();
       this.isModalOpen = true;
@@ -69,7 +71,7 @@ export class FeeHeadComponent implements OnInit {
           this.toaster.success('::UpdatedSuccessfully'); // add localization key
           this.closeModalAndRefresh();
         },
-        error: (err) => this.handleError(err),
+        error: err => this.handleError(err),
       });
     } else {
       this.service.create(input).subscribe({
@@ -77,22 +79,19 @@ export class FeeHeadComponent implements OnInit {
           this.toaster.success('::CreatedSuccessfully'); // add localization key
           this.closeModalAndRefresh();
         },
-        error: (err) => this.handleError(err),
+        error: err => this.handleError(err),
       });
     }
   }
 
   delete(id: string): void {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
-      if (status === Confirmation.Status.confirm) {
-        this.service.delete(id).subscribe({
-          next: () => {
-            this.toaster.success('::DeletedSuccessfully'); // add localization key
-            this.list.get();
-          },
-          error: (err) => this.handleError(err),
-        });
-      }
+    this.customConfimration.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
+
+      this.service.delete(id).subscribe(() => {
+        this.list.get();
+        this.toaster.success('::DeletedSuccessfully'); // add localization key
+      });
     });
   }
 
@@ -101,11 +100,8 @@ export class FeeHeadComponent implements OnInit {
 
     // Optional confirm (remove if you don't want it)
     this.confirmation
-      .warn(
-        newStatus ? '::AreYouSureToActivate' : '::AreYouSureToDeactivate',
-        '::AreYouSure'
-      )
-      .subscribe((status) => {
+      .warn(newStatus ? '::AreYouSureToActivate' : '::AreYouSureToDeactivate', '::AreYouSure')
+      .subscribe(status => {
         if (status !== Confirmation.Status.confirm) return;
 
         this.service.setActive(row.id, newStatus).subscribe({
@@ -113,7 +109,7 @@ export class FeeHeadComponent implements OnInit {
             this.toaster.success(newStatus ? '::FeeHeadActivated' : '::FeeHeadDeactivated'); // keys
             this.list.get();
           },
-          error: (err) => this.handleError(err),
+          error: err => this.handleError(err),
         });
       });
   }
@@ -127,10 +123,7 @@ export class FeeHeadComponent implements OnInit {
   private handleError(err: any): void {
     // ABP errors typically come as { error: { message, details, ... } }
     const msg =
-      err?.error?.error?.message ||
-      err?.error?.message ||
-      err?.message ||
-      '::UnexpectedError';
+      err?.error?.error?.message || err?.error?.message || err?.message || '::UnexpectedError';
 
     // If backend throws UserFriendlyException, message will show here.
     this.toaster.error(msg);

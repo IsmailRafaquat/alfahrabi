@@ -46,4 +46,6 @@ public interface IStudentRepository : IRepository<Student, Guid>
     Task<List<Student>> GetStudentLookupAsync();
 
     Task<List<Student>> GetByClassSectionAsync(GradeLevel gradeLevel, Section section);
+    Task<List<string>> GetDeleteBlockersAsync(Guid studentId);
+
 }
