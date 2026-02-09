@@ -16,6 +16,7 @@ export const environment = {
   application: {
     baseUrl,
     name: 'EHub',
+    logoUrl: 'assets/images/logo/logo-dark.png',
   },
   oAuthConfig,
   apis: {
@@ -30,6 +31,6 @@ export const environment = {
   },
   remoteEnv: {
     url: '/getEnvConfig',
-    mergeStrategy: 'deepmerge'
-  }
+    mergeStrategy: 'deepmerge',
+  },
 } as Environment;
