@@ -56,15 +56,13 @@ export class CreateStudentComponent implements OnInit {
   editingInlineDocId: string | null = null;
   private inlineEditBackup: Record<string, StudentDocumentDto> = {};
 
-
   selectedFile: File | null = null;
   selectedDocumentType: number | null = null;
   description = '';
   issueDate: string | null = null;
   expireDate: string | null = null;
   docAccept = '.pdf,.doc,.docx,.jpg,.jpeg,.png'; // same as consumer hint (adjust if needed)
-  maxFileSizeMb = 10; 
-  
+  maxFileSizeMb = 10;
 
   constructor(
     private fb: FormBuilder,
@@ -74,7 +72,7 @@ export class CreateStudentComponent implements OnInit {
     private toaster: ToasterService,
     private router: Router,
     private route: ActivatedRoute,
-    private confirmation: ConfirmationService
+    private confirmation: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -104,9 +102,12 @@ export class CreateStudentComponent implements OnInit {
 
           const dob = this.toDateOnly(s.dob);
           const enrollmentDate = this.toDateOnly(s.enrollmentDate);
+          const parsed = this.parseAdmission(s.admissionNo);
 
           this.form.patchValue({
             ...s,
+            admissionNo: parsed.admissionNo,
+            rollNo: parsed.rollNo,
             dob,
             enrollmentDate,
           });
@@ -142,7 +143,7 @@ export class CreateStudentComponent implements OnInit {
   buildForm(): void {
     this.form = this.fb.group({
       admissionNo: [this.selectedStudent.admissionNo, Validators.required],
-
+      rollNo: [null],
       firstName: [this.selectedStudent.firstName, Validators.required],
       lastName: [this.selectedStudent.lastName, Validators.required],
       gender: [this.selectedStudent.gender, Validators.required],
@@ -226,7 +227,8 @@ export class CreateStudentComponent implements OnInit {
       return;
     }
 
-    const dto = this.form.getRawValue();
+    // const dto = this.form.getRawValue();
+    const dto = this.buildStudentDtoForApi();
 
     if (this.id) {
       this.studentService.update(this.id, dto as UpdateStudentDto).subscribe(() => {
@@ -246,66 +248,66 @@ export class CreateStudentComponent implements OnInit {
     this.selectedFile = file;
   }
 
- upload(): void {
-  if (!this.selectedFile) {
-    this.toaster.warn('::Pleaseselectafilefirst');
-    return;
+  upload(): void {
+    if (!this.selectedFile) {
+      this.toaster.warn('::Pleaseselectafilefirst');
+      return;
+    }
+
+    if (!this.id) {
+      this.toaster.error('::StudentNotSavedYet');
+      return;
+    }
+
+    const docType = this.documentForm.get('documentType')?.value as number | null;
+    const issueDate = this.documentForm.get('issueDate')?.value as string | null;
+    const expireDate = this.documentForm.get('expireDate')?.value as string | null;
+    const description = (this.documentForm.get('description')?.value as string) ?? '';
+
+    if (docType === null || docType === undefined) {
+      this.toaster.warn('::PleaseSelectDocumentType');
+      return;
+    }
+
+    const DOCUMENT_TYPE_OTHER = 8; // adjust if your enum differs
+    if (docType === DOCUMENT_TYPE_OTHER && !description?.trim()) {
+      this.toaster.warn('::PleaseEnterDescriptionForOtherDocumentType');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
+    formData.append('studentId', this.id);
+    formData.append('documentType', docType.toString());
+
+    if (description?.trim()) formData.append('description', description.trim());
+    if (issueDate) formData.append('issueDate', issueDate);
+    if (expireDate) formData.append('expireDate', expireDate);
+
+    formData.append('isVerified', 'false');
+
+    this.customStudentDocumentService.uploadFormData(formData).subscribe({
+      next: (res: any) => {
+        this.toaster.success('::Fileuploadedsuccessfully');
+        this.uploadedDocuments.push(res);
+
+        // reset UI
+        this.selectedFile = null;
+        this.documentForm.reset({
+          documentType: null,
+          issueDate: null,
+          expireDate: null,
+          description: '',
+        });
+      },
+      error: err => {
+        this.toaster.error('::UploadFailed');
+        console.error('Student upload error:', err);
+        console.log('Response body:', err.error);
+      },
+    });
   }
-
-  if (!this.id) {
-    this.toaster.error('::StudentNotSavedYet');
-    return;
-  }
-
-  const docType = this.documentForm.get('documentType')?.value as number | null;
-  const issueDate = this.documentForm.get('issueDate')?.value as string | null;
-  const expireDate = this.documentForm.get('expireDate')?.value as string | null;
-  const description = (this.documentForm.get('description')?.value as string) ?? '';
-
-  if (docType === null || docType === undefined) {
-    this.toaster.warn('::PleaseSelectDocumentType');
-    return;
-  }
-
-  const DOCUMENT_TYPE_OTHER = 8; // adjust if your enum differs
-  if (docType === DOCUMENT_TYPE_OTHER && !description?.trim()) {
-    this.toaster.warn('::PleaseEnterDescriptionForOtherDocumentType');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('file', this.selectedFile);
-
-  formData.append('studentId', this.id);
-  formData.append('documentType', docType.toString());
-
-  if (description?.trim()) formData.append('description', description.trim());
-  if (issueDate) formData.append('issueDate', issueDate);
-  if (expireDate) formData.append('expireDate', expireDate);
-
-  formData.append('isVerified', 'false');
-
-  this.customStudentDocumentService.uploadFormData(formData).subscribe({
-    next: (res: any) => {
-      this.toaster.success('::Fileuploadedsuccessfully');
-      this.uploadedDocuments.push(res);
-
-      // reset UI
-      this.selectedFile = null;
-      this.documentForm.reset({
-        documentType: null,
-        issueDate: null,
-        expireDate: null,
-        description: '',
-      });
-    },
-    error: err => {
-      this.toaster.error('::UploadFailed');
-      console.error('Student upload error:', err);
-      console.log('Response body:', err.error);
-    },
-  });
-}
 
   uploadAndFinish(): void {
     // allow finish without uploading
@@ -324,7 +326,8 @@ export class CreateStudentComponent implements OnInit {
       return;
     }
 
-    const dto = this.form.getRawValue();
+    // const dto = this.form.getRawValue();
+    const dto = this.buildStudentDtoForApi();
 
     if (this.id) {
       this.studentService.update(this.id, dto as UpdateStudentDto).subscribe(() => {
@@ -380,82 +383,111 @@ export class CreateStudentComponent implements OnInit {
   }
 
   startInlineEdit(doc: StudentDocumentDto): void {
-  // snapshot for cancel
-  this.inlineEditBackup[doc.id] = JSON.parse(JSON.stringify(doc));
+    // snapshot for cancel
+    this.inlineEditBackup[doc.id] = JSON.parse(JSON.stringify(doc));
 
-  // normalize dates for <input type="date">
-  doc.issueDate = this.toDateOnly(doc.issueDate) as any;
-  doc.expireDate = this.toDateOnly(doc.expireDate) as any;
+    // normalize dates for <input type="date">
+    doc.issueDate = this.toDateOnly(doc.issueDate) as any;
+    doc.expireDate = this.toDateOnly(doc.expireDate) as any;
 
-  this.editingInlineDocId = doc.id;
-}
-
-cancelInlineEdit(docId: string): void {
-  const old = this.inlineEditBackup[docId];
-  if (old) {
-    const index = this.uploadedDocuments.findIndex(d => d.id === docId);
-    if (index > -1) this.uploadedDocuments[index] = old;
+    this.editingInlineDocId = doc.id;
   }
 
-  delete this.inlineEditBackup[docId];
-  this.editingInlineDocId = null;
-}
+  cancelInlineEdit(docId: string): void {
+    const old = this.inlineEditBackup[docId];
+    if (old) {
+      const index = this.uploadedDocuments.findIndex(d => d.id === docId);
+      if (index > -1) this.uploadedDocuments[index] = old;
+    }
 
-deleteDocument(id: string, showConfirm: boolean = true): void {
-  const doDelete = () => {
-    this.studentDocumentService.delete(id).subscribe(() => {
-      this.uploadedDocuments = this.uploadedDocuments.filter(d => d.id !== id);
-      this.toaster.success('::SuccessfullyDeleted');
+    delete this.inlineEditBackup[docId];
+    this.editingInlineDocId = null;
+  }
+
+  deleteDocument(id: string, showConfirm: boolean = true): void {
+    const doDelete = () => {
+      this.studentDocumentService.delete(id).subscribe(() => {
+        this.uploadedDocuments = this.uploadedDocuments.filter(d => d.id !== id);
+        this.toaster.success('::SuccessfullyDeleted');
+      });
+    };
+
+    if (!showConfirm) {
+      doDelete();
+      return;
+    }
+
+    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
+      if (status === Confirmation.Status.confirm) {
+        doDelete();
+      }
     });
+  }
+
+  saveInlineEdit(doc: StudentDocumentDto): void {
+    if (!doc.documentType) {
+      this.toaster.warn('::PleaseCompleteTheFields');
+      return;
+    }
+
+    // If you have an "Other" rule like consumer, adjust the constant to your real enum value
+    const DOCUMENT_TYPE_OTHER = 8;
+    if (doc.documentType === DOCUMENT_TYPE_OTHER && !doc.description?.trim()) {
+      this.toaster.warn('::PleaseEnterDescriptionForOtherDocumentType');
+      return;
+    }
+
+    if (!this.id) {
+      this.toaster.error('::StudentNotSavedYet');
+      return;
+    }
+
+    this.studentDocumentService
+      .update(doc.id, {
+        studentId: this.id,
+        documentType: doc.documentType,
+        description: doc.description,
+        issueDate: doc.issueDate,
+        expireDate: doc.expireDate,
+        isVerified: (doc as any).isVerified ?? false,
+      } as any)
+      .subscribe(updated => {
+        const index = this.uploadedDocuments.findIndex(d => d.id === doc.id);
+        if (index > -1) this.uploadedDocuments[index] = updated;
+
+        delete this.inlineEditBackup[doc.id];
+        this.editingInlineDocId = null;
+        this.toaster.success('::SuccessfullyUpdated');
+      });
+  }
+
+  private parseAdmission(value: string | null | undefined) {
+    if (!value) return { admissionNo: null, rollNo: null };
+
+    const [adm, roll] = value.split('|');
+    const admissionNo = adm?.replace('ADM-', '')?.trim() || value; // fallback
+    const rollNo = roll?.replace('ROLL-', '')?.trim() || null;
+
+    return { admissionNo, rollNo };
+  }
+
+  private buildStudentDtoForApi(): any {
+  const v = this.form.getRawValue();
+
+  const admission = (v.admissionNo ?? '').toString().trim();
+  const roll = (v.rollNo ?? '').toString().trim();
+
+  const combinedAdmissionNo = roll
+    ? `ADM-${admission}|ROLL-${roll}`
+    : `ADM-${admission}`;
+
+  const dto = {
+    ...v,
+    admissionNo: combinedAdmissionNo,
   };
 
-  if (!showConfirm) {
-    doDelete();
-    return;
-  }
-
-  this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
-    if (status === Confirmation.Status.confirm) {
-      doDelete();
-    }
-  });
-}
-
-saveInlineEdit(doc: StudentDocumentDto): void {
-  if (!doc.documentType) {
-    this.toaster.warn('::PleaseCompleteTheFields');
-    return;
-  }
-
-  // If you have an "Other" rule like consumer, adjust the constant to your real enum value
-  const DOCUMENT_TYPE_OTHER = 8;
-  if (doc.documentType === DOCUMENT_TYPE_OTHER && !doc.description?.trim()) {
-    this.toaster.warn('::PleaseEnterDescriptionForOtherDocumentType');
-    return;
-  }
-
-  if (!this.id) {
-    this.toaster.error('::StudentNotSavedYet');
-    return;
-  }
-
-  this.studentDocumentService
-    .update(doc.id, {
-      studentId: this.id,
-      documentType: doc.documentType,
-      description: doc.description,
-      issueDate: doc.issueDate,
-      expireDate: doc.expireDate,
-      isVerified: (doc as any).isVerified ?? false,
-    } as any)
-    .subscribe(updated => {
-      const index = this.uploadedDocuments.findIndex(d => d.id === doc.id);
-      if (index > -1) this.uploadedDocuments[index] = updated;
-
-      delete this.inlineEditBackup[doc.id];
-      this.editingInlineDocId = null;
-      this.toaster.success('::SuccessfullyUpdated');
-    });
+  delete dto.rollNo; // IMPORTANT: backend doesn't know rollNo
+  return dto;
 }
 
 }
