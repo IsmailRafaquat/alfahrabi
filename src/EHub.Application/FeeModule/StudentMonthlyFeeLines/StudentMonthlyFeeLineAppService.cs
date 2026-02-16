@@ -68,7 +68,7 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
         if (input.Sorting.IsNullOrWhiteSpace())
             input.Sorting = nameof(StudentMonthlyFeeLine.CreationTime) + " DESC";
 
-        var total = await _repo.GetCountAsync(input.Filter,input.StudentMonthlyFeeId, input.FeeHeadId);
+        var total = await _repo.GetCountAsync(input.Filter,input.StudentMonthlyFeeId, input.FeeHeadId, input.GradeLevel, input.Section, input.OnlyPositiveBalance);
 
         var list = await _repo.GetListAsync(
             input.SkipCount,
@@ -76,7 +76,10 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
             input.Sorting,
             input.Filter,
             input.StudentMonthlyFeeId,
-            input.FeeHeadId);
+            input.FeeHeadId,
+            input.GradeLevel,
+            input.Section,
+            input.OnlyPositiveBalance);
 
         var items = list.Select(x => ObjectMapper.Map<StudentMonthlyFeeLine, StudentMonthlyFeeLineDto>(x)).ToList();
         return new PagedResultDto<StudentMonthlyFeeLineDto>(total, items);

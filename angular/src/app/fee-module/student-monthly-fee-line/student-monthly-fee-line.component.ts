@@ -1,5 +1,5 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
-import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -15,7 +15,12 @@ import {
   StudentMonthlyFeeService,
 } from 'src/app/proxy/fee-module/student-monthly-fees';
 import { FeeHeadDto, FeeHeadService } from 'src/app/proxy/fee-module/fee-heads';
-import { StudentLookupDto, StudentService } from 'src/app/proxy/students';
+import {
+  gradeLevelOptions,
+  sectionOptions,
+  StudentLookupDto,
+  StudentService,
+} from 'src/app/proxy/students';
 import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
 @Component({
@@ -41,6 +46,8 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   monthlyFeeOptions: StudentMonthlyFeeDto[] = [];
   feeHeadOptions: FeeHeadDto[] = [];
 
+  section = sectionOptions;
+  class = gradeLevelOptions;
   // Auto-calculation state
   isCalculating = false;
   calculatedAmounts: CalculatedAmountsDto | null = null;
@@ -111,10 +118,23 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   }
 
   private setupFormListeners(): void {
-    // Trigger calculation when Monthly Fee or Fee Head changes
+    this.form.get('month')?.valueChanges.subscribe(() => this.onMonthOrClassChanged());
+    this.form.get('gradeLevel')?.valueChanges.subscribe(() => this.onMonthOrClassChanged());
+
     this.form.get('studentMonthlyFeeId')?.valueChanges.subscribe(() => this.autoCalculateAmounts());
     this.form.get('feeHeadId')?.valueChanges.subscribe(() => this.autoCalculateAmounts());
-    // No need to listen to expectedAmount anymore
+  }
+
+  private onMonthOrClassChanged(): void {
+    const list = this.filteredMonthlyFeeOptions;
+
+    // clear monthly fee when month/class changes
+    this.form.get('studentMonthlyFeeId')?.setValue(null, { emitEvent: false });
+
+    // auto-select if exactly 1 exists
+    if (list.length === 1) {
+      this.form.get('studentMonthlyFeeId')?.setValue(list[0].id, { emitEvent: true });
+    }
   }
 
   enableExpectedAmountOverride(): void {
@@ -207,11 +227,26 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   }
 
   private buildForm(): void {
+    const existingFee = this.monthlyFeeOptions.find(
+      x => x.id === this.selected.studentMonthlyFeeId,
+    );
+
+    // If editing, infer gradeLevel from the selected monthly fee's student (if possible)
+    const existingStudentId = existingFee?.studentId ?? null;
+    const existingStudent = existingStudentId
+      ? this.studentOptions.find(s => s.id === existingStudentId)
+      : null;
+
     this.form = this.fb.group({
+      month: [existingFee?.month ? this.toMonthKey(existingFee.month) : null, Validators.required],
+
+      gradeLevel: [(existingStudent as any)?.gradeLevel ?? null], // <-- add this (adjust property name if different)
+
       studentMonthlyFeeId: [this.selected.studentMonthlyFeeId || null, Validators.required],
       feeHeadId: [this.selected.feeHeadId || null, Validators.required],
+
       expectedAmount: [
-        { value: this.selected.expectedAmount || 0, disabled: true }, // ← Disabled
+        { value: this.selected.expectedAmount || 0, disabled: true },
         [Validators.required, Validators.min(0)],
       ],
       discountAmount: [
@@ -311,5 +346,36 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
     const msg =
       err?.error?.error?.message || err?.error?.message || err?.message || '::UnexpectedError';
     this.toaster.error(msg);
+  }
+
+  private toMonthKey(value: any): string {
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  get filteredMonthlyFeeOptions(): StudentMonthlyFeeDto[] {
+    const m = this.form?.get('month')?.value;
+    if (!m) return [];
+
+    const mk = this.toMonthKey(m);
+
+    const gradeLevel = this.form?.get('gradeLevel')?.value;
+
+    // 1) month filter
+    let list = (this.monthlyFeeOptions || []).filter(x => this.toMonthKey(x.month) === mk);
+
+    // 2) class filter (optional)
+    if (gradeLevel != null) {
+      const allowedStudentIds = new Set(
+        (this.studentOptions || [])
+          .filter(s => (s as any).gradeLevel === gradeLevel) // adjust if property name differs
+          .map(s => s.id),
+      );
+
+      list = list.filter(f => allowedStudentIds.has(f.studentId));
+    }
+
+    return list;
   }
 }

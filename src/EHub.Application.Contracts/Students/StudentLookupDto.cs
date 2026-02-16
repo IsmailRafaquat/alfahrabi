@@ -8,4 +8,5 @@ public class StudentLookupDto : EntityDto<Guid>
     public string AdmissionNo { get; set; } = default!;
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
+    public GradeLevel GradeLevel { get; set;  }
 }

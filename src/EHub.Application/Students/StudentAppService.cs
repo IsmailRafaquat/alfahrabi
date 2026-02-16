@@ -179,7 +179,8 @@ public class StudentAppService : ApplicationService, IStudentAppService
             Id = x.Id,
             AdmissionNo = x.AdmissionNo,
             FirstName = x.FirstName,
-            LastName = x.LastName
+            LastName = x.LastName,
+            GradeLevel = x.GradeLevel
         }).ToList();
     }
 

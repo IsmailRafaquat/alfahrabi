@@ -1,10 +1,10 @@
 ﻿using EHub.EntityFrameworkCore;
+using EHub.Students;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -43,7 +43,10 @@ public class EfCoreStudentMonthlyFeeLineRepository
             x.FeeHeadId == feeHeadId);
     }
 
-    public async Task<long> GetCountAsync(string? filters, Guid? studentMonthlyFeeId, Guid? feeHeadId)
+    public async Task<long> GetCountAsync(string? filters, Guid? studentMonthlyFeeId, Guid? feeHeadId,
+        GradeLevel? gradeLevel,
+        Section? section,
+        bool? onlyPositiveBalance)
     {
         var q = await GetQueryableAsync();
         q = q.WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
@@ -57,7 +60,11 @@ public class EfCoreStudentMonthlyFeeLineRepository
         string sorting,
         string? filters,
         Guid? studentMonthlyFeeId,
-        Guid? feeHeadId)
+        Guid? feeHeadId,
+        GradeLevel? gradeLevel,
+        Section? section,
+        bool? onlyPositiveBalance
+        )
     {
         var q = await GetQueryableAsync();
 
@@ -65,6 +72,10 @@ public class EfCoreStudentMonthlyFeeLineRepository
                 .ThenInclude(x => x.Student)
                  .WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
                  .WhereIf(feeHeadId.HasValue, x => x.FeeHeadId == feeHeadId)
+                 .WhereIf(gradeLevel.HasValue, x => x.StudentMonthlyFee.Student.GradeLevel == gradeLevel)
+                 .WhereIf(section.HasValue, x => x.StudentMonthlyFee.Student.Section == section)
+                 .WhereIf(onlyPositiveBalance == true,
+                    x => ((x.ExpectedAmount - x.DiscountAmount + x.AdjustmentAmount + x.LateFeeAmount) - x.PaidAmount) > 0)
                  .WhereIf(!filters.IsNullOrWhiteSpace(), x =>
                     (x.StudentMonthlyFee != null &&
                      x.StudentMonthlyFee.Student != null) &&

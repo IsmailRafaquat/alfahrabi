@@ -35,7 +35,7 @@
       <!-- Filter Panel -->
       <div *ngIf="showFilter" class="mt-2">
         <div class="row g-2">
-          <div class="col-sm-4">
+          <div class="col-sm-3">
             <label class="form-label">{{ '::StudentMonthlyFee' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.studentMonthlyFeeId">
               <nz-option *ngFor="let fee of monthlyFeeOptions" [nzValue]="fee.id"
@@ -43,14 +43,39 @@
             </nz-select>
           </div>
 
-          <div class="col-sm-4">
+          <div class="col-sm-3">
             <label class="form-label">{{ '::FeeHead' | abpLocalization }}</label>
             <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.feeHeadId">
               <nz-option *ngFor="let fh of feeHeadOptions" [nzValue]="fh.id" [nzLabel]="fh.name"></nz-option>
             </nz-select>
           </div>
 
-          <div class="col-sm-4 gap-2 justify-content-end mt-3">
+          <div class="col-sm-3">
+            <label class="form-label">Class</label>
+            <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.gradeLevel">
+              <nz-option *ngFor="let c of class" [nzValue]="c.value"
+                [nzLabel]="'::Enum:GradeLevel.' + c.value | abpLocalization"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-sm-3">
+            <label class="form-label">Section</label>
+            <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.section">
+              <nz-option *ngFor="let s of section" [nzValue]="s.value"
+                [nzLabel]="'::Enum:Section.' + s.value | abpLocalization"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-sm-3">
+            <label class="form-label">Balance</label>
+            <nz-select class="w-100" nzAllowClear [(ngModel)]="filters.onlyPositiveBalance">
+              <nz-option [nzValue]="null" nzLabel="All"></nz-option>
+              <nz-option [nzValue]="true" nzLabel="Balance > 0"></nz-option>
+              <!-- <nz-option [nzValue]="false" nzLabel="Balance <= 0"></nz-option> -->
+            </nz-select>
+          </div>
+
+          <div class="col-sm-4 gap-2 justify-content-end mt-4">
             <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="clearFilters()">
               <i class="fas fa-undo me-1"></i> {{ '::Reset' | abpLocalization }}
             </button>
@@ -174,12 +199,31 @@
       <!-- Monthly Fee Selection -->
       <div class="row">
         <div class="col-md-6">
+          <label class="form-label">Month <span class="text-danger">*</span></label>
+          <input type="month" class="form-control" formControlName="month" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Class</label>
+          <nz-select formControlName="gradeLevel" class="w-100" nzAllowClear nzShowSearch nzSize="large"
+            [nzDisabled]="!form.get('month')?.value">
+            <nz-option *ngFor="let c of class" [nzValue]="c.value"
+              [nzLabel]="'::Enum:GradeLevel.' + c.value | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+
+      <div class="row mt-2">
+        <div class="col-md-6">
           <label class="form-label">
             {{ '::StudentMonthlyFee' | abpLocalization }} <span class="text-danger">*</span>
           </label>
-          <nz-select formControlName="studentMonthlyFeeId" class="w-100" nzAllowClear nzShowSearch nzSize="large">
-            <nz-option *ngFor="let fee of monthlyFeeOptions" [nzValue]="fee.id"
-              [nzLabel]="monthlyFeeLabel(fee)"></nz-option>
+          <nz-select formControlName="studentMonthlyFeeId" class="w-100" nzAllowClear nzShowSearch nzSize="large"
+            [nzDisabled]="!form.get('month')?.value">
+            <nz-option *ngFor="let fee of filteredMonthlyFeeOptions" [nzValue]="fee.id"
+              [nzLabel]="monthlyFeeLabel(fee)">
+            </nz-option>
           </nz-select>
         </div>
 
@@ -215,7 +259,7 @@
               <i class="fas fa-magic"></i> {{ '::FromFeeStructure' | abpLocalization }}
             </span>
           </label>
-          <input type="number" class="form-control form-control-sm bg-light" formControlName="expectedAmount" readonly
+          <input type="number" class="form-control form-control-sm bg-light" formControlName="expectedAmount"
             step="0.01" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
@@ -239,7 +283,7 @@
               <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
             </span>
           </label>
-          <input type="number" class="form-control form-control-sm bg-light" formControlName="discountAmount" readonly
+          <input type="number" class="form-control form-control-sm bg-light" formControlName="discountAmount"
             step="0.01" min="0" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
@@ -275,8 +319,8 @@
               <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
             </span>
           </label>
-          <input type="number" class="form-control form-control-sm bg-light" formControlName="lateFeeAmount" readonly
-            step="0.01" min="0" />
+          <input type="number" class="form-control form-control-sm bg-light" formControlName="lateFeeAmount" step="0.01"
+            min="0" />
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::FromLateFeePolicy' | abpLocalization }}
