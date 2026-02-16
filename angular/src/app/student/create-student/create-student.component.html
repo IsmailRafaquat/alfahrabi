@@ -48,7 +48,12 @@
                             <input class="form-control" formControlName="admissionNo" />
                         </div>
 
-                        <div class="col-md-6"></div>
+                        <div class="col-md-6 col-12">
+                            <label class="form-label">Roll No</label>
+                            <input class="form-control" formControlName="rollNo" />
+                        </div>
+
+                        <!-- <div class="col-md-6"></div> -->
                         <!-- <div class="col-md-6">
               <label class="form-label">
                 {{ '::Phone' | abpLocalization }}
@@ -506,9 +511,8 @@
                                             <tr *ngFor="let doc of uploadedDocuments">
                                                 <!-- File -->
                                                 <td>
-                                                    <a [href]="doc.fileAttachment?.path"
-                                                        target="_blank" class="file-link"
-                                                        [title]="'::OpenFile' | abpLocalization">
+                                                    <a [href]="doc.fileAttachment?.path" target="_blank"
+                                                        class="file-link" [title]="'::OpenFile' | abpLocalization">
                                                         <i class="fa fa-file fa-lg text-primary me-2"></i>
                                                         <span class="file-name">
                                                             {{ doc.fileAttachment?.name }}
@@ -530,7 +534,8 @@
                                                     </ng-container>
 
                                                     <ng-template #staticType>
-                                                        {{ ('::Enum:StudentDocumentType.' + doc.documentType) | abpLocalization }}
+                                                        {{ ('::Enum:StudentDocumentType.' + doc.documentType) |
+                                                        abpLocalization }}
 
                                                     </ng-template>
                                                 </td>

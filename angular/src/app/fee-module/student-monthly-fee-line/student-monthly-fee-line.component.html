@@ -198,12 +198,12 @@
     <form [formGroup]="form" (ngSubmit)="save()">
       <!-- Monthly Fee Selection -->
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
           <label class="form-label">Month <span class="text-danger">*</span></label>
           <input type="month" class="form-control" formControlName="month" />
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label class="form-label">Class</label>
           <nz-select formControlName="gradeLevel" class="w-100" nzAllowClear nzShowSearch nzSize="large"
             [nzDisabled]="!form.get('month')?.value">
@@ -215,7 +215,7 @@
 
 
       <div class="row mt-2">
-        <div class="col-md-6">
+        <div class="col-md-8">
           <label class="form-label">
             {{ '::StudentMonthlyFee' | abpLocalization }} <span class="text-danger">*</span>
           </label>
@@ -228,7 +228,7 @@
         </div>
 
         <!-- Fee Head Selection -->
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label class="form-label">
             {{ '::FeeHead' | abpLocalization }} <span class="text-danger">*</span>
           </label>
