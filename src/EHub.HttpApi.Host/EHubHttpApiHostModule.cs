@@ -249,7 +249,6 @@ public class EHubHttpApiHostModule : AbpModule
         }
 
         app.UseRouting();
-        app.UseStaticFiles();
         app.MapAbpStaticAssets();
         app.UseAbpStudioLink();
         app.UseAbpSecurityHeaders();
