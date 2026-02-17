@@ -50,6 +50,7 @@ const routes: Routes = [
   { path: 'expense-entries', loadChildren: () => import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule) },
   { path: 'staff-salary-payments', loadChildren: () => import('./expense-module/staff-salary-payment/staff-salary-payment.module').then(m => m.StaffSalaryPaymentModule) },
   { path: 'expense-dashboard', loadChildren: () => import('./expense-module/expense-dashboard/expense-dashboard.module').then(m => m.ExpenseDashboardModule) },
+  { path: 'alfarabi', loadChildren: () => import('./alfarabi/alfarabi.module').then(m => m.AlfarabiModule) },
 ];
 
 @NgModule({
