@@ -99,4 +99,21 @@ export class StaffComponent implements OnInit {
   viewStaffDetails(id: string) {
     this.router.navigate(['/create-staff'], { queryParams: { id, view: true } });
   }
+
+  getJobStatusBadgeClass(jobStatus: number): string {
+    switch (jobStatus) {
+      case 1:
+        return 'status--active'; // Active
+      case 2:
+        return 'status--pending'; // OnLeave (pick a color class you like)
+      case 3:
+        return 'status--withdrawn'; // Resigned
+      case 4:
+        return 'status--blocked'; // Terminated
+      case 5:
+        return 'status--alumni'; // Retired
+      default:
+        return 'status--default';
+    }
+  }
 }

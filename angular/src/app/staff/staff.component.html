@@ -10,7 +10,7 @@
   <!-- Search + Filters -->
   <div class="card">
     <div class="card-body">
-    <div class="row align-items-center">
+      <div class="row align-items-center">
         <div class="col-8 col-sm-10">
           <div class="input-group input-group-sm">
             <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
@@ -44,21 +44,15 @@
           <div class="col-sm-2">
             <label>{{ '::Department' | abpLocalization }}</label>
             <nz-select [(ngModel)]="filters.department" nzAllowClear nzShowSearch class="form-control-sm" class="w-100">
-              <nz-option
-                *ngFor="let d of departments"
-                [nzValue]="d.value"
-                [nzLabel]="'::Enum:Department.' + d.value | abpLocalization"
-              ></nz-option>
+              <nz-option *ngFor="let d of departments" [nzValue]="d.value"
+                [nzLabel]="'::Enum:Department.' + d.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
           <div class="col-sm-2">
             <label>{{ '::JobStatus' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.jobStatus" nzAllowClear nzShowSearch  class="form-control-sm" class="w-100">
-              <nz-option
-                *ngFor="let j of statuses"
-                [nzValue]="j.value"
-                [nzLabel]="'::Enum:JobStatus.' + j.value | abpLocalization"
-              ></nz-option>
+            <nz-select [(ngModel)]="filters.jobStatus" nzAllowClear nzShowSearch class="form-control-sm" class="w-100">
+              <nz-option *ngFor="let j of statuses" [nzValue]="j.value"
+                [nzLabel]="'::Enum:JobStatus.' + j.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
 
@@ -79,7 +73,7 @@
   <div class="card mt-2">
     <div class="card-body">
       <ngx-datatable [rows]="staffs.items" [count]="staffs.totalCount" [list]="list" default>
-         <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+        <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
           [resizeable]="false">
           <ng-template ngx-datatable-cell-template let-row="row">
             <div ngbDropdown container="body" class="d-inline-block">
@@ -119,9 +113,12 @@
         </ngx-datatable-column>
         <ngx-datatable-column [name]="'::JobStatus' | abpLocalization" prop="jobStatus">
           <ng-template let-row="row" ngx-datatable-cell-template>
-            {{ '::Enum:JobStatus.' + row.jobStatus | abpLocalization }}
+            <span class="status-badge" [ngClass]="getJobStatusBadgeClass(row.jobStatus)">
+              {{ ('::Enum:JobStatus.' + row.jobStatus) | abpLocalization }}
+            </span>
           </ng-template>
         </ngx-datatable-column>
+
         <ngx-datatable-column [name]="'::JoiningDate' | abpLocalization" prop="joiningDate">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ row.joiningDate | date: 'yyyy-MM-dd' }}
@@ -131,4 +128,3 @@
     </div>
   </div>
 </abp-page>
-

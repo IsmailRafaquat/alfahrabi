@@ -49,6 +49,10 @@ export class StudentAttendanceComponent implements OnInit {
   attendanceStatusPresent = AttendanceStatus.Present;
   attendanceStatusAbsent = AttendanceStatus.Absent;
   attendanceStatusLate = AttendanceStatus.Late;
+  attendanceStatusExcused = AttendanceStatus.Excused;
+  attendanceStatusSick = AttendanceStatus.Sick;
+  attendanceStatusLeave = AttendanceStatus.Leave;
+  attendanceStatusHoliday = AttendanceStatus.Holiday;
 
   gradeLevels = gradeLevelOptions;
   sections = sectionOptions;
@@ -285,5 +289,26 @@ export class StudentAttendanceComponent implements OnInit {
         this.importingExcel = false;
       },
     });
+  }
+
+  getAttendanceBadgeClass(status: number): string {
+    switch (status) {
+      case this.attendanceStatusPresent:
+        return 'status--active'; // green
+      case this.attendanceStatusAbsent:
+        return 'status--blocked'; // red
+      case this.attendanceStatusLate:
+        return 'status--withdrawn'; // orange
+      case this.attendanceStatusExcused:
+        return 'status--graduated'; // blue
+      case this.attendanceStatusSick:
+        return 'status--transferred'; // purple
+      case this.attendanceStatusLeave:
+        return 'status--pending'; // light-blue
+      case this.attendanceStatusHoliday:
+        return 'status--alumni'; // gray
+      default:
+        return 'soft-badge--secondary'; // fallback
+    }
   }
 }

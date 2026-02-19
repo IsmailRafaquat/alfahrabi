@@ -193,7 +193,7 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization">
+        <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization" [sortable]="false">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ row.student?.admissionNo ?? row.admissionNo ?? '-' }}
           </ng-template>
@@ -205,16 +205,15 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            <span class="badge" [class.bg-success]="row.status === attendanceStatusPresent"
-              [class.bg-danger]="row.status === attendanceStatusAbsent"
-              [class.bg-warning]="row.status === attendanceStatusLate"
-              [class.bg-secondary]="row.status !== attendanceStatusPresent && row.status !== attendanceStatusAbsent && row.status !== attendanceStatusLate">
+        <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status" [width]="120">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <span class="status-badge" [ngClass]="getAttendanceBadgeClass(row.status)">
               {{ ('::Enum:AttendanceStatus.' + row.status) | abpLocalization }}
             </span>
           </ng-template>
         </ngx-datatable-column>
+
+
 
         <ngx-datatable-column [name]="'::Remarks' | abpLocalization" prop="remarks">
           <ng-template let-row="row" ngx-datatable-cell-template>
@@ -240,7 +239,7 @@
             {{ '::Student' | abpLocalization }} <span class="text-danger">*</span>
           </label>
 
-          <nz-select class="form-control" nzShowSearch nzAllowClear nzSize="large" nzServerSearch
+          <nz-select class="form-control" nzShowSearch nzAllowClear nzSize="large"
             [nzLoading]="studentsLoading" formControlName="studentId" class="w-100">
             <nz-option *ngFor="let s of studentOptions" [nzValue]="s.id"
               [nzLabel]="s.firstName + ' ' + s.lastName + ' (' + (s.admissionNo || '-') + ')'"></nz-option>

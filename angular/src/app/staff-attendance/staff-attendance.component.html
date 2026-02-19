@@ -158,7 +158,7 @@
   <div class="card mt-2">
     <div class="card-body">
       <ngx-datatable [rows]="attendances.items" [count]="attendances.totalCount" [list]="list" default>
-         <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+        <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
           [resizeable]="false">
           <ng-template ngx-datatable-cell-template let-row="row">
             <div ngbDropdown container="body" class="d-inline-block">
@@ -167,7 +167,7 @@
               </button>
 
               <div ngbDropdownMenu>
-                 <button ngbDropdownItem (click)="editAttendance(row.id)">
+                <button ngbDropdownItem (click)="editAttendance(row.id)">
                   {{ '::Edit' | abpLocalization }}
                 </button>
                 <button ngbDropdownItem (click)="delete(row.id)">
@@ -208,10 +208,7 @@
 
         <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
           <ng-template let-row="row" ngx-datatable-cell-template>
-            <span class="badge" [class.bg-success]="row.status === attendanceStatusPresent"
-              [class.bg-danger]="row.status === attendanceStatusAbsent"
-              [class.bg-warning]="row.status === attendanceStatusLate"
-              [class.bg-secondary]="row.status !== attendanceStatusPresent && row.status !== attendanceStatusAbsent && row.status !== attendanceStatusLate">
+            <span class="status-badge" [ngClass]="getAttendanceStatusBadgeClass(row.status)">
               {{ ('::Enum:AttendanceStatus.' + row.status) | abpLocalization }}
             </span>
           </ng-template>

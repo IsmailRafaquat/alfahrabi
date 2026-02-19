@@ -105,7 +105,7 @@
       <div *ngIf="showFilter" class="mt-2">
         <div class="row g-2">
           <div class="col-sm-2">
-            <label class="form-label" for="admissionNoFilter">{{ '::AdmissionNo/RollNo' | abpLocalization }}</label>
+            <label class="form-label" for="admissionNoFilter">{{ '::AdmNo/RollNo' | abpLocalization }}</label>
             <input id="admissionNoFilter" class="form-control form-control-sm" [(ngModel)]="filters.admissionNo" />
           </div>
 
@@ -121,7 +121,7 @@
 
           <div class="col-sm-2">
             <label>{{ '::Gender' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.gender" class="form-control-sm" nzAllowClear class="w-100">
+            <nz-select [(ngModel)]="filters.gender" class="form-control form-control-sm" nzAllowClear class="w-100">
               <nz-option *ngFor="let gender of genders" [nzValue]="gender.value"
                 [nzLabel]="'::Enum:Gender.' + gender.value | abpLocalization"></nz-option>
             </nz-select>
@@ -129,23 +129,11 @@
 
           <div class="col-sm-2">
             <label>{{ '::Status' | abpLocalization }}</label>
-            <nz-select [(ngModel)]="filters.status" class="form-control-sm" nzAllowClear class="w-100">
+            <nz-select [(ngModel)]="filters.status" class="form-control form-control-sm" nzAllowClear class="w-100">
               <nz-option *ngFor="let status of status" [nzValue]="status.value"
                 [nzLabel]="'::Enum:Status.' + status.value | abpLocalization"></nz-option>
             </nz-select>
           </div>
-
-
-          <!-- <div class="col-sm-2">
-            <label class="form-label" for="enrollDateFrom">{{ '::EnrollmentDateFrom' | abpLocalization }}</label>
-            <input id="enrollDateFrom" class="form-control form-control-sm" type="date" [(ngModel)]="filters.enrollmentDateFrom" />
-          </div>
-
-          <div class="col-sm-2">
-            <label class="form-label" for="enrollDateTo">{{ '::EnrollmentDateTo' | abpLocalization }}</label>
-            <input id="enrollDateTo" class="form-control form-control-sm" type="date" [(ngModel)]="filters.enrollmentDateTo" />
-          </div> -->
-
           <div class="col-sm-auto d-flex align-items-end mt-2 gap-1">
             <button type="button" class="btn btn-sm btn-outline-primary" (click)="clearFilters()">
               <i class="fas fa-undo"></i> {{ '::Reset' | abpLocalization }}
@@ -190,9 +178,14 @@
         </ngx-datatable-column>
 
 
-        <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization" prop="admissionNo"></ngx-datatable-column>
-        <ngx-datatable-column [name]="'::FirstName' | abpLocalization" prop="firstName"></ngx-datatable-column>
-        <ngx-datatable-column [name]="'::LastName' | abpLocalization" prop="lastName"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::AdmissionNo/RollNo' | abpLocalization" prop="admissionNo"
+          [width]="220"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::Name' | abpLocalization" [sortable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ (row.firstName ?? '') + ' ' + (row.lastName ?? '') }}
+          </ng-template>
+
+        </ngx-datatable-column>
 
         <ngx-datatable-column [name]="'::Gender' | abpLocalization" prop="gender">
           <ng-template let-row="row" ngx-datatable-cell-template>
@@ -200,11 +193,6 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::DOB' | abpLocalization" prop="dob">
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            {{ row.dob | date: 'yyyy-MM-dd' }}
-          </ng-template>
-        </ngx-datatable-column>
 
         <ngx-datatable-column [name]="'::EnrollmentDate' | abpLocalization" prop="enrollmentDate">
           <ng-template let-row="row" ngx-datatable-cell-template>
@@ -212,13 +200,24 @@
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            {{ '::Enum:Status.' + row.status | abpLocalization }}
+        <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status" [width]="130">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <span class="status-badge" [ngClass]="getStudentStatusBadgeClass(row.status)">
+              {{ ('::Enum:Status.' + row.status) | abpLocalization }}
+            </span>
           </ng-template>
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::Email' | abpLocalization" prop="email"></ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::Class' | abpLocalization" [sortable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ ('::Enum:GradeLevel.' + row.gradeLevel) | abpLocalization }}
+            -
+            {{ ('::Enum:Section.' + row.section) | abpLocalization }}
+          </ng-template>
+        </ngx-datatable-column>
+
+
         <ngx-datatable-column [name]="'::ParentPhone' | abpLocalization" prop="pPhone"></ngx-datatable-column>
       </ngx-datatable>
     </div>

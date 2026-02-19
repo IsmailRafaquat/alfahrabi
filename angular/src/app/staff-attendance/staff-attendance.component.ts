@@ -4,18 +4,24 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { attendanceStatusOptions, AttendanceStatus } from '../proxy/attendance-statuss';
 
-
 import {
   StaffService,
   StaffLookupDto,
   departmentOptions, // adjust if your proxy exports different name
-  Department,        // adjust if your proxy exports different enum name
+  Department, // adjust if your proxy exports different enum name
 } from '../proxy/staffs';
 import { StaffAttendanceDownloadService } from 'src/custom-services/staff-attendance-template/staff-attendance-download-service';
-import { StaffAttendanceDto, GetStaffAttendanceListDto, StaffAttendanceService, MarkStaffAttendanceDto } from '../proxy/staff-attendances';
-import { ImportStaffAttendanceResultDto, StaffAttendanceImportApi } from 'src/custom-services/import-staff-attendance';
+import {
+  StaffAttendanceDto,
+  GetStaffAttendanceListDto,
+  StaffAttendanceService,
+  MarkStaffAttendanceDto,
+} from '../proxy/staff-attendances';
+import {
+  ImportStaffAttendanceResultDto,
+  StaffAttendanceImportApi,
+} from 'src/custom-services/import-staff-attendance';
 import { ConfirmationHelperService } from '../shared/services/confirmation-helper.service';
-
 
 @Component({
   selector: 'app-staff-attendance',
@@ -42,6 +48,10 @@ export class StaffAttendanceComponent implements OnInit {
   attendanceStatusPresent = AttendanceStatus.Present;
   attendanceStatusAbsent = AttendanceStatus.Absent;
   attendanceStatusLate = AttendanceStatus.Late;
+  attendanceStatusExcused = AttendanceStatus.Excused;
+  attendanceStatusSick = AttendanceStatus.Sick;
+  attendanceStatusLeave = AttendanceStatus.Leave;
+  attendanceStatusHoliday = AttendanceStatus.Holiday;
 
   departments = departmentOptions;
 
@@ -62,7 +72,7 @@ export class StaffAttendanceComponent implements OnInit {
     private fb: FormBuilder,
     private confirmation: ConfirmationService,
     private customConfirmation: ConfirmationHelperService,
-    private toaster: ToasterService
+    private toaster: ToasterService,
   ) {
     this.templateForm = this.fb.group({
       department: [null, Validators.required],
@@ -109,9 +119,9 @@ export class StaffAttendanceComponent implements OnInit {
   }
 
   editAttendance(id: string): void {
-    if(!id) {
-        this.toaster.error('Missing attendance id in row.');
-        return;
+    if (!id) {
+      this.toaster.error('Missing attendance id in row.');
+      return;
     }
 
     this.attendanceService.get(id).subscribe(a => {
@@ -149,15 +159,14 @@ export class StaffAttendanceComponent implements OnInit {
   }
 
   delete(id: string): void {
+    this.customConfirmation.confirmDelete().subscribe(status => {
+      if (status !== 'confirm') return;
 
-     this.customConfirmation.confirmDelete().subscribe((status) => {
-      if(status !== 'confirm') return;
-
-       this.attendanceService.delete(id).subscribe(() => {
-          this.list.get();
-          this.toaster.success('::SuccessfullyDeleted');
-        });
-    })
+      this.attendanceService.delete(id).subscribe(() => {
+        this.list.get();
+        this.toaster.success('::SuccessfullyDeleted');
+      });
+    });
   }
 
   viewDetails(id: string): void {
@@ -216,7 +225,8 @@ export class StaffAttendanceComponent implements OnInit {
         this.isTemplateModalOpen = false;
       },
       error: err => {
-        const msg = err?.error?.error?.message ?? err?.error?.message ?? '::TemplateGenerationFailed';
+        const msg =
+          err?.error?.error?.message ?? err?.error?.message ?? '::TemplateGenerationFailed';
         this.toaster.error(msg);
       },
     });
@@ -269,5 +279,26 @@ export class StaffAttendanceComponent implements OnInit {
         this.importingExcel = false;
       },
     });
+  }
+
+  getAttendanceStatusBadgeClass(status: number): string {
+    switch (status) {
+      case 1:
+        return 'status--active'; // Present
+      case 2:
+        return 'status--blocked'; // Absent
+      case 3:
+        return 'status--withdrawn'; // Late
+      case 4:
+        return 'status--graduated'; // Excused
+      case 5:
+        return 'status--transferred'; // Sick
+      case 6:
+        return 'status--pending'; // Leave
+      case 7:
+        return 'status--alumni'; // Holiday
+      default:
+        return 'soft-badge--secondary';
+    }
   }
 }

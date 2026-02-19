@@ -56,12 +56,11 @@ export class StudentComponent implements OnInit {
   constructor(
     public readonly list: ListService,
     private studentService: StudentService,
-    private confirmation: ConfirmationService,
     private toaster: ToasterService,
     private router: Router,
     private fb: FormBuilder,
     private studentImportApi: StudentImportApi,
-    private customConfirmation: ConfirmationHelperService
+    private customConfirmation: ConfirmationHelperService,
   ) {
     this.templateForm = this.fb.group({
       gradeLevel: [null, Validators.required],
@@ -77,14 +76,14 @@ export class StudentComponent implements OnInit {
   }
 
   delete(id: string) {
-    this.customConfirmation.confirmDelete().subscribe((status) => {
+    this.customConfirmation.confirmDelete().subscribe(status => {
       if (status !== 'confirm') return;
 
       this.studentService.delete(id).subscribe(() => {
-          this.list.get();
-          this.toaster.success('::SuccessfullyDeleted');
-      })
-    })
+        this.list.get();
+        this.toaster.success('::SuccessfullyDeleted');
+      });
+    });
   }
 
   clearFilters() {
@@ -225,5 +224,30 @@ export class StudentComponent implements OnInit {
         this.importingExcel = false;
       },
     });
+  }
+
+  getStudentStatusBadgeClass(status: number): string {
+    switch (status) {
+      case 1:
+        return 'status--active'; // Active
+      case 9:
+        return 'status--pending'; // Pending
+      case 2:
+        return 'status--alumni'; // Alumni
+      case 8:
+        return 'status--graduated'; // Graduated
+      case 6:
+        return 'status--transferred'; // Transferred
+      case 7:
+        return 'status--withdrawn'; // Withdrawn
+      case 4:
+        return 'status--inactive'; // Inactive
+      case 5:
+        return 'status--suspended'; // Suspended
+      case 3:
+        return 'status--blocked'; // Blocked
+      default:
+        return 'status--default';
+    }
   }
 }

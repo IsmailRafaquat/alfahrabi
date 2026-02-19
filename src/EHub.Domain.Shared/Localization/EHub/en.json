@@ -720,7 +720,11 @@
     "Button:ConfirmDelete": "Delete",
     "Button:Cancel": "Cancel",
     "DeleteConfirmationTitle": "Delete item?",
-    "DeleteConfirmationMessage": "Are you sure you want to delete this item? Once deleted, it will be permanently removed and cannot be recovered."
+    "DeleteConfirmationMessage": "Are you sure you want to delete this item? Once deleted, it will be permanently removed and cannot be recovered.",
+    "Menu:Alfarabi": "Alfarabi",
+    "ParentPhone": "Parent Phone",
+    "AdmissionNo": "Admission No",
+    "AdmNo/RollNo": "Adm No / Roll No"
 
   }
 }

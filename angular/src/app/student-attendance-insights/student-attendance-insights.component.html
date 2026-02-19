@@ -39,11 +39,13 @@
 
                 <div class="col-12 col-md-3">
                     <label class="form-label">Order</label>
-                    <select class="form-select" formControlName="order">
-                        <option [ngValue]="1">Top</option>
-                        <option [ngValue]="2">Bottom</option>
-                    </select>
+
+                    <nz-select class="w-100" formControlName="order" nzPlaceHolder="Select order"  class="w-100" nzSize="large" nzAllowClear>
+                        <nz-option [nzValue]="1" nzLabel="Top"></nz-option>
+                        <nz-option [nzValue]="2" nzLabel="Bottom"></nz-option>
+                    </nz-select>
                 </div>
+
 
                 <!-- ✅ NEW -->
                 <div class="col-12 col-md-3">
