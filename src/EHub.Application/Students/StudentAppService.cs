@@ -82,6 +82,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
     {
         var student = await _studentManager.CreateAsync(
             input.AdmissionNo,
+            input.RollNo,
             input.FirstName,
             input.LastName,
             input.Gender,
@@ -134,6 +135,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
         await _studentManager.ChangeStatusAsync(student, input.Status);
 
         student.AdmissionNo = input.AdmissionNo;
+        student.RollNo = input.RollNo;
         student.Grade = input.Grade;
         student.GradeLevel = input.GradeLevel;
         student.Gender = input.Gender;
@@ -435,6 +437,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
         return new List<TemplateCol>
         {
             new("AdmissionNo", "Admission No"),
+            new("RollNo", "Roll No"),
             new("FirstName", "First Name"),
             new("LastName", "Last Name"),
             new("DOB", "DOB"),
@@ -490,6 +493,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
         var values = new Dictionary<string, object?>
         {
             ["AdmissionNo"] = s.AdmissionNo,
+            ["RollNo"] = s.RollNo,
             ["FirstName"] = s.FirstName,
             ["LastName"] = s.LastName,
             ["DOB"] = s.DOB,
@@ -539,6 +543,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
         var values = new Dictionary<string, object?>
         {
             ["AdmissionNo"] = "1001",
+            ["RollNo"] = "0001",
             ["FirstName"] = "Ismail",
             ["LastName"] = "Rafaquat",
             ["DOB"] = new DateTime(2011, 01, 19),
@@ -640,6 +645,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
         // Required column keys (match your TemplateCol keys)
         // We map by Header text in template, not by key; so we resolve via helper below.
         int colAdmissionNo = GetCol(headerMap, "Admission No");
+        int colRollNo = GetCol(headerMap, "Roll No");
         int colFirstName = GetCol(headerMap, "First Name");
         int colLastName = GetCol(headerMap, "Last Name");
         int colDob = GetCol(headerMap, "DOB");
@@ -689,6 +695,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
             result.TotalRows++;
 
             var admissionNo = ReadString(ws, r, colAdmissionNo);
+            var rollNo = ReadString(ws, r, colRollNo);
             if (admissionNo.IsNullOrWhiteSpace())
             {
                 result.SkippedRows++;
@@ -759,6 +766,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
                 {
                     var created = await _studentManager.CreateAsync(
                         admissionNo,
+                        rollNo,
                         firstName,
                         lastName,
                         gender,
@@ -809,6 +817,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
                     await _studentManager.ChangeStatusAsync(existing, status);
 
                     existing.AdmissionNo = admissionNo;
+                    existing.RollNo = rollNo;
                     existing.Gender = gender;
                     existing.DOB = NormalizeDate(dob);
 

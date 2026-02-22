@@ -12,6 +12,7 @@ public class StudentDto : EntityDto<Guid>
 
     // --- Basic Info ---
     public string AdmissionNo { get; set; } = default!;
+    public string? RollNo { get; set; }
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
     public Gender Gender { get; set; }

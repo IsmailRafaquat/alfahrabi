@@ -12,6 +12,9 @@ public class UpdateStudentDto
     [StringLength(StudentConsts.AdmissionNoMaxLength)]
     public string AdmissionNo { get; set; } = default!;
 
+    [StringLength(StudentConsts.AdmissionNoMaxLength)]
+    public string? RollNo { get; set; }
+
     [Required]
     [StringLength(StudentConsts.NameMaxLength)]
     public string FirstName { get; set; } = default!;

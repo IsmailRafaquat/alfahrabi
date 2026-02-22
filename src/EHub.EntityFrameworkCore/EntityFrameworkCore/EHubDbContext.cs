@@ -136,6 +136,9 @@ public class EHubDbContext :
                 .IsRequired()
                 .HasMaxLength(StudentConsts.AdmissionNoMaxLength);
 
+            b.Property(x => x.RollNo)
+                .HasMaxLength(StudentConsts.AdmissionNoMaxLength);
+
             b.Property(x => x.FirstName)
                 .IsRequired()
                 .HasMaxLength(StudentConsts.NameMaxLength);

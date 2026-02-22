@@ -17,6 +17,7 @@ public class StudentManager : DomainService
 
     public async Task<Student> CreateAsync(
         string admissionNo,
+        string? rollNo,
         string firstName,
         string lastName,
         Gender gender,
@@ -51,6 +52,7 @@ public class StudentManager : DomainService
         string? comments = null,
         string? accommodations = null)
         {
+        Check.NotNullOrWhiteSpace(admissionNo, nameof(admissionNo));
         Check.NotNullOrWhiteSpace(firstName, nameof(firstName));
         Check.NotNullOrWhiteSpace(lastName, nameof(lastName));
         Check.NotNullOrWhiteSpace(streetAddress, nameof(streetAddress));
@@ -79,6 +81,7 @@ public class StudentManager : DomainService
            id: GuidGenerator.Create(),
            tenantId: CurrentTenant.Id,
            admissionNo: admissionNo,
+           rollNo: rollNo,
            firstName: firstName,
            lastName: lastName,
            gender: gender,

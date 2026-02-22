@@ -11,57 +11,59 @@ namespace EHub.Students;
 public class Student : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; set; }
-    public string AdmissionNo { get;  set; }
-    public string FirstName { get;  set; }
-    public string LastName { get;  set; }
-    public DateTime DOB { get;  set; }
-    public Gender Gender { get;  set; }
-    public string? Email { get;  set; }
+    public string AdmissionNo { get; set; }
+    public string? RollNo { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public DateTime DOB { get; set; }
+    public Gender Gender { get; set; }
+    public string? Email { get; set; }
 
     // Home Address
-    public string StreetAddress { get;  set; }
-    public string? StreetAddressLine2 { get;  set; }
-    public City City { get;  set; }
-    public Province Province { get;  set; }
-    public string ZipCode { get;  set; }
+    public string StreetAddress { get; set; }
+    public string? StreetAddressLine2 { get; set; }
+    public City City { get; set; }
+    public Province Province { get; set; }
+    public string ZipCode { get; set; }
 
     // Parent / Guardian Info
-    public string PFirstName { get;  set; }
-    public string PLastName { get;  set; }
-    public RelationShipToStudent PRelatonShipToStudent { get;  set; }
-    public string PPhone { get;  set; }
-    public string? PEmail { get;  set; }
+    public string PFirstName { get; set; }
+    public string PLastName { get; set; }
+    public RelationShipToStudent PRelatonShipToStudent { get; set; }
+    public string PPhone { get; set; }
+    public string? PEmail { get; set; }
 
     // Emergency Contact Info
-    public string? ECFirstName { get;  set; }
-    public string? ECLastName { get;  set; }
-    public RelationShipToStudent? ECRelationShipToStudent { get;  set; }
-    public string? ECPhone { get;  set; }
-    public string? ECEmail { get;  set; }
+    public string? ECFirstName { get; set; }
+    public string? ECLastName { get; set; }
+    public RelationShipToStudent? ECRelationShipToStudent { get; set; }
+    public string? ECPhone { get; set; }
+    public string? ECEmail { get; set; }
 
     // Education
-    public GradeLevel GradeLevel { get;  set; }
-    public Section Section { get;  set; }
-    public DateTime EnrollmentDate { get;  set; }
-    public Status Status { get;  set; } = Status.Active;
+    public GradeLevel GradeLevel { get; set; }
+    public Section Section { get; set; }
+    public DateTime EnrollmentDate { get; set; }
+    public Status Status { get; set; } = Status.Active;
     public Term Term { get; set; } = Term.Fall;
     public Shift Shift { get; set; } = Shift.Morning;
- 
+
     // Previous Educational Background
-    public string? PerviousSchool { get;  set; }
-    public GradeLevel? Grade { get;  set; }
-    public string? StudentIdNo { get;  set; }
+    public string? PerviousSchool { get; set; }
+    public GradeLevel? Grade { get; set; }
+    public string? StudentIdNo { get; set; }
 
     // Additional Info
-    public string? MedicalConditions { get;  set; }
-    public string? Extracurrucular { get;  set; }
-    public string? Commnets { get;  set; }
-    public string? Accommodations { get;  set; }
+    public string? MedicalConditions { get; set; }
+    public string? Extracurrucular { get; set; }
+    public string? Commnets { get; set; }
+    public string? Accommodations { get; set; }
 
-    public virtual ICollection<StudentDocument> StudentDocuments { get; set; } 
+    public virtual ICollection<StudentDocument> StudentDocuments { get; set; }
     public virtual ICollection<StudentAttendance> StudentAttendances { get; set; }
 
-    private Student() {
+    private Student()
+    {
 
         StudentDocuments = new List<StudentDocument>();
         StudentAttendances = new List<StudentAttendance>();
@@ -71,6 +73,7 @@ public class Student : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Guid id,
         Guid? tenantId,
         string admissionNo,
+        string? rollNo,
         string firstName,
         string lastName,
         Gender gender,
@@ -120,6 +123,7 @@ public class Student : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         TenantId = tenantId;
         AdmissionNo = Check.NotNullOrWhiteSpace(admissionNo, nameof(AdmissionNo));
+        RollNo = rollNo;
         SetFirstName(firstName);
         SetLastName(lastName);
         Gender = gender;

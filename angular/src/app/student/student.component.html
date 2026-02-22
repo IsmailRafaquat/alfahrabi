@@ -105,7 +105,7 @@
       <div *ngIf="showFilter" class="mt-2">
         <div class="row g-2">
           <div class="col-sm-2">
-            <label class="form-label" for="admissionNoFilter">{{ '::AdmNo/RollNo' | abpLocalization }}</label>
+            <label class="form-label" for="admissionNo">{{ '::AdmissionNo' | abpLocalization }}</label>
             <input id="admissionNoFilter" class="form-control form-control-sm" [(ngModel)]="filters.admissionNo" />
           </div>
 
@@ -178,7 +178,9 @@
         </ngx-datatable-column>
 
 
-        <ngx-datatable-column [name]="'::AdmissionNo/RollNo' | abpLocalization" prop="admissionNo"
+        <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization" prop="admissionNo"
+          [width]="220"></ngx-datatable-column>
+          <ngx-datatable-column [name]="'::RollNo' | abpLocalization" prop="rollNo"
           [width]="220"></ngx-datatable-column>
         <ngx-datatable-column [name]="'::Name' | abpLocalization" [sortable]="false">
           <ng-template ngx-datatable-cell-template let-row="row">

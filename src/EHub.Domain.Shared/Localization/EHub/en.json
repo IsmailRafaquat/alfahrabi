@@ -724,7 +724,10 @@
     "Menu:Alfarabi": "Alfarabi",
     "ParentPhone": "Parent Phone",
     "AdmissionNo": "Admission No",
-    "AdmNo/RollNo": "Adm No / Roll No"
+    "AdmNo/RollNo": "Adm No / Roll No",
+    "HideFilters": "Hide Filters",
+    "ShowFilters": "Show Filters",
+    "RollNo": "Roll No"
 
   }
 }

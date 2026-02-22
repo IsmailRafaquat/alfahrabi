@@ -102,12 +102,12 @@ export class CreateStudentComponent implements OnInit {
 
           const dob = this.toDateOnly(s.dob);
           const enrollmentDate = this.toDateOnly(s.enrollmentDate);
-          const parsed = this.parseAdmission(s.admissionNo);
+          // const parsed = this.parseAdmission(s.admissionNo);
 
           this.form.patchValue({
             ...s,
-            admissionNo: parsed.admissionNo,
-            rollNo: parsed.rollNo,
+            // admissionNo: parsed.admissionNo,
+            // rollNo: parsed.rollNo,
             dob,
             enrollmentDate,
           });
@@ -143,7 +143,7 @@ export class CreateStudentComponent implements OnInit {
   buildForm(): void {
     this.form = this.fb.group({
       admissionNo: [this.selectedStudent.admissionNo, Validators.required],
-      rollNo: [null],
+      rollNo: [this.selectedStudent.rollNo],
       firstName: [this.selectedStudent.firstName, Validators.required],
       lastName: [this.selectedStudent.lastName, Validators.required],
       gender: [this.selectedStudent.gender, Validators.required],
@@ -227,8 +227,8 @@ export class CreateStudentComponent implements OnInit {
       return;
     }
 
-    // const dto = this.form.getRawValue();
-    const dto = this.buildStudentDtoForApi();
+    const dto = this.form.getRawValue();
+    // const dto = this.buildStudentDtoForApi();
 
     if (this.id) {
       this.studentService.update(this.id, dto as UpdateStudentDto).subscribe(() => {
@@ -326,8 +326,8 @@ export class CreateStudentComponent implements OnInit {
       return;
     }
 
-    // const dto = this.form.getRawValue();
-    const dto = this.buildStudentDtoForApi();
+    const dto = this.form.getRawValue();
+    // const dto = this.buildStudentDtoForApi();
 
     if (this.id) {
       this.studentService.update(this.id, dto as UpdateStudentDto).subscribe(() => {
@@ -354,7 +354,7 @@ export class CreateStudentComponent implements OnInit {
 
   private validateStep(step: number): boolean {
     const stepControls: Record<number, string[]> = {
-      0: ['admissionNo', 'firstName', 'lastName', 'gender', 'dob', 'email', 'phone'],
+      0: ['admissionNo', 'rollNo', 'firstName', 'lastName', 'gender', 'dob', 'email', 'phone'],
       1: ['streetAddress', 'streetAddressLine2', 'city', 'province', 'zipCode'],
       2: ['pFirstName', 'pLastName', 'pRelatonShipToStudent', 'pPhone', 'pEmail'],
       3: ['ecFirstName', 'ecLastName', 'ecRelationShipToStudent', 'ecPhone', 'ecEmail'],
@@ -461,33 +461,33 @@ export class CreateStudentComponent implements OnInit {
       });
   }
 
-  private parseAdmission(value: string | null | undefined) {
-    if (!value) return { admissionNo: null, rollNo: null };
+  // private parseAdmission(value: string | null | undefined) {
+  //   if (!value) return { admissionNo: null, rollNo: null };
 
-    const [adm, roll] = value.split('|');
-    const admissionNo = adm?.replace('ADM-', '')?.trim() || value; // fallback
-    const rollNo = roll?.replace('ROLL-', '')?.trim() || null;
+  //   const [adm, roll] = value.split('|');
+  //   const admissionNo = adm?.replace('ADM-', '')?.trim() || value; // fallback
+  //   const rollNo = roll?.replace('ROLL-', '')?.trim() || null;
 
-    return { admissionNo, rollNo };
-  }
+  //   return { admissionNo, rollNo };
+  // }
 
-  private buildStudentDtoForApi(): any {
-  const v = this.form.getRawValue();
+//   private buildStudentDtoForApi(): any {
+//   const v = this.form.getRawValue();
 
-  const admission = (v.admissionNo ?? '').toString().trim();
-  const roll = (v.rollNo ?? '').toString().trim();
+//   const admission = (v.admissionNo ?? '').toString().trim();
+//   const roll = (v.rollNo ?? '').toString().trim();
 
-  const combinedAdmissionNo = roll
-    ? `ADM-${admission}|ROLL-${roll}`
-    : `ADM-${admission}`;
+//   const combinedAdmissionNo = roll
+//     ? `ADM-${admission}|ROLL-${roll}`
+//     : `ADM-${admission}`;
 
-  const dto = {
-    ...v,
-    admissionNo: combinedAdmissionNo,
-  };
+//   const dto = {
+//     ...v,
+//     admissionNo: combinedAdmissionNo,
+//   };
 
-  delete dto.rollNo; // IMPORTANT: backend doesn't know rollNo
-  return dto;
-}
+//   delete dto.rollNo; // IMPORTANT: backend doesn't know rollNo
+//   return dto;
+// }
 
 }
