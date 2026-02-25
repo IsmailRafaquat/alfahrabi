@@ -127,6 +127,7 @@ public class StudentAppService : ApplicationService, IStudentAppService
         var student = await _studentRepository.GetAsync(id);
 
         // Update core info
+        await _studentManager.ChangeAdmissionNoAsync(student, input.AdmissionNo);
         await _studentManager.ChangeNameAsync(student, input.FirstName, input.LastName);
         await _studentManager.ChangeContactsAsync(student, input.Email);
         await _studentManager.ChangeAddressAsync(student, input.StreetAddress, input.StreetAddressLine2, input.City, input.Province, input.ZipCode);
@@ -134,7 +135,6 @@ public class StudentAppService : ApplicationService, IStudentAppService
         await _studentManager.ChangeEmergencyContactAsync(student, input.ECFirstName, input.ECLastName, input.ECRelationShipToStudent, input.ECPhone, input.ECEmail);
         await _studentManager.ChangeStatusAsync(student, input.Status);
 
-        student.AdmissionNo = input.AdmissionNo;
         student.RollNo = input.RollNo;
         student.Grade = input.Grade;
         student.GradeLevel = input.GradeLevel;

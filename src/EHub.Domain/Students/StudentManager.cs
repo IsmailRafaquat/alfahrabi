@@ -61,6 +61,12 @@ public class StudentManager : DomainService
         Check.NotNullOrWhiteSpace(pLastName, nameof(pLastName));
         Check.NotNullOrWhiteSpace(pPhone, nameof(pPhone));
 
+        var existingByAdmission = await _studentRepository.FindByAdmissionNoAsync(admissionNo);
+        if (existingByAdmission != null)
+        {
+            throw new UserFriendlyException("Admission number already exists. Please use a different admission number.");
+        }
+
         if (!email.IsNullOrWhiteSpace())
         {
             var existingByEmail = await _studentRepository.FindByEmailAsync(email!);
@@ -222,4 +228,23 @@ public class StudentManager : DomainService
 
     //    throw new BusinessException(EHubDomainErrorCodes.AdmissionNumberGenerationFailed);
     //}
+
+    public async Task ChangeAdmissionNoAsync(Student student, string admissionNo)
+    {
+        Check.NotNull(student, nameof(student));
+        Check.NotNullOrWhiteSpace(admissionNo, nameof(admissionNo));
+
+        // no change
+        if (student.AdmissionNo == admissionNo)
+            return;
+
+        var existing = await _studentRepository.FindByAdmissionNoAsync(admissionNo);
+        if (existing != null && existing.Id != student.Id)
+        {
+            throw new UserFriendlyException($"Admission number '{admissionNo}' is already in use. Please choose another one.");
+            // (or use a localized key if you prefer)
+        }
+
+        student.AdmissionNo = admissionNo;
+    }
 }

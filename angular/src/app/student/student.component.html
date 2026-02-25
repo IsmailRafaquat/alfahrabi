@@ -120,6 +120,24 @@
           </div>
 
           <div class="col-sm-2">
+            <label>{{ '::GradeLevel' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.gradeLevel" nzAllowClear class="w-100">
+              <nz-option *ngFor="let gl of gradeLevels" [nzValue]="gl.value"
+                [nzLabel]="'::Enum:GradeLevel.' + gl.value | abpLocalization">
+              </nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-sm-2">
+            <label>{{ '::Section' | abpLocalization }}</label>
+            <nz-select [(ngModel)]="filters.section" nzAllowClear class="w-100">
+              <nz-option *ngFor="let t of sections" [nzValue]="t.value"
+                [nzLabel]="'::Enum:Section.' + t.value | abpLocalization">
+              </nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-sm-2">
             <label>{{ '::Gender' | abpLocalization }}</label>
             <nz-select [(ngModel)]="filters.gender" class="form-control form-control-sm" nzAllowClear class="w-100">
               <nz-option *ngFor="let gender of genders" [nzValue]="gender.value"
@@ -180,8 +198,7 @@
 
         <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization" prop="admissionNo"
           [width]="220"></ngx-datatable-column>
-          <ngx-datatable-column [name]="'::RollNo' | abpLocalization" prop="rollNo"
-          [width]="220"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::RollNo' | abpLocalization" prop="rollNo" [width]="220"></ngx-datatable-column>
         <ngx-datatable-column [name]="'::Name' | abpLocalization" [sortable]="false">
           <ng-template ngx-datatable-cell-template let-row="row">
             {{ (row.firstName ?? '') + ' ' + (row.lastName ?? '') }}
