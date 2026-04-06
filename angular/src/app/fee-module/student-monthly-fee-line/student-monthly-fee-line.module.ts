@@ -5,6 +5,7 @@ import { StudentMonthlyFeeLineRoutingModule } from './student-monthly-fee-line-r
 import { StudentMonthlyFeeLineComponent } from './student-monthly-fee-line.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { PageModule } from '@abp/ng.components/page';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { PageModule } from '@abp/ng.components/page';
     CommonModule,
     StudentMonthlyFeeLineRoutingModule,
     SharedModule,
-    PageModule
+    PageModule,
+    NzCollapseModule
   ]
 })
 export class StudentMonthlyFeeLineModule { }

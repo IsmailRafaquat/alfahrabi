@@ -1,7 +1,18 @@
-<abp-page [title]="'::Dashboard' | abpLocalization">
+<abp-page>
+
+  <!-- Header Row -->
+  <div class="d-flex align-items-center mb-3">
+    <h3 class="mb-0 content-header-title">Dashboard</h3>
+
+    <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 ms-auto"
+      (click)="toggleFilters()" [disabled]="loading">
+      <i class="fa fa-sliders"></i>
+      <span>{{ showFilters ? ('::HideFilters' | abpLocalization) : ('::ShowFilters' | abpLocalization) }}</span>
+    </button>
+  </div>
 
   <!-- Filters -->
-  <div class="filters card shadow-soft mb-4">
+  <div class="filters card shadow-soft mb-4" *ngIf="showFilters">
     <div class="card-body">
       <form [formGroup]="form" class="row g-3 align-items-end">
         <div class="col-12 col-md-2">
@@ -93,7 +104,7 @@
         <div class="card-body chart-box">
           <canvas #incomeExpenseTrendCanvas></canvas>
           <div class="text-muted text-center py-4"
-               *ngIf="!data || (!(data?.expenseTrend?.length) && !(data?.earnTrend?.length))">
+            *ngIf="!data || (!(data?.expenseTrend?.length) && !(data?.earnTrend?.length))">
             {{ '::NoData' | abpLocalization }}
           </div>
         </div>
@@ -108,8 +119,7 @@
         </div>
         <div class="card-body chart-box">
           <canvas #studentStatusCanvas></canvas>
-          <div class="text-muted text-center py-4"
-               *ngIf="!data || (data?.studentStatus?.total ?? 0) === 0">
+          <div class="text-muted text-center py-4" *ngIf="!data || (data?.studentStatus?.total ?? 0) === 0">
             {{ '::NoData' | abpLocalization }}
           </div>
         </div>
@@ -127,8 +137,7 @@
         </div>
         <div class="card-body chart-box">
           <canvas #classAttendanceBarCanvas></canvas>
-          <div class="text-muted text-center py-4"
-               *ngIf="!data || !(data?.studentAttendanceByClass?.length)">
+          <div class="text-muted text-center py-4" *ngIf="!data || !(data?.studentAttendanceByClass?.length)">
             {{ '::NoData' | abpLocalization }}
           </div>
         </div>
@@ -143,8 +152,7 @@
         </div>
         <div class="card-body chart-box">
           <canvas #topStudentsBarCanvas></canvas>
-          <div class="text-muted text-center py-4"
-               *ngIf="!data || !(data?.topStudentsOverall?.length)">
+          <div class="text-muted text-center py-4" *ngIf="!data || !(data?.topStudentsOverall?.length)">
             {{ '::NoData' | abpLocalization }}
           </div>
         </div>
@@ -162,8 +170,7 @@
         </div>
         <div class="card-body chart-box">
           <canvas #staffStatusCanvas></canvas>
-          <div class="text-muted text-center py-4"
-               *ngIf="!data || (data?.staffStatus?.total ?? 0) === 0">
+          <div class="text-muted text-center py-4" *ngIf="!data || (data?.staffStatus?.total ?? 0) === 0">
             {{ '::NoData' | abpLocalization }}
           </div>
         </div>

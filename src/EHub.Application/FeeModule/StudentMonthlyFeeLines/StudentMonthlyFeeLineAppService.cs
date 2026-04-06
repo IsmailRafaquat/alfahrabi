@@ -4,8 +4,10 @@ using EHub.FeeModule.LateFeePolicies;
 using EHub.FeeModule.StudentFeeDiscounts;
 using EHub.FeeModule.StudentFeeProfiles;
 using EHub.FeeModule.StudentMonthlyFees;
+using EHub.FeeModule.StudentRecentFeeHistory;
 using EHub.Students;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -396,6 +398,121 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
             .OrderByDescending(x => x.Pending)
             .Take(200)
             .ToList();
+
+        return result;
+    }
+
+    public async Task<StudentRecentFeeHistoryDto> GetRecentHistoryAsync(Guid studentMonthlyFeeId, int monthsCount = 6)
+    {
+        if (studentMonthlyFeeId == Guid.Empty)
+            throw new UserFriendlyException("StudentMonthlyFeeId is required.");
+
+        if (monthsCount <= 0)
+            monthsCount = 6;
+
+        if (monthsCount > 12)
+            monthsCount = 12;
+
+        var selectedMonthlyFee = await _monthlyFeeRepo.GetAsync(studentMonthlyFeeId);
+        var student = await _studentRepo.GetAsync(selectedMonthlyFee.StudentId);
+
+        var monthlyFeesQ = await _monthlyFeeRepo.GetQueryableAsync();
+
+        var recentMonthlyFees = await AsyncExecuter.ToListAsync(
+            monthlyFeesQ
+                .Where(x => x.StudentId == selectedMonthlyFee.StudentId && x.Month <= selectedMonthlyFee.Month)
+                .OrderByDescending(x => x.Month)
+                .Take(monthsCount)
+        );
+
+        var result = new StudentRecentFeeHistoryDto
+        {
+            StudentId = student.Id,
+            StudentName = $"{student.FirstName} {student.LastName}".Trim(),
+            SelectedStudentMonthlyFeeId = selectedMonthlyFee.Id,
+            SelectedMonth = selectedMonthlyFee.Month
+        };
+
+        if (!recentMonthlyFees.Any())
+            return result;
+
+        var monthlyFeeIds = recentMonthlyFees.Select(x => x.Id).ToList();
+
+        var linesQ = await _repo.GetQueryableAsync();
+        var allLines = await AsyncExecuter.ToListAsync(
+            linesQ.Where(x => monthlyFeeIds.Contains(x.StudentMonthlyFeeId))
+        );
+
+        var feeHeadIds = allLines.Select(x => x.FeeHeadId).Distinct().ToList();
+
+        var feeHeadMap = new Dictionary<Guid, string>();
+
+        if (feeHeadIds.Any())
+        {
+            var feeHeadsQ = await _feeHeadRepo.GetQueryableAsync();
+            var feeHeads = await AsyncExecuter.ToListAsync(
+                feeHeadsQ.Where(x => feeHeadIds.Contains(x.Id))
+            );
+
+            feeHeadMap = feeHeads.ToDictionary(x => x.Id, x => x.Name ?? string.Empty);
+        }
+
+        foreach (var monthlyFee in recentMonthlyFees.OrderByDescending(x => x.Month))
+        {
+            var monthDto = new StudentRecentFeeHistoryMonthDto
+            {
+                StudentMonthlyFeeId = monthlyFee.Id,
+                Month = monthlyFee.Month
+            };
+
+            var monthLines = allLines
+                .Where(x => x.StudentMonthlyFeeId == monthlyFee.Id)
+                .OrderBy(x => feeHeadMap.ContainsKey(x.FeeHeadId) ? feeHeadMap[x.FeeHeadId] : string.Empty)
+                .ToList();
+
+            foreach (var line in monthLines)
+            {
+                var netAmount = line.ExpectedAmount - line.DiscountAmount + line.AdjustmentAmount + line.LateFeeAmount;
+                if (netAmount < 0)
+                    netAmount = 0;
+
+                var balance = netAmount - line.PaidAmount;
+                if (balance < 0)
+                    balance = 0;
+
+                var lineDto = new StudentRecentFeeHistoryLineDto
+                {
+                    StudentMonthlyFeeLineId = line.Id,
+                    FeeHeadId = line.FeeHeadId,
+                    FeeHeadName = feeHeadMap.TryGetValue(line.FeeHeadId, out var feeHeadName) ? feeHeadName : string.Empty,
+
+                    ExpectedAmount = line.ExpectedAmount,
+                    DiscountAmount = line.DiscountAmount,
+                    AdjustmentAmount = line.AdjustmentAmount,
+                    LateFeeAmount = line.LateFeeAmount,
+                    NetAmount = netAmount,
+                    PaidAmount = line.PaidAmount,
+                    Balance = balance
+                };
+
+                monthDto.Lines.Add(lineDto);
+
+                monthDto.ExpectedAmount += line.ExpectedAmount;
+                monthDto.DiscountAmount += line.DiscountAmount;
+                monthDto.AdjustmentAmount += line.AdjustmentAmount;
+                monthDto.LateFeeAmount += line.LateFeeAmount;
+                monthDto.NetAmount += netAmount;
+                monthDto.PaidAmount += line.PaidAmount;
+                monthDto.Balance += balance;
+            }
+
+            result.Months.Add(monthDto);
+        }
+
+        result.TotalBalance = result.Months.Sum(x => x.Balance);
+        result.PreviousBalance = result.Months
+            .Where(x => x.StudentMonthlyFeeId != selectedMonthlyFee.Id)
+            .Sum(x => x.Balance);
 
         return result;
     }

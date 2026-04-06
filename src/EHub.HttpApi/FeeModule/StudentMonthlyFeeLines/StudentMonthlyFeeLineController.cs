@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using EHub.FeeModule.StudentMonthlyFees;
+using EHub.FeeModule.StudentRecentFeeHistory;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -58,5 +59,11 @@ public class StudentMonthlyFeeLineController : AbpController, IStudentMonthlyFee
     public Task<CheckFeesDashboardDto> GetDashboardAsync(CheckFeesDashboardInput input)
     {
         return _appService.GetDashboardAsync(input);
+    }
+
+    [HttpGet("recent-history")]
+    public Task<StudentRecentFeeHistoryDto> GetRecentHistoryAsync(Guid studentMonthlyFeeId, int monthsCount = 6)
+    {
+        return _appService.GetRecentHistoryAsync(studentMonthlyFeeId, monthsCount);
     }
 }

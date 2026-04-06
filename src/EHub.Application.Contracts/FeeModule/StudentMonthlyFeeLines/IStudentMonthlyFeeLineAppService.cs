@@ -1,4 +1,5 @@
 ﻿using EHub.FeeModule.StudentMonthlyFees;
+using EHub.FeeModule.StudentRecentFeeHistory;
 using System;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
@@ -21,4 +22,6 @@ public interface IStudentMonthlyFeeLineAppService : IApplicationService
 
     Task<CalculatedAmountsDto> CalculateAmountsAsync(CalculateFeeLineAmountsInput input);
     Task<CheckFeesDashboardDto> GetDashboardAsync(CheckFeesDashboardInput input);
+    Task<StudentRecentFeeHistoryDto> GetRecentHistoryAsync(Guid studentMonthlyFeeId, int monthsCount = 6);
+
 }

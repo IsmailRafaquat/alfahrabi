@@ -184,7 +184,7 @@
 </abp-page>
 
 <!-- Create/Edit Modal -->
-<abp-modal [(visible)]="isModalOpen" [busy]="isCalculating" [options]="{ size : 'lg'}">
+<abp-modal [(visible)]="isModalOpen" [busy]="isCalculating || historyLoading" [options]="{ size : 'lg'}">
   <ng-template #abpHeader>
     <h3>
       {{
@@ -238,7 +238,78 @@
         </div>
       </div>
 
+      <!-- Recent Fee History -->
+      <div class="mt-3" *ngIf="historyLoading || recentHistory?.months?.length">
+        <nz-collapse>
+          <nz-collapse-panel [nzHeader]="'Last 6 Months Fee History'" [nzActive]="historyPanelActive">
 
+            <!-- Loading Spinner -->
+            <div *ngIf="historyLoading" class="py-2 text-muted">
+              <i class="fas fa-spinner fa-spin me-2"></i> Loading history...
+            </div>
+
+            <!-- History Content -->
+            <ng-container *ngIf="!historyLoading && recentHistory">
+
+              <!-- Summary Row -->
+              <div class="row g-2 mb-3">
+                <div class="col-md-4">
+                  <small class="text-muted d-block">Student</small>
+                  <strong>{{ recentHistory.studentName }}</strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-muted d-block">Previous Balance</small>
+                  <strong [class.text-danger]="recentHistory.previousBalance > 0"
+                    [class.text-success]="recentHistory.previousBalance <= 0">
+                    {{ recentHistory.previousBalance | number:'1.2-2' }}
+                  </strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-muted d-block">Total Balance</small>
+                  <strong [class.text-danger]="recentHistory.totalBalance > 0"
+                    [class.text-success]="recentHistory.totalBalance <= 0">
+                    {{ recentHistory.totalBalance | number:'1.2-2' }}
+                  </strong>
+                </div>
+              </div>
+
+              <!-- Months Table -->
+              <div class="table-responsive" *ngIf="recentHistory.months?.length">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th class="text-end">Expected</th>
+                      <th class="text-end">Discount</th>
+                      <th class="text-end">Adjustment</th>
+                      <th class="text-end">Late Fee</th>
+                      <th class="text-end">Net</th>
+                      <th class="text-end">Paid</th>
+                      <th class="text-end">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let month of recentHistory.months">
+                      <td class="fw-semibold">{{ monthLabel(month.month) }}</td>
+                      <td class="text-end">{{ month.expectedAmount | number:'1.2-2' }}</td>
+                      <td class="text-end">{{ month.discountAmount | number:'1.2-2' }}</td>
+                      <td class="text-end">{{ month.adjustmentAmount | number:'1.2-2' }}</td>
+                      <td class="text-end">{{ month.lateFeeAmount | number:'1.2-2' }}</td>
+                      <td class="text-end fw-semibold">{{ month.netAmount | number:'1.2-2' }}</td>
+                      <td class="text-end">{{ month.paidAmount | number:'1.2-2' }}</td>
+                      <td class="text-end fw-semibold" [class.text-danger]="month.balance > 0"
+                        [class.text-success]="month.balance <= 0">
+                        {{ month.balance | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </ng-container>
+          </nz-collapse-panel>
+        </nz-collapse>
+      </div>
       <!-- Calculation Status Messages -->
       <div *ngIf="isCalculating" class="alert alert-info mt-3 mb-0">
         <i class="fas fa-spinner fa-spin me-2"></i>
@@ -250,87 +321,88 @@
         <strong>{{ '::AmountsAutoCalculated' | abpLocalization }}</strong>
       </div>
 
-      <!-- Expected Amount (Auto-calculated from FeeStructureItem) -->
       <div class="row mt-3">
-        <div class="col-md-11">
-          <label class="form-label">
+        <!-- Expected Amount -->
+        <div class="col-md-6">
+          <label class="form-label mb-1">
             {{ '::ExpectedAmount' | abpLocalization }} <span class="text-danger">*</span>
             <span class="badge bg-primary ms-1">
-              <i class="fas fa-magic"></i> {{ '::FromFeeStructure' | abpLocalization }}
+              <i class="fas fa-magic fa-xs"></i> {{ '::FromFeeStructure' | abpLocalization }}
             </span>
           </label>
-          <input type="number" class="form-control form-control-sm bg-light" formControlName="expectedAmount"
-            step="0.01" />
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control form-control-sm bg-light" formControlName="expectedAmount"
+              step="0.01" />
+            <button type="button" class="btn btn-outline-secondary" (click)="enableExpectedAmountOverride()"
+              *ngIf="form.get('expectedAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
+              <i class="fas fa-edit fa-xs"></i>
+            </button>
+          </div>
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::AutoPopulatedFromFeeStructure' | abpLocalization }}
           </small>
         </div>
-        <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
-          <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="enableExpectedAmountOverride()"
-            *ngIf="form.get('expectedAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
-            <i class="fas fa-edit"></i>
-          </button>
-        </div>
-      </div>
 
-      <!-- Discount Amount (Auto-calculated from StudentFeeDiscount) -->
-      <div class="row mt-3">
-        <div class="col-md-11">
-          <label class="form-label">
+        <!-- Discount Amount -->
+        <div class="col-md-6">
+          <label class="form-label mb-1">
             {{ '::DiscountAmount' | abpLocalization }}
             <span class="badge bg-success ms-1" *ngIf="form.get('discountAmount')?.disabled">
-              <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
+              <i class="fas fa-magic fa-xs"></i> {{ '::AutoCalculated' | abpLocalization }}
             </span>
           </label>
-          <input type="number" class="form-control form-control-sm bg-light" formControlName="discountAmount"
-            step="0.01" min="0" />
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control form-control-sm bg-light" formControlName="discountAmount"
+              step="0.01" min="0" />
+            <button type="button" class="btn btn-outline-secondary" (click)="enableDiscountOverride()"
+              *ngIf="form.get('discountAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
+              <i class="fas fa-edit fa-xs"></i>
+            </button>
+          </div>
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::FromDiscountPolicy' | abpLocalization }}
           </small>
         </div>
-        <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
-          <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="enableDiscountOverride()"
-            *ngIf="form.get('discountAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
-            <i class="fas fa-edit"></i>
-          </button>
-        </div>
       </div>
 
-      <!-- Adjustment Amount (Manual entry) -->
       <div class="row mt-3">
-        <div class="col-md-11">
-          <label class="form-label">{{ '::AdjustmentAmount' | abpLocalization }}</label>
-          <input type="number" class="form-control form-control-sm" formControlName="adjustmentAmount" step="0.01" />
-          <small class="text-muted">
-            <i class="fas fa-info-circle"></i>
-            {{ '::AdjustmentCanBeNegative' | abpLocalization }}
-          </small>
+        <!-- Adjustment Amount -->
+        <div class="col-md-6">
+          <div class="d-flex gap-1 align-items-end">
+            <div class="flex-grow-1">
+              <label class="form-label mb-1">{{ '::AdjustmentAmount' | abpLocalization }}</label>
+              <input type="number" class="form-control form-control-sm" formControlName="adjustmentAmount"
+                step="0.01" />
+              <small class="text-muted">
+                <i class="fas fa-info-circle"></i>
+                {{ '::AdjustmentCanBeNegative' | abpLocalization }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Late Fee Amount (Auto-calculated from LateFeePolicy) -->
-      <div class="row mt-3">
-        <div class="col-md-11">
-          <label class="form-label">
+        <!-- Late Fee Amount -->
+        <div class="col-md-6">
+          <label class="form-label mb-1">
             {{ '::LateFeeAmount' | abpLocalization }}
             <span class="badge bg-success ms-1" *ngIf="form.get('lateFeeAmount')?.disabled">
-              <i class="fas fa-magic"></i> {{ '::AutoCalculated' | abpLocalization }}
+              <i class="fas fa-magic fa-xs"></i> {{ '::AutoCalculated' | abpLocalization }}
             </span>
           </label>
-          <input type="number" class="form-control form-control-sm bg-light" formControlName="lateFeeAmount" step="0.01"
-            min="0" />
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control form-control-sm bg-light" formControlName="lateFeeAmount"
+              step="0.01" min="0" />
+            <button type="button" class="btn btn-outline-secondary" (click)="enableLateFeeOverride()"
+              *ngIf="form.get('lateFeeAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
+              <i class="fas fa-edit fa-xs"></i>
+            </button>
+          </div>
           <small class="text-muted">
             <i class="fas fa-info-circle"></i>
             {{ '::FromLateFeePolicy' | abpLocalization }}
           </small>
-        </div>
-        <div class="col-md-1 d-flex align-items-end pb-3 mt-1">
-          <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="enableLateFeeOverride()"
-            *ngIf="form.get('lateFeeAmount')?.disabled" [title]="'::ManualOverride' | abpLocalization">
-            <i class="fas fa-edit"></i>
-          </button>
         </div>
       </div>
 

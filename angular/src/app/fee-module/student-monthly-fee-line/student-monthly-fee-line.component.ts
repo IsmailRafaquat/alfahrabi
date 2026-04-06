@@ -22,6 +22,7 @@ import {
   StudentService,
 } from 'src/app/proxy/students';
 import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
+import { StudentRecentFeeHistoryDto } from 'src/app/proxy/fee-module/student-recent-fee-history/models';
 
 @Component({
   selector: 'app-student-monthly-fee-line',
@@ -52,6 +53,11 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   isCalculating = false;
   calculatedAmounts: CalculatedAmountsDto | null = null;
 
+  //History student
+  recentHistory: StudentRecentFeeHistoryDto | null = null;
+  historyLoading = false;
+  historyPanelActive = true;
+
   public readonly list = inject(ListService);
   private readonly service = inject(StudentMonthlyFeeLineService);
   private readonly studentService = inject(StudentService);
@@ -59,7 +65,6 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   private readonly feeHeadService = inject(FeeHeadService);
 
   private readonly fb = inject(FormBuilder);
-  private readonly confirmation = inject(ConfirmationService);
   private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
@@ -102,6 +107,7 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   create(): void {
     this.selected = {} as StudentMonthlyFeeLineDto;
     this.calculatedAmounts = null;
+    this.resetRecentHistory();
     this.buildForm();
     this.setupFormListeners();
     this.isModalOpen = true;
@@ -114,6 +120,9 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
       this.buildForm();
       this.setupFormListeners();
       this.isModalOpen = true;
+      if (this.selected.studentMonthlyFeeId) {
+        this.loadRecentHistory();
+      }
     });
   }
 
@@ -121,12 +130,16 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
     this.form.get('month')?.valueChanges.subscribe(() => this.onMonthOrClassChanged());
     this.form.get('gradeLevel')?.valueChanges.subscribe(() => this.onMonthOrClassChanged());
 
-    this.form.get('studentMonthlyFeeId')?.valueChanges.subscribe(() => this.autoCalculateAmounts());
+    this.form.get('studentMonthlyFeeId')?.valueChanges.subscribe(() => {
+      this.autoCalculateAmounts();
+      this.loadRecentHistory();
+    });
     this.form.get('feeHeadId')?.valueChanges.subscribe(() => this.autoCalculateAmounts());
   }
 
   private onMonthOrClassChanged(): void {
     const list = this.filteredMonthlyFeeOptions;
+    this.resetRecentHistory();
 
     // clear monthly fee when month/class changes
     this.form.get('studentMonthlyFeeId')?.setValue(null, { emitEvent: false });
@@ -276,6 +289,7 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
     this.isModalOpen = false;
     this.form.reset();
     this.calculatedAmounts = null;
+    this.resetRecentHistory();
     this.list.get();
   }
 
@@ -377,5 +391,39 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
     }
 
     return list;
+  }
+  private resetRecentHistory(): void {
+    this.recentHistory = null;
+    this.historyLoading = false;
+    this.historyPanelActive = true;
+  }
+
+  private loadRecentHistory(): void {
+    const studentMonthlyFeeId = this.form?.get('studentMonthlyFeeId')?.value;
+    if (!studentMonthlyFeeId) {
+      this.resetRecentHistory();
+      return;
+    }
+    this.historyLoading = true;
+    this.service.getRecentHistory(studentMonthlyFeeId, 6).subscribe({
+      next: res => {
+        this.recentHistory = res;
+        this.historyLoading = false;
+      },
+      error: err => {
+        this.historyLoading = false;
+        this.recentHistory = null;
+        this.handleError(err);
+      },
+    });
+  }
+
+  monthLabel(value: string | Date): string {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toLocaleString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
   }
 }
