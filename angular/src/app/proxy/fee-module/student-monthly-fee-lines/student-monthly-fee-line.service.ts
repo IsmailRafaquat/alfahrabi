@@ -3,6 +3,7 @@ import { RestService, Rest } from '@abp/ng.core';
 import type { PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
 import type { BulkGenerateStudentMonthlyFeeDto } from '../student-monthly-fees/models';
+import type { StudentRecentFeeHistoryDto } from '../student-recent-fee-history/models';
 
 @Injectable({
   providedIn: 'root',
@@ -67,7 +68,16 @@ export class StudentMonthlyFeeLineService {
     this.restService.request<any, PagedResultDto<StudentMonthlyFeeLineDto>>({
       method: 'GET',
       url: '/api/fee-module/student-monthly-fee-lines',
-      params: { studentMonthlyFeeId: input.studentMonthlyFeeId, feeHeadId: input.feeHeadId, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+      params: { studentMonthlyFeeId: input.studentMonthlyFeeId, feeHeadId: input.feeHeadId, filter: input.filter, gradeLevel: input.gradeLevel, section: input.section, onlyPositiveBalance: input.onlyPositiveBalance, collectedOn: input.collectedOn, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getRecentHistory = (studentMonthlyFeeId: string, monthsCount: number = 6, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, StudentRecentFeeHistoryDto>({
+      method: 'GET',
+      url: '/api/fee-module/student-monthly-fee-lines/recent-history',
+      params: { studentMonthlyFeeId, monthsCount },
     },
     { apiName: this.apiName,...config });
   

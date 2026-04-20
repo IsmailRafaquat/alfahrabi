@@ -32,6 +32,7 @@ export interface GetStudentMonthlyFeeListInput extends PagedAndSortedResultReque
   filter?: string;
   studentId?: string;
   month?: string;
+  collectedOn?: string;
 }
 
 export interface StudentMonthlyFeeDto extends EntityDto<string> {
@@ -42,4 +43,5 @@ export interface StudentMonthlyFeeDto extends EntityDto<string> {
   remarks?: string;
   studentName?: string;
   admissionNo?: string;
+  gradeLevel?: GradeLevel;
 }

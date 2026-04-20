@@ -1,4 +1,6 @@
-import type { EntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
+import type { FullAuditedEntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
+import type { GradeLevel } from '../../students/grade-level.enum';
+import type { Section } from '../../students/section.enum';
 
 export interface BulkGenerateStudentMonthlyFeeResultDto {
   totalStudents: number;
@@ -68,6 +70,11 @@ export interface FeeHeadSummaryDto {
 export interface GetStudentMonthlyFeeLineListInput extends PagedAndSortedResultRequestDto {
   studentMonthlyFeeId?: string;
   feeHeadId?: string;
+  filter?: string;
+  gradeLevel?: GradeLevel;
+  section?: Section;
+  onlyPositiveBalance?: boolean;
+  collectedOn?: string;
 }
 
 export interface StudentFeeSummaryDto {
@@ -76,9 +83,10 @@ export interface StudentFeeSummaryDto {
   net: number;
   paid: number;
   pending: number;
+  parentContact?: string;
 }
 
-export interface StudentMonthlyFeeLineDto extends EntityDto<string> {
+export interface StudentMonthlyFeeLineDto extends FullAuditedEntityDto<string> {
   tenantId?: string;
   studentMonthlyFeeId?: string;
   feeHeadId?: string;

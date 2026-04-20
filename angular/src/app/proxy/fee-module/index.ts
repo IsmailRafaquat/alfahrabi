@@ -6,4 +6,5 @@ import * as StudentFeeDiscounts from './student-fee-discounts';
 import * as StudentFeeProfiles from './student-fee-profiles';
 import * as StudentMonthlyFeeLines from './student-monthly-fee-lines';
 import * as StudentMonthlyFees from './student-monthly-fees';
-export { FeeHeads, FeeStructureItems, FeeStructures, LateFeePolicies, StudentFeeDiscounts, StudentFeeProfiles, StudentMonthlyFeeLines, StudentMonthlyFees };
+import * as StudentRecentFeeHistory from './student-recent-fee-history';
+export { FeeHeads, FeeStructureItems, FeeStructures, LateFeePolicies, StudentFeeDiscounts, StudentFeeProfiles, StudentMonthlyFeeLines, StudentMonthlyFees, StudentRecentFeeHistory };

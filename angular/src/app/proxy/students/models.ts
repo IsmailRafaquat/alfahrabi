@@ -12,6 +12,7 @@ import type { StudentDocumentDto } from '../student-documents/models';
 
 export interface CreateStudentDto {
   admissionNo: string;
+  rollNo?: string;
   firstName: string;
   lastName: string;
   gender: Gender;
@@ -71,6 +72,7 @@ export interface GetStudentListDto extends PagedAndSortedResultRequestDto {
 export interface StudentDto extends EntityDto<string> {
   tenantId?: string;
   admissionNo?: string;
+  rollNo?: string;
   firstName?: string;
   lastName?: string;
   gender?: Gender;
@@ -111,10 +113,12 @@ export interface StudentLookupDto extends EntityDto<string> {
   admissionNo?: string;
   firstName?: string;
   lastName?: string;
+  gradeLevel?: GradeLevel;
 }
 
 export interface UpdateStudentDto {
   admissionNo: string;
+  rollNo?: string;
   firstName: string;
   lastName: string;
   gender: Gender;
