@@ -1,4 +1,4 @@
-import { ListService, PagedResultDto } from '@abp/ng.core';
+import { ListService, LocalizationService, PagedResultDto } from '@abp/ng.core';
 import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme.shared';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -64,7 +64,7 @@ export class StudentFeeProfileComponent implements OnInit {
   private readonly feeStructureService = inject(FeeStructureService);
 
   private readonly fb = inject(FormBuilder);
-  private readonly confirmation = inject(ConfirmationService);
+  private readonly localizationService = inject(LocalizationService);
   private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
@@ -162,7 +162,13 @@ export class StudentFeeProfileComponent implements OnInit {
 
   studentLabel(s: StudentLookupDto): string {
     const name = `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim();
-    return s.admissionNo ? `${name} (${s.admissionNo})` : name;
+    const admissionNo = s.admissionNo ? ` (${s.admissionNo})` : '';
+    const gradeLevel =
+      s.gradeLevel !== null && s.gradeLevel !== undefined
+        ? ` - ${this.localizationService.instant('::Enum:GradeLevel.' + s.gradeLevel)}`
+        : '';
+
+    return `${name}${admissionNo}${gradeLevel}`;
   }
 
   feeStructureLabel(f: FeeStructureLookupDto): string {
