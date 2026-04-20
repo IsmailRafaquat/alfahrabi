@@ -43,14 +43,43 @@ public class EfCoreStudentMonthlyFeeLineRepository
             x.FeeHeadId == feeHeadId);
     }
 
-    public async Task<long> GetCountAsync(string? filters, Guid? studentMonthlyFeeId, Guid? feeHeadId,
-        GradeLevel? gradeLevel,
-        Section? section,
-        bool? onlyPositiveBalance)
+    public async Task<long> GetCountAsync(
+       string? filters,
+       Guid? studentMonthlyFeeId,
+       Guid? feeHeadId,
+       GradeLevel? gradeLevel,
+       Section? section,
+       bool? onlyPositiveBalance,
+       DateTime? collectedOn)
     {
         var q = await GetQueryableAsync();
-        q = q.WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
-             .WhereIf(feeHeadId.HasValue, x => x.FeeHeadId == feeHeadId);
+
+        if (collectedOn.HasValue)
+        {
+            var from = collectedOn.Value.Date;
+            var to = from.AddDays(1);
+
+            q = q.Where(x => x.CreationTime >= from && x.CreationTime < to);
+        }
+
+        q = q.Include(x => x.StudentMonthlyFee)
+                .ThenInclude(x => x.Student)
+             .WhereIf(studentMonthlyFeeId.HasValue, x => x.StudentMonthlyFeeId == studentMonthlyFeeId)
+             .WhereIf(feeHeadId.HasValue, x => x.FeeHeadId == feeHeadId)
+             .WhereIf(gradeLevel.HasValue, x => x.StudentMonthlyFee.Student.GradeLevel == gradeLevel)
+             .WhereIf(section.HasValue, x => x.StudentMonthlyFee.Student.Section == section)
+             .WhereIf(onlyPositiveBalance == true,
+                x => ((x.ExpectedAmount - x.DiscountAmount + x.AdjustmentAmount + x.LateFeeAmount) - x.PaidAmount) > 0)
+             .WhereIf(!filters.IsNullOrWhiteSpace(), x =>
+                x.StudentMonthlyFee != null &&
+                x.StudentMonthlyFee.Student != null &&
+                (
+                    ((x.StudentMonthlyFee.Student.FirstName ?? "").ToLower().Contains(filters!.ToLower())) ||
+                    ((x.StudentMonthlyFee.Student.LastName ?? "").ToLower().Contains(filters!.ToLower())) ||
+                    ((x.StudentMonthlyFee.Student.AdmissionNo ?? "").ToLower().Contains(filters!.ToLower()))
+                )
+             );
+
         return await q.LongCountAsync();
     }
 
@@ -63,10 +92,19 @@ public class EfCoreStudentMonthlyFeeLineRepository
         Guid? feeHeadId,
         GradeLevel? gradeLevel,
         Section? section,
-        bool? onlyPositiveBalance
+        bool? onlyPositiveBalance,
+        DateTime? collectedOn
         )
     {
         var q = await GetQueryableAsync();
+
+        if (collectedOn.HasValue)
+        {
+            var from = collectedOn.Value.Date;
+            var to = from.AddDays(1);
+
+            q = q.Where(x => x.CreationTime >= from && x.CreationTime < to);
+        }
 
         q = q.Include(x => x.StudentMonthlyFee)
                 .ThenInclude(x => x.Student)

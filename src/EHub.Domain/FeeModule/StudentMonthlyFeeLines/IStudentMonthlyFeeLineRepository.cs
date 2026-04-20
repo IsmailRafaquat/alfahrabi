@@ -17,7 +17,8 @@ public interface IStudentMonthlyFeeLineRepository : IRepository<StudentMonthlyFe
     Task<long> GetCountAsync(string? filters, Guid? studentMonthlyFeeId, Guid? feeHeadId,
         GradeLevel? gradeLevel,
         Section? section,
-        bool? onlyPositiveBalance);
+        bool? onlyPositiveBalance,
+        DateTime? collectedOn);
 
     Task<List<StudentMonthlyFeeLine>> GetListAsync(
         int skipCount,
@@ -28,6 +29,7 @@ public interface IStudentMonthlyFeeLineRepository : IRepository<StudentMonthlyFe
         Guid? feeHeadId,
         GradeLevel? gradeLevel,
         Section? section,
-        bool? onlyPositiveBalance
+        bool? onlyPositiveBalance,
+        DateTime? collectedOn
     );
 }

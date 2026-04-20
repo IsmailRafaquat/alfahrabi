@@ -13,4 +13,5 @@ public class GetStudentMonthlyFeeLineListInput : PagedAndSortedResultRequestDto
     public GradeLevel? GradeLevel { get; set; }
     public Section? Section { get; set; }
     public bool? OnlyPositiveBalance { get; set; }
+    public DateTime? CollectedOn { get; set; }
 }

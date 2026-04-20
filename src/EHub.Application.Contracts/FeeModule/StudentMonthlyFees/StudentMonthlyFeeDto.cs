@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EHub.Students;
+using System;
 using Volo.Abp.Application.Dtos;
 
 namespace EHub.FeeModule.StudentMonthlyFees;
@@ -14,4 +15,6 @@ public class StudentMonthlyFeeDto : EntityDto<Guid>
 
     public string? StudentName { get; set; }
     public string? AdmissionNo { get; set; }
+    public GradeLevel? GradeLevel { get; set; }
+
 }

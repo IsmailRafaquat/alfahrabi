@@ -46,9 +46,9 @@ public class EfCoreStudentMonthlyFeeRepository
             (!exceptId.HasValue || x.Id != exceptId.Value));
     }
 
-    public async Task<long> GetCountAsync(string? filter, Guid? studentId, DateTime? month)
+    public async Task<long> GetCountAsync(string? filter, Guid? studentId, DateTime? month, DateTime? collectedOn)
     {
-        var q = await GetFiltersAsync(filter, studentId, month);
+        var q = await GetFiltersAsync(filter, studentId, month, collectedOn);
         return await q.LongCountAsync();
     }
 
@@ -58,9 +58,10 @@ public class EfCoreStudentMonthlyFeeRepository
         string sorting,
         string? filter,
         Guid? studentId,
-        DateTime? month)
+        DateTime? month,
+        DateTime? collectedOn)
     {
-        var q = await GetFiltersAsync(filter, studentId, month);
+        var q = await GetFiltersAsync(filter, studentId, month, collectedOn);
 
         return await q
             .OrderBy(sorting)
@@ -68,7 +69,7 @@ public class EfCoreStudentMonthlyFeeRepository
             .ToListAsync();
     }
 
-    private async Task<IQueryable<StudentMonthlyFee>> GetFiltersAsync(string? filter, Guid? studentId, DateTime? month)
+    private async Task<IQueryable<StudentMonthlyFee>> GetFiltersAsync(string? filter, Guid? studentId, DateTime? month, DateTime? collectedOn)
     {
         var q = (await GetQueryableAsync()).AsNoTracking();
 
@@ -76,6 +77,14 @@ public class EfCoreStudentMonthlyFeeRepository
         {
             var m = NormalizeMonth(month.Value);
             q = q.Where(x => x.Month == m);
+        }
+
+        if(collectedOn.HasValue)
+        {
+            var selectedDate = collectedOn.Value.Date;
+            var nextDate = selectedDate.AddDays(1);
+
+            q = q.Where(x => x.CreationTime >= selectedDate && x.CreationTime < nextDate);
         }
 
         var f = filter?.Trim();

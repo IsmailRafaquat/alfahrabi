@@ -36,6 +36,12 @@ public class StudentMonthlyFeeLineManager : DomainService
             x.FeeHeadId == feeHeadId);
         if (exists)
             throw new UserFriendlyException("This fee head already exists for this monthly fee.");
+
+        var netAmount = expectedAmount - discountAmount + adjustmentAmount + lateFeeAmount;
+
+        if (paidAmount > netAmount)
+            throw new UserFriendlyException($"Paid amount cannot be greater than net amount ({netAmount:0.##}).");
+
         return new StudentMonthlyFeeLine(
             GuidGenerator.Create(),
             studentMonthlyFeeId,

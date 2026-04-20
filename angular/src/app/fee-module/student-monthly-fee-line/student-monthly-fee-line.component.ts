@@ -1,5 +1,5 @@
-import { ListService, PagedResultDto } from '@abp/ng.core';
-import { ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { ListService, LocalizationService, PagedResultDto } from '@abp/ng.core';
+import { ToasterService } from '@abp/ng.theme.shared';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -67,6 +67,7 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
+  private readonly localizationService = inject(LocalizationService);
 
   ngOnInit(): void {
     const streamCreator = (query: GetStudentMonthlyFeeLineListInput) => {
@@ -99,6 +100,7 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
     this.filters = {
       studentMonthlyFeeId: null,
       feeHeadId: null,
+      collectedOn: null,
     } as any;
 
     this.list.get();
@@ -306,10 +308,20 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   }
 
   monthlyFeeLabel(fee: StudentMonthlyFeeDto): string {
-    const student = this.studentOptions.find(s => s.id === fee.studentId);
-    const studentName = student ? this.studentLabel(student) : 'Unknown';
-    const monthStr = this.formatMonth(fee.month);
-    return `${studentName} - ${monthStr}`;
+    if (!fee) return '';
+
+    const studentName = fee.studentName || fee.studentName || '';
+    const admissionNo = fee.admissionNo ? ` (${fee.admissionNo})` : '';
+    const className =
+      fee.gradeLevel != null
+        ? ` - ${this.localizationService.instant('::Enum:GradeLevel.' + fee.gradeLevel)}`
+        : '';
+    const month = fee.month ? ` - ${this.formatMonthLabel(fee.month)}` : '';
+
+    return `${studentName}${admissionNo}${className}${month}`;
+  }
+  getGradeLevelLabel(value: number): string {
+    return this.localizationService.instant(`::Enum:GradeLevel.${value}`);
   }
 
   monthlyFeeById(id: string): string {
@@ -320,15 +332,6 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
   feeHeadNameById(id: string): string {
     const feeHead = this.feeHeadOptions.find(x => x.id === id);
     return feeHead?.name || id;
-  }
-
-  private formatMonth(value: any): string {
-    if (!value) return '-';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '-';
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    return `${yyyy}-${mm}`;
   }
 
   calculateNetAmount(line: StudentMonthlyFeeLineDto): number {
@@ -425,5 +428,18 @@ export class StudentMonthlyFeeLineComponent implements OnInit {
       month: 'long',
       year: 'numeric',
     });
+  }
+
+  formatMonthLabel(value: string | Date): string {
+    if (!value) return '';
+
+    const date = new Date(value);
+    if (isNaN(date.getTime())) {
+      return String(value).substring(0, 7);
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
   }
 }

@@ -3,7 +3,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace EHub.FeeModule.StudentMonthlyFeeLines;
 
-public class StudentMonthlyFeeLineDto : EntityDto<Guid>
+public class StudentMonthlyFeeLineDto : FullAuditedEntityDto<Guid>
 {
     public Guid? TenantId { get; set; }
 

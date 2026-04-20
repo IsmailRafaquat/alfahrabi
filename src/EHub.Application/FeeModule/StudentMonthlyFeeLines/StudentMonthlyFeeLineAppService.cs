@@ -70,7 +70,7 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
         if (input.Sorting.IsNullOrWhiteSpace())
             input.Sorting = nameof(StudentMonthlyFeeLine.CreationTime) + " DESC";
 
-        var total = await _repo.GetCountAsync(input.Filter,input.StudentMonthlyFeeId, input.FeeHeadId, input.GradeLevel, input.Section, input.OnlyPositiveBalance);
+        var total = await _repo.GetCountAsync(input.Filter,input.StudentMonthlyFeeId, input.FeeHeadId, input.GradeLevel, input.Section, input.OnlyPositiveBalance, input.CollectedOn);
 
         var list = await _repo.GetListAsync(
             input.SkipCount,
@@ -81,7 +81,8 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
             input.FeeHeadId,
             input.GradeLevel,
             input.Section,
-            input.OnlyPositiveBalance);
+            input.OnlyPositiveBalance,
+            input.CollectedOn);
 
         var items = list.Select(x => ObjectMapper.Map<StudentMonthlyFeeLine, StudentMonthlyFeeLineDto>(x)).ToList();
         return new PagedResultDto<StudentMonthlyFeeLineDto>(total, items);
@@ -105,6 +106,11 @@ public class StudentMonthlyFeeLineAppService : ApplicationService, IStudentMonth
     public async Task UpdateAsync(Guid id, CreateUpdateStudentMonthlyFeeLineDto input)
     {
         var entity = await _repo.GetAsync(id);
+
+        var netAmount = input.ExpectedAmount - input.DiscountAmount + input.AdjustmentAmount + input.LateFeeAmount;
+
+        if (input.PaidAmount > netAmount)
+            throw new UserFriendlyException($"Paid amount cannot be greater than net amount ({netAmount:0.##}).");
 
         var t = typeof(StudentMonthlyFeeLine);
 

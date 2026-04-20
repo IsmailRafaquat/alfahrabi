@@ -727,7 +727,8 @@
     "AdmNo/RollNo": "Adm No / Roll No",
     "HideFilters": "Hide Filters",
     "ShowFilters": "Show Filters",
-    "RollNo": "Roll No"
+    "RollNo": "Roll No",
+    "CollectedOn": "Collected On"
 
   }
 }

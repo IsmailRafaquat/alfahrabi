@@ -10,14 +10,15 @@ public interface IStudentMonthlyFeeRepository : IRepository<StudentMonthlyFee, G
     Task<StudentMonthlyFee?> FindByStudentAndMonthAsync(Guid studentId, DateTime month);
     Task<StudentMonthlyFee?> GetByIdAsync(Guid id);
 
-    Task<long> GetCountAsync(string? filter, Guid? studentId, DateTime? month);
+    Task<long> GetCountAsync(string? filter, Guid? studentId, DateTime? month, DateTime? collectedOn);
     Task<List<StudentMonthlyFee>> GetListAsync(
         int skipCount,
         int maxResultCount,
         string sorting,
         string? filter,
         Guid? studentId,
-        DateTime? month);
+        DateTime? month,
+        DateTime? collectedOn);
 
     Task<bool> ExistsAsync(Guid studentId, DateTime month, Guid? exceptId = null);
 }

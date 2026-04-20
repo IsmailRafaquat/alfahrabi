@@ -16,7 +16,7 @@
         <div class="col-8 col-sm-10">
           <div class="input-group input-group-sm">
             <input type="text" class="form-control" [placeholder]="'::SearchHere' | abpLocalization" id="filter-text"
-              [(ngModel)]="filters.filter" />
+              [(ngModel)]="filters.filter" (keydown.enter)="this.list.get()">
             <button type="button" class="btn btn-primary btn-sm" title="Search" (click)="this.list.get()">
               <i class="fa fa-search"></i>
             </button>
@@ -41,6 +41,11 @@
               <nz-option *ngFor="let fee of monthlyFeeOptions" [nzValue]="fee.id"
                 [nzLabel]="monthlyFeeLabel(fee)"></nz-option>
             </nz-select>
+          </div>
+
+          <div class="col-sm-3">
+            <label class="form-label">Collected On</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filters.collectedOn" />
           </div>
 
           <div class="col-sm-3">
@@ -116,6 +121,12 @@
         <ngx-datatable-column [name]="'::StudentMonthlyFee' | abpLocalization" [width]="250">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ monthlyFeeById(row.studentMonthlyFeeId) }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column [name]="'::CollectedOn' | abpLocalization" [width]="250">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.creationTime | date: 'mediumDate' }}
           </ng-template>
         </ngx-datatable-column>
 

@@ -37,7 +37,7 @@ public class StudentMonthlyFeeAppService : ApplicationService, IStudentMonthlyFe
         if (input.Sorting.IsNullOrWhiteSpace())
             input.Sorting = nameof(StudentMonthlyFee.CreationTime) + " DESC";
 
-        var total = await _repo.GetCountAsync(input.Filter, input.StudentId, input.Month);
+        var total = await _repo.GetCountAsync(input.Filter, input.StudentId, input.Month, input.CollectedOn);
 
         var list = await _repo.GetListAsync(
             input.SkipCount,
@@ -45,7 +45,8 @@ public class StudentMonthlyFeeAppService : ApplicationService, IStudentMonthlyFe
             input.Sorting,
             input.Filter,
             input.StudentId,
-            input.Month);
+            input.Month,
+            input.CollectedOn);
 
         var items = list.Select(x => ObjectMapper.Map<StudentMonthlyFee, StudentMonthlyFeeDto>(x)).ToList();
         return new PagedResultDto<StudentMonthlyFeeDto>(total, items);

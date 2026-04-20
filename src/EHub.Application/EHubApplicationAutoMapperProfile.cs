@@ -71,7 +71,9 @@ public class EHubApplicationAutoMapperProfile : Profile
             .ForMember(d => d.StudentName, opt => opt.MapFrom(src =>
                 src.Student != null ? $"{src.Student.FirstName} {src.Student.LastName}" : null))
             .ForMember(d => d.AdmissionNo, opt => opt.MapFrom(src =>
-                src.Student != null ? src.Student.AdmissionNo : null));
+                src.Student != null ? src.Student.AdmissionNo : null))
+            .ForMember(d => d.GradeLevel, opt => opt.MapFrom(src =>
+                src.Student != null ? src.Student.GradeLevel : (GradeLevel?)null));
 
         CreateMap<StudentMonthlyFeeLine, StudentMonthlyFeeLineDto>()
             .ForMember(d => d.FeeHeadName, opt => opt.MapFrom(src => src.FeeHead != null ? src.FeeHead.Name : null));
