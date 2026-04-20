@@ -1,4 +1,4 @@
-import { ListService, PagedResultDto } from '@abp/ng.core';
+import { ListService, LocalizationService, PagedResultDto } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -66,9 +66,9 @@ export class StudentMonthlyFeeComponent implements OnInit {
   private readonly studentService = inject(StudentService);
 
   private readonly fb = inject(FormBuilder);
-  private readonly confirmation = inject(ConfirmationService);
   private readonly customConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
+  private readonly localizationService = inject(LocalizationService);
 
   ngOnInit(): void {
     const streamCreator = (query: GetStudentMonthlyFeeListInput) => {
@@ -183,7 +183,14 @@ export class StudentMonthlyFeeComponent implements OnInit {
 
   studentLabel(s: StudentLookupDto): string {
     const name = `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim();
-    return s.admissionNo ? `${name} (${s.admissionNo})` : name;
+    const admissionNo = s.admissionNo ? `${name} (${s.admissionNo})` : '';
+
+    const gradeLevel =
+      s.gradeLevel !== null && s.gradeLevel !== undefined
+        ? ` - ${this.localizationService.instant('::Enum:GradeLevel.' + s.gradeLevel)}`
+        : '';
+
+    return `${name}${admissionNo}${gradeLevel}`;
   }
 
   studentNameById(id: string): string {

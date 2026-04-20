@@ -169,7 +169,7 @@
     <ng-template #abpBody>
         <form [formGroup]="form" (ngSubmit)="save()">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <label class="form-label">
                         {{ '::Student' | abpLocalization }} <span class="text-danger">*</span>
                     </label>
@@ -180,7 +180,7 @@
                     </nz-select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-12 mt-3">
                     <label class="form-label">
                         {{ '::Month' | abpLocalization }} <span class="text-danger">*</span>
                     </label>
