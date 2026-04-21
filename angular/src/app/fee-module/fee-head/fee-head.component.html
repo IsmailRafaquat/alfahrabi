@@ -9,13 +9,8 @@
 
       <div class="text-end col col-md-8">
         <div class="text-lg-end">
-          <button
-            *abpPermission="'EHub.FeeHeads.Create'"
-            id="create"
-            class="btn btn-outline-primary btn-sm"
-            type="button"
-            (click)="create()"
-          >
+          <button *abpPermission="'EHub.FeeHeads.Create'" id="create" class="btn btn-outline-primary btn-sm"
+            type="button" (click)="create()">
             <i class="fa fa-plus me-1"></i>
             <span>{{ '::New' | abpLocalization }}</span>
           </button>
@@ -26,45 +21,38 @@
 
   <div class="card-body">
     <ngx-datatable [rows]="feeHeads.items" [count]="feeHeads.totalCount" [list]="list" default>
-         <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
-          [resizeable]="false">
-          <ng-template ngx-datatable-cell-template let-row="row">
-            <div ngbDropdown container="body" class="d-inline-block">
-              <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
+      <ngx-datatable-column [sortable]="false" [width]="60" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button type="button" class="ngx-actions-btn" ngbDropdownToggle>
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
 
-              <div ngbDropdownMenu>
-                  <button
-                *abpPermission="'EHub.FeeHeads.Edit'"
-                ngbDropdownItem
-                (click)="edit(row.id)"
-              >
+            <div ngbDropdownMenu>
+              <button *abpPermission="'EHub.FeeHeads.Edit'" ngbDropdownItem (click)="edit(row.id)">
                 {{ '::Edit' | abpLocalization }}
               </button>
 
-              <button
-                *abpPermission="'EHub.FeeHeads.Edit'"
-                ngbDropdownItem
-                (click)="toggleActive(row)"
-              >
+              <button *abpPermission="'EHub.FeeHeads.Edit'" ngbDropdownItem (click)="toggleActive(row)">
                 {{ (row.isActive ? '::Deactivate' : '::Activate') | abpLocalization }}
               </button>
 
-              <button
-                *abpPermission="'EHub.FeeHeads.Delete'"
-                ngbDropdownItem
-                (click)="delete(row.id)"
-              >
+              <button *abpPermission="'EHub.FeeHeads.Delete'" ngbDropdownItem (click)="delete(row.id)">
                 {{ '::Delete' | abpLocalization }}
               </button>
-              </div>
             </div>
-          </ng-template>
-        </ngx-datatable-column>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
 
 
-      <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name" [maxWidth]="350"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::ChargeType' | abpLocalization">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.chargeType != null ? (('::Enum:FeeHeadChargeType.' + row.chargeType) | abpLocalization) : '-' }}
+        </ng-template>
+      </ngx-datatable-column>
 
       <ngx-datatable-column [name]="'::IsActive' | abpLocalization" [maxWidth]="130">
         <ng-template let-row="row" ngx-datatable-cell-template>
@@ -86,13 +74,15 @@
     <form [formGroup]="form" (ngSubmit)="save()">
       <div class="form-group">
         <label for="feehead-name">{{ '::Name' | abpLocalization }}</label><span class="text-danger"> * </span>
-        <input
-          type="text"
-          id="feehead-name"
-          class="form-control"
-          formControlName="name"
-          autofocus
-        />
+        <input type="text" id="feehead-name" class="form-control" formControlName="name" autofocus />
+      </div>
+      <div class="col-sm-12 mt-3">
+        <label class="form-label">{{ '::ChargeType' | abpLocalization }}</label>
+        <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="chargeType">
+          <nz-option *ngFor="let c of chargeTypes" [nzValue]="c.value"
+            [nzLabel]="'::Enum:FeeHeadChargeType.' + c.value | abpLocalization">
+          </nz-option>
+        </nz-select>
       </div>
 
       <div class="form-check mt-3">

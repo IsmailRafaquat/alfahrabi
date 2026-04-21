@@ -13,6 +13,7 @@ public class FeeHead : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public string Name { get; private set; }
 
     public bool IsActive { get; private set; } = true;
+    public FeeHeadChargeType? ChargeType { get; private set; }
     //public virtual ICollection<FeeStructureItem> FeeStructureItems { get; set; } = new List<FeeStructureItem>();
 
 
@@ -23,11 +24,13 @@ public class FeeHead : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public FeeHead(
         Guid id,
         string name,
-        bool isActive = true
+        bool isActive = true,
+        FeeHeadChargeType? chargeType = null
     ) : base(id)
     {
         SetName(name);
         IsActive = isActive;
+        ChargeType = chargeType;
     }
 
     public FeeHead ChangeName(string name)
@@ -51,6 +54,12 @@ public class FeeHead : FullAuditedAggregateRoot<Guid>, IMultiTenant
     private void SetName(string name)
     {
         Name = Check.NotNullOrWhiteSpace(name, nameof(Name), maxLength: FeeModuleConsts.NameMaxLength);
+    }
+
+    public FeeHead SetChargeType(FeeHeadChargeType? chargeType)
+    {
+        ChargeType = chargeType;
+        return this;
     }
 }
 

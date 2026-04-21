@@ -65,7 +65,8 @@ public class FeeHeadAppService : ApplicationService, IFeeHeadAppService
         var entity = new FeeHead(
             GuidGenerator.Create(),
             input.Name,
-            input.IsActive
+            input.IsActive,
+            input.ChargeType
         );
 
         await _repository.InsertAsync(entity, autoSave: true);
@@ -80,6 +81,7 @@ public class FeeHeadAppService : ApplicationService, IFeeHeadAppService
         var entity = await _repository.GetAsync(id);
 
         entity.ChangeName(input.Name);
+        entity.SetChargeType(input.ChargeType);
 
         if (input.IsActive) entity.Activate();
         else entity.Deactivate();

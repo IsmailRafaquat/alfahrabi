@@ -741,7 +741,9 @@
     "Permission:Report": "Report",
     "Forecast:NoDataMessage": "No expense data found for the selected filters",
     "Button:Filter": "Filter",
-    "Button:Reset": "Reset"
+    "Button:Reset": "Reset",
+    "Enum:FeeHeadChargeType.1": "Monthly",
+    "Enum:FeeHeadChargeType.2": "One Time Per Session"
 
   }
 }

@@ -183,7 +183,7 @@ export class StudentMonthlyFeeComponent implements OnInit {
 
   studentLabel(s: StudentLookupDto): string {
     const name = `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim();
-    const admissionNo = s.admissionNo ? `${name} (${s.admissionNo})` : '';
+    const admissionNo = s.admissionNo ? `(${s.admissionNo})` : '';
 
     const gradeLevel =
       s.gradeLevel !== null && s.gradeLevel !== undefined
