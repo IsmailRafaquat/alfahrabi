@@ -7,6 +7,7 @@ import {
   FeeHeadService,
   GetFeeHeadListInput,
   CreateUpdateFeeHeadDto,
+  feeHeadChargeTypeOptions,
 } from 'src/app/proxy/fee-module/fee-heads';
 import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
@@ -23,6 +24,8 @@ export class FeeHeadComponent implements OnInit {
   isModalOpen = false;
   form: FormGroup;
   selected = {} as FeeHeadDto;
+
+  chargeTypes = feeHeadChargeTypeOptions;
 
   public readonly list = inject(ListService);
   private readonly service = inject(FeeHeadService);
@@ -57,6 +60,7 @@ export class FeeHeadComponent implements OnInit {
     this.form = this.fb.group({
       name: [this.selected.name || '', [Validators.required, Validators.maxLength(128)]],
       isActive: [this.selected.id ? this.selected.isActive : true],
+      chargeType: [this.selected.chargeType || feeHeadChargeTypeOptions[0].value],
     });
   }
 

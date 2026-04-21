@@ -8,4 +8,5 @@ public class FeeHeadDto : FullAuditedEntityDto<Guid>
     public Guid? TenantId { get; set; }
     public string Name { get; set; } = default!;
     public bool IsActive { get; set; }
+    public FeeHeadChargeType? ChargeType { get; set; }
 }

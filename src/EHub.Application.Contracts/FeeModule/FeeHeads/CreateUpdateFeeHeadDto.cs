@@ -9,4 +9,5 @@ public class CreateUpdateFeeHeadDto
     public string Name { get; set; } = default!;
 
     public bool IsActive { get; set; } = true;
+    public FeeHeadChargeType? ChargeType { get; set; }
 }

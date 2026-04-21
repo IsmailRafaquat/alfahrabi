@@ -1,5 +1,7 @@
-﻿using EHub.FeeModule.FeeStructureItems;
+﻿using EHub.FeeModule.FeeHeads;
+using EHub.FeeModule.FeeStructureItems;
 using EHub.FeeModule.StudentMonthlyFeeLines;
+using EHub.FeeModule.StudentMonthlyFees;
 using System;
 using System.Linq;
 using System.Runtime.Intrinsics.Arm;
@@ -13,12 +15,18 @@ public class StudentMonthlyFeeLineManager : DomainService
 {
     private readonly IStudentMonthlyFeeLineRepository _repo;
     private readonly IRepository<FeeStructureItem, Guid> _feeStructureItemRepo;
+    private readonly IRepository<FeeHead, Guid> _feeHeadRepo;
+    private readonly IRepository<StudentMonthlyFee, Guid> _studentMonthlyFeeRepo;
     public StudentMonthlyFeeLineManager(
         IStudentMonthlyFeeLineRepository repo,
-        IRepository<FeeStructureItem, Guid> feeStructureItemRepo)
+        IRepository<FeeStructureItem, Guid> feeStructureItemRepo,
+        IRepository<FeeHead, Guid> feeHeadRepo,
+        IRepository<StudentMonthlyFee, Guid> studentMonthlyFeeRepo)
     {
         _repo = repo;
         _feeStructureItemRepo = feeStructureItemRepo;
+        _feeHeadRepo = feeHeadRepo;
+        _studentMonthlyFeeRepo = studentMonthlyFeeRepo;
     }
     public async Task<StudentMonthlyFeeLine> CreateAsync(
         Guid studentMonthlyFeeId,
@@ -36,6 +44,10 @@ public class StudentMonthlyFeeLineManager : DomainService
             x.FeeHeadId == feeHeadId);
         if (exists)
             throw new UserFriendlyException("This fee head already exists for this monthly fee.");
+
+        var oneTimeAlreadyUsed = await IsOneTimeFeeAlreadyUsedAsync(studentMonthlyFeeId, feeHeadId);
+        if (oneTimeAlreadyUsed)
+            throw new UserFriendlyException("This fee head can only be added once in the session.");
 
         var netAmount = expectedAmount - discountAmount + adjustmentAmount + lateFeeAmount;
 
@@ -84,6 +96,14 @@ public class StudentMonthlyFeeLineManager : DomainService
                 skipped++;
                 continue;
             }
+
+            var oneTimeAlreadyUsed = await IsOneTimeFeeAlreadyUsedAsync(studentMonthlyFeeId, item.FeeHeadId);
+            if (oneTimeAlreadyUsed)
+            {
+                skipped++;
+                continue;
+            }
+
             var line = new StudentMonthlyFeeLine(
                 GuidGenerator.Create(),
                 studentMonthlyFeeId,
@@ -99,5 +119,32 @@ public class StudentMonthlyFeeLineManager : DomainService
             created++;
         }
         return (created, skipped);
+    }
+
+    private async Task<bool> IsOneTimeFeeAlreadyUsedAsync(Guid studentMonthlyFeeId, Guid feeHeadId)
+    {
+        var feeHead = await _feeHeadRepo.GetAsync(feeHeadId);
+        if (feeHead.ChargeType != FeeHeadChargeType.OneTimePerSession)
+            return false;
+
+        var currentMonthlyFee = await _studentMonthlyFeeRepo.GetAsync(studentMonthlyFeeId);
+
+        var startOfYear = new DateTime(currentMonthlyFee.Month.Year, 1, 1);
+        var endOfYear = new DateTime(currentMonthlyFee.Month.Year, 12, 1);
+
+        var monthlyFeesQuery = await _studentMonthlyFeeRepo.GetQueryableAsync();
+        var lineQuery = await _repo.GetQueryableAsync();
+
+        var exists = (
+            from line in lineQuery
+            join monthlyFee in monthlyFeesQuery on line.StudentMonthlyFeeId equals monthlyFee.Id
+            where monthlyFee.StudentId == currentMonthlyFee.StudentId
+                  && monthlyFee.Month >= startOfYear
+                  && monthlyFee.Month <= endOfYear
+                  && line.FeeHeadId == feeHeadId
+            select line.Id
+        ).Any();
+
+        return exists;
     }
 }
