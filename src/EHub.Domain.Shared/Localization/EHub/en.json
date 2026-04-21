@@ -743,7 +743,11 @@
     "Button:Filter": "Filter",
     "Button:Reset": "Reset",
     "Enum:FeeHeadChargeType.1": "Monthly",
-    "Enum:FeeHeadChargeType.2": "One Time Per Session"
+    "Enum:FeeHeadChargeType.2": "One Time Per Session",
+    "ExportExcel": "Export Excel",
+    "ViewReport": "View Report",
+    "ChargeType": "Charge Type",
+    "Permission:ExpensesMenu": "Expenses Menu"
 
   }
 }
