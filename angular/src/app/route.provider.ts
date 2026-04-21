@@ -22,9 +22,17 @@ function configureRoutes() {
       path: '/dashboards',
       name: '::Menu:Dashboard',
       iconClass: 'fas fa-chart-line',
-      order: 2,
+      order: 3,
       layout: eLayoutType.application,
       requiredPolicy: 'EHub.Dashboard',
+    },
+    {
+      path: '/alfarabi',
+      name: '::Menu:Alfarabi',
+      iconClass: 'fas fa-school',
+      order: 2,
+      layout: eLayoutType.application,
+      // requiredPolicy: 'EHub.Dashboard',
     },
 
     {
@@ -260,6 +268,14 @@ function configureRoutes() {
       order: 4,
       layout: eLayoutType.application,
       requiredPolicy: 'EHub.Expenses.ExpenseDashboard',
+    },
+    {
+      path: 'reports/report',
+      name: '::Menu:Reports',
+      iconClass: 'fas fa-chart-pie',
+      order: 60,
+      layout: eLayoutType.application,
+      requiredPolicy: 'EHub.Report',
     },
   ]);
 }

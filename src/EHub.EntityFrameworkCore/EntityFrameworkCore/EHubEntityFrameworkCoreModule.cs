@@ -14,6 +14,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Studio;
+using EHub.Reports.ExpenseReport;
 
 namespace EHub.EntityFrameworkCore;
 
@@ -46,6 +47,8 @@ public class EHubEntityFrameworkCoreModule : AbpModule
                  * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
         });
+
+        context.Services.AddTransient<IExpenseReportRepository, EfCoreExpenseReportRepository>();
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)
         {

@@ -728,7 +728,20 @@
     "HideFilters": "Hide Filters",
     "ShowFilters": "Show Filters",
     "RollNo": "Roll No",
-    "CollectedOn": "Collected On"
+    "CollectedOn": "Collected On",
+    "Menu:Reports": "Reports",
+    "SchoolSummaryReport": "School Summary Report",
+    "StudentFeeReport": "Student Fee Report",
+    "Class/SectionReport": "Class / Section Report",
+    "StudentAttendanceReport": "Student Attendance Report",
+    "StaffSalaryReport": "Staff Salary Report",
+    "SchoolReports": "School Reports",
+    "Overviewofstudents,fees,staff,andfinancialactivity": "Overview of students , fees , staff,and financial activity",
+    "ExpenseReport": "Expense Report",
+    "Permission:Report": "Report",
+    "Forecast:NoDataMessage": "No expense data found for the selected filters",
+    "Button:Filter": "Filter",
+    "Button:Reset": "Reset"
 
   }
 }

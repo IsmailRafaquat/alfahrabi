@@ -5,7 +5,6 @@ import { CreateStudentRoutingModule } from './create-student-routing.module';
 import { CreateStudentComponent } from './create-student.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { PageModule } from '@abp/ng.components/page';
-import { NzTabsModule } from 'ng-zorro-antd/tabs';
 
 
 @NgModule({
