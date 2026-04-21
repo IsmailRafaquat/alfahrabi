@@ -162,10 +162,6 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'alfarabi',
-    loadChildren: () => import('./alfarabi/alfarabi.module').then(m => m.AlfarabiModule),
-  },
-  {
     path: 'reports/report',
     loadChildren: () => import('./reports/report/report.module').then(m => m.ReportModule),
   },

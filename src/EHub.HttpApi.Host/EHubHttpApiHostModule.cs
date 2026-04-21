@@ -80,9 +80,13 @@ public class EHubHttpApiHostModule : AbpModule
 
             PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
             {
-                serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", configuration["AuthServer:CertificatePassPhrase"]!);
+                serverBuilder.AddProductionEncryptionAndSigningCertificate("authserver.pfx", configuration["AuthServer:CertificatePassPhrase"]!, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
                 serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
             });
+
+            //context.Services
+            // .AddDataProtection()
+            // .PersistKeysToDbContext<WorkShopManagementDbContext>();
         }
     }
 
@@ -278,4 +282,6 @@ public class EHubHttpApiHostModule : AbpModule
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
     }
+
+
 }
