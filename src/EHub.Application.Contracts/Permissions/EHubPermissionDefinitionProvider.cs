@@ -18,6 +18,9 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         var studentMainPermission =
           myGroup.AddPermission(EHubPermissions.StudentMenuItems.StudentMain, L("Permission:StudentMain"));
 
+        var reportsPermission =
+          myGroup.AddPermission(EHubPermissions.Reports.Default, L("Permission:Report"));
+
         studentMainPermission.AddChild(EHubPermissions.StudentMenuItems.StudentList, L("Permission:StudentList"));
         studentMainPermission.AddChild(EHubPermissions.StudentMenuItems.StudentAttendance, L("Permission:StudentAttendance"));
         studentMainPermission.AddChild(EHubPermissions.StudentMenuItems.StudentAttendanceInsights, L("Permission:StudentAttendanceInsights"));

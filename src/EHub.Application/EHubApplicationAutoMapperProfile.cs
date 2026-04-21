@@ -11,6 +11,7 @@ using EHub.FeeModule.StudentFeeProfiles;
 using EHub.FeeModule.StudentMonthlyFeeLines;
 using EHub.FeeModule.StudentMonthlyFees;
 using EHub.FileAttachments;
+using EHub.Reports.ExpenseReport;
 using EHub.StaffAttendances;
 using EHub.StaffDocuments;
 using EHub.Staffs;
@@ -81,5 +82,6 @@ public class EHubApplicationAutoMapperProfile : Profile
         CreateMap<ExpenseCategory, ExpenseCategoryDto>();
         CreateMap<ExpenseEntry, ExpenseEntryDto>();
         CreateMap<StaffSalaryPayment, StaffSalaryPaymentDto>();
+        CreateMap<ExpenseReport, ExpenseReportDto>();
     }
 }

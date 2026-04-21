@@ -1,0 +1,120 @@
+<abp-page>
+    <app-topbar-layout titleKey="::ExpenseReport" [(filters)]="filters" showSearch="true" showFiltersToggle
+        [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="load()" (onReset)="resetFilters()">
+        <div topbarActions class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-primary" type="button" (click)="exportExcel()">
+                <i class="fas fa-download me-1"></i>
+                {{ '::ExportExcel' | abpLocalization }}
+            </button>
+        </div>
+
+        <ng-container ngProjectAs="[topbarFilters]">
+            <div class="col-12 col-md-2">
+                <label>{{ '::StartMonth' | abpLocalization }}</label>
+                <input type="month" class="form-control form-control-sm" [(ngModel)]="filters.periodStart" />
+            </div>
+
+            <div class="col-12 col-md-2">
+                <label>{{ '::EndMonth' | abpLocalization }}</label>
+                <input type="month" class="form-control form-control-sm" [(ngModel)]="filters.periodEnd" />
+            </div>
+
+            <div class="col-12 col-md-2">
+                <label>{{ '::ExpenseCategory' | abpLocalization }}</label>
+                <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.expenseCategoryIds">
+                    <nz-option *ngFor="let c of expenseCategoryOptions" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+                </nz-select>
+            </div>
+        </ng-container>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="expense-report">
+                    @if (data.length > 0) {
+                    <div class="table-responsive table-responsive-report report-table-wrapper">
+                        <table class="table master-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="sticky-top-left first-col" rowspan="2">
+                                        {{ '::ExpenseCategory' | abpLocalization }}
+                                    </th>
+
+                                    @for (col of monthLabels; track $index) {
+                                    <th class="sticky-top month-group" [class.first-month]="$first" colspan="5">
+                                        {{ col }}
+                                    </th>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    @for (mk of monthKeys; track mk) {
+                                    <th class="sticky-top sub-head month-start" [class.first-month]="$first">Date</th>
+                                    <th class="sticky-top sub-head">Title</th>
+                                    <th class="sticky-top sub-head">Paid To</th>
+                                    <th class="sticky-top sub-head">Remarks</th>
+                                    <th class="sticky-top sub-head text-end">Amount</th>
+                                    }
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @for (item of data; track trackByCategory($index, item)) {
+                                @for (rowIndex of [].constructor(getMaxRows(item)); track $index; let ri = $index) {
+                                <tr class="product-row">
+                                    @if (ri === 0) {
+                                    <td class="sticky-col first-col product-cell" [attr.rowspan]="getMaxRows(item)">
+                                        <div class="category-name">
+                                            {{ item.expenseCategoryName }}
+                                        </div>
+                                    </td>
+                                    }
+
+                                    @for (mk of monthKeys; track mk) {
+                                    @if (getMonthDetailAt(item, mk, ri); as detail) {
+                                    <td class="month-start" [class.first-month]="$first">
+                                        {{ detail.expenseDate | date:'dd-MM-yyyy' }}
+                                    </td>
+                                    <td>{{ detail.title }}</td>
+                                    <td>{{ detail.paidTo || '-' }}</td>
+                                    <td>{{ detail.remarks || '-' }}</td>
+                                    <td class="text-end">{{ detail.amount | number:'1.0-0' }}</td>
+                                    } @else {
+                                    <td class="month-start" [class.first-month]="$first">-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td class="text-end">-</td>
+                                    }
+                                    }
+                                </tr>
+                                }
+                                }
+
+                                <tr class="final-total-row">
+                                    <td class="sticky-col first-col product-cell total-row-title">
+                                        Total
+                                    </td>
+
+                                    @for (mk of monthKeys; track mk) {
+                                    <td colspan="2" class="total-cell-label month-start" [class.first-month]="$first">
+                                        Total
+                                    </td>
+                                    <td colspan="2" class="total-cell-empty"></td>
+                                    <td class="text-end total-cell-value">
+                                        {{ getOverallMonthTotal(mk) | number:'1.0-0' }}
+                                    </td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    } @else {
+                    <div class="alert alert-info text-center">
+                        {{ '::Forecast:NoDataMessage' | abpLocalization }}
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </app-topbar-layout>
+</abp-page>

@@ -1,4 +1,4 @@
-import { CoreModule } from '@abp/ng.core';
+import { CoreModule, LocalizationModule, LocalizationPipe } from '@abp/ng.core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgModule } from '@angular/core';
 import { ThemeSharedModule } from '@abp/ng.theme.shared';
@@ -20,7 +20,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
     NzStepsModule,
     UploadDropzoneComponent,
     NzTableModule,
-    NzTagModule
+    NzTagModule,
+    LocalizationModule
   ],
   exports: [
     CoreModule,
@@ -31,7 +32,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
     NzStepsModule,
     UploadDropzoneComponent,
     NzTableModule,
-    NzTagModule
+    NzTagModule,
+    LocalizationPipe
     
   ],
   providers: []

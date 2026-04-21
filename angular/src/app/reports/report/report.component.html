@@ -1,0 +1,101 @@
+<abp-page>
+    <div class="reports-container">
+        <div class="master-report-hero">
+            <div class="report-card report-card--featured report-card--primary"
+                (click)="showInProgress('Master Data Summary')">
+                <div class="report-card__content">
+                    <div class="report-card__icon-wrapper report-card__icon-wrapper--featured">
+                        <i class="fas fa-chart-line report-card__icon"></i>
+                    </div>
+
+                    <div class="report-card__text">
+                        <h4 class="report-card__title">{{ '::SchoolSummaryReport' | abpLocalization }}</h4>
+                        <p class="report-card__description">
+                            {{ '::Overviewofstudents,fees,staff,andfinancialactivity' | abpLocalization }}
+                        </p>
+                    </div>
+
+                    <div class="report-card__action">
+                        <span class="report-card__link">
+                            {{ '::ViewReport' | abpLocalization }}
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="report-card__decoration">
+                    <div class="decoration-circle decoration-circle--1"></div>
+                    <div class="decoration-circle decoration-circle--2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sales-reports-section">
+            <div class="section-header mx-2 my-3">
+                <h3 class="section-title">{{ '::SchoolReports' | abpLocalization }}</h3>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="sales-reports-grid">
+                <div class="report-card-wrapper" style="animation-delay: 0s;">
+                    <div class="report-card report-card--success"
+                        (click)="showInProgress('Student Fee')">
+                        <div class="report-card__header">
+                            <div class="report-card__icon-wrapper">
+                                <i class="fas fa-money-bill-wave report-card__icon"></i>
+                            </div>
+                            <h4 class="report-card__title mb-0">{{ '::StudentFeeReport' | abpLocalization }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card-wrapper" style="animation-delay: 0.1s;">
+                    <div class="report-card report-card--info"
+                        (click)="showInProgress('Class / Section')">
+                        <div class="report-card__header">
+                            <div class="report-card__icon-wrapper">
+                                <i class="fas fa-school report-card__icon"></i>
+                            </div>
+                            <h4 class="report-card__title mb-0">{{ '::Class/SectionReport' | abpLocalization }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card-wrapper" style="animation-delay: 0.2s;">
+                    <div class="report-card report-card--warning"
+                        (click)="showInProgress('Student Attendance')">
+                        <div class="report-card__header">
+                            <div class="report-card__icon-wrapper">
+                                <i class="fas fa-user-check report-card__icon"></i>
+                            </div>
+                            <h4 class="report-card__title mb-0">{{ '::StudentAttendanceReport' | abpLocalization }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card-wrapper" style="animation-delay: 0.3s;">
+                    <div class="report-card report-card--danger" (click)="showInProgress('Staff Salary')">
+                        <div class="report-card__header">
+                            <div class="report-card__icon-wrapper">
+                                <i class="fas fa-wallet report-card__icon"></i>
+                            </div>
+                            <h4 class="report-card__title mb-0">{{ '::StaffSalaryReport' | abpLocalization }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card-wrapper" style="animation-delay: 0.4s;">
+                    <div class="report-card report-card--danger" (click)="openExpenseReport()">
+
+                        <div class="report-card__header">
+                            <div class="report-card__icon-wrapper">
+                                <i class="fas fa-file-invoice-dollar report-card__icon"></i>
+                            </div>
+                            <h4 class="report-card__title mb-0">{{ '::ExpenseReport' | abpLocalization }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</abp-page>
