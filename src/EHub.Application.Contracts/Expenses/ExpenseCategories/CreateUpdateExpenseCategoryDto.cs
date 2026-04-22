@@ -9,4 +9,6 @@ public class CreateUpdateExpenseCategoryDto
     public string Name { get; set; } = default!;
 
     public bool IsActive { get; set; } = true;
+
+    public ExpenseEntryLimitType? EntryLimitType { get; set; }
 }

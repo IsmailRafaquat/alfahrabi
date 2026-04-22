@@ -15,12 +15,15 @@ import {
   getPeriodDatesFromFilter,
   buildMonthKeys,
   formatMonthLabel,
+  createDefaultPeriodFilters,
+  toMonthKey,
 } from '../report.helper';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { TopbarLayoutModule } from 'src/app/components/topbar-layout/topbar-layout.module';
 import { PageModule } from '@abp/ng.components/page';
 import { saveAs } from 'file-saver';
 import { ExpenseReportExcelJsExporter } from './expense-report-excel.exporter';
+import { getExpenseMaxRows, getExpenseMonthDetails, getExpenseMonthTotal, getExpenseOverallMonthTotal } from './expense-report.helpers';
 
 @Component({
   selector: 'app-expense-report',
@@ -33,12 +36,9 @@ export class ExpenseReportComponent implements OnInit {
   private readonly expenseReportService = inject(ExpenseReportService);
   private readonly expenseCategoryService = inject(ExpenseCategoryService);
 
-  filters: ExpenseReportFilterDto = {
-    filter: '',
-    periodStart: undefined,
-    periodEnd: undefined,
+  filters: ExpenseReportFilterDto = createDefaultPeriodFilters<ExpenseReportFilterDto>({
     expenseCategoryIds: [],
-  };
+  });
 
   data: ExpenseReportDto[] = [];
   monthKeys: string[] = [];
@@ -47,11 +47,6 @@ export class ExpenseReportComponent implements OnInit {
   expenseCategoryOptions: ExpenseCategoryLookupDto[] = [];
 
   ngOnInit(): void {
-    const year = new Date().getFullYear();
-
-    this.filters.periodStart = `${year}-01` as any;
-    this.filters.periodEnd = `${year}-12` as any;
-
     this.buildExpenseCategoryOptions();
     this.load();
   }
@@ -78,14 +73,9 @@ export class ExpenseReportComponent implements OnInit {
   }
 
   resetFilters(): void {
-    const year = new Date().getFullYear();
-
-    this.filters = {
-      filter: '',
-      periodStart: `${year}-01` as any,
-      periodEnd: `${year}-12` as any,
+    this.filters = createDefaultPeriodFilters<ExpenseReportFilterDto>({
       expenseCategoryIds: [],
-    };
+    });
 
     this.load();
   }
@@ -102,13 +92,11 @@ export class ExpenseReportComponent implements OnInit {
   }
 
   getMonthDetails(item: ExpenseReportDto, monthKey: string) {
-    const month = item.monthColumns?.find(x => this.toMonthKey(x) === monthKey);
-    return month?.details ?? [];
+    return getExpenseMonthDetails(item, monthKey);
   }
 
   getMonthTotal(item: ExpenseReportDto, monthKey: string): number {
-    const details = this.getMonthDetails(item, monthKey);
-    return details.reduce((sum, x) => sum + (x.amount ?? 0), 0);
+    return getExpenseMonthTotal(item, monthKey);
   }
 
   trackByCategory(index: number, item: ExpenseReportDto): string {
@@ -116,19 +104,11 @@ export class ExpenseReportComponent implements OnInit {
   }
 
   private toMonthKey(monthColumn: ExpenseReportMonthDto): string {
-    const date = new Date(monthColumn.month as any);
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    return `${year}-${month}`;
+    return toMonthKey(monthColumn.month as any);
   }
 
   getMaxRows(item: ExpenseReportDto): number {
-    if (!item.monthColumns?.length) return 1;
-
-    const lengths = this.monthKeys.map(mk => this.getMonthDetails(item, mk).length);
-    const max = Math.max(...lengths, 0);
-
-    return max > 0 ? max : 1;
+    return getExpenseMaxRows(item, this.monthKeys);
   }
 
   getMonthDetailAt(item: ExpenseReportDto, monthKey: string, index: number) {
@@ -137,7 +117,7 @@ export class ExpenseReportComponent implements OnInit {
   }
 
   getOverallMonthTotal(monthKey: string): number {
-    return this.data.reduce((sum, item) => sum + this.getMonthTotal(item, monthKey), 0);
+    return getExpenseOverallMonthTotal(this.data, monthKey);
   }
 
   async exportExcel(): Promise<void> {

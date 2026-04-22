@@ -1,0 +1,134 @@
+<abp-page>
+  <app-topbar-layout
+    titleKey="::StaffSalaryReport"
+    [(filters)]="filters"
+    showSearch="true"
+    showFiltersToggle
+    [showApplyFilters]="true"
+    [showResetFilters]="true"
+    (onFilter)="load()"
+    (onReset)="resetFilters()"
+  >
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-primary" type="button" (click)="exportExcel()">
+        <i class="fas fa-download me-1"></i>
+        {{ '::ExportExcel' | abpLocalization }}
+      </button>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::StartMonth' | abpLocalization }}</label>
+        <input type="month" class="form-control form-control-sm" [(ngModel)]="filters.periodStart" />
+      </div>
+
+      <div class="col-12 col-md-2">
+        <label>{{ '::EndMonth' | abpLocalization }}</label>
+        <input type="month" class="form-control form-control-sm" [(ngModel)]="filters.periodEnd" />
+      </div>
+
+      <div class="col-12 col-md-2">
+        <label>{{ '::Staff' | abpLocalization }}</label>
+        <nz-select
+          class="w-100"
+          nzAllowClear
+          nzShowSearch
+          nzMode="multiple"
+          [(ngModel)]="filters.staffIds"
+        >
+          <nz-option
+            *ngFor="let s of staffOptions"
+            [nzValue]="s.id"
+            [nzLabel]="s.firstName + ' ' + s.lastName"
+          ></nz-option>
+        </nz-select>
+      </div>
+    </ng-container>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="salary-report">
+          @if (data.length > 0) {
+            <div class="table-responsive table-responsive-report report-table-wrapper">
+              <table class="table master-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th class="sticky-top-left first-col" rowspan="2">
+                      {{ '::Staff' | abpLocalization }}
+                    </th>
+
+                    @for (col of monthLabels; track $index) {
+                      <th class="sticky-top month-group" [class.first-month]="$first" colspan="2">
+                        {{ col }}
+                      </th>
+                    }
+                  </tr>
+
+                  <tr>
+                    @for (mk of monthKeys; track mk) {
+                      <th class="sticky-top sub-head month-start" [class.first-month]="$first">
+                        {{ '::Date' | abpLocalization }}
+                      </th>
+                      <th class="sticky-top sub-head text-end">
+                        {{ '::Salary' | abpLocalization }}
+                      </th>
+                    }
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (item of data; track trackByStaff($index, item)) {
+                    @for (rowIndex of [].constructor(getMaxRows(item)); track $index; let ri = $index) {
+                      <tr class="product-row">
+                        @if (ri === 0) {
+                          <td class="sticky-col first-col product-cell" [attr.rowspan]="getMaxRows(item)">
+                            <div class="category-name">
+                              {{ item.staffName }}
+                            </div>
+                          </td>
+                        }
+
+                        @for (mk of monthKeys; track mk) {
+                          @if (getMonthDetailAt(item, mk, ri); as detail) {
+                            <td class="month-start" [class.first-month]="$first">
+                              {{ detail.salaryDate | date:'dd-MM-yyyy' }}
+                            </td>
+                            <td class="text-end">
+                              {{ detail.salaryAmount | number:'1.0-0' }}
+                            </td>
+                          } @else {
+                            <td class="month-start" [class.first-month]="$first">-</td>
+                            <td class="text-end">-</td>
+                          }
+                        }
+                      </tr>
+                    }
+                  }
+
+                  <tr class="final-total-row">
+                    <td class="sticky-col first-col product-cell total-row-title">
+                      Total
+                    </td>
+
+                    @for (mk of monthKeys; track mk) {
+                      <td class="total-cell-label month-start" [class.first-month]="$first">
+                        Total
+                      </td>
+                      <td class="text-end total-cell-value">
+                        {{ getOverallMonthTotal(mk) | number:'1.0-0' }}
+                      </td>
+                    }
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="alert alert-info text-center">
+              {{ '::Forecast:NoDataMessage' | abpLocalization }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

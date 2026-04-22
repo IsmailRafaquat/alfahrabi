@@ -1,44 +1,134 @@
-::ng-deep.lpx-content {
-    padding: 0 !important;
+::ng-deep .lpx-content {
+  padding: 0 !important;
 }
 
 .app-topbar {
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.32);
-    padding: 0.85em 2em;
-    background-color: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.32);
+  padding: 0.85em 2em;
+  background-color: #fff;
+}
+
+.app-topbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-topbar-title {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.app-topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .app-topbar-filter-section {
-    transition: max-height 0.3s ease, padding-top 0.3s ease, padding-bottom 0.3s ease;
-    overflow: hidden;
-    max-height: 500px;
+  transition: max-height 0.3s ease, padding-top 0.3s ease, padding-bottom 0.3s ease;
+  overflow: hidden;
+  max-height: 500px;
 }
 
 .app-topbar-filter-section.collapsed {
-    border: 0 !important;
-    max-height: 0;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin: 0 !important;
+  border: 0 !important;
+  max-height: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
 }
 
 .app-search-container {
-    position: relative;
+  position: relative;
+  min-width: 0;
+  width: 250px;
+  max-width: 100%;
 
-    input.form-control {
-        min-width: 250px;
-    }
+  input.form-control {
+    width: 100%;
+    min-width: 0;
+    padding-right: 30px;
+  }
 
-    i.fas.fa-search {
-        position: absolute;
-        top: 9px;
-        right: 10px;
-        cursor: pointer;
-        color: var(--brand-secondary);
-    }
+  i.fas.fa-search {
+    position: absolute;
+    top: 9px;
+    right: 10px;
+    cursor: pointer;
+    color: var(--brand-secondary);
+  }
 }
 
 .app-content {
-    padding: 1.25em 2em 3em;
-    margin: 0 auto;
+  padding: 1.25em 2em 3em;
+  margin: 0 auto;
+}
+
+@media (max-width: 991.98px) {
+  .app-topbar {
+    padding: 0.85em 1rem;
+  }
+
+  .app-content {
+    padding: 1rem 1rem 2rem;
+  }
+
+  .app-topbar-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-topbar-title {
+    width: 100%;
+  }
+
+  .app-topbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .app-search-container {
+    flex: 1 1 220px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .app-topbar {
+    padding: 0.75rem;
+  }
+
+  .app-content {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .app-topbar-title {
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+
+  .app-topbar-actions {
+    gap: 6px;
+  }
+
+  .app-search-container {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .app-topbar-actions > .btn,
+  .app-topbar-actions button,
+  .app-topbar-actions .btn-outline-primary,
+  .app-topbar-actions .btn-primary {
+    flex: 0 0 auto;
+  }
+
+  .app-topbar-filter-section h5 {
+    font-size: 1rem;
+  }
 }
