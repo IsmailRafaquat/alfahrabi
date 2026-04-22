@@ -106,6 +106,10 @@ public class ExpenseEntryAppService : ApplicationService, IExpenseEntryAppServic
         // optional: validate category exists
         await _categoryRepo.GetAsync(input.ExpenseCategoryId);
 
+        await EnsureMonthlyLimitAsync(
+            input.ExpenseCategoryId,
+            input.ExpenseDate);
+
         var entity = new ExpenseEntry(
             GuidGenerator.Create(),
             input.ExpenseDate,
@@ -124,6 +128,12 @@ public class ExpenseEntryAppService : ApplicationService, IExpenseEntryAppServic
     public async Task<ExpenseEntryDto> UpdateAsync(Guid id, CreateUpdateExpenseEntryDto input)
     {
         await _categoryRepo.GetAsync(input.ExpenseCategoryId);
+
+        await EnsureMonthlyLimitAsync(
+        input.ExpenseCategoryId,
+        input.ExpenseDate,
+        id
+    );
 
         var entity = await _expenseRepo.GetAsync(id);
 
@@ -144,5 +154,42 @@ public class ExpenseEntryAppService : ApplicationService, IExpenseEntryAppServic
     public async Task DeleteAsync(Guid id)
     {
         await _expenseRepo.DeleteAsync(id);
+    }
+
+    private async Task EnsureMonthlyLimitAsync(
+        Guid expenseCategoryId,
+        DateTime expenseDate,
+        Guid? excludeId = null)
+    {
+        var category = await _categoryRepo.GetAsync(expenseCategoryId);
+
+        if (category.EntryLimitType != ExpenseEntryLimitType.OneTimePerMonth)
+        {
+            return;
+        }
+
+        var monthStart = new DateTime(expenseDate.Year, expenseDate.Month, 1);
+        var nextMonth = monthStart.AddMonths(1);
+
+        var queryable = await _expenseRepo.GetQueryableAsync();
+
+        queryable = queryable
+            .Where(x => x.TenantId == CurrentTenant.Id)
+            .Where(x => x.ExpenseCategoryId == expenseCategoryId)
+            .Where(x => x.ExpenseDate >= monthStart && x.ExpenseDate < nextMonth);
+
+        if (excludeId.HasValue)
+        {
+            queryable = queryable.Where(x => x.Id != excludeId.Value);
+        }
+
+        var exists = await AsyncExecuter.AnyAsync(queryable);
+
+        if (exists)
+        {
+            throw new UserFriendlyException(
+                $"Only one expense entry is allowed in a month for category '{category.Name}'."
+            );
+        }
     }
 }

@@ -62,7 +62,8 @@ public class ExpenseCategoryAppService : ApplicationService, IExpenseCategoryApp
         var entity = new ExpenseCategory(
             GuidGenerator.Create(),
             input.Name,
-            input.IsActive
+            input.IsActive,
+            input.EntryLimitType
         );
 
         await _repository.InsertAsync(entity, autoSave: true);
@@ -77,6 +78,7 @@ public class ExpenseCategoryAppService : ApplicationService, IExpenseCategoryApp
         var entity = await _repository.GetAsync(id);
 
         entity.ChangeName(input.Name);
+        entity.ChangeEntryLimitType(input.EntryLimitType);
 
         if (input.IsActive) entity.Activate();
         else entity.Deactivate();

@@ -747,7 +747,10 @@
     "ExportExcel": "Export Excel",
     "ViewReport": "View Report",
     "ChargeType": "Charge Type",
-    "Permission:ExpensesMenu": "Expenses Menu"
+    "Permission:ExpensesMenu": "Expenses Menu",
+    "EntryLimitType": "Entry Limit Type",
+    "Enum:ExpenseEntryLimitType.1": "Multiple Times In Month",
+    "Enum:ExpenseEntryLimitType.2": "One Time Per Month"
 
   }
 }

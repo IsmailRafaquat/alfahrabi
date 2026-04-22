@@ -714,6 +714,8 @@ public class EHubDbContext :
             b.Property(x => x.IsActive)
                 .IsRequired()
                 .HasDefaultValue(true);
+
+            b.Property(x => x.EntryLimitType).IsRequired(false);
         });
 
         builder.Entity<ExpenseEntry>(b =>

@@ -46,7 +46,15 @@
         </ng-template>
       </ngx-datatable-column>
       <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name"></ngx-datatable-column>
-
+      <ngx-datatable-column [name]="'::EntryLimitType' | abpLocalization">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{
+          row.entryLimitType == null
+          ? '-'
+          : (('::Enum:ExpenseEntryLimitType.' + row.entryLimitType) | abpLocalization)
+          }}
+        </ng-template>
+      </ngx-datatable-column>
       <ngx-datatable-column [name]="'::IsActive' | abpLocalization" [maxWidth]="130">
         <ng-template let-row="row" ngx-datatable-cell-template>
           <span class="badge" [ngClass]="row.isActive ? 'bg-success' : 'bg-secondary'">
@@ -70,6 +78,15 @@
       <div class="form-group">
         <label for="expensecategory-name">{{ '::Name' | abpLocalization }}</label><span class="text-danger"> * </span>
         <input type="text" id="expensecategory-name" class="form-control" formControlName="name" autofocus />
+      </div>
+
+      <div class="col-sm-12 mt-3">
+        <label class="form-label">{{ '::EntryLimitType' | abpLocalization }}</label>
+        <nz-select class="w-100" nzAllowClear nzSize="large" formControlName="entryLimitType">
+          <nz-option *ngFor="let option of entryLimitTypeOptions" [nzValue]="option.value"
+            [nzLabel]="'::Enum:ExpenseEntryLimitType.' + option.value | abpLocalization">
+          </nz-option>
+        </nz-select>
       </div>
 
       <div class="form-check mt-3">

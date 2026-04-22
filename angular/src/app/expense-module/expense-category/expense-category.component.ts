@@ -2,6 +2,7 @@ import { PagedResultDto, ListService } from '@abp/ng.core';
 import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme.shared';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { expenseEntryLimitTypeOptions } from 'src/app/proxy/expenses';
 import { ExpenseCategoryDto, ExpenseCategoryService, GetExpenseCategoryListInput, CreateUpdateExpenseCategoryDto } from 'src/app/proxy/expenses/expense-categories';
 import { ConfirmationHelperService } from 'src/app/shared/services/confirmation-helper.service';
 
@@ -18,6 +19,8 @@ expenseCategories = { items: [], totalCount: 0 } as PagedResultDto<ExpenseCatego
   isModalOpen = false;
   form: FormGroup;
   selected = {} as ExpenseCategoryDto;
+
+  entryLimitTypeOptions = expenseEntryLimitTypeOptions;
 
   public readonly list = inject(ListService);
   private readonly service = inject(ExpenseCategoryService);
@@ -52,6 +55,7 @@ expenseCategories = { items: [], totalCount: 0 } as PagedResultDto<ExpenseCatego
     this.form = this.fb.group({
       name: [this.selected.name || '', [Validators.required, Validators.maxLength(128)]],
       isActive: [this.selected.id ? this.selected.isActive : true],
+      entryLimitType: [this.selected.entryLimitType || null],
     });
   }
 
