@@ -26,14 +26,14 @@ function configureRoutes() {
       layout: eLayoutType.application,
       requiredPolicy: 'EHub.Dashboard',
     },
-    {
-      path: '/alfarabi',
-      name: '::Menu:Alfarabi',
-      iconClass: 'fas fa-school',
-      order: 2,
-      layout: eLayoutType.application,
-      // requiredPolicy: 'EHub.Dashboard',
-    },
+    // {
+    //   path: '/alfarabi',
+    //   name: '::Menu:Alfarabi',
+    //   iconClass: 'fas fa-school',
+    //   order: 2,
+    //   layout: eLayoutType.application,
+    //   // requiredPolicy: 'EHub.Dashboard',
+    // },
 
     {
       name: '::Menu:Students',
