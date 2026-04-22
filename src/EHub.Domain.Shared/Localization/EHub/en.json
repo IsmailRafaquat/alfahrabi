@@ -750,7 +750,12 @@
     "Permission:ExpensesMenu": "Expenses Menu",
     "EntryLimitType": "Entry Limit Type",
     "Enum:ExpenseEntryLimitType.1": "Multiple Times In Month",
-    "Enum:ExpenseEntryLimitType.2": "One Time Per Month"
-
+    "Enum:ExpenseEntryLimitType.2": "One Time Per Month",
+    "EHub:DeleteRestricted": "{Entity} cannot be deleted because it is referenced by {ReferencedBy}.",
+    "ExpenseEntry": "Expense Entry",
+    "StaffSalaryPayment": "Staff Salary Payment",
+    "StudentFeeProfile": "Student Fee Profile",
+    "StudentFeeDiscount": "Student Fee Discount",
+    "StudentMonthlyFeeLine": "Student Monthly Fee Line"
   }
 }
