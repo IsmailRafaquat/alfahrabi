@@ -59,14 +59,7 @@ export class StaffSalaryPaymentComponent implements OnInit {
 
   // --- Filters ---
   applyFilters(): void {
-    // Convert UI month "yyyy-MM" -> Date for API
-    if (this.salaryMonthUi) {
-      const [y, m] = this.salaryMonthUi.split('-').map(x => parseInt(x, 10));
-      this.filters.salaryMonth = new Date(y, m - 1, 1) as any;
-    } else {
-      this.filters.salaryMonth = undefined as any;
-    }
-
+    this.filters.salaryMonth = this.monthUiToApiDate(this.salaryMonthUi) as any;
     this.list.get();
   }
 
@@ -96,11 +89,9 @@ export class StaffSalaryPaymentComponent implements OnInit {
 
     const v = this.form.value;
 
-    // Convert month ui string to Date
-    const [y, m] = (v.salaryMonthUi as string).split('-').map((x: string) => parseInt(x, 10));
     const input: CreateUpdateStaffSalaryPaymentDto = {
       staffId: v.staffId,
-      salaryMonth: new Date(y, m - 1, 1) as any,
+      salaryMonth: this.monthUiToApiDate(v.salaryMonthUi) as any,
       salaryAmount: v.salaryAmount,
       paymentDate: v.paymentDate,
       remarks: v.remarks,
@@ -131,13 +122,8 @@ export class StaffSalaryPaymentComponent implements OnInit {
   }
 
   private buildForm(): void {
-    const month = this.selected.salaryMonth
-      ? new Date(this.selected.salaryMonth as any)
-      : new Date();
-    const monthUi = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
-    const payDate = this.selected.paymentDate
-      ? new Date(this.selected.paymentDate as any).toISOString().substring(0, 10)
-      : new Date().toISOString().substring(0, 10);
+    const monthUi = this.apiDateToMonthUi(this.selected.salaryMonth);
+    const payDate = this.apiDateToDateInput(this.selected.paymentDate);
 
     this.form = this.fb.group({
       staffId: [this.selected.staffId || null, Validators.required],
@@ -151,11 +137,9 @@ export class StaffSalaryPaymentComponent implements OnInit {
       if (!staffId) return;
 
       this.staffService.get(staffId).subscribe(staff => {
-        // staff.salary is decimal? in backend
         const salary = staff?.salary ?? 0;
-
-        // only auto-fill if amount is empty or zero (so user manual override is respected)
         const currentAmount = this.form.get('salaryAmount')!.value;
+
         if (!currentAmount || Number(currentAmount) === 0) {
           this.form.get('salaryAmount')!.setValue(salary);
         }
@@ -173,5 +157,51 @@ export class StaffSalaryPaymentComponent implements OnInit {
   staffLabel(s: StaffLookupDto): string {
     const name = `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim();
     return name || s.id;
+  }
+
+  private monthUiToApiDate(value: string | null | undefined): string | undefined {
+    if (!value) return undefined;
+
+    // noon avoids timezone shifting to previous day/month
+    return `${value}-01T12:00:00`;
+  }
+
+  private apiDateToMonthUi(value: string | Date | null | undefined): string {
+    if (!value) {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    if (typeof value === 'string') {
+      const match = value.match(/^(\d{4})-(\d{2})/);
+      if (match) {
+        return `${match[1]}-${match[2]}`;
+      }
+    }
+
+    const d = new Date(value);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  private apiDateToDateInput(value: string | Date | null | undefined): string {
+    if (!value) {
+      return this.formatDateInput(new Date());
+    }
+
+    if (typeof value === 'string') {
+      const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    }
+
+    return this.formatDateInput(new Date(value));
+  }
+
+  private formatDateInput(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 }

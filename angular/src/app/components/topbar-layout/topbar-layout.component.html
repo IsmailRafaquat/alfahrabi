@@ -1,35 +1,41 @@
 <div class="app-topbar">
-    <div class="d-flex align-items-center justify-content-between">
-        <h4 class="m-0 fw-bold">{{ titleKey | abpLocalization }}</h4>
-        <div class="d-flex align-items-center justify-content-between gap-2">
+    <div class="app-topbar-header">
+        <h4 class="m-0 fw-bold app-topbar-title">{{ titleKey | abpLocalization }}</h4>
+
+        <div class="app-topbar-actions">
             <ng-content select="[topbarPills]"></ng-content>
-            <!-- Default search (keep it common across pages) -->
+
             @if (showSearch) {
             <div class="app-search-container">
-                <input type="search" class="form-control form-control-sm" id="topbar-search-input" name="topbar-search-input" [(ngModel)]="filters.filter" [placeholder]="searchPlaceholder | abpLocalization" (keydown.enter)="filter()" />
+                <input
+                    type="search"
+                    class="form-control form-control-sm"
+                    id="topbar-search-input"
+                    name="topbar-search-input"
+                    [(ngModel)]="filters.filter"
+                    [placeholder]="searchPlaceholder | abpLocalization"
+                    (keydown.enter)="filter()"
+                />
                 <i role="button" class="fas fa-search" (click)="filter()"></i>
             </div>
             }
 
             @if (showFiltersToggle) {
-            <button class="btn btn-sm btn-outline-primary text-nowrap" type="button"
-                (click)="toggleFilters()">
+            <button class="btn btn-sm btn-outline-primary text-nowrap" type="button" (click)="toggleFilters()">
                 <i class="fas fa-filter"></i>
             </button>
             }
 
-            <!-- SLOT #1: Actions (replaces Add New button area; supports many buttons) -->
             <ng-content select="[topbarActions]"></ng-content>
         </div>
     </div>
 
-    <!-- SLOT #2: Advanced Filters -->
     @if (showFiltersToggle) {
     <div class="p-2 border border-1 mt-2 rounded-1 app-topbar-filter-section" [class.collapsed]="!filtersVisible">
         <h5 class="mb-2">{{ filtersTitleKey | abpLocalization }}</h5>
-        <div class="row row-cols-6 g-3">
+        <div class="row g-3 app-topbar-filters-row">
             <ng-content select="[topbarFilters]"></ng-content>
-            <div class="col d-flex align-items-end gap-2">
+            <div class="col-12 col-md-auto d-flex align-items-end gap-2 flex-wrap">
                 @if(showResetFilters){
                     <button (click)="reset()" type="reset" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-refresh"></i>
@@ -44,12 +50,10 @@
                 }
             </div>
         </div>
-
     </div>
     }
 </div>
 
-<!-- SLOT #3: Main page content -->
 <div class="app-content">
     <ng-content></ng-content>
 </div>

@@ -15,6 +15,7 @@ using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Studio;
 using EHub.Reports.ExpenseReport;
+using EHub.Reports.SalaryReport;
 
 namespace EHub.EntityFrameworkCore;
 
@@ -49,6 +50,7 @@ public class EHubEntityFrameworkCoreModule : AbpModule
         });
 
         context.Services.AddTransient<IExpenseReportRepository, EfCoreExpenseReportRepository>();
+        context.Services.AddTransient<IStaffSalaryReportRepository, EfCoreStaffSalaryReportRepository>();
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)
         {

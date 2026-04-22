@@ -181,6 +181,7 @@ const routes: Routes = [
     loadChildren: () =>
       import('./components/topbar-layout/topbar-layout.module').then(m => m.TopbarLayoutModule),
   },
+  { path: 'reports/report/salary-report', loadChildren: () => import('./reports/report/salary-report/salary-report.module').then(m => m.SalaryReportModule) },
 ];
 
 @NgModule({

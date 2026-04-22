@@ -69,7 +69,7 @@ export function formatMonthLabel(monthKey: string): string {
 
 export function getMonthForecastValue(
   item: { monthColumns?: Array<{ month?: string | Date | null; forecast?: number | null }> },
-  monthKey: string
+  monthKey: string,
 ): number {
   if (!item?.monthColumns?.length) {
     return 0;
@@ -115,8 +115,37 @@ function normalizeMonthInput(value: string | Date | null | undefined): string | 
   return toMonthKey(date);
 }
 
-function toMonthKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  return `${year}-${month}`;
+export interface PeriodFilterLike {
+  periodStart?: string | Date | null;
+  periodEnd?: string | Date | null;
+}
+
+export interface ReportPeriodFilterBase extends PeriodFilterLike {
+  filter?: string;
+}
+
+export function getCurrentYearPeriod(): { periodStart: string; periodEnd: string } {
+  const year = new Date().getFullYear();
+  return {
+    periodStart: `${year}-01`,
+    periodEnd: `${year}-12`,
+  };
+}
+
+export function toMonthKey(date: string | Date): string {
+  const d = date instanceof Date ? date : new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function createDefaultPeriodFilters<T extends ReportPeriodFilterBase>(
+  extra?: Partial<T>,
+): T {
+  const { periodStart, periodEnd } = getCurrentYearPeriod();
+
+  return {
+    filter: '',
+    periodStart,
+    periodEnd,
+    ...(extra ?? {}),
+  } as T;
 }

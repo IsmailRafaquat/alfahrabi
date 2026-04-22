@@ -26,4 +26,8 @@ export class ReportComponent {
    openExpenseReport() {
     this.router.navigate(['reports/report/expense-report']);
   }
+
+  openSalaryReport() {
+    this.router.navigate(['reports/report/salary-report']);
+  }
 }
