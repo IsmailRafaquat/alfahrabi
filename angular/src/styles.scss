@@ -593,3 +593,34 @@ label {
   font-weight: 800 !important;
   color: rgb(0 0 0 / 77%) !important;
 }
+
+.table thead th {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+body .ngx-datatable.material .datatable-body .datatable-body-row {
+  vertical-align: middle !important;
+}
+
+body .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
+  padding: 0.35rem 0.5rem !important;
+  vertical-align: middle !important;
+  border-top: 1px solid #e7e9ec !important;
+  color: #686b6e !important;
+}
+
+body .ngx-datatable.material .datatable-header .datatable-header-cell {
+  background-color: #3a3a3a0f;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-weight: 700 !important;
+  color: rgba(104, 107, 110, 0.65);
+  text-transform: none;
+  transition: color 0.3s;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.75px;
+}
+

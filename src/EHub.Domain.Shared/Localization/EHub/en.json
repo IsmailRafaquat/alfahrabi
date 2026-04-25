@@ -756,6 +756,10 @@
     "StaffSalaryPayment": "Staff Salary Payment",
     "StudentFeeProfile": "Student Fee Profile",
     "StudentFeeDiscount": "Student Fee Discount",
-    "StudentMonthlyFeeLine": "Student Monthly Fee Line"
+    "StudentMonthlyFeeLine": "Student Monthly Fee Line",
+    "Class": "Class",
+    "CollectedAmount": "Collected Amount",
+    "PendingAmount": "Pending Amount",
+    "PendingMonths": "Pending Months"
   }
 }

@@ -197,8 +197,8 @@
 
 
         <ngx-datatable-column [name]="'::AdmissionNo' | abpLocalization" prop="admissionNo"
-          [width]="220"></ngx-datatable-column>
-        <ngx-datatable-column [name]="'::RollNo' | abpLocalization" prop="rollNo" [width]="220"></ngx-datatable-column>
+          [width]="200"></ngx-datatable-column>
+        <ngx-datatable-column [name]="'::RollNo' | abpLocalization" prop="rollNo" [width]="120"></ngx-datatable-column>
         <ngx-datatable-column [name]="'::Name' | abpLocalization" [sortable]="false">
           <ng-template ngx-datatable-cell-template let-row="row">
             {{ (row.firstName ?? '') + ' ' + (row.lastName ?? '') }}
@@ -206,7 +206,7 @@
 
         </ngx-datatable-column>
 
-        <ngx-datatable-column [name]="'::Gender' | abpLocalization" prop="gender">
+        <ngx-datatable-column [name]="'::Gender' | abpLocalization" prop="gender" [width]="80">
           <ng-template let-row="row" ngx-datatable-cell-template>
             {{ '::Enum:Gender.' + row.gender | abpLocalization }}
           </ng-template>

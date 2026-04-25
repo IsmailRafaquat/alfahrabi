@@ -1,0 +1,108 @@
+<abp-page>
+    <app-topbar-layout titleKey="::StudentFeeReport" [(filters)]="filters" showSearch="true" showFiltersToggle
+        [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="load()" (onReset)="resetFilters()">
+        <ng-container ngProjectAs="[topbarFilters]">
+            <div class="col-12 col-md-2">
+                <label>{{ '::StartMonth' | abpLocalization }}</label>
+                <input type="month" class="form-control form-control-sm" [(ngModel)]="filters.monthStart" />
+            </div>
+
+            <div class="col-12 col-md-2">
+                <label>{{ '::EndMonth' | abpLocalization }}</label>
+                <input type="month" class="form-control form-control-sm" [(ngModel)]="filters.monthEnd" />
+            </div>
+
+            <!-- <div class="col-12 col-md-2">
+        <label>{{ '::GradeLevel' | abpLocalization }}</label>
+        <nz-select class="w-100" nzAllowClear nzShowSearch [(ngModel)]="filters.gradeLevel">
+          <nz-option
+            *ngFor="let g of gradeLevels"
+            [nzValue]="g.value"
+            [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization"
+          ></nz-option>
+        </nz-select>
+      </div> -->
+        </ng-container>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="student-fee-report">
+                    @if (data.length > 0) {
+                    <div class="report-table-wrapper">
+                        <table class="table report-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 260px;">{{ '::Class' | abpLocalization }}</th>
+                                    <th class="text-end">{{ '::ExpectedAmount' | abpLocalization }}</th>
+                                    <th class="text-end">{{ '::CollectedAmount' | abpLocalization }}</th>
+                                    <th></th>
+                                    <th class="text-end">{{ '::PendingAmount' | abpLocalization }}</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @for (row of data; track trackByClass($index, row)) {
+                                <tr class="class-row" (click)="toggle(row)">
+                                    <td>
+                                        <i class="fas me-2"
+                                            [ngClass]="isExpanded(row) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                                        <strong>{{ row.className }}</strong>
+                                    </td>
+                                    <td class="text-end">{{ row.expectedAmount | number:'1.0-0' }}</td>
+                                    <td class="text-end">{{ row.collectedAmount | number:'1.0-0' }}</td>
+                                    <td></td>
+                                    <td class="text-end" [class.text-danger]="isPending(row)">
+                                        {{ row.pendingAmount | number:'1.0-0' }}
+                                    </td>
+                                </tr>
+
+                                @if (isExpanded(row)) {
+                                <tr class="students-row">
+                                    <td colspan="5" class="p-0">
+                                        <table class="table students-table mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>{{ '::Student' | abpLocalization }}</th>
+                                                    <th>{{ '::AdmissionNo' | abpLocalization }}</th>
+                                                    <th class="text-end">{{ '::ExpectedAmount' | abpLocalization }}</th>
+                                                    <th class="text-end">{{ '::CollectedAmount' | abpLocalization }}
+                                                    </th>
+                                                    <th>{{ '::PendingMonths' | abpLocalization }}</th>
+                                                    <th class="text-end">{{ '::PendingAmount' | abpLocalization }}</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                @for (student of row.students; track student.studentId) {
+                                                <tr [class.pending-student]="isPending(student)">
+                                                    <td>{{ student.studentName }}</td>
+                                                    <td>{{ student.admissionNo || '-' }}</td>
+                                                    <td class="text-end">{{ student.expectedAmount | number:'1.0-0' }}
+                                                    </td>
+                                                    <td class="text-end">{{ student.collectedAmount | number:'1.0-0' }}
+                                                    </td>
+                                                    <td>{{ student.pendingMonths?.length ? student.pendingMonths.join(',
+                                                        ') : '-' }}</td>
+                                                    <td class="text-end">{{ student.pendingAmount | number:'1.0-0' }}
+                                                    </td>
+                                                </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    } @else {
+                    <div class="alert alert-info text-center">
+                        {{ '::Forecast:NoDataMessage' | abpLocalization }}
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </app-topbar-layout>
+</abp-page>

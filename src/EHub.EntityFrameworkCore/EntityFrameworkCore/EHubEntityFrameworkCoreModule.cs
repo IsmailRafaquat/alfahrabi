@@ -1,22 +1,23 @@
-using System;
+using EHub.EntityFrameworkCore.Interceptors;
+using EHub.Reports.ExpenseReport;
+using EHub.Reports.SalaryReport;
+using EHub.Reports.StudentFeeReport;
 using Microsoft.Extensions.DependencyInjection;
-using Volo.Abp.Uow;
+using System;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
+using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.SqlServer;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
 using Volo.Abp.Identity.EntityFrameworkCore;
-using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.Modularity;
+using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
-using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
-using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Studio;
-using EHub.Reports.ExpenseReport;
-using EHub.Reports.SalaryReport;
-using EHub.EntityFrameworkCore.Interceptors;
+using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Volo.Abp.Uow;
 
 namespace EHub.EntityFrameworkCore;
 
@@ -53,6 +54,7 @@ public class EHubEntityFrameworkCoreModule : AbpModule
         context.Services.AddTransient<IExpenseReportRepository, EfCoreExpenseReportRepository>();
         context.Services.AddTransient<IStaffSalaryReportRepository, EfCoreStaffSalaryReportRepository>();
         context.Services.AddTransient<PreventSoftDeleteIfReferencedInterceptor>();
+        context.Services.AddTransient<IStudentFeeReportRepository, EfCoreStudentFeeReportRepository>();
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)
         {

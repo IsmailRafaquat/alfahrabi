@@ -182,6 +182,7 @@ const routes: Routes = [
       import('./components/topbar-layout/topbar-layout.module').then(m => m.TopbarLayoutModule),
   },
   { path: 'reports/report/salary-report', loadChildren: () => import('./reports/report/salary-report/salary-report.module').then(m => m.SalaryReportModule) },
+  { path: 'reports/report/student-fee-report', loadChildren: () => import('./reports/report/student-fee-report/student-fee-report.module').then(m => m.StudentFeeReportModule) },
 ];
 
 @NgModule({
