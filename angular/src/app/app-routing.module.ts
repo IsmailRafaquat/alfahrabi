@@ -163,6 +163,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/products/shop-products.module').then(m => m.ShopProductsModule),
   },
   {
+    path: 'shop-management/suppliers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Suppliers' },
+    loadChildren: () => import('./shop-management/suppliers/shop-suppliers.module').then(m => m.ShopSuppliersModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),

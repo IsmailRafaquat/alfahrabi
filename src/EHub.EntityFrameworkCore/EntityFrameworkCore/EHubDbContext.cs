@@ -5,6 +5,7 @@ using EHub.ShopManagement.Settings;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
 using EHub.ShopManagement.Products;
+using EHub.ShopManagement.Suppliers;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -82,6 +83,7 @@ public class EHubDbContext :
     public DbSet<ShopProductCategory> ShopProductCategories { get; set; }
     public DbSet<ShopUnit> ShopUnits { get; set; }
     public DbSet<ShopProduct> ShopProducts { get; set; }
+    public DbSet<ShopSupplier> ShopSuppliers { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -840,6 +842,40 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.SKU }).IsUnique().HasFilter("[SKU] IS NOT NULL");
             b.HasIndex(x => new { x.TenantId, x.Barcode }).IsUnique().HasFilter("[Barcode] IS NOT NULL");
+        });
+
+        builder.Entity<ShopSupplier>(b =>
+        {
+            b.ToTable("ShopSuppliers", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(ShopSupplierConsts.CodeMaxLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(ShopSupplierConsts.NameMaxLength);
+            b.Property(x => x.ContactPerson).HasMaxLength(ShopSupplierConsts.ContactPersonMaxLength);
+            b.Property(x => x.Phone).HasMaxLength(ShopSupplierConsts.PhoneMaxLength);
+            b.Property(x => x.AlternatePhone).HasMaxLength(ShopSupplierConsts.PhoneMaxLength);
+            b.Property(x => x.Email).HasMaxLength(ShopSupplierConsts.EmailMaxLength);
+            b.Property(x => x.AddressLine1).HasMaxLength(ShopSupplierConsts.AddressLineMaxLength);
+            b.Property(x => x.AddressLine2).HasMaxLength(ShopSupplierConsts.AddressLineMaxLength);
+            b.Property(x => x.City).HasMaxLength(ShopSupplierConsts.CityMaxLength);
+            b.Property(x => x.StateOrProvince).HasMaxLength(ShopSupplierConsts.StateOrProvinceMaxLength);
+            b.Property(x => x.PostalCode).HasMaxLength(ShopSupplierConsts.PostalCodeMaxLength);
+            b.Property(x => x.Country).HasMaxLength(ShopSupplierConsts.CountryMaxLength);
+            b.Property(x => x.TaxNumber).HasMaxLength(ShopSupplierConsts.TaxNumberMaxLength);
+            b.Property(x => x.Notes).HasMaxLength(ShopSupplierConsts.NotesMaxLength);
+            b.Property(x => x.OpeningBalance).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CreditLimit).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.PaymentTermsDays).IsRequired().HasDefaultValue(0);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
+            b.HasIndex(x => new { x.TenantId, x.City });
+            b.HasIndex(x => new { x.TenantId, x.Country });
+            b.HasIndex(x => new { x.TenantId, x.Phone });
+            b.HasIndex(x => new { x.TenantId, x.Email });
+            b.HasIndex(x => new { x.TenantId, x.TaxNumber });
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
         });
 
         builder.Entity<ExpenseEntry>(b =>

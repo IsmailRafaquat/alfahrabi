@@ -8,6 +8,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzStepsModule } from 'ng-zorro-antd/steps';
 import { UploadDropzoneComponent } from '../components/upload-dropzone/upload-dropzone.component';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 @NgModule({
   declarations: [],
@@ -15,12 +16,13 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
     CoreModule,
     ThemeSharedModule,
     NgbDropdownModule,
-    NgxValidateCoreModule,  
+    NgxValidateCoreModule,
     NzSelectModule,
     NzStepsModule,
     UploadDropzoneComponent,
     NzTableModule,
     NzTagModule,
+    NzToolTipModule,
     LocalizationModule
   ],
   exports: [
@@ -33,8 +35,9 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
     UploadDropzoneComponent,
     NzTableModule,
     NzTagModule,
+    NzToolTipModule,
     LocalizationPipe
-    
+
   ],
   providers: []
 })

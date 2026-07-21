@@ -41,6 +41,10 @@ function configureRoutes() {
       path: '/shop-management/units', name: '::Units', parentName: '::Products', iconClass: 'fas fa-balance-scale',
       order: 3, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Units',
     },
+    {
+      path: '/shop-management/suppliers', name: '::Suppliers', parentName: '::ShopManagement', iconClass: 'fas fa-truck',
+      order: 3, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Suppliers',
+    },
     // Home / Dashboard
     {
       path: '/',
