@@ -143,6 +143,12 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'shop-management/settings',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.Settings' },
+    loadChildren: () => import('./shop-management/settings/shop-settings.module').then(m => m.ShopSettingsModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),

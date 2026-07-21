@@ -1,6 +1,7 @@
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
+using EHub.ShopManagement.Settings;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -74,6 +75,7 @@ public class EHubDbContext :
     public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
     public DbSet<ExpenseEntry> ExpenseEntries { get; set; }
     public DbSet<StaffSalaryPayment> StaffSalaryPayments { get; set; }
+    public DbSet<ShopSetting> ShopSettings { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -716,6 +718,40 @@ public class EHubDbContext :
                 .HasDefaultValue(true);
 
             b.Property(x => x.EntryLimitType).IsRequired(false);
+        });
+
+        builder.Entity<ShopSetting>(b =>
+        {
+            b.ToTable("ShopSettings", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.HasIndex(x => x.TenantId).IsUnique();
+            b.Property(x => x.ShopDisplayName).IsRequired().HasMaxLength(ShopSettingConsts.ShopDisplayNameMaxLength);
+            b.Property(x => x.Phone).HasMaxLength(ShopSettingConsts.PhoneMaxLength);
+            b.Property(x => x.AlternatePhone).HasMaxLength(ShopSettingConsts.PhoneMaxLength);
+            b.Property(x => x.Email).HasMaxLength(ShopSettingConsts.EmailMaxLength);
+            b.Property(x => x.Website).HasMaxLength(ShopSettingConsts.WebsiteMaxLength);
+            b.Property(x => x.AddressLine1).HasMaxLength(ShopSettingConsts.AddressMaxLength);
+            b.Property(x => x.AddressLine2).HasMaxLength(ShopSettingConsts.AddressMaxLength);
+            b.Property(x => x.City).HasMaxLength(ShopSettingConsts.LocationMaxLength);
+            b.Property(x => x.StateOrProvince).HasMaxLength(ShopSettingConsts.LocationMaxLength);
+            b.Property(x => x.PostalCode).HasMaxLength(ShopSettingConsts.PostalCodeMaxLength);
+            b.Property(x => x.Country).HasMaxLength(ShopSettingConsts.LocationMaxLength);
+            b.Property(x => x.CurrencyCode).IsRequired().HasMaxLength(ShopSettingConsts.CurrencyCodeMaxLength).HasDefaultValue("PKR");
+            b.Property(x => x.CurrencySymbol).IsRequired().HasMaxLength(ShopSettingConsts.CurrencySymbolMaxLength).HasDefaultValue("₨");
+            b.Property(x => x.TaxNumber).HasMaxLength(ShopSettingConsts.TaxNumberMaxLength);
+            b.Property(x => x.DefaultTaxPercentage).HasPrecision(5, 2).HasDefaultValue(0);
+            b.Property(x => x.InvoicePrefix).IsRequired().HasMaxLength(ShopSettingConsts.PrefixMaxLength).HasDefaultValue("INV");
+            b.Property(x => x.PurchaseOrderPrefix).IsRequired().HasMaxLength(ShopSettingConsts.PrefixMaxLength).HasDefaultValue("PO");
+            b.Property(x => x.ReceiptFooter).HasMaxLength(ShopSettingConsts.LongTextMaxLength);
+            b.Property(x => x.ReturnPolicy).HasMaxLength(ShopSettingConsts.LongTextMaxLength);
+            b.Property(x => x.AllowNegativeStock).HasDefaultValue(false);
+            b.Property(x => x.AutoGenerateProductBarcode).HasDefaultValue(true);
+            b.Property(x => x.AutoGenerateInvoiceQrCode).HasDefaultValue(true);
+            b.Property(x => x.DefaultLowStockLevel).HasPrecision(18, 2).HasDefaultValue(5);
+            b.Property(x => x.DecimalPlaces).HasDefaultValue(2);
+            b.Property(x => x.IsConfigured).HasDefaultValue(false);
         });
 
         builder.Entity<ExpenseEntry>(b =>

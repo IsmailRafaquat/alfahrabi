@@ -1,7 +1,6 @@
 using EHub.Localization;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Localization;
-using Volo.Abp.MultiTenancy;
 
 namespace EHub.Permissions;
 
@@ -10,6 +9,11 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
     public override void Define(IPermissionDefinitionContext context)
     {
         var myGroup = context.AddGroup(EHubPermissions.GroupName);
+
+        myGroup.AddPermission(EHubPermissions.ManagementMenus.School, L("Permission:SchoolManagement"));
+        var shopManagement = myGroup.AddPermission(EHubPermissions.ManagementMenus.Shop, L("Permission:ShopManagement"));
+        var shopSettings = shopManagement.AddChild(EHubPermissions.ShopSettings.Default, L("Permission:ShopSettings"));
+        shopSettings.AddChild(EHubPermissions.ShopSettings.Manage, L("Permission:ShopSettings.Manage"));
 
 
         var dashboardPermission =

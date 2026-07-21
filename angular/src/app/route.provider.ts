@@ -10,10 +10,24 @@ export const APP_ROUTE_PROVIDER = [
 function configureRoutes() {
   const routes = inject(RoutesService);
   routes.add([
+    {
+      name: '::SchoolManagement', iconClass: 'fas fa-school', order: 1,
+      layout: eLayoutType.application, requiredPolicy: 'EHub.SchoolManagement',
+    },
+    {
+      name: '::ShopManagement', iconClass: 'fas fa-store', order: 2,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement',
+    },
+    {
+      path: '/shop-management/settings', name: '::ShopSettings', parentName: '::ShopManagement',
+      iconClass: 'fas fa-cog', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.Settings',
+    },
     // Home / Dashboard
     {
       path: '/',
       name: '::Menu:Home',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-home',
       order: 1,
       layout: eLayoutType.application,
@@ -21,6 +35,7 @@ function configureRoutes() {
     {
       path: '/dashboards',
       name: '::Menu:Dashboard',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-chart-line',
       order: 3,
       layout: eLayoutType.application,
@@ -29,6 +44,7 @@ function configureRoutes() {
     {
       path: '/alfarabi',
       name: '::Menu:Alfarabi',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-school',
       order: 2,
       layout: eLayoutType.application,
@@ -37,6 +53,7 @@ function configureRoutes() {
 
     {
       name: '::Menu:Students',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-user-graduate',
       order: 10,
       layout: eLayoutType.application,
@@ -75,6 +92,7 @@ function configureRoutes() {
     // -------------------------
     {
       name: '::Menu:Staff',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-user-tie',
       order: 20,
       layout: eLayoutType.application,
@@ -136,6 +154,7 @@ function configureRoutes() {
     // },
     {
       name: '::Menu:Fees',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-money-bill-wave',
       order: 40,
       layout: eLayoutType.application,
@@ -228,6 +247,7 @@ function configureRoutes() {
     // -------------------------
     {
       name: '::Menu:Expenses',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-file-invoice-dollar',
       order: 50,
       layout: eLayoutType.application,
@@ -272,6 +292,7 @@ function configureRoutes() {
     {
       path: 'reports/report',
       name: '::Menu:Reports',
+      parentName: '::SchoolManagement',
       iconClass: 'fas fa-chart-pie',
       order: 60,
       layout: eLayoutType.application,

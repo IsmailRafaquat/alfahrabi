@@ -4,6 +4,18 @@ public static class EHubPermissions
 {
     public const string GroupName = "EHub";
 
+    public static class ManagementMenus
+    {
+        public const string School = GroupName + ".SchoolManagement";
+        public const string Shop = "ShopManagement";
+    }
+
+    public static class ShopSettings
+    {
+        public const string Default = ManagementMenus.Shop + ".Settings";
+        public const string Manage = Default + ".Manage";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";
