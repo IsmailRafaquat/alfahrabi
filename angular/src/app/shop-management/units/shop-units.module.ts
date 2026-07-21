@@ -1,0 +1,2 @@
+import { CommonModule } from '@angular/common'; import { NgModule } from '@angular/core'; import { FormsModule, ReactiveFormsModule } from '@angular/forms'; import { SharedModule } from '../../shared/shared.module'; import { ShopUnitsComponent } from './shop-units.component'; import { ShopUnitsRoutingModule } from './shop-units-routing.module';
+@NgModule({ declarations:[ShopUnitsComponent], imports:[CommonModule,FormsModule,ReactiveFormsModule,SharedModule,ShopUnitsRoutingModule] }) export class ShopUnitsModule {}

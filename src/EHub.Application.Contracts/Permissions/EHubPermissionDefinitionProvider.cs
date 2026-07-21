@@ -18,6 +18,10 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Create, L("Permission:ShopProductCategories.Create"));
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Edit, L("Permission:ShopProductCategories.Edit"));
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Delete, L("Permission:ShopProductCategories.Delete"));
+        var shopUnits = shopManagement.AddChild(EHubPermissions.ShopUnits.Default, L("Permission:ShopUnits"));
+        shopUnits.AddChild(EHubPermissions.ShopUnits.Create, L("Permission:ShopUnits.Create"));
+        shopUnits.AddChild(EHubPermissions.ShopUnits.Edit, L("Permission:ShopUnits.Edit"));
+        shopUnits.AddChild(EHubPermissions.ShopUnits.Delete, L("Permission:ShopUnits.Delete"));
 
 
         var dashboardPermission =

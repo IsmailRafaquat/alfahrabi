@@ -155,6 +155,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/product-categories/shop-product-categories.module').then(m => m.ShopProductCategoriesModule),
   },
   {
+    path: 'shop-management/units', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Units' },
+    loadChildren: () => import('./shop-management/units/shop-units.module').then(m => m.ShopUnitsModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),

@@ -10,7 +10,8 @@
     <div class="card-body settings-body">
       <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
       <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-        <div class="upload-note"><i class="fas fa-info-circle"></i><span>{{ '::ShopLogoUploadUnavailable' | abpLocalization }}</span></div>
+        <div class="upload-note"><i class="fas fa-info-circle"></i><span>{{ '::ShopLogoUploadUnavailable' |
+            abpLocalization }}</span></div>
 
         <div class="section-heading"><span>{{ '::ShopInformation' | abpLocalization }}</span></div>
         <div class="row compact-grid">
@@ -23,16 +24,24 @@
             <div class="col-12 col-md-6 col-xl-4 field-column">
               <label class="form-label">
                 {{ ('::' + field[1]) | abpLocalization }}
-                <span *ngIf="form.get(field[0])?.hasValidator(requiredValidator)" class="required-mark" aria-hidden="true">*</span>
+                <span *ngIf="form.get(field[0])?.hasValidator(requiredValidator)" class="required-mark"
+                  aria-hidden="true">*</span>
               </label>
               <input class="form-control form-control-sm" [type]="field[2]" [formControlName]="field[0]" />
-              <div class="text-danger small validation-message" *ngIf="form.get(field[0])?.touched && form.get(field[0])?.invalid">
-                <span *ngIf="form.get(field[0])?.hasError('required')">{{ '::ValidationRequired' | abpLocalization }}</span>
-                <span *ngIf="form.get(field[0])?.hasError('email')">{{ '::ValidationInvalidEmail' | abpLocalization }}</span>
-                <span *ngIf="form.get(field[0])?.hasError('minlength')">{{ '::ValidationMinimumLength' | abpLocalization }}</span>
-                <span *ngIf="form.get(field[0])?.hasError('maxlength')">{{ '::ValidationMaximumLength' | abpLocalization }}</span>
-                <span *ngIf="form.get(field[0])?.hasError('min')">{{ '::ValidationValueTooSmall' | abpLocalization }}</span>
-                <span *ngIf="form.get(field[0])?.hasError('max')">{{ '::ValidationValueTooLarge' | abpLocalization }}</span>
+              <div class="text-danger small validation-message"
+                *ngIf="form.get(field[0])?.touched && form.get(field[0])?.invalid">
+                <span *ngIf="form.get(field[0])?.hasError('required')">{{ '::ValidationRequired' | abpLocalization
+                  }}</span>
+                <span *ngIf="form.get(field[0])?.hasError('email')">{{ '::ValidationInvalidEmail' | abpLocalization
+                  }}</span>
+                <span *ngIf="form.get(field[0])?.hasError('minlength')">{{ '::ValidationMinimumLength' | abpLocalization
+                  }}</span>
+                <span *ngIf="form.get(field[0])?.hasError('maxlength')">{{ '::ValidationMaximumLength' | abpLocalization
+                  }}</span>
+                <span *ngIf="form.get(field[0])?.hasError('min')">{{ '::ValidationValueTooSmall' | abpLocalization
+                  }}</span>
+                <span *ngIf="form.get(field[0])?.hasError('max')">{{ '::ValidationValueTooLarge' | abpLocalization
+                  }}</span>
               </div>
             </div>
           </ng-container>
@@ -40,19 +49,28 @@
 
         <div class="section-heading"><span>{{ '::ReceiptAndReturnDetails' | abpLocalization }}</span></div>
         <div class="row compact-grid">
-          <div class="col-12 col-lg-6 field-column"><label class="form-label">{{ '::ReceiptFooter' | abpLocalization }}</label><textarea class="form-control form-control-sm" rows="3" formControlName="receiptFooter"></textarea></div>
-          <div class="col-12 col-lg-6 field-column"><label class="form-label">{{ '::ReturnPolicy' | abpLocalization }}</label><textarea class="form-control form-control-sm" rows="3" formControlName="returnPolicy"></textarea></div>
+          <div class="col-12 col-lg-6 field-column"><label class="form-label">{{ '::ReceiptFooter' | abpLocalization
+              }}</label><textarea class="form-control form-control-sm" rows="3"
+              formControlName="receiptFooter"></textarea></div>
+          <div class="col-12 col-lg-6 field-column"><label class="form-label">{{ '::ReturnPolicy' | abpLocalization
+              }}</label><textarea class="form-control form-control-sm" rows="3"
+              formControlName="returnPolicy"></textarea></div>
         </div>
 
         <div class="section-heading"><span>{{ '::AutomationOptions' | abpLocalization }}</span></div>
         <div class="options-grid">
-          <label class="option-card" *ngFor="let check of [['allowNegativeStock','AllowNegativeStock'],['autoGenerateProductBarcode','AutoGenerateProductBarcode'],['autoGenerateInvoiceQrCode','AutoGenerateInvoiceQrCode']]" [for]="check[0]">
+          <label class="option-card"
+            *ngFor="let check of [['allowNegativeStock','AllowNegativeStock'],['autoGenerateProductBarcode','AutoGenerateProductBarcode'],['autoGenerateInvoiceQrCode','AutoGenerateInvoiceQrCode']]"
+            [for]="check[0]">
             <span>{{ ('::' + check[1]) | abpLocalization }}</span>
             <input class="form-check-input" type="checkbox" [formControlName]="check[0]" [id]="check[0]">
           </label>
         </div>
 
-        <div class="form-actions" *ngIf="canManage"><button class="btn btn-primary btn-sm save-button" type="submit" [disabled]="form.invalid || submitting"><span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span><i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}</button></div>
+        <div class="form-actions" *ngIf="canManage"><button class="btn btn-primary btn-sm save-button" type="submit"
+            [disabled]="form.invalid || submitting"><span *ngIf="submitting"
+              class="spinner-border spinner-border-sm me-1"></span><i *ngIf="!submitting"
+              class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}</button></div>
       </form>
     </div>
   </div>

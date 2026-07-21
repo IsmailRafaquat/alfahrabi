@@ -1,3 +1,4 @@
 import * as ProductCategories from './product-categories';
 import * as Settings from './settings';
-export { ProductCategories, Settings };
+import * as Units from './units';
+export { ProductCategories, Settings, Units };

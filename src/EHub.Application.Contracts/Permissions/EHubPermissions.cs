@@ -23,6 +23,13 @@ public static class EHubPermissions
         public const string Edit = Default + ".Edit";
         public const string Delete = Default + ".Delete";
     }
+    public static class ShopUnits
+    {
+        public const string Default = ManagementMenus.Shop + ".Units";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
 
     public static class Dashboards
     {

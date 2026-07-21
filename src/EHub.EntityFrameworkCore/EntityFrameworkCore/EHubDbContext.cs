@@ -3,6 +3,7 @@ using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
 using EHub.ShopManagement.Settings;
 using EHub.ShopManagement.ProductCategories;
+using EHub.ShopManagement.Units;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -78,6 +79,7 @@ public class EHubDbContext :
     public DbSet<StaffSalaryPayment> StaffSalaryPayments { get; set; }
     public DbSet<ShopSetting> ShopSettings { get; set; }
     public DbSet<ShopProductCategory> ShopProductCategories { get; set; }
+    public DbSet<ShopUnit> ShopUnits { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -777,6 +779,20 @@ public class EHubDbContext :
                 .IsUnique().HasFilter("[ParentCategoryId] IS NOT NULL");
             b.HasIndex(x => new { x.TenantId, x.Name })
                 .IsUnique().HasFilter("[ParentCategoryId] IS NULL");
+        });
+
+        builder.Entity<ShopUnit>(b =>
+        {
+            b.ToTable("ShopUnits", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(ShopUnitConsts.NameMaxLength);
+            b.Property(x => x.ShortName).IsRequired().HasMaxLength(ShopUnitConsts.ShortNameMaxLength);
+            b.Property(x => x.AllowDecimal).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ShortName }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
         });
 
         builder.Entity<ExpenseEntry>(b =>

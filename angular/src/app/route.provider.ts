@@ -32,6 +32,10 @@ function configureRoutes() {
       iconClass: 'fas fa-tags', order: 1, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.ProductCategories',
     },
+    {
+      path: '/shop-management/units', name: '::Units', parentName: '::Products', iconClass: 'fas fa-balance-scale',
+      order: 2, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Units',
+    },
     // Home / Dashboard
     {
       path: '/',
