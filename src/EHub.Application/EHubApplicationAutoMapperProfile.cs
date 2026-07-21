@@ -2,6 +2,7 @@ using AutoMapper;
 using EHub.ShopManagement.Settings;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
+using EHub.ShopManagement.Products;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -36,6 +37,16 @@ public class EHubApplicationAutoMapperProfile : Profile
         CreateMap<ShopProductCategory, ShopProductCategoryLookupDto>();
         CreateMap<ShopUnit, ShopUnitDto>();
         CreateMap<ShopUnit, ShopUnitLookupDto>();
+        CreateMap<ShopProduct, ShopProductDto>()
+            .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.ShortName : string.Empty))
+            .ForMember(x => x.UnitAllowDecimal, opt => opt.MapFrom(src => src.Unit != null && src.Unit.AllowDecimal));
+        CreateMap<ShopProduct, ShopProductLookupDto>()
+            .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.ShortName : string.Empty))
+            .ForMember(x => x.UnitAllowDecimal, opt => opt.MapFrom(src => src.Unit != null && src.Unit.AllowDecimal));
         CreateMap<Student, StudentDto>()
             .ForMember(x => x.StudentDocument, opt => opt.MapFrom(src => src.StudentDocuments));
         CreateMap<Staff, StaffDto>()

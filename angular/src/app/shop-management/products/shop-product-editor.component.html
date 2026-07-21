@@ -1,0 +1,179 @@
+<div class="editor-page">
+  <div class="editor-header">
+    <div>
+      <button class="back-btn" (click)="done()"><i class="fas fa-arrow-left"></i></button>
+      <span>
+        <h3>{{ '::ManageProducts' | abpLocalization }}</h3>
+        <p>{{ '::QuickAddProductsDescription' | abpLocalization }}</p>
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()" class="product-form-card">
+    <div class="row-heading">
+      <span class="row-number"><i [class]="isEdit ? 'fas fa-pen' : 'fas fa-plus'"></i></span>
+      <h5>{{ (isEdit ? '::EditProduct' : '::CreateProduct') | abpLocalization }}</h5>
+      <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm ms-auto" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::ProductName' | abpLocalization }} <b class="required">*</b></label>
+        <input class="form-control form-control-sm" formControlName="name">
+        <small class="error" *ngIf="form.controls.name.touched && form.controls.name.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::ProductCode' | abpLocalization }} <b class="required">*</b></label>
+        <input class="form-control form-control-sm" formControlName="code">
+        <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::Category' | abpLocalization }} <b class="required">*</b></label>
+        <nz-select class="w-100" formControlName="categoryId" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCategory' | abpLocalization">
+          <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option>
+        </nz-select>
+        <small class="error" *ngIf="form.controls.categoryId.touched && form.controls.categoryId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::Unit' | abpLocalization }} <b class="required">*</b></label>
+        <nz-select class="w-100" formControlName="unitId" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectUnit' | abpLocalization">
+          <nz-option *ngFor="let x of units" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.shortName + ')'"></nz-option>
+        </nz-select>
+        <small class="error" *ngIf="form.controls.unitId.touched && form.controls.unitId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::SKU' | abpLocalization }}</label>
+        <input class="form-control form-control-sm" formControlName="sku">
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::Barcode' | abpLocalization }}</label>
+        <input class="form-control form-control-sm" formControlName="barcode">
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::Brand' | abpLocalization }}</label>
+        <input class="form-control form-control-sm" formControlName="brand">
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::Model' | abpLocalization }}</label>
+        <input class="form-control form-control-sm" formControlName="model">
+      </div>
+      <div class="col-12">
+        <label>{{ '::Description' | abpLocalization }}</label>
+        <textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea>
+      </div>
+    </div>
+
+    <h6 class="section-title">{{ '::PurchasePrice' | abpLocalization }} / {{ '::SalePrice' | abpLocalization }}</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-xl-3" *ngIf="canViewCost">
+        <label>{{ '::PurchasePrice' | abpLocalization }} <b class="required">*</b></label>
+        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="purchasePrice">
+        <small class="error" *ngIf="form.controls.purchasePrice.touched && form.controls.purchasePrice.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::SalePrice' | abpLocalization }} <b class="required">*</b></label>
+        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="salePrice">
+        <small class="error" *ngIf="form.controls.salePrice.touched && form.controls.salePrice.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::WholesalePrice' | abpLocalization }}</label>
+        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="wholesalePrice">
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::MinimumSalePrice' | abpLocalization }}</label>
+        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="minimumSalePrice">
+        <small class="error" *ngIf="form.errors?.['minimumSalePriceExceedsSalePrice'] && form.controls.minimumSalePrice.touched">{{ '::MinimumSalePriceCannotExceedSalePrice' | abpLocalization }}</small>
+      </div>
+    </div>
+
+    <h6 class="section-title">{{ '::TaxPercentage' | abpLocalization }}</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-xl-3">
+        <label class="active-label">{{ '::IsTaxable' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isTaxable"></label>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::TaxPercentage' | abpLocalization }}</label>
+        <input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" formControlName="taxPercentage">
+        <small class="error" *ngIf="form.controls.taxPercentage.touched && form.controls.taxPercentage.invalid">{{ '::InvalidTaxPercentage' | abpLocalization }}</small>
+      </div>
+    </div>
+
+    <h6 class="section-title">{{ '::MinimumStockLevel' | abpLocalization }}</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-xl-3" *ngIf="isEdit">
+        <label>{{ '::CurrentStock' | abpLocalization }}</label>
+        <input type="number" class="form-control form-control-sm" [value]="currentStock" disabled readonly>
+        <small class="hint">{{ '::StockCannotBeEditedHere' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::MinimumStockLevel' | abpLocalization }} <b class="required">*</b></label>
+        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="minimumStockLevel">
+        <small class="error" *ngIf="form.controls.minimumStockLevel.touched && form.controls.minimumStockLevel.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::MaximumStockLevel' | abpLocalization }}</label>
+        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="maximumStockLevel">
+        <small class="error" *ngIf="form.errors?.['maximumStockBelowMinimum'] && form.controls.maximumStockLevel.touched">{{ '::MaximumStockCannotBeLowerThanMinimumStock' | abpLocalization }}</small>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::ReorderLevel' | abpLocalization }} <b class="required">*</b></label>
+        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="reorderLevel">
+      </div>
+    </div>
+
+    <div class="row g-3 toggles-row">
+      <div class="col-6 col-md-3"><label class="active-label">{{ '::TrackBatch' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackBatch"></label></div>
+      <div class="col-6 col-md-3"><label class="active-label">{{ '::TrackExpiry' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackExpiry"></label></div>
+      <div class="col-6 col-md-3"><label class="active-label">{{ '::TrackSerialNumber' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackSerialNumber"></label></div>
+      <div class="col-6 col-md-3"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
+    </div>
+
+    <div class="card-save">
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" [class]="isEdit ? 'fas fa-save me-2' : 'fas fa-plus me-2'"></i>{{ (isEdit ? '::UpdateProduct' : '::SaveAndAddAnother') | abpLocalization }}
+      </button>
+    </div>
+  </form>
+
+  <div class="saved-list-card">
+    <div class="saved-list-header">
+      <div>
+        <h5>{{ '::SessionProducts' | abpLocalization }}</h5>
+        <span>{{ savedItems.length }} {{ '::AddedThisSession' | abpLocalization }}</span>
+      </div>
+      <button class="btn btn-primary btn-sm" (click)="done()">{{ '::FinishAndViewList' | abpLocalization }}</button>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{{ '::ProductName' | abpLocalization }}</th>
+            <th>{{ '::ProductCode' | abpLocalization }}</th>
+            <th>{{ '::Category' | abpLocalization }}</th>
+            <th>{{ '::Unit' | abpLocalization }}</th>
+            <th>{{ '::SalePrice' | abpLocalization }}</th>
+            <th>{{ '::CurrentStock' | abpLocalization }}</th>
+            <th>{{ '::IsActive' | abpLocalization }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of savedItems">
+            <td><strong>{{ item.name }}</strong></td>
+            <td><span class="code-pill">{{ item.code }}</span></td>
+            <td>{{ item.categoryName }}</td>
+            <td>{{ item.unitName }} ({{ item.unitShortName }})</td>
+            <td>{{ item.salePrice | number:'1.2-4' }}</td>
+            <td>{{ item.currentStock | number:'1.0-4' }}</td>
+            <td><span class="status-pill" [class.inactive]="!item.isActive">{{ (item.isActive ? '::ActiveProducts' : '::InactiveProducts') | abpLocalization }}</span></td>
+            <td class="text-end"><button class="edit-row-btn" type="button" (click)="editSaved(item)"><i class="fas fa-pen"></i> {{ '::EditProduct' | abpLocalization }}</button></td>
+          </tr>
+          <tr *ngIf="!savedItems.length"><td colspan="8" class="text-center text-muted py-4">{{ '::NoProductsAddedThisSession' | abpLocalization }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

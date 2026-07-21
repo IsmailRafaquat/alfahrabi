@@ -1,0 +1,61 @@
+:host { display: block; }
+.editor-page { width: 100%; max-width: 100%; margin: auto; padding: 1.25rem 1.75rem; }
+.editor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.editor-header > div { display: flex; align-items: center; gap: .75rem; }
+.editor-header h3 { font-size: 1.25rem; color: #173f68; margin: 0; font-weight: 700; }
+.editor-header p { font-size: .78rem; color: #7a8da0; margin: .2rem 0 0; }
+.back-btn { width: 35px; height: 35px; border: 0; border-radius: 8px; color: #286b9f; background: #eaf3fa; flex: none; }
+
+.product-form-card { padding: 1.1rem 1.25rem; margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); }
+.row-heading { display: flex; align-items: center; margin-bottom: .8rem; padding-bottom: .65rem; border-bottom: 1px solid #edf2f6; }
+.row-heading h5 { font-size: .9rem; color: #315b82; margin: 0; }
+.row-number { display: grid; place-items: center; width: 27px; height: 27px; margin-right: .55rem; border-radius: 7px; background: #e7f1f9; color: #286b9f; font-size: .74rem; font-weight: 700; }
+
+.section-title { margin: 1.1rem 0 .6rem; padding-top: .8rem; border-top: 1px solid #edf2f6; color: #315b82; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+label { display: block; margin-bottom: .25rem; color: #345c80; font-size: .74rem; font-weight: 600; }
+.required { color: #dc3545; }
+small.error { display: block; margin-top: .2rem; color: #dc3545; font-size: .68rem; }
+small.hint { display: block; margin-top: .2rem; color: #8a9bad; font-size: .68rem; }
+.form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; border-radius: 6px; }
+.active-label { display: flex; align-items: center; justify-content: space-between; margin-top: 1.35rem; padding: .45rem .65rem; border: 1px solid #dce6ef; border-radius: 7px; font-size: .78rem; color: #345c80; font-weight: 600; }
+.toggles-row { margin-top: .5rem; }
+
+/* Default (unstyled) nz-select, aligned to the surrounding form-control-sm inputs */
+:host ::ng-deep nz-select .ant-select-selector {
+  min-height: 34px !important;
+  height: 34px !important;
+  border-radius: 6px !important;
+  border-color: #dce6ef !important;
+  align-items: center;
+}
+:host ::ng-deep nz-select .ant-select-selection-item,
+:host ::ng-deep nz-select .ant-select-selection-placeholder {
+  line-height: 32px !important;
+  font-size: .8rem;
+}
+:host ::ng-deep nz-select .ant-select-selection-search-input { height: 32px !important; }
+:host ::ng-deep nz-select.ng-invalid.ng-touched .ant-select-selector { border-color: #dc3545 !important; }
+
+.card-save { display: flex; justify-content: flex-end; margin-top: 1.15rem; padding-top: .8rem; border-top: 1px solid #e7edf3; }
+.card-save .btn { min-width: 190px; }
+
+.saved-list-card { margin-top: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); overflow: hidden; }
+.saved-list-header { display: flex; align-items: center; justify-content: space-between; padding: .8rem 1.1rem; background: #f8fbfd; border-bottom: 1px solid #e4ebf2; }
+.saved-list-header h5 { margin: 0; color: #315b82; font-size: .9rem; }
+.saved-list-header span { color: #8494a5; font-size: .7rem; }
+.saved-list-card th { padding: .65rem .8rem; background: #f8fafc; color: #62788e; font-size: .68rem; text-transform: uppercase; }
+.saved-list-card td { padding: .65rem .8rem; color: #435b73; font-size: .78rem; border-color: #edf2f6; }
+.code-pill { padding: .15rem .4rem; border-radius: 5px; background: #edf4fa; color: #2d6594; font-size: .68rem; font-weight: 700; }
+.status-pill { padding: .17rem .45rem; border-radius: 999px; background: #e8f7ef; color: #198754; font-size: .66rem; font-weight: 700; }
+.status-pill.inactive { background: #edf0f3; color: #75818d; }
+.edit-row-btn { border: 0; border-radius: 6px; padding: .3rem .5rem; background: #edf5fc; color: #286b9f; font-size: .7rem; }
+
+@media(max-width:767.98px) {
+  .editor-page { padding: .65rem; }
+  .editor-header { align-items: flex-start; gap: .5rem; }
+  .editor-header p { display: none; }
+  .product-form-card { padding: .8rem; }
+  .card-save { margin-left: -.8rem; margin-right: -.8rem; padding: .8rem; }
+  .card-save .btn { width: 100%; }
+  .saved-list-card table { white-space: nowrap; }
+}

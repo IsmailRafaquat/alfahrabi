@@ -28,13 +28,18 @@ function configureRoutes() {
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.ProductCategories',
     },
     {
+      path: '/shop-management/products', name: '::ProductList', parentName: '::Products',
+      iconClass: 'fas fa-cubes', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.Products',
+    },
+    {
       path: '/shop-management/product-categories', name: '::ProductCategories', parentName: '::Products',
-      iconClass: 'fas fa-tags', order: 1, layout: eLayoutType.application,
+      iconClass: 'fas fa-tags', order: 2, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.ProductCategories',
     },
     {
       path: '/shop-management/units', name: '::Units', parentName: '::Products', iconClass: 'fas fa-balance-scale',
-      order: 2, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Units',
+      order: 3, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Units',
     },
     // Home / Dashboard
     {

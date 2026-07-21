@@ -4,6 +4,7 @@ using EHub.Expenses.StaffSalaryPayments;
 using EHub.ShopManagement.Settings;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
+using EHub.ShopManagement.Products;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -80,6 +81,7 @@ public class EHubDbContext :
     public DbSet<ShopSetting> ShopSettings { get; set; }
     public DbSet<ShopProductCategory> ShopProductCategories { get; set; }
     public DbSet<ShopUnit> ShopUnits { get; set; }
+    public DbSet<ShopProduct> ShopProducts { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -793,6 +795,51 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.ShortName }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.IsActive });
+        });
+
+        builder.Entity<ShopProduct>(b =>
+        {
+            b.ToTable("ShopProducts", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.CategoryId).IsRequired();
+            b.Property(x => x.UnitId).IsRequired();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(ShopProductConsts.NameMaxLength);
+            b.Property(x => x.Code).IsRequired().HasMaxLength(ShopProductConsts.CodeMaxLength);
+            b.Property(x => x.SKU).HasMaxLength(ShopProductConsts.SkuMaxLength);
+            b.Property(x => x.Barcode).HasMaxLength(ShopProductConsts.BarcodeMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopProductConsts.DescriptionMaxLength);
+            b.Property(x => x.Brand).HasMaxLength(ShopProductConsts.BrandMaxLength);
+            b.Property(x => x.Model).HasMaxLength(ShopProductConsts.ModelMaxLength);
+
+            b.Property(x => x.PurchasePrice).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.SalePrice).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.WholesalePrice).HasPrecision(18, 4);
+            b.Property(x => x.MinimumSalePrice).HasPrecision(18, 4);
+            b.Property(x => x.TaxPercentage).HasPrecision(5, 2).HasDefaultValue(0);
+
+            b.Property(x => x.CurrentStock).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.MinimumStockLevel).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.MaximumStockLevel).HasPrecision(18, 4);
+            b.Property(x => x.ReorderLevel).HasPrecision(18, 4).HasDefaultValue(0);
+
+            b.Property(x => x.TrackBatch).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.TrackExpiry).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.TrackSerialNumber).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.IsTaxable).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+
+            b.HasOne(x => x.Category).WithMany().HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Unit).WithMany().HasForeignKey(x => x.UnitId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.CategoryId });
+            b.HasIndex(x => new { x.TenantId, x.UnitId });
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
+            b.HasIndex(x => new { x.TenantId, x.Name });
+            b.HasIndex(x => new { x.TenantId, x.CurrentStock });
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.SKU }).IsUnique().HasFilter("[SKU] IS NOT NULL");
+            b.HasIndex(x => new { x.TenantId, x.Barcode }).IsUnique().HasFilter("[Barcode] IS NOT NULL");
         });
 
         builder.Entity<ExpenseEntry>(b =>
