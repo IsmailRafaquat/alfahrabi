@@ -9,7 +9,7 @@ import { PageModule } from '@abp/ng.components/page';
 
 @NgModule({
   declarations: [
-    CreateStudentComponent
+    CreateStudentComponent,
   ],
   imports: [
     CommonModule,

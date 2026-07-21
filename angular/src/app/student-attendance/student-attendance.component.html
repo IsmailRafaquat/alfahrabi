@@ -1,36 +1,9 @@
 <abp-page [title]="'::Menu:StudentAttendance' | abpLocalization">
   <abp-page-toolbar-container class="col">
-    <!-- <div class="text-end">
-      <input #fileInput type="file" accept=".xlsx" class="d-none" (change)="onExcelSelectedAndImport($event)" />
-
-      <button type="button" class="btn btn-outline-primary btn-sm me-2" (click)="fileInput.click()"
-        [disabled]="importingExcel">
-        <i class="fa fa-upload me-1"></i>
-        <span class="d-none d-sm-inline">
-          {{ importingExcel ? ('::Importing' | abpLocalization) : ('::ImportExcel' | abpLocalization) }}
-        </span>
-      </button>
-
-      <button class="btn btn-outline-primary btn-sm me-2" (click)="openTemplateModal()">
-        <i class="fa fa-file-excel me-1"></i>
-        <span class="d-none d-sm-inline">
-          {{ '::GenerateAttendanceTemplate' | abpLocalization}}
-        </span>
-
-      </button>
-
-      <button class="btn btn-outline-primary btn-sm" type="button" (click)="openMarkModal()">
-        <i class="fa fa-plus me-1"></i> <span class="d-none d-sm-inline">{{ '::MarkAttendance' | abpLocalization
-          }}</span>
-      </button>
-
-    </div> -->
     <div class="text-end">
 
-      <!-- Hidden file input -->
       <input #fileInput type="file" accept=".xlsx" class="d-none" (change)="onExcelSelectedAndImport($event)" />
 
-      <!-- Desktop / tablet (sm and up) -->
       <div class="d-none d-sm-flex justify-content-end gap-2">
         <button type="button" class="btn btn-outline-primary btn-sm" (click)="fileInput.click()"
           [disabled]="importingExcel">
@@ -44,7 +17,7 @@
           {{ '::GenerateAttendanceTemplate' | abpLocalization }}
         </button>
 
-        <button class="btn btn-outline-primary btn-sm" type="button" (click)="openMarkModal()">
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="openClassMarkModal()">
           <i class="fa fa-plus me-1"></i>
           {{ '::MarkAttendance' | abpLocalization }}
         </button>
@@ -72,7 +45,7 @@
 
             <div class="dropdown-divider"></div>
 
-            <button class="dropdown-item" type="button" (click)="openMarkModal()">
+            <button class="dropdown-item" type="button" (click)="openClassMarkModal()">
               <i class="fa fa-plus me-2"></i>
               {{ '::MarkAttendance' | abpLocalization }}
             </button>
@@ -239,8 +212,8 @@
             {{ '::Student' | abpLocalization }} <span class="text-danger">*</span>
           </label>
 
-          <nz-select class="form-control" nzShowSearch nzAllowClear nzSize="large"
-            [nzLoading]="studentsLoading" formControlName="studentId" class="w-100">
+          <nz-select class="form-control" nzShowSearch nzAllowClear nzSize="large" [nzLoading]="studentsLoading"
+            formControlName="studentId" class="w-100">
             <nz-option *ngFor="let s of studentOptions" [nzValue]="s.id"
               [nzLabel]="s.firstName + ' ' + s.lastName + ' (' + (s.admissionNo || '-') + ')'"></nz-option>
           </nz-select>
@@ -383,52 +356,6 @@
     </button>
   </ng-template>
 </abp-modal>
-<abp-modal [(visible)]="isTemplateModalOpen" size="md">
-  <ng-template #abpHeader>
-    <h3>{{ '::GenerateAttendanceTemplate' | abpLocalization }}</h3>
-  </ng-template>
 
-  <ng-template #abpBody>
-    <form [formGroup]="templateForm">
-      <div class="mb-2">
-        <label class="form-label">{{ '::Class' | abpLocalization }} *</label>
-        <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="gradeLevel">
-          <nz-option *ngFor="let g of gradeLevels" [nzValue]="g.value"
-            [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
-          </nz-option>
-        </nz-select>
-      </div>
-
-      <div class="mb-2">
-        <label class="form-label">{{ '::Section' | abpLocalization }} *</label>
-        <nz-select class="w-100" nzShowSearch nzAllowClear nzSize="large" formControlName="section">
-          <nz-option *ngFor="let s of sections" [nzValue]="s.value"
-            [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
-          </nz-option>
-        </nz-select>
-      </div>
-
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label class="form-label">{{ '::DateFrom' | abpLocalization }} *</label>
-          <input type="date" class="form-control" formControlName="dateFrom" />
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">{{ '::DateTo' | abpLocalization }} *</label>
-          <input type="date" class="form-control" formControlName="dateTo" />
-        </div>
-      </div>
-    </form>
-  </ng-template>
-
-  <ng-template #abpFooter>
-    <button type="button" class="btn btn-secondary" (click)="isTemplateModalOpen = false">
-      {{ '::Cancel' | abpLocalization }}
-    </button>
-    <button type="button" class="btn btn-primary" (click)="generateTemplate()" [disabled]="templateForm.invalid">
-      <i class="fa fa-download me-1"></i>
-      {{ '::Generate' | abpLocalization }}
-    </button>
-  </ng-template>
-</abp-modal>
+<app-class-mark-attendance-modal #classMarkAttendanceModal (saved)="onClassAttendanceSaved()">
+</app-class-mark-attendance-modal>

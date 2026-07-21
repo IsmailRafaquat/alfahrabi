@@ -48,7 +48,7 @@ export class StudentMonthlyFeeService {
     this.restService.request<any, PagedResultDto<StudentMonthlyFeeDto>>({
       method: 'GET',
       url: '/api/fee-module/student-monthly-fees',
-      params: { filter: input.filter, studentId: input.studentId, month: input.month, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+      params: { filter: input.filter, studentId: input.studentId, month: input.month, collectedOn: input.collectedOn, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
     },
     { apiName: this.apiName,...config });
   

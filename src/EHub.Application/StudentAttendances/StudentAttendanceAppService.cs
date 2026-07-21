@@ -492,7 +492,76 @@ public class StudentAttendanceAppService : ApplicationService, IStudentAttendanc
         };
     }
 
+    public async Task<List<ClassStudentAttendanceRowDto>> GetClassStudentsForAttendanceAsync(
+    GetClassStudentsForAttendanceInput input)
+    {
+        Check.NotNull(input, nameof(input));
 
+        var date = NormalizeDate(input.AttendanceDate);
+
+        var students = await _studentRepository.GetByClassSectionAsync(
+            input.GradeLevel,
+            input.Section
+        );
+
+        var studentIds = students.Select(x => x.Id).ToList();
+
+        var attendanceQuery = await _repository.GetQueryableAsync();
+
+        var existingAttendances = await AsyncExecuter.ToListAsync(
+            attendanceQuery.Where(x =>
+                studentIds.Contains(x.StudentId) &&
+                x.AttendanceDate == date
+            )
+        );
+
+        var attendanceMap = existingAttendances.ToDictionary(x => x.StudentId);
+
+        return students
+            .OrderBy(x => x.AdmissionNo)
+            .Select(s =>
+            {
+                attendanceMap.TryGetValue(s.Id, out var attendance);
+
+                return new ClassStudentAttendanceRowDto
+                {
+                    StudentId = s.Id,
+                    AdmissionNo = s.AdmissionNo,
+                    FullName = $"{s.FirstName} {s.LastName}".Trim(),
+                    Status = attendance?.Status ?? AttendanceStatus.Present,
+                    Remarks = attendance?.Remarks
+                };
+            })
+            .ToList();
+    }
+
+    public async Task BulkMarkClassAttendanceAsync(BulkMarkClassStudentAttendanceDto input)
+    {
+        Check.NotNull(input, nameof(input));
+
+        if (input.Items == null || input.Items.Length == 0)
+        {
+            throw new UserFriendlyException("No students found for attendance.");
+        }
+
+        var date = NormalizeDate(input.AttendanceDate);
+
+        var items = input.Items
+            .Where(x => x.StudentId != Guid.Empty)
+            .GroupBy(x => x.StudentId)
+            .Select(x => x.Last())
+            .ToList();
+
+        foreach (var item in items)
+        {
+            await _manager.MarkAsync(
+                item.StudentId,
+                date,
+                item.Status,
+                item.Remarks
+            );
+        }
+    }
 
 
     private static DateTime NormalizeDate(DateTime d)

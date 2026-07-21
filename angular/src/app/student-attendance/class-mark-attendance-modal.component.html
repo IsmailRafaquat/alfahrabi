@@ -1,0 +1,136 @@
+<abp-modal [(visible)]="isOpen" [options]="{ size: 'lg' }">
+  <ng-template #abpHeader>
+    <h3>{{ '::MarkAttendance' | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">
+            {{ '::Class' | abpLocalization }}
+            <span class="text-danger">*</span>
+          </label>
+
+          <nz-select
+            class="w-100"
+            nzShowSearch
+            nzAllowClear
+            nzSize="medium"
+            formControlName="gradeLevel">
+            <nz-option
+              *ngFor="let g of gradeLevels"
+              [nzValue]="g.value"
+              [nzLabel]="'::Enum:GradeLevel.' + g.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">
+            {{ '::Section' | abpLocalization }}
+            <span class="text-danger">*</span>
+          </label>
+
+          <nz-select
+            class="w-100"
+            nzShowSearch
+            nzAllowClear
+            nzSize="medium"
+            formControlName="section">
+            <nz-option
+              *ngFor="let s of sections"
+              [nzValue]="s.value"
+              [nzLabel]="'::Enum:Section.' + s.value | abpLocalization">
+            </nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">
+            {{ '::Date' | abpLocalization }}
+            <span class="text-danger">*</span>
+          </label>
+
+          <input
+            type="date"
+            class="form-control form-control-sm"
+            formControlName="attendanceDate" />
+        </div>
+
+        <div class="col-md-3">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm w-100"
+            (click)="loadStudents()"
+            [disabled]="form.invalid || loadingStudents">
+            <span *ngIf="loadingStudents" class="spinner-border spinner-border-sm me-1"></span>
+            {{ '::LoadStudents' | abpLocalization }}
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="table-responsive mt-3" *ngIf="rows.length">
+      <table class="table table-bordered table-sm align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::AdmissionNo' | abpLocalization }}</th>
+            <th>{{ '::Student' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::Remarks' | abpLocalization }}</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let row of rows">
+            <td>{{ row.admissionNo || '-' }}</td>
+            <td>{{ row.fullName }}</td>
+
+            <td>
+              <nz-select
+                class="w-100"
+                nzSize="small"
+                [(ngModel)]="row.status"
+                [ngModelOptions]="{ standalone: true }">
+                <nz-option
+                  *ngFor="let s of attendanceStatuses"
+                  [nzValue]="s.value"
+                  [nzLabel]="'::Enum:AttendanceStatus.' + s.value | abpLocalization">
+                </nz-option>
+              </nz-select>
+            </td>
+
+            <td>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                maxlength="300"
+                [(ngModel)]="row.remarks"
+                [ngModelOptions]="{ standalone: true }" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-muted mt-3" *ngIf="!loadingStudents && !rows.length">
+      {{ '::SelectClassSectionAndDateThenLoadStudents' | abpLocalization }}
+    </div>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="close()">
+      {{ '::Cancel' | abpLocalization }}
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      (click)="save()"
+      [disabled]="!rows.length || saving">
+      <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>
+      {{ '::Save' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>

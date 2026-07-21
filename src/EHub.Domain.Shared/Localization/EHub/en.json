@@ -760,6 +760,8 @@
     "Class": "Class",
     "CollectedAmount": "Collected Amount",
     "PendingAmount": "Pending Amount",
-    "PendingMonths": "Pending Months"
+    "PendingMonths": "Pending Months",
+    "LoadStudents": "Load Students",
+    "SelectClassSectionAndDateThenLoadStudents": "Select class, section and date, then load students"
   }
 }

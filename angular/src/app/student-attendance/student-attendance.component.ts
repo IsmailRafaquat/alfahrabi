@@ -1,6 +1,6 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
 import { ConfirmationService, ToasterService, Confirmation } from '@abp/ng.theme.shared';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { attendanceStatusOptions, AttendanceStatus } from '../proxy/attendance-statuss';
 import {
@@ -23,6 +23,7 @@ import {
   StudentAttendanceImportApi,
 } from 'src/custom-services/import-student-attendance';
 import { ConfirmationHelperService } from '../shared/services/confirmation-helper.service';
+import { ClassMarkAttendanceModalComponent } from './class-mark-attendance-modal.component';
 
 @Component({
   selector: 'app-student-attendance',
@@ -64,6 +65,9 @@ export class StudentAttendanceComponent implements OnInit {
   studentOptions: StudentLookupDto[] = [];
   studentsLoading = false;
 
+  @ViewChild(ClassMarkAttendanceModalComponent)
+  classMarkAttendanceModal!: ClassMarkAttendanceModalComponent;
+
   constructor(
     public readonly list: ListService,
     private attendanceService: StudentAttendanceService,
@@ -71,7 +75,6 @@ export class StudentAttendanceComponent implements OnInit {
     private downloadService: StudentAttendanceDownloadService,
     private studentService: StudentService,
     private fb: FormBuilder,
-    private confirmation: ConfirmationService,
     private customConfirmation: ConfirmationHelperService,
     private toaster: ToasterService,
   ) {
@@ -82,7 +85,6 @@ export class StudentAttendanceComponent implements OnInit {
       dateTo: [null, Validators.required],
     });
   }
-
   ngOnInit(): void {
     const streamCreator = (query: any) =>
       this.attendanceService.getList({ ...query, ...this.filters });
@@ -310,5 +312,13 @@ export class StudentAttendanceComponent implements OnInit {
       default:
         return 'soft-badge--secondary'; // fallback
     }
+  }
+
+  openClassMarkModal(): void {
+    this.classMarkAttendanceModal.open();
+  }
+
+  onClassAttendanceSaved(): void {
+    this.list.get();
   }
 }

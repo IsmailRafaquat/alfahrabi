@@ -1,6 +1,6 @@
 import type { Department } from '../staffs/department.enum';
 import type { Shift } from '../students/shift.enum';
-import type { EntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
+import type { EntityDto, FullAuditedEntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
 import type { AttendanceLeaderboardOrder } from '../students/attendance-leaderboard-order.enum';
 import type { AttendanceStatus } from '../attendance-statuss/attendance-status.enum';
 
@@ -37,7 +37,7 @@ export interface MarkStaffAttendanceDto {
   remarks?: string;
 }
 
-export interface StaffAttendanceDto extends EntityDto<string> {
+export interface StaffAttendanceDto extends FullAuditedEntityDto<string> {
   staffId?: string;
   attendanceDate?: string;
   status?: AttendanceStatus;
