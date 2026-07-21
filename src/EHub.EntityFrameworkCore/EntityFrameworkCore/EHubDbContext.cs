@@ -2,6 +2,7 @@ using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
 using EHub.ShopManagement.Settings;
+using EHub.ShopManagement.ProductCategories;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -76,6 +77,7 @@ public class EHubDbContext :
     public DbSet<ExpenseEntry> ExpenseEntries { get; set; }
     public DbSet<StaffSalaryPayment> StaffSalaryPayments { get; set; }
     public DbSet<ShopSetting> ShopSettings { get; set; }
+    public DbSet<ShopProductCategory> ShopProductCategories { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -752,6 +754,29 @@ public class EHubDbContext :
             b.Property(x => x.DefaultLowStockLevel).HasPrecision(18, 2).HasDefaultValue(5);
             b.Property(x => x.DecimalPlaces).HasDefaultValue(2);
             b.Property(x => x.IsConfigured).HasDefaultValue(false);
+        });
+
+        builder.Entity<ShopProductCategory>(b =>
+        {
+            b.ToTable("ShopProductCategories", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.Name).IsRequired().HasMaxLength(ShopProductCategoryConsts.NameMaxLength);
+            b.Property(x => x.Code).IsRequired().HasMaxLength(ShopProductCategoryConsts.CodeMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopProductCategoryConsts.DescriptionMaxLength);
+            b.Property(x => x.DisplayOrder).IsRequired().HasDefaultValue(0);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+            b.HasOne(x => x.ParentCategory).WithMany(x => x.ChildCategories)
+                .HasForeignKey(x => x.ParentCategoryId).OnDelete(DeleteBehavior.Restrict);
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ParentCategoryId });
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
+            b.HasIndex(x => new { x.TenantId, x.ParentCategoryId, x.Name })
+                .IsUnique().HasFilter("[ParentCategoryId] IS NOT NULL");
+            b.HasIndex(x => new { x.TenantId, x.Name })
+                .IsUnique().HasFilter("[ParentCategoryId] IS NULL");
         });
 
         builder.Entity<ExpenseEntry>(b =>

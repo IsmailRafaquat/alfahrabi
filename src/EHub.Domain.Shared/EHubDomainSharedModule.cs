@@ -77,6 +77,7 @@ public class EHubDomainSharedModule : AbpModule
         Configure<AbpExceptionLocalizationOptions>(options =>
         {
             options.MapCodeNamespace("EHub", typeof(EHubResource));
+            options.MapCodeNamespace("ShopManagement", typeof(EHubResource));
         });
     }
 }

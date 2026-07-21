@@ -1,0 +1,25 @@
+<div class="category-page">
+  <div class="page-heading"><div><h3>{{ '::ProductCategories' | abpLocalization }}</h3><p>{{ '::ProductCategoriesDescription' | abpLocalization }}</p></div>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateProductCategory' | abpLocalization }}</button></div>
+  <div class="card category-card">
+    <div class="view-tabs"><button [class.active]="activeView === 'list'" (click)="showList()"><i class="fas fa-list"></i>{{ '::CategoryList' | abpLocalization }}</button>
+      <button [class.active]="activeView === 'tree'" (click)="showTree()"><i class="fas fa-sitemap"></i>{{ '::CategoryHierarchy' | abpLocalization }}</button></div>
+    <ng-container *ngIf="activeView === 'list'">
+      <div class="filters row g-2">
+        <div class="col-12 col-lg-5"><div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="loadList(true)" [placeholder]="'::SearchCategories' | abpLocalization"></div></div>
+        <div class="col-6 col-lg-3"><nz-select class="w-100" [(ngModel)]="parentFilter" (ngModelChange)="loadList(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllCategories' | abpLocalization"><nz-option nzValue="root" [nzLabel]="'::RootCategories' | abpLocalization"></nz-option><nz-option *ngFor="let x of lookup" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option></nz-select></div>
+        <div class="col-6 col-lg-2"><nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="loadList(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization"><nz-option nzValue="active" [nzLabel]="'::ActiveCategories' | abpLocalization"></nz-option><nz-option nzValue="inactive" [nzLabel]="'::InactiveCategories' | abpLocalization"></nz-option></nz-select></div>
+        <div class="col-12 col-lg-2"><button class="btn btn-outline-primary btn-sm w-100" (click)="loadList(true)">{{ '::Button:Filter' | abpLocalization }}</button></div>
+      </div>
+      <div class="table-responsive"><table class="table align-middle"><thead><tr><th>{{ '::CategoryName' | abpLocalization }}</th><th>{{ '::CategoryCode' | abpLocalization }}</th><th>{{ '::ParentCategory' | abpLocalization }}</th><th>{{ '::DisplayOrder' | abpLocalization }}</th><th>{{ '::IsActive' | abpLocalization }}</th><th>{{ '::CreationTime' | abpLocalization }}</th><th class="text-end">{{ '::Actions' | abpLocalization }}</th></tr></thead>
+        <tbody><tr *ngFor="let row of items"><td><strong>{{ row.name }}</strong></td><td><span class="code-chip">{{ row.code }}</span></td><td>{{ row.parentCategoryName || ('::RootCategory' | abpLocalization) }}</td><td>{{ row.displayOrder }}</td><td><span class="status" [class.inactive]="!row.isActive">{{ (row.isActive ? '::ActiveCategories' : '::InactiveCategories') | abpLocalization }}</span></td><td>{{ row.creationTime | date:'mediumDate' }}</td>
+          <td class="text-end"><button *ngIf="canEdit" class="icon-btn" (click)="edit(row)" [title]="'::EditProductCategory' | abpLocalization"><i class="fas fa-pen"></i></button><button *ngIf="canDelete" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteProductCategory' | abpLocalization"><i class="fas fa-trash"></i></button></td></tr>
+          <tr *ngIf="!loading && !items.length"><td colspan="7" class="empty-state"><i class="fas fa-box-open"></i><span>{{ '::NoProductCategoriesFound' | abpLocalization }}</span></td></tr></tbody></table></div>
+      <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+      <div class="pager"><span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span><div><button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button><button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button></div></div>
+    </ng-container>
+    <div *ngIf="activeView === 'tree'" class="tree-view"><ng-container *ngTemplateOutlet="treeNodes; context: {$implicit: tree, level: 0}"></ng-container></div>
+  </div>
+</div>
+
+<ng-template #treeNodes let-nodes let-level="level"><div *ngFor="let node of nodes" class="tree-node" [style.margin-left.px]="level * 22"><div class="tree-row"><i [class]="node.children?.length ? 'fas fa-folder text-warning' : 'fas fa-tag text-primary'"></i><strong>{{ node.name }}</strong><span class="code-chip">{{ node.code }}</span><span class="status" [class.inactive]="!node.isActive">{{ (node.isActive ? '::ActiveCategories' : '::InactiveCategories') | abpLocalization }}</span></div><ng-container *ngTemplateOutlet="treeNodes; context: {$implicit: node.children, level: level + 1}"></ng-container></div></ng-template>

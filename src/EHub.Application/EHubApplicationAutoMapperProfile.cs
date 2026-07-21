@@ -1,5 +1,6 @@
 using AutoMapper;
 using EHub.ShopManagement.Settings;
+using EHub.ShopManagement.ProductCategories;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -30,6 +31,8 @@ public class EHubApplicationAutoMapperProfile : Profile
     {
         CreateMap<ShopSetting, ShopSettingDto>();
         CreateMap<CreateUpdateShopSettingDto, ShopSetting>();
+        CreateMap<ShopProductCategory, ShopProductCategoryDto>();
+        CreateMap<ShopProductCategory, ShopProductCategoryLookupDto>();
         CreateMap<Student, StudentDto>()
             .ForMember(x => x.StudentDocument, opt => opt.MapFrom(src => src.StudentDocuments));
         CreateMap<Staff, StaffDto>()

@@ -23,6 +23,15 @@ function configureRoutes() {
       iconClass: 'fas fa-cog', order: 1, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.Settings',
     },
+    {
+      name: '::Products', parentName: '::ShopManagement', iconClass: 'fas fa-boxes', order: 2,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.ProductCategories',
+    },
+    {
+      path: '/shop-management/product-categories', name: '::ProductCategories', parentName: '::Products',
+      iconClass: 'fas fa-tags', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.ProductCategories',
+    },
     // Home / Dashboard
     {
       path: '/',
