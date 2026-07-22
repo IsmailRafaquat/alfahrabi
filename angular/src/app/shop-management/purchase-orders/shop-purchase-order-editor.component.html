@@ -1,0 +1,119 @@
+<div class="editor-page">
+  <div class="editor-header">
+    <div>
+      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
+      <span>
+        <h3>{{ (isEdit ? '::EditPurchaseOrder' : '::CreatePurchaseOrder') | abpLocalization }}</h3>
+        <p *ngIf="isEdit">{{ purchaseOrderNumber }}</p>
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <div class="po-form-card">
+      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::Supplier' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="supplierId" nzShowSearch [nzPlaceHolder]="'::SelectSupplier' | abpLocalization">
+            <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+          </nz-select>
+          <small class="error" *ngIf="form.controls.supplierId.touched && form.controls.supplierId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::OrderDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="orderDate">
+          <small class="error" *ngIf="form.controls.orderDate.touched && form.controls.orderDate.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ExpectedDeliveryDate' | abpLocalization }}</label>
+          <input type="date" class="form-control form-control-sm" formControlName="expectedDeliveryDate">
+          <small class="error" *ngIf="form.errors?.['expectedDeliveryDateBeforeOrderDate']">{{ '::PurchaseOrderInvalidExpectedDeliveryDate' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::SupplierReference' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="supplierReference">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ShippingCharges' | abpLocalization }}</label>
+          <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="shippingCharges">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::OtherCharges' | abpLocalization }}</label>
+          <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="otherCharges">
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="po-form-card items-card">
+      <div class="items-header">
+        <h6 class="section-title mb-0">{{ '::Product' | abpLocalization }}</h6>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()"><i class="fas fa-plus me-2"></i>{{ '::AddProduct' | abpLocalization }}</button>
+      </div>
+      <small class="error d-block mb-2" *ngIf="form.errors?.['duplicateProduct']">{{ '::PurchaseOrderDuplicateProduct' | abpLocalization }}</small>
+
+      <div class="table-responsive">
+        <table class="table align-middle items-table">
+          <thead>
+            <tr>
+              <th class="col-product">{{ '::Product' | abpLocalization }}</th>
+              <th>{{ '::OrderedQuantity' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::UnitPurchasePrice' | abpLocalization }}</th>
+              <th>{{ '::DiscountPercentage' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::DiscountAmount' | abpLocalization }}</th>
+              <th>{{ '::TaxPercentage' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::TaxAmount' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::LineTotal' | abpLocalization }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody [formArrayName]="'items'">
+            <tr *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+              <td class="col-product">
+                <nz-select class="w-100" formControlName="productId" nzShowSearch (ngModelChange)="onProductChange(i)" [nzPlaceHolder]="'::SelectProduct' | abpLocalization">
+                  <nz-option *ngFor="let x of productOptions(i)" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.code + ')'"></nz-option>
+                </nz-select>
+                <small class="unit-hint" *ngIf="row.value.unitName">{{ row.value.unitName }} ({{ row.value.unitShortName }})</small>
+                <small class="error" *ngIf="row.get('productId')?.touched && row.get('productId')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+              </td>
+              <td>
+                <input type="number" min="0" [step]="row.value.allowDecimal ? '0.01' : '1'" class="form-control form-control-sm qty-input" formControlName="orderedQuantity">
+                <small class="error" *ngIf="row.errors?.['wholeQuantityRequired']">{{ '::PurchaseOrderWholeQuantityRequired' | abpLocalization }}</small>
+              </td>
+              <td *ngIf="canViewCost"><input type="number" min="0" step="0.01" class="form-control form-control-sm price-input" formControlName="unitPurchasePrice"></td>
+              <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm pct-input" formControlName="discountPercentage"></td>
+              <td *ngIf="canViewCost" class="amount-cell">{{ lineDiscountAmount(i) | number:'1.2-2' }}</td>
+              <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm pct-input" formControlName="taxPercentage"></td>
+              <td *ngIf="canViewCost" class="amount-cell">{{ lineTaxAmount(i) | number:'1.2-2' }}</td>
+              <td *ngIf="canViewCost" class="amount-cell total-cell">{{ lineTotal(i) | number:'1.2-2' }}</td>
+              <td class="text-end"><button type="button" class="remove-btn" [disabled]="items.length === 1" (click)="removeItem(i)"><i class="fas fa-trash"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="po-form-card totals-card" *ngIf="canViewCost">
+      <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ subTotal | number:'1.2-2' }}</strong></div>
+      <div class="totals-row"><span>{{ '::DiscountAmount' | abpLocalization }}</span><strong>-{{ totalDiscount | number:'1.2-2' }}</strong></div>
+      <div class="totals-row"><span>{{ '::TaxAmount' | abpLocalization }}</span><strong>{{ totalTax | number:'1.2-2' }}</strong></div>
+      <div class="totals-row"><span>{{ '::ShippingCharges' | abpLocalization }}</span><strong>{{ form.value.shippingCharges | number:'1.2-2' }}</strong></div>
+      <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ form.value.otherCharges | number:'1.2-2' }}</strong></div>
+      <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ grandTotal | number:'1.2-2' }}</strong></div>
+    </div>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+</div>

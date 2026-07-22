@@ -45,6 +45,15 @@ function configureRoutes() {
       path: '/shop-management/suppliers', name: '::Suppliers', parentName: '::ShopManagement', iconClass: 'fas fa-truck',
       order: 3, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Suppliers',
     },
+    {
+      name: '::Purchases', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice', order: 4,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.PurchaseOrders',
+    },
+    {
+      path: '/shop-management/purchase-orders', name: '::PurchaseOrders', parentName: '::Purchases',
+      iconClass: 'fas fa-file-invoice-dollar', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.PurchaseOrders',
+    },
     // Home / Dashboard
     {
       path: '/',

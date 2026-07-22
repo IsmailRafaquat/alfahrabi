@@ -49,6 +49,19 @@ public static class EHubPermissions
         public const string ViewBalance = Default + ".ViewBalance";
     }
 
+    public static class ShopPurchaseOrders
+    {
+        public const string Default = ManagementMenus.Shop + ".PurchaseOrders";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Submit = Default + ".Submit";
+        public const string Approve = Default + ".Approve";
+        public const string Reject = Default + ".Reject";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

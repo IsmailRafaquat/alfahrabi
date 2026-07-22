@@ -1,7 +1,13 @@
 <div class="suppliers-page">
   <div class="page-heading">
     <div>
-      <h3>{{ '::Suppliers' | abpLocalization }}</h3>
+      <h3>
+        {{ '::Suppliers' | abpLocalization }}
+        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'A Supplier is the person or company you buy products from. Save their contact details, address, and payment terms here so you can select them quickly in future Purchase Orders.', ur: 'سپلائیر وہ شخص یا کمپنی ہے جس سے آپ سامان خریدتے ہیں۔ ان کا رابطہ نمبر، پتہ اور ادائیگی کی شرائط یہاں محفوظ کریں تاکہ Purchase Orders میں آسانی سے منتخب کر سکیں۔' }">
+          <i class="fas fa-circle-info"></i> {{ '::HowThisWorks' | abpLocalization }}
+        </button>
+      </h3>
       <p>{{ '::SuppliersDescription' | abpLocalization }}</p>
     </div>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateSupplier' | abpLocalization }}</button>
@@ -37,11 +43,11 @@
             <th>{{ '::Phone' | abpLocalization }}</th>
             <th>{{ '::City' | abpLocalization }}</th>
             <th>{{ '::PaymentTermsDays' | abpLocalization }}</th>
-            <th *ngIf="canViewBalance" class="has-tooltip" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="balanceInfoTooltip"
+            <th *ngIf="canViewBalance" class="has-tooltip" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
                 [nzTooltipTitleContext]="{ en: 'The amount already owed to this supplier when they were first added to the system.', ur: 'یہ رقم ہے جو سپلائیر کو شروع میں دینی تھی۔' }">
               {{ '::OpeningBalance' | abpLocalization }} <i class="fas fa-circle-info info-icon"></i>
             </th>
-            <th *ngIf="canViewBalance" class="has-tooltip" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="balanceInfoTooltip"
+            <th *ngIf="canViewBalance" class="has-tooltip" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
                 [nzTooltipTitleContext]="{ en: 'The maximum credit amount recommended by this supplier. Currently for information only.', ur: 'سپلائیر آپ کو زیادہ سے زیادہ کتنا ادھار دے سکتا ہے۔' }">
               {{ '::CreditLimit' | abpLocalization }} <i class="fas fa-circle-info info-icon"></i>
             </th>
@@ -85,7 +91,7 @@
   </div>
 </div>
 
-<ng-template #balanceInfoTooltip let-en="en" let-ur="ur">
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
   <div class="tooltip-lang-tabs">
     <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
     <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>

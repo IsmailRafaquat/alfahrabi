@@ -38,6 +38,8 @@ export class ShopProductsComponent implements OnInit {
   taxFilter = '';
   lowStockOnly = false;
 
+  tooltipLang: 'en' | 'ur' = 'en';
+
   ngOnInit(): void {
     this.categoryService.getLookup().subscribe(result => (this.categories = result.items || []));
     this.unitService.getLookup().subscribe(result => (this.units = result.items || []));

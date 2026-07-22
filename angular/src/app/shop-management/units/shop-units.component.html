@@ -1,7 +1,12 @@
 <div class="units-page">
     <div class="page-head">
         <div>
-            <h3>{{ '::Units' | abpLocalization }}</h3>
+            <h3>{{ '::Units' | abpLocalization }}
+                <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+                    [nzTooltipTitleContext]="{ en: 'A Unit tells how a product is measured or sold, like Piece, Meter, Kilogram, or Box. Units keep stock and sales quantities consistent across all products.', ur: 'Unit بتاتا ہے کہ پروڈکٹ کس پیمانے میں بکتا ہے، جیسے عدد، میٹر، کلو یا ڈبہ۔ اس سے تمام پروڈکٹس کا اسٹاک اور فروخت درست طریقے سے ریکارڈ ہوتا ہے۔' }">
+                    <i class="fas fa-circle-info"></i> {{ '::HowThisWorks' | abpLocalization }}
+                </button>
+            </h3>
             <p>{{ '::UnitsDescription' | abpLocalization }}</p>
         </div><button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i
                 class="fas fa-plus me-2"></i>{{ '::CreateUnit' | abpLocalization }}</button>
@@ -81,3 +86,10 @@
     </ng-template><ng-template #abpFooter><button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' |
             abpLocalization }}</button><button class="btn btn-primary btn-sm" [disabled]="form.invalid||submitting"
             (click)="save()">{{ '::Save' | abpLocalization }}</button></ng-template></abp-modal>
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+    <div class="tooltip-lang-tabs">
+        <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+        <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+    </div>
+    <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

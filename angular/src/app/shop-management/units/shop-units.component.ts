@@ -11,6 +11,7 @@ export class ShopUnitsComponent implements OnInit {
   readonly canCreate = this.permissions.getGrantedPolicy('ShopManagement.Units.Create'); readonly canEdit = this.permissions.getGrantedPolicy('ShopManagement.Units.Edit'); readonly canDelete = this.permissions.getGrantedPolicy('ShopManagement.Units.Delete'); readonly Math = Math;
   items: ShopUnitDto[] = []; totalCount = 0; page = 0; pageSize = 10; loading = false; submitting = false; modalOpen = false; selected?: ShopUnitDto;
   search = ''; quantityFilter: boolean | null = null; statusFilter: boolean | null = null;
+  tooltipLang: 'en' | 'ur' = 'en';
   readonly form = this.fb.group({ name: ['', [Validators.required, Validators.maxLength(64)]], shortName: ['', [Validators.required, Validators.maxLength(16)]], allowDecimal: [false], isActive: [true] });
   ngOnInit(): void { this.load(); }
   load(reset = false): void { if (reset) this.page = 0; this.loading = true; this.service.getList({ filter: this.search || undefined, allowDecimal: this.quantityFilter ?? undefined, isActive: this.statusFilter ?? undefined, sorting: 'name asc', skipCount: this.page * this.pageSize, maxResultCount: this.pageSize }).pipe(finalize(() => this.loading = false)).subscribe(r => { this.items = r.items || []; this.totalCount = r.totalCount; }); }

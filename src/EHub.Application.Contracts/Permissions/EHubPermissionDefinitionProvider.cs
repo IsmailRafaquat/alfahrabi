@@ -32,6 +32,15 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopSuppliers.AddChild(EHubPermissions.ShopSuppliers.Edit, L("Permission:ShopSuppliers.Edit"));
         shopSuppliers.AddChild(EHubPermissions.ShopSuppliers.Delete, L("Permission:ShopSuppliers.Delete"));
         shopSuppliers.AddChild(EHubPermissions.ShopSuppliers.ViewBalance, L("Permission:ShopSuppliers.ViewBalance"));
+        var shopPurchaseOrders = shopManagement.AddChild(EHubPermissions.ShopPurchaseOrders.Default, L("Permission:ShopPurchaseOrders"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Create, L("Permission:ShopPurchaseOrders.Create"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Edit, L("Permission:ShopPurchaseOrders.Edit"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Delete, L("Permission:ShopPurchaseOrders.Delete"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Submit, L("Permission:ShopPurchaseOrders.Submit"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Approve, L("Permission:ShopPurchaseOrders.Approve"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Reject, L("Permission:ShopPurchaseOrders.Reject"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Cancel, L("Permission:ShopPurchaseOrders.Cancel"));
+        shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.ViewCost, L("Permission:ShopPurchaseOrders.ViewCost"));
 
 
         var dashboardPermission =

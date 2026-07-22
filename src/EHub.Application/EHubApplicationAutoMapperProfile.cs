@@ -4,6 +4,7 @@ using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.Suppliers;
+using EHub.ShopManagement.PurchaseOrders;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -46,6 +47,14 @@ public class EHubApplicationAutoMapperProfile : Profile
         CreateMap<ShopSupplier, ShopSupplierDto>();
         CreateMap<ShopSupplier, ShopSupplierLookupDto>()
             .ForMember(x => x.DisplayName, opt => opt.MapFrom(src => src.Code + " - " + src.Name));
+        CreateMap<ShopPurchaseOrder, ShopPurchaseOrderDto>()
+            .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
+            .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty));
+        CreateMap<ShopPurchaseOrderItem, ShopPurchaseOrderItemDto>()
+            .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.ProductNameSnapshot))
+            .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.ProductCodeSnapshot))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.UnitNameSnapshot))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.UnitShortNameSnapshot));
         CreateMap<ShopProduct, ShopProductLookupDto>()
             .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
             .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))
