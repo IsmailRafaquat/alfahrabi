@@ -22343,6 +22343,42 @@
           "regex": null
         },
         {
+          "name": "PaidAmount",
+          "jsonName": null,
+          "type": "System.Decimal?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "PendingAmount",
+          "jsonName": null,
+          "type": "System.Decimal?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "PaymentStatus",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.GoodsReceipts.ShopGoodsReceiptPaymentStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
           "name": "Notes",
           "jsonName": null,
           "type": "System.String",
@@ -22996,6 +23032,22 @@
           "regex": null
         }
       ]
+    },
+    "EHub.ShopManagement.GoodsReceipts.ShopGoodsReceiptPaymentStatus": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Unpaid",
+        "PartiallyPaid",
+        "Paid"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2
+      ],
+      "genericArguments": null,
+      "properties": null
     },
     "EHub.ShopManagement.GoodsReceipts.ShopGoodsReceiptStatus": {
       "baseType": "System.Enum",

@@ -11,6 +11,9 @@
 .status-badge.draft { color: #63707d; background: #eef1f4; }
 .status-badge.completed { color: #198754; background: #e9f7ef; }
 .status-badge.cancelled { color: #7b8794; background: #edf0f3; }
+.status-badge.payment.unpaid { color: #c83e4d; background: #fdeced; }
+.status-badge.payment.partially-paid { color: #b5670a; background: #fef3e2; }
+.status-badge.payment.paid { color: #198754; background: #e9f7ef; }
 
 .detail-card { padding: 1.1rem 1.25rem; margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); }
 .section-title { margin: 0 0 .8rem; color: #315b82; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }

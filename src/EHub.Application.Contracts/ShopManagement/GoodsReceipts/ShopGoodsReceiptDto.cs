@@ -25,6 +25,9 @@ public class ShopGoodsReceiptDto : EntityDto<Guid>
     public decimal? ShippingCharges { get; set; }
     public decimal? OtherCharges { get; set; }
     public decimal? GrandTotal { get; set; }
+    public decimal? PaidAmount { get; set; }
+    public decimal? PendingAmount { get; set; }
+    public ShopGoodsReceiptPaymentStatus PaymentStatus { get; set; }
     public string? Notes { get; set; }
 
     public Guid? ReceivedByUserId { get; set; }

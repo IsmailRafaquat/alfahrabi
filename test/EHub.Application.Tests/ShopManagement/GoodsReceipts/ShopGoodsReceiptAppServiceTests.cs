@@ -6,6 +6,7 @@ using EHub.ShopManagement.Products;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.StockTransactions;
+using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.Units;
 using Shouldly;
@@ -28,6 +29,7 @@ public abstract class ShopGoodsReceiptAppServiceTests<TStartupModule> : EHubAppl
     private readonly IShopUnitAppService _unitAppService;
     private readonly IShopProductAppService _productAppService;
     private readonly IShopStockTransactionAppService _stockTransactionAppService;
+    private readonly IShopSupplierPaymentAppService _paymentAppService;
     private readonly ITenantManager _tenantManager;
     private readonly IRepository<Tenant, Guid> _tenantRepository;
     private readonly IRepository<ShopGoodsReceipt, Guid> _grRepository;
@@ -42,6 +44,7 @@ public abstract class ShopGoodsReceiptAppServiceTests<TStartupModule> : EHubAppl
         _unitAppService = GetRequiredService<IShopUnitAppService>();
         _productAppService = GetRequiredService<IShopProductAppService>();
         _stockTransactionAppService = GetRequiredService<IShopStockTransactionAppService>();
+        _paymentAppService = GetRequiredService<IShopSupplierPaymentAppService>();
         _tenantManager = GetRequiredService<ITenantManager>();
         _tenantRepository = GetRequiredService<IRepository<Tenant, Guid>>();
         _grRepository = GetRequiredService<IRepository<ShopGoodsReceipt, Guid>>();
@@ -707,6 +710,172 @@ public abstract class ShopGoodsReceiptAppServiceTests<TStartupModule> : EHubAppl
             exception.Code.ShouldBe("ShopManagement:GoodsReceiptInvalidPurchaseOrderStatus");
         }
     }
+
+    [Fact]
+    public async Task Completed_Receipt_With_No_Posted_Payment_Is_Unpaid()
+    {
+        var tenantId = await CreateTenantAsync("tenant-unpaid-" + Guid.NewGuid().ToString("N"));
+        using (_currentTenant.Change(tenantId))
+        {
+            var (po, _) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+
+            completed.PaidAmount.ShouldBe(0);
+            completed.PendingAmount.ShouldBe(completed.GrandTotal);
+            completed.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.Unpaid);
+        }
+    }
+
+    [Fact]
+    public async Task Draft_SupplierPayment_Does_Not_Affect_PaidAmount()
+    {
+        var tenantId = await CreateTenantAsync("tenant-draft-payment-" + Guid.NewGuid().ToString("N"));
+        using (_currentTenant.Change(tenantId))
+        {
+            var (po, supplier) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+
+            await _paymentAppService.CreateAsync(BuildPaymentInput(supplier.Id, 500, completed.Id, 500));
+
+            var reloaded = await _grAppService.GetAsync(gr.Id);
+            reloaded.PaidAmount.ShouldBe(0);
+            reloaded.PendingAmount.ShouldBe(completed.GrandTotal);
+            reloaded.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.Unpaid);
+        }
+    }
+
+    [Fact]
+    public async Task Posted_Partial_SupplierPayment_Updates_PaidAmount_And_Shows_PartiallyPaid()
+    {
+        var tenantId = await CreateTenantAsync("tenant-partial-payment-" + Guid.NewGuid().ToString("N"));
+        using (_currentTenant.Change(tenantId))
+        {
+            var (po, supplier) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+
+            var payment = await _paymentAppService.CreateAsync(BuildPaymentInput(supplier.Id, 400, completed.Id, 400));
+            await _paymentAppService.PostAsync(payment.Id);
+
+            var reloaded = await _grAppService.GetAsync(gr.Id);
+            reloaded.PaidAmount.ShouldBe(400);
+            reloaded.PendingAmount.ShouldBe(completed.GrandTotal - 400);
+            reloaded.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.PartiallyPaid);
+        }
+    }
+
+    [Fact]
+    public async Task Posted_Full_SupplierPayment_Shows_Paid_And_Pending_Is_Not_Negative()
+    {
+        var tenantId = await CreateTenantAsync("tenant-full-payment-" + Guid.NewGuid().ToString("N"));
+        using (_currentTenant.Change(tenantId))
+        {
+            var (po, supplier) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+
+            var payment = await _paymentAppService.CreateAsync(BuildPaymentInput(supplier.Id, completed.GrandTotal!.Value, completed.Id, completed.GrandTotal!.Value));
+            await _paymentAppService.PostAsync(payment.Id);
+
+            var reloaded = await _grAppService.GetAsync(gr.Id);
+            reloaded.PaidAmount.ShouldBe(completed.GrandTotal);
+            reloaded.PendingAmount.ShouldBe(0);
+            reloaded.PendingAmount!.Value.ShouldBeGreaterThanOrEqualTo(0);
+            reloaded.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.Paid);
+        }
+    }
+
+    [Fact]
+    public async Task Cancelling_A_Posted_SupplierPayment_Restores_Pending_Balance()
+    {
+        var tenantId = await CreateTenantAsync("tenant-cancel-payment-" + Guid.NewGuid().ToString("N"));
+        using (_currentTenant.Change(tenantId))
+        {
+            var (po, supplier) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+
+            var payment = await _paymentAppService.CreateAsync(BuildPaymentInput(supplier.Id, 400, completed.Id, 400));
+            await _paymentAppService.PostAsync(payment.Id);
+            await _paymentAppService.CancelAsync(payment.Id, new CancelShopSupplierPaymentDto { CancellationReason = "test" });
+
+            var reloaded = await _grAppService.GetAsync(gr.Id);
+            reloaded.PaidAmount.ShouldBe(0);
+            reloaded.PendingAmount.ShouldBe(completed.GrandTotal);
+            reloaded.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.Unpaid);
+        }
+    }
+
+    [Fact]
+    public async Task TenantA_SupplierPayment_Does_Not_Affect_TenantB_GoodsReceipt()
+    {
+        var tenantAId = await CreateTenantAsync("tenant-a-payment-" + Guid.NewGuid().ToString("N"));
+        var tenantBId = await CreateTenantAsync("tenant-b-payment-" + Guid.NewGuid().ToString("N"));
+
+        Guid grId;
+        decimal? grandTotal;
+        using (_currentTenant.Change(tenantBId))
+        {
+            var (po, _) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+            grId = completed.Id;
+            grandTotal = completed.GrandTotal;
+        }
+
+        using (_currentTenant.Change(tenantAId))
+        {
+            var (poA, supplierA) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var grA = await _grAppService.CreateAsync(BuildCreateInput(poA, (poA.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completedA = await _grAppService.CompleteAsync(grA.Id);
+            var payment = await _paymentAppService.CreateAsync(BuildPaymentInput(supplierA.Id, 400, completedA.Id, 400));
+            await _paymentAppService.PostAsync(payment.Id);
+        }
+
+        using (_currentTenant.Change(tenantBId))
+        {
+            var reloaded = await _grAppService.GetAsync(grId);
+            reloaded.PaidAmount.ShouldBe(0);
+            reloaded.PendingAmount.ShouldBe(grandTotal);
+            reloaded.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.Unpaid);
+        }
+    }
+
+    [Fact]
+    public async Task List_Endpoint_Returns_Payment_Values()
+    {
+        var tenantId = await CreateTenantAsync("tenant-list-payment-" + Guid.NewGuid().ToString("N"));
+        using (_currentTenant.Change(tenantId))
+        {
+            var (po, supplier) = await CreateApprovedPurchaseOrderAsync(allowDecimal: false, quantity: 10);
+            var gr = await _grAppService.CreateAsync(BuildCreateInput(po, (po.Items[0].Id, 10, 0, 100, 0, 0)));
+            var completed = await _grAppService.CompleteAsync(gr.Id);
+
+            var payment = await _paymentAppService.CreateAsync(BuildPaymentInput(supplier.Id, 300, completed.Id, 300));
+            await _paymentAppService.PostAsync(payment.Id);
+
+            var list = await _grAppService.GetListAsync(new GetShopGoodsReceiptsInput { Filter = gr.GoodsReceiptNumber });
+            var row = list.Items.Single();
+            row.PaidAmount.ShouldBe(300);
+            row.PendingAmount.ShouldBe(completed.GrandTotal - 300);
+            row.PaymentStatus.ShouldBe(ShopGoodsReceiptPaymentStatus.PartiallyPaid);
+        }
+    }
+
+    private static CreateUpdateShopSupplierPaymentDto BuildPaymentInput(Guid supplierId, decimal amount, Guid goodsReceiptId, decimal allocateAmount) => new()
+    {
+        SupplierId = supplierId,
+        PaymentDate = DateTime.Today,
+        PaymentType = ShopSupplierPaymentType.InvoicePayment,
+        PaymentMethod = ShopSupplierPaymentMethod.Cash,
+        Amount = amount,
+        Allocations = new List<CreateUpdateShopSupplierPaymentAllocationDto>
+        {
+            new() { GoodsReceiptId = goodsReceiptId, AllocatedAmount = allocateAmount }
+        }
+    };
 
     private async Task<(Guid CategoryId, Guid UnitId)> CreateCategoryAndUnitAsync(bool allowDecimal)
     {

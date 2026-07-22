@@ -1,5 +1,6 @@
 import type { EntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
 import type { ShopGoodsReceiptStatus } from './shop-goods-receipt-status.enum';
+import type { ShopGoodsReceiptPaymentStatus } from './shop-goods-receipt-payment-status.enum';
 import type { ShopPurchaseOrderStatus } from '../purchase-orders/shop-purchase-order-status.enum';
 
 export interface CancelShopGoodsReceiptDto {
@@ -39,6 +40,9 @@ export interface ShopGoodsReceiptDto extends EntityDto<string> {
   shippingCharges?: number;
   otherCharges?: number;
   grandTotal?: number;
+  paidAmount?: number;
+  pendingAmount?: number;
+  paymentStatus?: ShopGoodsReceiptPaymentStatus;
   notes?: string;
   receivedByUserId?: string;
   completedByUserId?: string;

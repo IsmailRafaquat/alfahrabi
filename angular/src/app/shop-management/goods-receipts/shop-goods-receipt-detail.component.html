@@ -13,6 +13,7 @@
       <button *ngIf="canComplete && dto.status === ShopGoodsReceiptStatus.Draft" class="btn btn-success btn-sm" [disabled]="actionInProgress" (click)="complete()"><i class="fas fa-check me-2"></i>{{ '::CompleteGoodsReceipt' | abpLocalization }}</button>
       <button *ngIf="canCancel && dto.status === ShopGoodsReceiptStatus.Draft" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelGoodsReceipt' | abpLocalization }}</button>
       <button *ngIf="canViewStockTransactions && dto.status === ShopGoodsReceiptStatus.Completed" class="btn btn-outline-primary btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::StockTransactions' | abpLocalization }}</button>
+      <button *ngIf="canCreateSupplierPayment && canMakeSupplierPayment()" class="btn btn-primary btn-sm" (click)="makeSupplierPayment()"><i class="fas fa-money-check-alt me-2"></i>{{ '::MakeSupplierPayment' | abpLocalization }}</button>
     </div>
   </div>
 
@@ -26,6 +27,10 @@
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ReceiptDate' | abpLocalization }}</span><strong>{{ dto.receiptDate | date:'mediumDate' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::SupplierInvoiceNumber' | abpLocalization }}</span><strong>{{ dto.supplierInvoiceNumber || '—' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::CreationTime' | abpLocalization }}</span><strong>{{ dto.creationTime | date:'medium' }}</strong></div>
+        <div class="col-6 col-md-3" *ngIf="dto.status === ShopGoodsReceiptStatus.Completed">
+          <span class="field-label">{{ '::PaymentStatus' | abpLocalization }}</span>
+          <span class="status-badge payment" [ngClass]="paymentStatusClass(dto.paymentStatus)">{{ paymentStatusLabel(dto.paymentStatus) | abpLocalization }}</span>
+        </div>
         <div class="col-12" *ngIf="dto.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ dto.notes }}</p></div>
       </div>
     </div>
@@ -66,6 +71,10 @@
         <div class="totals-row"><span>{{ '::ShippingCharges' | abpLocalization }}</span><strong>{{ dto.shippingCharges | number:'1.2-2' }}</strong></div>
         <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ dto.otherCharges | number:'1.2-2' }}</strong></div>
         <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ dto.grandTotal | number:'1.2-2' }}</strong></div>
+        <ng-container *ngIf="canViewPaymentAmount">
+          <div class="totals-row"><span>{{ '::PaidAmount' | abpLocalization }}</span><strong>{{ dto.paidAmount | number:'1.2-2' }}</strong></div>
+          <div class="totals-row"><span>{{ '::PendingAmount' | abpLocalization }}</span><strong>{{ dto.pendingAmount | number:'1.2-2' }}</strong></div>
+        </ng-container>
       </div>
     </div>
 

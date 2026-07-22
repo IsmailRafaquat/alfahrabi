@@ -3,7 +3,13 @@ import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { ShopGoodsReceiptDto, ShopGoodsReceiptService, ShopGoodsReceiptStatus, shopGoodsReceiptStatusOptions } from '../../proxy/shop-management/goods-receipts';
+import {
+  ShopGoodsReceiptDto,
+  ShopGoodsReceiptPaymentStatus,
+  ShopGoodsReceiptService,
+  ShopGoodsReceiptStatus,
+  shopGoodsReceiptStatusOptions,
+} from '../../proxy/shop-management/goods-receipts';
 import { ShopSupplierLookupDto, ShopSupplierService } from '../../proxy/shop-management/suppliers';
 
 @Component({ selector: 'app-shop-goods-receipts', standalone: false, templateUrl: './shop-goods-receipts.component.html', styleUrl: './shop-goods-receipts.component.scss' })
@@ -23,6 +29,7 @@ export class ShopGoodsReceiptsComponent implements OnInit {
   readonly canEdit = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.Edit');
   readonly canDelete = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.Delete');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.ViewCost');
+  readonly canViewPaymentAmount = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.ViewAmount');
 
   items: ShopGoodsReceiptDto[] = [];
   suppliers: ShopSupplierLookupDto[] = [];
@@ -79,6 +86,19 @@ export class ShopGoodsReceiptsComponent implements OnInit {
       case ShopGoodsReceiptStatus.Completed: return 'completed';
       case ShopGoodsReceiptStatus.Cancelled: return 'cancelled';
       default: return 'draft';
+    }
+  }
+
+  paymentStatusLabel(status?: ShopGoodsReceiptPaymentStatus): string {
+    return '::' + ShopGoodsReceiptPaymentStatus[status ?? ShopGoodsReceiptPaymentStatus.Unpaid];
+  }
+
+  paymentStatusClass(status?: ShopGoodsReceiptPaymentStatus): string {
+    switch (status) {
+      case ShopGoodsReceiptPaymentStatus.Unpaid: return 'unpaid';
+      case ShopGoodsReceiptPaymentStatus.PartiallyPaid: return 'partially-paid';
+      case ShopGoodsReceiptPaymentStatus.Paid: return 'paid';
+      default: return 'unpaid';
     }
   }
 

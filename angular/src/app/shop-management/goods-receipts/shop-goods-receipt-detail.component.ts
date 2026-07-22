@@ -4,7 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
-import { ShopGoodsReceiptDto, ShopGoodsReceiptService, ShopGoodsReceiptStatus } from '../../proxy/shop-management/goods-receipts';
+import {
+  ShopGoodsReceiptDto,
+  ShopGoodsReceiptPaymentStatus,
+  ShopGoodsReceiptService,
+  ShopGoodsReceiptStatus,
+} from '../../proxy/shop-management/goods-receipts';
 
 @Component({ selector: 'app-shop-goods-receipt-detail', standalone: false, templateUrl: './shop-goods-receipt-detail.component.html', styleUrl: './shop-goods-receipt-detail.component.scss' })
 export class ShopGoodsReceiptDetailComponent implements OnInit {
@@ -23,6 +28,8 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.Cancel');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.ViewCost');
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
+  readonly canViewPaymentAmount = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.ViewAmount');
+  readonly canCreateSupplierPayment = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.Create');
 
   id!: string;
   dto?: ShopGoodsReceiptDto;
@@ -56,6 +63,27 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
       case ShopGoodsReceiptStatus.Cancelled: return 'cancelled';
       default: return 'draft';
     }
+  }
+
+  paymentStatusLabel(status?: ShopGoodsReceiptPaymentStatus): string {
+    return '::' + ShopGoodsReceiptPaymentStatus[status ?? ShopGoodsReceiptPaymentStatus.Unpaid];
+  }
+
+  paymentStatusClass(status?: ShopGoodsReceiptPaymentStatus): string {
+    switch (status) {
+      case ShopGoodsReceiptPaymentStatus.Unpaid: return 'unpaid';
+      case ShopGoodsReceiptPaymentStatus.PartiallyPaid: return 'partially-paid';
+      case ShopGoodsReceiptPaymentStatus.Paid: return 'paid';
+      default: return 'unpaid';
+    }
+  }
+
+  canMakeSupplierPayment(): boolean {
+    return this.dto?.status === ShopGoodsReceiptStatus.Completed && (this.dto?.pendingAmount ?? 0) > 0;
+  }
+
+  makeSupplierPayment(): void {
+    this.router.navigate(['/shop-management/supplier-payments/create'], { queryParams: { goodsReceiptId: this.id } });
   }
 
   edit(): void {

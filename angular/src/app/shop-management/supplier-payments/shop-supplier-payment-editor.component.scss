@@ -10,6 +10,7 @@
 label { display: block; margin-bottom: .25rem; color: #345c80; font-size: .74rem; font-weight: 600; }
 .required { color: #dc3545; }
 small.error { display: block; margin-top: .2rem; color: #dc3545; font-size: .66rem; }
+.supplier-locked-hint { display: block; margin-top: .25rem; color: #7a8da0; font-size: .68rem; a { margin-left: .35rem; color: #2369a3; font-weight: 700; cursor: pointer; } }
 .form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; border-radius: 6px; }
 
 .hint-box { padding: .75rem 1rem; background: #f5f8fb; border-radius: 8px; color: #7a8da0; font-size: .8rem; }

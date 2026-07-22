@@ -15,6 +15,7 @@ import {
   shopSupplierPaymentMethodOptions,
   shopSupplierPaymentTypeOptions,
 } from '../../proxy/shop-management/supplier-payments';
+import { ShopGoodsReceiptService } from '../../proxy/shop-management/goods-receipts';
 import { ShopSupplierLookupDto, ShopSupplierService } from '../../proxy/shop-management/suppliers';
 
 function paymentMethodValidator(): ValidatorFn {
@@ -60,6 +61,7 @@ function allocationRowValidator(): ValidatorFn {
 export class ShopSupplierPaymentEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ShopSupplierPaymentService);
+  private readonly goodsReceiptService = inject(ShopGoodsReceiptService);
   private readonly supplierService = inject(ShopSupplierService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -76,8 +78,10 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
   loading = false;
   loadingReceipts = false;
   submitting = false;
+  supplierLocked = false;
 
   private existingAllocations: { goodsReceiptId: string; allocatedAmount?: number }[] = [];
+  private preselectedGoodsReceiptId?: string;
 
   get isEdit(): boolean {
     return !!this.editId;
@@ -111,14 +115,23 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
     this.supplierService.getLookup().subscribe(result => (this.suppliers = result.items || []));
 
     this.editId = this.route.snapshot.paramMap.get('id') || undefined;
+    const goodsReceiptId = this.route.snapshot.queryParamMap.get('goodsReceiptId') || undefined;
+
     if (this.editId) {
       this.loadForEdit(this.editId);
+    } else if (goodsReceiptId) {
+      this.loadForGoodsReceipt(goodsReceiptId);
     }
 
     this.form.controls.supplierId.valueChanges.subscribe(supplierId => {
       if (supplierId) this.loadOutstandingReceipts(supplierId);
       else this.allocations.clear();
     });
+  }
+
+  resetSupplierLock(): void {
+    this.supplierLocked = false;
+    this.preselectedGoodsReceiptId = undefined;
   }
 
   save(): void {
@@ -189,6 +202,21 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
       });
   }
 
+  private loadForGoodsReceipt(goodsReceiptId: string): void {
+    this.loading = true;
+    this.goodsReceiptService
+      .get(goodsReceiptId)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: gr => {
+          this.preselectedGoodsReceiptId = goodsReceiptId;
+          this.supplierLocked = true;
+          this.form.patchValue({ supplierId: gr.supplierId });
+        },
+        error: e => this.toaster.error(e?.error?.error?.message || e?.message || '::UnexpectedError'),
+      });
+  }
+
   private loadOutstandingReceipts(supplierId: string): void {
     this.loadingReceipts = true;
     this.service
@@ -198,7 +226,14 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
         this.allocations.clear();
         receipts.forEach(receipt => {
           const existing = this.existingAllocations.find(a => a.goodsReceiptId === receipt.goodsReceiptId);
-          this.allocations.push(this.createAllocationRow(receipt, existing?.allocatedAmount ?? 0));
+          let allocateAmount = existing?.allocatedAmount ?? 0;
+
+          if (!existing && this.preselectedGoodsReceiptId && this.preselectedGoodsReceiptId === receipt.goodsReceiptId) {
+            allocateAmount = receipt.pendingAmount ?? 0;
+            this.form.patchValue({ amount: receipt.pendingAmount ?? 0 });
+          }
+
+          this.allocations.push(this.createAllocationRow(receipt, allocateAmount));
         });
       });
   }

@@ -18,6 +18,9 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
 .status-badge.draft { color: #63707d; background: #eef1f4; }
 .status-badge.completed { color: #198754; background: #e9f7ef; }
 .status-badge.cancelled { color: #7b8794; background: #edf0f3; }
+.status-badge.payment.unpaid { color: #c83e4d; background: #fdeced; }
+.status-badge.payment.partially-paid { color: #b5670a; background: #fef3e2; }
+.status-badge.payment.paid { color: #198754; background: #e9f7ef; }
 .icon-btn { border: 0; background: #edf5fc; color: #246aa5; width: 29px; height: 29px; border-radius: 6px; margin-left: .3rem; font-size: .72rem; &.danger { color: #c83e4d; background: #fff0f1; } }
 .empty-state { text-align: center; padding: 3rem !important; color: #8a9bad !important; i { display: block; font-size: 1.8rem; margin-bottom: .6rem; } }
 .loading { text-align: center; padding: 1rem; }

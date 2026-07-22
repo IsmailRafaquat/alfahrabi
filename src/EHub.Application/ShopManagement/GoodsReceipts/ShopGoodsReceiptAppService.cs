@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EHub.Permissions;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
+using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.Units;
 using Microsoft.AspNetCore.Authorization;
@@ -26,6 +27,7 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly ShopGoodsReceiptManager _manager;
+    private readonly ShopSupplierPaymentManager _supplierPaymentManager;
 
     public ShopGoodsReceiptAppService(
         IRepository<ShopGoodsReceipt, Guid> repository,
@@ -33,7 +35,8 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
         IRepository<ShopSupplier, Guid> supplierRepository,
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
-        ShopGoodsReceiptManager manager)
+        ShopGoodsReceiptManager manager,
+        ShopSupplierPaymentManager supplierPaymentManager)
     {
         _repository = repository;
         _purchaseOrderRepository = purchaseOrderRepository;
@@ -41,6 +44,7 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
         _productRepository = productRepository;
         _unitRepository = unitRepository;
         _manager = manager;
+        _supplierPaymentManager = supplierPaymentManager;
     }
 
     public async Task<PagedResultDto<ShopGoodsReceiptDto>> GetListAsync(GetShopGoodsReceiptsInput input)
@@ -116,15 +120,21 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
                         };
 
         var items = await AsyncExecuter.ToListAsync(projected);
+        await PopulatePaymentInfoAsync(items, tenantId);
+        await HidePaymentAmountsIfNotAllowedAsync(items);
         await HideCostIfNotAllowedAsync(items);
         return new PagedResultDto<ShopGoodsReceiptDto>(totalCount, items);
     }
 
     public async Task<ShopGoodsReceiptDto> GetAsync(Guid id)
     {
+        var tenantId = RequireTenant();
         var entity = await FindEntityWithItemsAsync(id);
         var dto = await MapToDtoAsync(entity);
-        await HideCostIfNotAllowedAsync(new List<ShopGoodsReceiptDto> { dto });
+        var items = new List<ShopGoodsReceiptDto> { dto };
+        await PopulatePaymentInfoAsync(items, tenantId);
+        await HidePaymentAmountsIfNotAllowedAsync(items);
+        await HideCostIfNotAllowedAsync(items);
         return dto;
     }
 
@@ -247,6 +257,42 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
             DiscountPercentage = x.DiscountPercentage,
             TaxPercentage = x.TaxPercentage
         }).ToList();
+
+    private async Task PopulatePaymentInfoAsync(List<ShopGoodsReceiptDto> items, Guid tenantId)
+    {
+        if (items.Count == 0) return;
+
+        var receiptIds = items.Select(x => x.Id).ToList();
+        var paidAmounts = await _supplierPaymentManager.GetPostedAllocatedAmountsAsync(tenantId, receiptIds, excludePaymentId: null);
+
+        foreach (var dto in items)
+        {
+            var grandTotal = dto.GrandTotal ?? 0;
+            var paid = paidAmounts.TryGetValue(dto.Id, out var value) ? value : 0;
+            var pending = Math.Max(0, grandTotal - paid);
+
+            dto.PaidAmount = paid;
+            dto.PendingAmount = pending;
+            dto.PaymentStatus = ComputePaymentStatus(paid, pending);
+        }
+    }
+
+    private static ShopGoodsReceiptPaymentStatus ComputePaymentStatus(decimal paidAmount, decimal pendingAmount)
+    {
+        if (pendingAmount <= 0) return ShopGoodsReceiptPaymentStatus.Paid;
+        if (paidAmount > 0) return ShopGoodsReceiptPaymentStatus.PartiallyPaid;
+        return ShopGoodsReceiptPaymentStatus.Unpaid;
+    }
+
+    private async Task HidePaymentAmountsIfNotAllowedAsync(List<ShopGoodsReceiptDto> items)
+    {
+        if (await AuthorizationService.IsGrantedAsync(EHubPermissions.ShopSupplierPayments.ViewAmount)) return;
+        foreach (var dto in items)
+        {
+            dto.PaidAmount = null;
+            dto.PendingAmount = null;
+        }
+    }
 
     private async Task HideCostIfNotAllowedAsync(List<ShopGoodsReceiptDto> items)
     {

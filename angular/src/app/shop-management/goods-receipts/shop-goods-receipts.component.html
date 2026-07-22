@@ -48,6 +48,9 @@
             <th>{{ '::ReceiptDate' | abpLocalization }}</th>
             <th>{{ '::GoodsReceiptStatus' | abpLocalization }}</th>
             <th *ngIf="canViewCost">{{ '::GrandTotal' | abpLocalization }}</th>
+            <th *ngIf="canViewPaymentAmount">{{ '::PaidAmount' | abpLocalization }}</th>
+            <th *ngIf="canViewPaymentAmount">{{ '::PendingAmount' | abpLocalization }}</th>
+            <th>{{ '::PaymentStatus' | abpLocalization }}</th>
             <th>{{ '::CompletedOn' | abpLocalization }}</th>
             <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
           </tr>
@@ -61,6 +64,9 @@
             <td>{{ row.receiptDate | date:'mediumDate' }}</td>
             <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
             <td *ngIf="canViewCost">{{ row.grandTotal != null ? (row.grandTotal | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewPaymentAmount">{{ row.paidAmount != null ? (row.paidAmount | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewPaymentAmount">{{ row.pendingAmount != null ? (row.pendingAmount | number:'1.2-2') : '—' }}</td>
+            <td><span class="status-badge payment" [ngClass]="paymentStatusClass(row.paymentStatus)">{{ paymentStatusLabel(row.paymentStatus) | abpLocalization }}</span></td>
             <td>{{ row.completedDate ? (row.completedDate | date:'mediumDate') : '—' }}</td>
             <td class="text-end">
               <button class="icon-btn" (click)="view(row)" [title]="'::GoodsReceipt' | abpLocalization"><i class="fas fa-eye"></i></button>
@@ -69,7 +75,7 @@
             </td>
           </tr>
           <tr *ngIf="!loading && !items.length">
-            <td [attr.colspan]="canViewCost ? 9 : 8" class="empty-state"><i class="fas fa-dolly"></i><span>{{ '::NoGoodsReceiptsFound' | abpLocalization }}</span></td>
+            <td [attr.colspan]="(canViewCost ? 1 : 0) + (canViewPaymentAmount ? 2 : 0) + 8" class="empty-state"><i class="fas fa-dolly"></i><span>{{ '::NoGoodsReceiptsFound' | abpLocalization }}</span></td>
           </tr>
         </tbody>
       </table>
