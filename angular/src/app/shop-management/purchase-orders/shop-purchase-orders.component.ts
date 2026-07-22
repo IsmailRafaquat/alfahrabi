@@ -37,6 +37,8 @@ export class ShopPurchaseOrdersComponent implements OnInit {
   orderDateFrom: string | null = null;
   orderDateTo: string | null = null;
 
+  tooltipLang: 'en' | 'ur' = 'en';
+
   ngOnInit(): void {
     this.supplierService.getLookup().subscribe(result => (this.suppliers = result.items || []));
     this.load();

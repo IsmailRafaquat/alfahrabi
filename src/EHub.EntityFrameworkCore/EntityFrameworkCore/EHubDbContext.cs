@@ -7,6 +7,8 @@ using EHub.ShopManagement.Units;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.PurchaseOrders;
+using EHub.ShopManagement.GoodsReceipts;
+using EHub.ShopManagement.StockTransactions;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -88,6 +90,9 @@ public class EHubDbContext :
     public DbSet<ShopPurchaseOrder> ShopPurchaseOrders { get; set; }
     public DbSet<ShopPurchaseOrderItem> ShopPurchaseOrderItems { get; set; }
     public DbSet<ShopDocumentSequence> ShopDocumentSequences { get; set; }
+    public DbSet<ShopGoodsReceipt> ShopGoodsReceipts { get; set; }
+    public DbSet<ShopGoodsReceiptItem> ShopGoodsReceiptItems { get; set; }
+    public DbSet<ShopStockTransaction> ShopStockTransactions { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -948,6 +953,103 @@ public class EHubDbContext :
             b.Property(x => x.DocumentType).IsRequired().HasMaxLength(64);
             b.Property(x => x.LastNumber).IsRequired().HasDefaultValue(0);
             b.HasIndex(x => new { x.TenantId, x.DocumentType }).IsUnique();
+        });
+
+        builder.Entity<ShopGoodsReceipt>(b =>
+        {
+            b.ToTable("ShopGoodsReceipts", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.GoodsReceiptNumber).IsRequired().HasMaxLength(ShopGoodsReceiptConsts.GoodsReceiptNumberMaxLength);
+            b.Property(x => x.PurchaseOrderId).IsRequired();
+            b.Property(x => x.SupplierId).IsRequired();
+            b.Property(x => x.SupplierInvoiceNumber).HasMaxLength(ShopGoodsReceiptConsts.SupplierInvoiceNumberMaxLength);
+            b.Property(x => x.ReceiptDate).IsRequired();
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopGoodsReceiptStatus.Draft);
+            b.Property(x => x.SubTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ShippingCharges).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.OtherCharges).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.GrandTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.Notes).HasMaxLength(ShopGoodsReceiptConsts.NotesMaxLength);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopGoodsReceiptConsts.CancellationReasonMaxLength);
+
+            b.HasOne(x => x.PurchaseOrder).WithMany().HasForeignKey(x => x.PurchaseOrderId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Supplier).WithMany().HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
+            b.HasMany(x => x.Items).WithOne(x => x.GoodsReceipt).HasForeignKey(x => x.GoodsReceiptId).OnDelete(DeleteBehavior.Cascade);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.PurchaseOrderId });
+            b.HasIndex(x => new { x.TenantId, x.SupplierId });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.ReceiptDate });
+            b.HasIndex(x => new { x.TenantId, x.SupplierInvoiceNumber });
+            b.HasIndex(x => new { x.TenantId, x.GoodsReceiptNumber }).IsUnique();
+        });
+
+        builder.Entity<ShopGoodsReceiptItem>(b =>
+        {
+            b.ToTable("ShopGoodsReceiptItems", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.GoodsReceiptId).IsRequired();
+            b.Property(x => x.PurchaseOrderItemId).IsRequired();
+            b.Property(x => x.ProductId).IsRequired();
+            b.Property(x => x.ProductNameSnapshot).IsRequired().HasMaxLength(ShopGoodsReceiptConsts.ProductNameSnapshotMaxLength);
+            b.Property(x => x.ProductCodeSnapshot).IsRequired().HasMaxLength(ShopGoodsReceiptConsts.ProductCodeSnapshotMaxLength);
+            b.Property(x => x.UnitNameSnapshot).IsRequired().HasMaxLength(ShopGoodsReceiptConsts.UnitNameSnapshotMaxLength);
+            b.Property(x => x.UnitShortNameSnapshot).IsRequired().HasMaxLength(ShopGoodsReceiptConsts.UnitShortNameSnapshotMaxLength);
+            b.Property(x => x.OrderedQuantitySnapshot).HasPrecision(18, 4);
+            b.Property(x => x.PreviouslyReceivedQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.ReceivedQuantity).HasPrecision(18, 4);
+            b.Property(x => x.BonusQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.PurchasePrice).HasPrecision(18, 2);
+            b.Property(x => x.SalePrice).HasPrecision(18, 2);
+            b.Property(x => x.BatchNumber).HasMaxLength(ShopGoodsReceiptConsts.BatchNumberMaxLength);
+            b.Property(x => x.DiscountPercentage).HasPrecision(5, 2).HasDefaultValue(0);
+            b.Property(x => x.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.TaxPercentage).HasPrecision(5, 2).HasDefaultValue(0);
+            b.Property(x => x.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.LineSubTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.LineTotal).HasPrecision(18, 2).HasDefaultValue(0);
+
+            b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.PurchaseOrderItem).WithMany().HasForeignKey(x => x.PurchaseOrderItemId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.GoodsReceiptId });
+            b.HasIndex(x => new { x.TenantId, x.PurchaseOrderItemId });
+            b.HasIndex(x => new { x.TenantId, x.ProductId });
+            b.HasIndex(x => new { x.GoodsReceiptId, x.PurchaseOrderItemId }).IsUnique();
+        });
+
+        builder.Entity<ShopStockTransaction>(b =>
+        {
+            b.ToTable("ShopStockTransactions", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.ProductId).IsRequired();
+            b.Property(x => x.TransactionType).IsRequired().HasConversion<int>();
+            b.Property(x => x.ReferenceType).IsRequired().HasConversion<int>();
+            b.Property(x => x.ReferenceId).IsRequired();
+            b.Property(x => x.ReferenceNumber).IsRequired().HasMaxLength(ShopStockTransactionConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.TransactionDate).IsRequired();
+            b.Property(x => x.QuantityIn).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.QuantityOut).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.BalanceQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.UnitCost).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.TotalCost).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.BatchNumber).HasMaxLength(ShopStockTransactionConsts.BatchNumberMaxLength);
+            b.Property(x => x.Notes).HasMaxLength(ShopStockTransactionConsts.NotesMaxLength);
+            b.Property(x => x.CreationTime).IsRequired();
+
+            b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.TransactionDate });
+            b.HasIndex(x => new { x.TenantId, x.TransactionType });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.SourceItemId }).IsUnique();
         });
 
         builder.Entity<ExpenseEntry>(b =>

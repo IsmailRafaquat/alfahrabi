@@ -94,6 +94,21 @@ public class ShopPurchaseOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ApprovedDate = approvedDate;
     }
 
+    /// <summary>
+    /// Recomputes status after a Goods Receipt completion has increased one or more items'
+    /// ReceivedQuantity. Moves the order to FullyReceived once every item is fully received,
+    /// otherwise PartiallyReceived.
+    /// </summary>
+    internal void UpdateReceivingProgress()
+    {
+        if (Status != ShopPurchaseOrderStatus.Approved && Status != ShopPurchaseOrderStatus.PartiallyReceived)
+            throw new BusinessException("ShopManagement:GoodsReceiptInvalidPurchaseOrderStatus");
+
+        Status = Items.All(x => x.ReceivedQuantity >= x.OrderedQuantity)
+            ? ShopPurchaseOrderStatus.FullyReceived
+            : ShopPurchaseOrderStatus.PartiallyReceived;
+    }
+
     internal void MarkAsRejected(Guid rejectedByUserId, DateTime rejectedDate, string rejectionReason)
     {
         if (Status != ShopPurchaseOrderStatus.PendingApproval) throw new BusinessException("ShopManagement:PurchaseOrderCannotBeRejected");

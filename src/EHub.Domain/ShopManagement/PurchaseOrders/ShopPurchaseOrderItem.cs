@@ -63,6 +63,18 @@ public class ShopPurchaseOrderItem : AuditedEntity<Guid>, IMultiTenant
     internal void UpdateLineValues(string? description, decimal orderedQuantity, decimal unitPurchasePrice, decimal discountPercentage, decimal taxPercentage) =>
         SetLineValues(description, orderedQuantity, unitPurchasePrice, discountPercentage, taxPercentage);
 
+    /// <summary>
+    /// Increases the received quantity when a Goods Receipt is completed. Bonus quantity is never
+    /// included here; it affects product stock only, not Purchase Order fulfillment.
+    /// </summary>
+    internal void IncreaseReceivedQuantity(decimal quantity)
+    {
+        if (quantity <= 0) throw new BusinessException("ShopManagement:GoodsReceiptInvalidQuantity");
+        var newReceivedQuantity = ReceivedQuantity + quantity;
+        if (newReceivedQuantity > OrderedQuantity) throw new BusinessException("ShopManagement:GoodsReceiptQuantityExceedsRemaining");
+        ReceivedQuantity = newReceivedQuantity;
+    }
+
     private void SetLineValues(string? description, decimal orderedQuantity, decimal unitPurchasePrice, decimal discountPercentage, decimal taxPercentage)
     {
         if (orderedQuantity <= 0) throw new BusinessException("ShopManagement:PurchaseOrderInvalidQuantity");

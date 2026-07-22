@@ -24,6 +24,7 @@ export class ShopPurchaseOrderDetailComponent implements OnInit {
   readonly canReject = this.permissions.getGrantedPolicy('ShopManagement.PurchaseOrders.Reject');
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.PurchaseOrders.Cancel');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.PurchaseOrders.ViewCost');
+  readonly canReceiveGoods = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.Create');
 
   id!: string;
   dto?: ShopPurchaseOrderDto;
@@ -68,6 +69,10 @@ export class ShopPurchaseOrderDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/purchase-orders', this.id, 'edit']);
+  }
+
+  receiveGoods(): void {
+    this.router.navigate(['/shop-management/goods-receipts/create', this.id]);
   }
 
   back(): void {

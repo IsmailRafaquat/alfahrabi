@@ -41,6 +41,15 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Reject, L("Permission:ShopPurchaseOrders.Reject"));
         shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.Cancel, L("Permission:ShopPurchaseOrders.Cancel"));
         shopPurchaseOrders.AddChild(EHubPermissions.ShopPurchaseOrders.ViewCost, L("Permission:ShopPurchaseOrders.ViewCost"));
+        var shopGoodsReceipts = shopManagement.AddChild(EHubPermissions.ShopGoodsReceipts.Default, L("Permission:ShopGoodsReceipts"));
+        shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.Create, L("Permission:ShopGoodsReceipts.Create"));
+        shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.Edit, L("Permission:ShopGoodsReceipts.Edit"));
+        shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.Delete, L("Permission:ShopGoodsReceipts.Delete"));
+        shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.Complete, L("Permission:ShopGoodsReceipts.Complete"));
+        shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.Cancel, L("Permission:ShopGoodsReceipts.Cancel"));
+        shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.ViewCost, L("Permission:ShopGoodsReceipts.ViewCost"));
+        var shopStockTransactions = shopManagement.AddChild(EHubPermissions.ShopStockTransactions.Default, L("Permission:ShopStockTransactions"));
+        shopStockTransactions.AddChild(EHubPermissions.ShopStockTransactions.ViewCost, L("Permission:ShopStockTransactions.ViewCost"));
 
 
         var dashboardPermission =

@@ -54,6 +54,20 @@ function configureRoutes() {
       iconClass: 'fas fa-file-invoice-dollar', order: 1, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.PurchaseOrders',
     },
+    {
+      path: '/shop-management/goods-receipts', name: '::GoodsReceipts', parentName: '::Purchases',
+      iconClass: 'fas fa-dolly', order: 2, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.GoodsReceipts',
+    },
+    {
+      name: '::Inventory', parentName: '::ShopManagement', iconClass: 'fas fa-warehouse', order: 5,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.StockTransactions',
+    },
+    {
+      path: '/shop-management/stock-transactions', name: '::StockTransactions', parentName: '::Inventory',
+      iconClass: 'fas fa-exchange-alt', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.StockTransactions',
+    },
     // Home / Dashboard
     {
       path: '/',

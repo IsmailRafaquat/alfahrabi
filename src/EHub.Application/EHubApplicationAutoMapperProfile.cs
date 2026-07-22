@@ -5,6 +5,8 @@ using EHub.ShopManagement.Units;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.PurchaseOrders;
+using EHub.ShopManagement.GoodsReceipts;
+using EHub.ShopManagement.StockTransactions;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -55,6 +57,20 @@ public class EHubApplicationAutoMapperProfile : Profile
             .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.ProductCodeSnapshot))
             .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.UnitNameSnapshot))
             .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.UnitShortNameSnapshot));
+        CreateMap<ShopGoodsReceipt, ShopGoodsReceiptDto>()
+            .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
+            .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty))
+            .ForMember(x => x.PurchaseOrderNumber, opt => opt.MapFrom(src => src.PurchaseOrder != null ? src.PurchaseOrder.PurchaseOrderNumber : string.Empty));
+        CreateMap<ShopGoodsReceiptItem, ShopGoodsReceiptItemDto>()
+            .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.ProductNameSnapshot))
+            .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.ProductCodeSnapshot))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.UnitNameSnapshot))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.UnitShortNameSnapshot))
+            .ForMember(x => x.OrderedQuantity, opt => opt.MapFrom(src => src.OrderedQuantitySnapshot))
+            .ForMember(x => x.RemainingQuantity, opt => opt.MapFrom(src => src.OrderedQuantitySnapshot - src.PreviouslyReceivedQuantity));
+        CreateMap<ShopStockTransaction, ShopStockTransactionDto>()
+            .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+            .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.Product != null ? src.Product.Code : string.Empty));
         CreateMap<ShopProduct, ShopProductLookupDto>()
             .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
             .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))

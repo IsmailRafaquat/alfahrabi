@@ -79,6 +79,12 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
             trackBatch, trackExpiry, trackSerialNumber, isTaxable, isActive);
     }
 
+    internal void IncreaseStock(decimal quantity)
+    {
+        if (quantity < 0) throw new BusinessException("ShopManagement:ProductStockIncreaseCannotBeNegative");
+        CurrentStock += quantity;
+    }
+
     internal void Update(
         Guid categoryId,
         Guid unitId,
