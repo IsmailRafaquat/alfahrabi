@@ -3,7 +3,21 @@
     <div>
       <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
       <span>
-        <h3>{{ (isEdit ? '::EditPurchaseOrder' : '::CreatePurchaseOrder') | abpLocalization }}</h3>
+        <h3 class="help-title">{{ (isEdit ? '::EditPurchaseOrder' : '::CreatePurchaseOrder') | abpLocalization }}
+          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Purchase order fields help</span></button>
+          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+            <div class="transaction-help-item"><strong dir="ltr">Supplier</strong><span>جس سپلائر سے سامان منگوانا ہے اسے منتخب کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Order Date</strong><span>جس دن خریداری کا آرڈر بنایا جا رہا ہے وہ تاریخ۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Expected Delivery Date</strong><span>وہ اندازاً تاریخ جب سپلائر سامان پہنچائے گا۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Supplier Reference</strong><span>سپلائر کا دیا ہوا آرڈر یا حوالہ نمبر، اگر موجود ہو۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Shipping / Other Charges</strong><span>سامان لانے اور دوسرے اضافی خرچ کی رقم۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Product</strong><span>سپلائر سے منگوائی جانے والی پروڈکٹ منتخب کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Ordered Quantity</strong><span>پروڈکٹ کی جتنی مقدار منگوانی ہے وہ درج کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Unit Purchase Price</strong><span>ایک یونٹ کی خریداری قیمت درج کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>اگر رعایت یا ٹیکس ہو تو اس کی فیصد درج کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>آرڈر سے متعلق ضروری اضافی بات لکھیں۔</span></div>
+          </div>
+        </h3>
         <p *ngIf="isEdit">{{ purchaseOrderNumber }}</p>
       </span>
     </div>

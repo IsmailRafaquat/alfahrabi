@@ -3,7 +3,23 @@
     <div>
       <button class="back-btn" (click)="done()"><i class="fas fa-arrow-left"></i></button>
       <span>
-        <h3>{{ '::ManageSuppliers' | abpLocalization }}</h3>
+        <h3>{{ '::ManageSuppliers' | abpLocalization }}
+          <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Supplier fields help</span></button>
+          <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
+            <div class="editor-help-item"><strong dir="ltr">Supplier Code</strong><span>سپلائر کی منفرد چھوٹی پہچان۔ ہر سپلائر کا کوڈ الگ رکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Supplier Name</strong><span>جس شخص یا کمپنی سے مال خریدتے ہیں اس کا پورا نام۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Contact Person</strong><span>سپلائر کی طرف سے رابطہ کرنے والے شخص کا نام۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Phone / Alternate Phone</strong><span>سپلائر کے مرکزی اور دوسرے رابطہ نمبر لکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Email</strong><span>بل، آرڈر یا رابطے کے لیے سپلائر کا ای میل پتہ۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Tax Number</strong><span>اگر موجود ہو تو سپلائر کا ٹیکس رجسٹریشن نمبر لکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Address</strong><span>سپلائر کا مکمل پتہ، شہر، صوبہ، پوسٹل کوڈ اور ملک لکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Opening Balance</strong><span>شروع میں سپلائر کو دینی یا اس سے لینی والی پہلے سے موجود رقم۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Credit Limit</strong><span>زیادہ سے زیادہ رقم جتنی سپلائر ادھار دینے کی اجازت دیتا ہے۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Payment Terms (Days)</strong><span>خریداری کے بعد ادائیگی کے لیے ملنے والے دنوں کی تعداد۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Notes</strong><span>سپلائر کے بارے میں ضروری اضافی معلومات لکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر یہ سپلائر نئی خریداری میں منتخب کیا جا سکے گا۔</span></div>
+          </div>
+        </h3>
         <p>{{ '::QuickAddSuppliersDescription' | abpLocalization }}</p>
       </span>
     </div>

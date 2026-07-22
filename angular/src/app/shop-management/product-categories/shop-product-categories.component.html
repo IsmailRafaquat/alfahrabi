@@ -1,5 +1,9 @@
 <div class="category-page">
-  <div class="page-heading"><div><h3>{{ '::ProductCategories' | abpLocalization }}</h3><p>{{ '::ProductCategoriesDescription' | abpLocalization }}</p></div>
+  <div class="page-heading"><div><h3>{{ '::ProductCategories' | abpLocalization }}
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+      [nzTooltipTitleContext]="{ en: 'Categories arrange similar products into groups. A category can be a Root Category or sit under another category, making products easier to find and manage.', ur: 'کیٹیگری ایک جیسی پروڈکٹس کو ایک گروپ میں رکھتی ہے۔ کیٹیگری خود بڑی Root Category ہو سکتی ہے یا کسی دوسری کیٹیگری کے اندر ہو سکتی ہے، اس سے پروڈکٹس تلاش کرنا آسان ہوتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button></h3><p>{{ '::ProductCategoriesDescription' | abpLocalization }}</p></div>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateProductCategory' | abpLocalization }}</button></div>
   <div class="card category-card">
     <div class="view-tabs"><button [class.active]="activeView === 'list'" (click)="showList()"><i class="fas fa-list"></i>{{ '::CategoryList' | abpLocalization }}</button>
@@ -23,3 +27,4 @@
 </div>
 
 <ng-template #treeNodes let-nodes let-level="level"><div *ngFor="let node of nodes" class="tree-node" [style.margin-left.px]="level * 22"><div class="tree-row"><i [class]="node.children?.length ? 'fas fa-folder text-warning' : 'fas fa-tag text-primary'"></i><strong>{{ node.name }}</strong><span class="code-chip">{{ node.code }}</span><span class="status" [class.inactive]="!node.isActive">{{ (node.isActive ? '::ActiveCategories' : '::InactiveCategories') | abpLocalization }}</span></div><ng-container *ngTemplateOutlet="treeNodes; context: {$implicit: node.children, level: level + 1}"></ng-container></div></ng-template>
+<ng-template #bilingualTooltip let-en="en" let-ur="ur"><div class="tooltip-lang-tabs"><button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button><button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button></div><div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div></ng-template>

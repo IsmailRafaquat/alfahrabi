@@ -3,7 +3,25 @@
     <div>
       <button class="back-btn" (click)="done()"><i class="fas fa-arrow-left"></i></button>
       <span>
-        <h3>{{ '::ManageProducts' | abpLocalization }}</h3>
+        <h3>{{ '::ManageProducts' | abpLocalization }}
+          <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Product fields help</span></button>
+          <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
+            <div class="editor-help-item"><strong dir="ltr">Product Name</strong><span>دکان میں خریدی یا بیچی جانے والی چیز کا مکمل نام۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Product Code</strong><span>پروڈکٹ کی منفرد پہچان۔ ہر پروڈکٹ کا کوڈ الگ رکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Category</strong><span>پروڈکٹ جس قسم میں شامل ہے، وہ کیٹیگری منتخب کریں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Unit</strong><span>پروڈکٹ کس حساب سے بکتا ہے، جیسے عدد، ڈبہ، میٹر یا کلو۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">SKU / Barcode</strong><span>اسٹاک کے مختصر کوڈ اور اسکین کرنے والا بارکوڈ نمبر لکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Brand / Model</strong><span>پروڈکٹ بنانے والی کمپنی اور اس کا ماڈل لکھیں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Purchase Price</strong><span>وہ قیمت جس پر پروڈکٹ سپلائر سے خریدا جاتا ہے۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Sale Price</strong><span>وہ قیمت جس پر پروڈکٹ گاہک کو بیچا جاتا ہے۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Wholesale / Minimum Sale Price</strong><span>تھوک کی قیمت اور سب سے کم اجازت والی فروخت قیمت۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Taxable / Tax Percentage</strong><span>ٹیکس لگتا ہو تو آن کریں اور ٹیکس کی شرح درج کریں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Minimum / Maximum Stock</strong><span>اسٹاک کی کم اور زیادہ حد درج کریں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Reorder Level</strong><span>اس مقدار پر پہنچنے کے بعد نیا مال منگوانا چاہیے۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Track Batch / Expiry / Serial</strong><span>ضرورت کے مطابق بیچ، ایکسپائری یا سیریل نمبر کی نگرانی آن کریں۔</span></div>
+            <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر پروڈکٹ خرید و فروخت میں نظر آئے گا۔</span></div>
+          </div>
+        </h3>
         <p>{{ '::QuickAddProductsDescription' | abpLocalization }}</p>
       </span>
     </div>

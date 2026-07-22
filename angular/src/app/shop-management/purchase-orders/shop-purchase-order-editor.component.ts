@@ -58,6 +58,7 @@ export class ShopPurchaseOrderEditorComponent implements OnInit {
   editId?: string;
   loading = false;
   submitting = false;
+  helpOpen = false;
   purchaseOrderNumber = '';
 
   get isEdit(): boolean {

@@ -37,7 +37,6 @@ export class ShopProductsComponent implements OnInit {
   statusFilter = '';
   taxFilter = '';
   lowStockOnly = false;
-
   tooltipLang: 'en' | 'ur' = 'en';
 
   ngOnInit(): void {

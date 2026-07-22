@@ -3,7 +3,22 @@
     <div>
       <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
       <span>
-        <h3>{{ (isEdit ? '::EditGoodsReceipt' : '::CreateGoodsReceipt') | abpLocalization }}</h3>
+        <h3 class="help-title">{{ (isEdit ? '::EditGoodsReceipt' : '::CreateGoodsReceipt') | abpLocalization }}
+          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Goods receipt fields help</span></button>
+          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+            <div class="transaction-help-item"><strong dir="ltr">Receipt Date</strong><span>جس دن سامان وصول ہوا وہ تاریخ درج کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Supplier Invoice Number</strong><span>سپلائر کے بل پر لکھا ہوا انوائس نمبر۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Shipping / Other Charges</strong><span>سامان لانے اور دوسرے اضافی خرچ کی رقم۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Included</strong><span>جو پروڈکٹ واقعی وصول ہوئی ہے اسے منتخب رکھیں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Received Quantity</strong><span>اصل میں وصول ہونے والی پروڈکٹ کی مقدار۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Bonus Quantity</strong><span>سپلائر سے مفت ملنے والی اضافی مقدار۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Purchase / Sale Price</strong><span>وصول شدہ مال کی خریداری اور فروخت قیمت۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Batch Number</strong><span>اگر پروڈکٹ بیچ کے حساب سے ہے تو بیچ نمبر لکھیں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Manufacturing / Expiry Date</strong><span>سامان بننے اور ختم ہونے کی تاریخ درج کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>رعایت اور ٹیکس کی فیصد درج کریں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>سامان کی وصولی سے متعلق ضروری بات لکھیں۔</span></div>
+          </div>
+        </h3>
         <p>{{ purchaseOrderNumber }}</p>
       </span>
     </div>

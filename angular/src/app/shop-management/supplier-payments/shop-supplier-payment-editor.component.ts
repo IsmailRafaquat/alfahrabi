@@ -78,6 +78,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
   loading = false;
   loadingReceipts = false;
   submitting = false;
+  helpOpen = false;
   supplierLocked = false;
 
   private existingAllocations: { goodsReceiptId: string; allocatedAmount?: number }[] = [];

@@ -42,6 +42,7 @@ export class ShopSupplierEditorComponent implements OnInit {
   loading = false;
   submitting = false;
   savedItems: ShopSupplierDto[] = [];
+  helpOpen = false;
 
   get isEdit(): boolean {
     return !!this.editId;

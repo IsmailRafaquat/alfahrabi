@@ -15,6 +15,7 @@ export class ShopProductCategoryEditorComponent implements OnInit {
   lookup: ShopProductCategoryLookupDto[] = [];
   submitting = false; loading = false; editId?: string;
   savedItems: ShopProductCategoryDto[] = [];
+  helpOpen = false;
   readonly form = this.fb.group({ categories: this.fb.array<FormGroup>([]) });
   get categories(): FormArray<FormGroup> { return this.form.controls.categories; }
   get isEdit(): boolean { return !!this.editId; }

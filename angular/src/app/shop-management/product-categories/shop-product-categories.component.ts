@@ -24,6 +24,7 @@ export class ShopProductCategoriesComponent implements OnInit {
   tree: ShopProductCategoryTreeDto[] = [];
   totalCount = 0; page = 0; pageSize = 10; loading = false; submitting = false;
   search = ''; parentFilter = ''; statusFilter = ''; activeView: 'list' | 'tree' = 'list';
+  tooltipLang: 'en' | 'ur' = 'en';
 
   ngOnInit(): void { this.loadLookup(); this.loadList(); }
   loadList(reset = false): void {

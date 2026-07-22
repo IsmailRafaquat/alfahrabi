@@ -69,6 +69,7 @@ export class ShopGoodsReceiptEditorComponent implements OnInit {
   expectedDeliveryDate?: string;
   loading = false;
   submitting = false;
+  helpOpen = false;
 
   get isEdit(): boolean {
     return !!this.editId;

@@ -4,8 +4,8 @@
       <h3>
         {{ '::Products' | abpLocalization }}
         <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'A Product is an item you buy and sell in your shop, like a pipe, valve, or tap. Each product belongs to a Category and a Unit, and has its own price and stock details.', ur: 'Product وہ چیز ہے جو آپ کی دکان میں خریدی اور بیچی جاتی ہے، جیسے پائپ، والو یا نل۔ ہر پروڈکٹ کسی Category اور Unit سے جڑا ہوتا ہے، اور اس کی اپنی قیمت اور اسٹاک ہوتا ہے۔' }">
-          <i class="fas fa-circle-info"></i> {{ '::HowThisWorks' | abpLocalization }}
+          [nzTooltipTitleContext]="{ en: 'Products are the items your shop buys and sells. Use this page to search products, check prices and stock, and open a product for editing.', ur: 'پروڈکٹس وہ چیزیں ہیں جو دکان خریدتی اور بیچتی ہے۔ اس صفحے پر آپ پروڈکٹ تلاش کر سکتے ہیں، قیمت اور اسٹاک دیکھ سکتے ہیں اور تبدیلی کے لیے پروڈکٹ کھول سکتے ہیں۔' }">
+          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
         </button>
       </h3>
       <p>{{ '::ProductsDescription' | abpLocalization }}</p>
@@ -105,4 +105,3 @@
   </div>
   <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
 </ng-template>
-
