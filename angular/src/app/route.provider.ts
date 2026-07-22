@@ -60,6 +60,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.GoodsReceipts',
     },
     {
+      path: '/shop-management/supplier-payments', name: '::SupplierPayments', parentName: '::Purchases',
+      iconClass: 'fas fa-money-check-alt', order: 3, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.SupplierPayments',
+    },
+    {
       name: '::Inventory', parentName: '::ShopManagement', iconClass: 'fas fa-warehouse', order: 5,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.StockTransactions',
     },

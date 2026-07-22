@@ -7,6 +7,7 @@ using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
+using EHub.ShopManagement.SupplierPayments;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -71,6 +72,16 @@ public class EHubApplicationAutoMapperProfile : Profile
         CreateMap<ShopStockTransaction, ShopStockTransactionDto>()
             .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
             .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.Product != null ? src.Product.Code : string.Empty));
+        CreateMap<ShopSupplierPayment, ShopSupplierPaymentDto>()
+            .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
+            .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty))
+            .ForMember(x => x.AllocatedAmount, opt => opt.Ignore())
+            .ForMember(x => x.UnallocatedAmount, opt => opt.Ignore());
+        CreateMap<ShopSupplierPaymentAllocation, ShopSupplierPaymentAllocationDto>()
+            .ForMember(x => x.GoodsReceiptNumber, opt => opt.MapFrom(src => src.GoodsReceipt != null ? src.GoodsReceipt.GoodsReceiptNumber : string.Empty))
+            .ForMember(x => x.SupplierInvoiceNumber, opt => opt.MapFrom(src => src.GoodsReceipt != null ? src.GoodsReceipt.SupplierInvoiceNumber : null))
+            .ForMember(x => x.ReceiptDate, opt => opt.MapFrom(src => src.GoodsReceipt != null ? src.GoodsReceipt.ReceiptDate : default))
+            .ForMember(x => x.GrandTotal, opt => opt.MapFrom(src => src.GoodsReceipt != null ? (decimal?)src.GoodsReceipt.GrandTotal : null));
         CreateMap<ShopProduct, ShopProductLookupDto>()
             .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
             .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))

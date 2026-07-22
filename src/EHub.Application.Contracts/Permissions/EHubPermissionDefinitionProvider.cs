@@ -50,6 +50,13 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopGoodsReceipts.AddChild(EHubPermissions.ShopGoodsReceipts.ViewCost, L("Permission:ShopGoodsReceipts.ViewCost"));
         var shopStockTransactions = shopManagement.AddChild(EHubPermissions.ShopStockTransactions.Default, L("Permission:ShopStockTransactions"));
         shopStockTransactions.AddChild(EHubPermissions.ShopStockTransactions.ViewCost, L("Permission:ShopStockTransactions.ViewCost"));
+        var shopSupplierPayments = shopManagement.AddChild(EHubPermissions.ShopSupplierPayments.Default, L("Permission:ShopSupplierPayments"));
+        shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Create, L("Permission:ShopSupplierPayments.Create"));
+        shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Edit, L("Permission:ShopSupplierPayments.Edit"));
+        shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Delete, L("Permission:ShopSupplierPayments.Delete"));
+        shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Post, L("Permission:ShopSupplierPayments.Post"));
+        shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Cancel, L("Permission:ShopSupplierPayments.Cancel"));
+        shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.ViewAmount, L("Permission:ShopSupplierPayments.ViewAmount"));
 
 
         var dashboardPermission =

@@ -9,6 +9,7 @@ using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
+using EHub.ShopManagement.SupplierPayments;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -93,6 +94,8 @@ public class EHubDbContext :
     public DbSet<ShopGoodsReceipt> ShopGoodsReceipts { get; set; }
     public DbSet<ShopGoodsReceiptItem> ShopGoodsReceiptItems { get; set; }
     public DbSet<ShopStockTransaction> ShopStockTransactions { get; set; }
+    public DbSet<ShopSupplierPayment> ShopSupplierPayments { get; set; }
+    public DbSet<ShopSupplierPaymentAllocation> ShopSupplierPaymentAllocations { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1050,6 +1053,49 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.SourceItemId }).IsUnique();
+        });
+
+        builder.Entity<ShopSupplierPayment>(b =>
+        {
+            b.ToTable("ShopSupplierPayments", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.PaymentNumber).IsRequired().HasMaxLength(ShopSupplierPaymentConsts.PaymentNumberMaxLength);
+            b.Property(x => x.SupplierId).IsRequired();
+            b.Property(x => x.PaymentDate).IsRequired();
+            b.Property(x => x.PaymentType).IsRequired().HasConversion<int>();
+            b.Property(x => x.PaymentMethod).IsRequired().HasConversion<int>();
+            b.Property(x => x.Amount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ReferenceNumber).HasMaxLength(ShopSupplierPaymentConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.ChequeNumber).HasMaxLength(ShopSupplierPaymentConsts.ChequeNumberMaxLength);
+            b.Property(x => x.BankName).HasMaxLength(ShopSupplierPaymentConsts.BankNameMaxLength);
+            b.Property(x => x.Notes).HasMaxLength(ShopSupplierPaymentConsts.NotesMaxLength);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopSupplierPaymentStatus.Draft);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopSupplierPaymentConsts.CancellationReasonMaxLength);
+
+            b.HasOne(x => x.Supplier).WithMany().HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
+            b.HasMany(x => x.Allocations).WithOne(x => x.SupplierPayment).HasForeignKey(x => x.SupplierPaymentId).OnDelete(DeleteBehavior.Cascade);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.SupplierId });
+            b.HasIndex(x => new { x.TenantId, x.PaymentDate });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.PaymentNumber }).IsUnique();
+        });
+
+        builder.Entity<ShopSupplierPaymentAllocation>(b =>
+        {
+            b.ToTable("ShopSupplierPaymentAllocations", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.SupplierPaymentId).IsRequired();
+            b.Property(x => x.GoodsReceiptId).IsRequired();
+            b.Property(x => x.AllocatedAmount).HasPrecision(18, 2).HasDefaultValue(0);
+
+            b.HasOne(x => x.GoodsReceipt).WithMany().HasForeignKey(x => x.GoodsReceiptId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.SupplierPaymentId });
+            b.HasIndex(x => new { x.TenantId, x.GoodsReceiptId });
+            b.HasIndex(x => new { x.SupplierPaymentId, x.GoodsReceiptId }).IsUnique();
         });
 
         builder.Entity<ExpenseEntry>(b =>

@@ -1,0 +1,33 @@
+:host { display: block; }
+.editor-page { width: 100%; max-width: 1250px; margin: auto; padding: 1.25rem 1.75rem; }
+.editor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.editor-header > div { display: flex; align-items: center; gap: .75rem; }
+.editor-header h3 { font-size: 1.25rem; color: #173f68; margin: 0; font-weight: 700; }
+.back-btn { width: 35px; height: 35px; border: 0; border-radius: 8px; color: #286b9f; background: #eaf3fa; flex: none; }
+
+.sp-form-card { padding: 1.1rem 1.25rem; margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); }
+.section-title { margin: 0 0 .8rem; color: #315b82; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+label { display: block; margin-bottom: .25rem; color: #345c80; font-size: .74rem; font-weight: 600; }
+.required { color: #dc3545; }
+small.error { display: block; margin-top: .2rem; color: #dc3545; font-size: .66rem; }
+.form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; border-radius: 6px; }
+
+.hint-box { padding: .75rem 1rem; background: #f5f8fb; border-radius: 8px; color: #7a8da0; font-size: .8rem; }
+
+.allocations-table { min-width: 900px; }
+.allocations-table th { background: #f8fafc; color: #62788e; font-size: .66rem; text-transform: uppercase; padding: .5rem .45rem; white-space: nowrap; }
+.allocations-table td { padding: .45rem; vertical-align: top; }
+.allocate-input { width: 130px; }
+
+.totals-row { display: flex; justify-content: flex-end; gap: 1rem; padding: .6rem 0; font-size: .9rem; color: #435b73; }
+.totals-row.grand { font-size: 1rem; color: #173f68; font-weight: 700; border-top: 2px solid #dce6ef; margin-top: .3rem; }
+
+.card-save { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .5rem; padding-top: .9rem; }
+.card-save .btn { min-width: 120px; }
+
+@media(max-width:767.98px) {
+  .editor-page { padding: .65rem; }
+  .editor-header { align-items: flex-start; gap: .5rem; }
+  .sp-form-card { padding: .8rem; }
+  .card-save .btn { flex: 1; }
+}

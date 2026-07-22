@@ -4,6 +4,7 @@ import * as Products from './products';
 import * as PurchaseOrders from './purchase-orders';
 import * as Settings from './settings';
 import * as StockTransactions from './stock-transactions';
+import * as SupplierPayments from './supplier-payments';
 import * as Suppliers from './suppliers';
 import * as Units from './units';
-export { GoodsReceipts, ProductCategories, Products, PurchaseOrders, Settings, StockTransactions, Suppliers, Units };
+export { GoodsReceipts, ProductCategories, Products, PurchaseOrders, Settings, StockTransactions, SupplierPayments, Suppliers, Units };

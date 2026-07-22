@@ -1,0 +1,124 @@
+<div class="editor-page">
+  <div class="editor-header">
+    <div>
+      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
+      <span>
+        <h3>{{ (isEdit ? '::EditSupplierPayment' : '::CreateSupplierPayment') | abpLocalization }}</h3>
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <div class="sp-form-card">
+      <h6 class="section-title">{{ '::ManageSupplierPayment' | abpLocalization }}</h6>
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::Supplier' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="supplierId" nzShowSearch [nzPlaceHolder]="'::SelectSupplier' | abpLocalization">
+            <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+          </nz-select>
+          <small class="error" *ngIf="form.controls.supplierId.touched && form.controls.supplierId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::PaymentDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="paymentDate">
+          <small class="error" *ngIf="form.controls.paymentDate.touched && form.controls.paymentDate.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::PaymentType' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="paymentType">
+            <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::PaymentMethod' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="paymentMethod">
+            <nz-option *ngFor="let x of methodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::Amount' | abpLocalization }} <b class="required">*</b></label>
+          <input type="number" min="0.01" step="0.01" class="form-control form-control-sm" formControlName="amount">
+          <small class="error" *ngIf="form.controls.amount.touched && form.controls.amount.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ReferenceNumber' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="referenceNumber">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ChequeNumber' | abpLocalization }} <b class="required" *ngIf="form.value.paymentMethod === ShopSupplierPaymentMethod.Cheque">*</b></label>
+          <input class="form-control form-control-sm" formControlName="chequeNumber">
+          <small class="error" *ngIf="form.touched && form.errors?.['chequeNumberRequired']">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::BankName' | abpLocalization }}
+            <b class="required" *ngIf="form.value.paymentMethod === ShopSupplierPaymentMethod.Cheque || form.value.paymentMethod === ShopSupplierPaymentMethod.BankTransfer">*</b>
+          </label>
+          <input class="form-control form-control-sm" formControlName="bankName">
+          <small class="error" *ngIf="form.touched && form.errors?.['bankNameRequired']">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp-form-card allocations-card">
+      <h6 class="section-title mb-2">{{ '::OutstandingReceipts' | abpLocalization }}</h6>
+
+      <div *ngIf="!form.value.supplierId" class="hint-box">{{ '::SelectSupplierToViewOutstandingReceipts' | abpLocalization }}</div>
+      <div *ngIf="form.value.supplierId && loadingReceipts" class="text-center py-3"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="form.value.supplierId && !loadingReceipts">
+        <small class="error d-block mb-2" *ngIf="form.errors?.['requiresAllocation']">{{ '::SupplierPaymentRequiresAllocation' | abpLocalization }}</small>
+        <small class="error d-block mb-2" *ngIf="form.errors?.['allocationExceedsAmount']">{{ '::SupplierPaymentAllocationExceedsAmount' | abpLocalization }}</small>
+
+        <div class="table-responsive" *ngIf="allocations.length">
+          <table class="table align-middle allocations-table">
+            <thead>
+              <tr>
+                <th>{{ '::GoodsReceiptNumber' | abpLocalization }}</th>
+                <th>{{ '::SupplierInvoiceNumber' | abpLocalization }}</th>
+                <th>{{ '::ReceiptDate' | abpLocalization }}</th>
+                <th *ngIf="canViewAmount">{{ '::GrandTotal' | abpLocalization }}</th>
+                <th *ngIf="canViewAmount">{{ '::PaidAmount' | abpLocalization }}</th>
+                <th *ngIf="canViewAmount">{{ '::PendingAmount' | abpLocalization }}</th>
+                <th>{{ '::AllocateAmount' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody [formArrayName]="'allocations'">
+              <tr *ngFor="let row of allocations.controls; let i = index" [formGroupName]="i">
+                <td><strong>{{ row.value.goodsReceiptNumber }}</strong></td>
+                <td>{{ row.value.supplierInvoiceNumber || '—' }}</td>
+                <td>{{ row.value.receiptDate | date:'mediumDate' }}</td>
+                <td *ngIf="canViewAmount">{{ row.value.grandTotal | number:'1.2-2' }}</td>
+                <td *ngIf="canViewAmount">{{ row.value.paidAmount | number:'1.2-2' }}</td>
+                <td *ngIf="canViewAmount">{{ row.value.pendingAmount | number:'1.2-2' }}</td>
+                <td>
+                  <input type="number" min="0" step="0.01" class="form-control form-control-sm allocate-input" formControlName="allocateAmount">
+                  <small class="error" *ngIf="row.errors?.['exceedsPending']">{{ '::SupplierPaymentAllocationExceedsPending' | abpLocalization }}</small>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="!allocations.length" class="hint-box">{{ '::NoOutstandingReceiptsFound' | abpLocalization }}</div>
+
+        <div class="totals-row grand" *ngIf="allocations.length && canViewAmount">
+          <span>{{ '::AllocatedAmount' | abpLocalization }}</span><strong>{{ totalAllocated | number:'1.2-2' }}</strong>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+</div>
