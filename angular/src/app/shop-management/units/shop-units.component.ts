@@ -4,7 +4,7 @@ import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
 import { CreateUpdateShopUnitDto, ShopUnitDto, ShopUnitService } from '../../proxy/shop-management/units';
-@Component({ selector: 'app-shop-units', standalone: false, templateUrl: './shop-units.component.html', styleUrl: './shop-units.component.scss' })
+@Component({ selector: 'app-shop-units', standalone: false, templateUrl: './shop-units.component.html', styleUrls: ['./shop-units.component.scss', './shop-units-modal.component.scss'] })
 export class ShopUnitsComponent implements OnInit {
   private readonly service = inject(ShopUnitService); private readonly fb = inject(FormBuilder); private readonly permissions = inject(PermissionService);
   private readonly confirmation = inject(ConfirmationService); private readonly toaster = inject(ToasterService);
