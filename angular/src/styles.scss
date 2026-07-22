@@ -625,3 +625,37 @@ body .ngx-datatable.material .datatable-header .datatable-header-cell {
 }
 
 .help-title{position:relative!important;display:flex!important;align-items:center;gap:.45rem}.transaction-help-btn{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;padding:0;border:1px solid #2c6da4;border-radius:50%;background:#fff;color:#1d5f96;font-size:1rem}.transaction-help-btn:hover,.transaction-help-btn:focus-visible{background:#1d5f96;color:#fff;outline:none}.transaction-fields-help{position:absolute;z-index:1070;top:calc(100% + 12px);left:0;width:min(400px,82vw);max-height:min(360px,calc(100vh - 170px));padding:8px 12px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;border-radius:6px;background:#303030;box-shadow:0 8px 22px rgba(0,0,0,.25);color:#fff;font-size:14px;font-weight:400;line-height:1.65;text-align:right;scrollbar-width:thin;scrollbar-color:#83bde9 #444}.transaction-help-arrow{position:absolute;top:-7px;left:245px;width:14px;height:14px;background:#303030;transform:rotate(45deg)}.transaction-help-item{padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.18)}.transaction-help-item:last-child{border-bottom:0}.transaction-help-item strong{display:block;margin-bottom:4px;color:#9fd2ff;font-size:13px;text-align:left}.transaction-help-item span{display:block;white-space:normal;overflow-wrap:anywhere}.transaction-fields-help::-webkit-scrollbar{width:6px}.transaction-fields-help::-webkit-scrollbar-track{background:#444;border-radius:6px}.transaction-fields-help::-webkit-scrollbar-thumb{background:#83bde9;border-radius:6px}@media(max-width:575.98px){.transaction-fields-help{left:-35px;width:min(340px,calc(100vw - 40px))}}
+
+// Global print isolation: the Lepton-X app shell (sidebar, topbar, breadcrumb) lives
+// outside any routed component's DOM subtree, so component-scoped print CSS can never
+// hide it. Hide everything by default and re-show only an explicit print target.
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-only * {
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+  }
+}

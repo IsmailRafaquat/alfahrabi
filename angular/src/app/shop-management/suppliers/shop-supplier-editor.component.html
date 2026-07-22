@@ -31,7 +31,16 @@
     <div class="row-heading">
       <span class="row-number"><i [class]="isEdit ? 'fas fa-pen' : 'fas fa-plus'"></i></span>
       <h5>{{ (isEdit ? '::EditSupplier' : '::CreateSupplier') | abpLocalization }}</h5>
-      <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm ms-auto" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
+      <button *ngIf="isEdit && canViewLedger" type="button" class="btn btn-outline-primary btn-sm ms-auto" (click)="viewLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewLedger' | abpLocalization }}</button>
+      <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm" [class.ms-auto]="!canViewLedger" [class.ms-2]="canViewLedger" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
+    </div>
+
+    <div class="ledger-summary-panel" *ngIf="isEdit && ledgerSummary && canViewLedgerAmounts">
+      <div class="ledger-summary-item"><span>{{ '::CurrentPayable' | abpLocalization }}</span><strong>{{ ledgerSummary.payableAmount | number:'1.2-2' }}</strong></div>
+      <div class="ledger-summary-item"><span>{{ '::AvailableAdvance' | abpLocalization }}</span><strong>{{ ledgerSummary.advanceAmount | number:'1.2-2' }}</strong></div>
+      <div class="ledger-summary-item"><span>{{ '::TotalPurchases' | abpLocalization }}</span><strong>{{ ledgerSummary.totalCompletedPurchases | number:'1.2-2' }}</strong></div>
+      <div class="ledger-summary-item"><span>{{ '::TotalPaid' | abpLocalization }}</span><strong>{{ ledgerSummary.totalPostedPayments | number:'1.2-2' }}</strong></div>
+      <div class="ledger-summary-item"><span>{{ '::TotalReturns' | abpLocalization }}</span><strong>{{ ledgerSummary.totalCompletedReturns | number:'1.2-2' }}</strong></div>
     </div>
 
     <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>

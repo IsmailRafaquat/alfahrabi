@@ -70,6 +70,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.PurchaseReturns',
     },
     {
+      path: '/shop-management/supplier-ledger', name: '::SupplierLedger', parentName: '::Purchases',
+      iconClass: 'fas fa-book', order: 5, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.SupplierLedger',
+    },
+    {
       name: '::Inventory', parentName: '::ShopManagement', iconClass: 'fas fa-warehouse', order: 5,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.StockTransactions',
     },

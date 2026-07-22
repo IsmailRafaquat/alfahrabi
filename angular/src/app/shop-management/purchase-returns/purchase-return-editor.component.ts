@@ -20,8 +20,9 @@ export class PurchaseReturnEditorComponent implements OnInit {
     if (this.id) {
       this.s.get(this.id).subscribe(x => {
         this.receipt = { id: x.goodsReceiptId, goodsReceiptNumber: x.goodsReceiptNumber, supplierName: x.supplierName };
-        this.form.patchValue(x as any);
+        this.form.patchValue({ ...x, returnDate: x.returnDate ? x.returnDate.slice(0, 10) : x.returnDate } as any);
         x.items.forEach(i => this.items.push(this.row({ ...i, productName: i.productNameSnapshot, productCode: i.productCodeSnapshot, unitName: i.unitNameSnapshot, unitShortName: i.unitShortNameSnapshot, receivedQuantity: i.receivedQuantitySnapshot, returnableQuantity: (i.receivedQuantitySnapshot || 0) - (i.previouslyReturnedQuantity || 0), purchasePrice: i.unitPurchasePrice })));
+        if (this.readonlyMode) this.form.disable({ emitEvent: false });
         this.loading = false;
       });
     } else if (this.receiptId) {

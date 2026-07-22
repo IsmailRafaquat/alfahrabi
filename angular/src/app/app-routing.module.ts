@@ -183,6 +183,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/purchase-returns/purchase-returns.module').then(m => m.PurchaseReturnsModule),
   },
   {
+    path: 'shop-management/supplier-ledger', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.SupplierLedger' },
+    loadChildren: () => import('./shop-management/supplier-ledger/shop-supplier-ledger.module').then(m => m.ShopSupplierLedgerModule),
+  },
+  {
     path: 'shop-management/stock-transactions', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.StockTransactions' },
     loadChildren: () => import('./shop-management/stock-transactions/shop-stock-transactions.module').then(m => m.ShopStockTransactionsModule),
   },

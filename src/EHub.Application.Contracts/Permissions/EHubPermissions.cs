@@ -98,6 +98,13 @@ public static class EHubPermissions
         public const string Cancel = Default + ".Cancel"; public const string ViewCost = Default + ".ViewCost";
     }
 
+    public static class ShopSupplierLedger
+    {
+        public const string Default = ManagementMenus.Shop + ".SupplierLedger";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+        public const string Export = Default + ".Export";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

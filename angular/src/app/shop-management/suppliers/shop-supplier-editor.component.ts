@@ -5,6 +5,7 @@ import { PermissionService } from '@abp/ng.core';
 import { ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
 import { CreateUpdateShopSupplierDto, ShopSupplierDto, ShopSupplierService } from '../../proxy/shop-management/suppliers';
+import { ShopSupplierBalanceSummaryDto, ShopSupplierLedgerService } from '../../proxy/shop-management/supplier-ledger';
 
 const BLANK_VALUE = {
   code: '',
@@ -31,18 +32,22 @@ const BLANK_VALUE = {
 export class ShopSupplierEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ShopSupplierService);
+  private readonly ledgerService = inject(ShopSupplierLedgerService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
   private readonly toaster = inject(ToasterService);
 
   readonly canViewBalance = this.permissions.getGrantedPolicy('ShopManagement.Suppliers.ViewBalance');
+  readonly canViewLedger = this.permissions.getGrantedPolicy('ShopManagement.SupplierLedger');
+  readonly canViewLedgerAmounts = this.permissions.getGrantedPolicy('ShopManagement.SupplierLedger.ViewAmounts');
 
   editId?: string;
   loading = false;
   submitting = false;
   savedItems: ShopSupplierDto[] = [];
   helpOpen = false;
+  ledgerSummary?: ShopSupplierBalanceSummaryDto;
 
   get isEdit(): boolean {
     return !!this.editId;
@@ -118,12 +123,18 @@ export class ShopSupplierEditorComponent implements OnInit {
   editSaved(dto: ShopSupplierDto): void {
     this.editId = dto.id;
     this.patchForm(dto);
+    this.loadLedgerSummary(dto.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   cancelEdit(): void {
     this.editId = undefined;
+    this.ledgerSummary = undefined;
     this.resetForm();
+  }
+
+  viewLedger(): void {
+    if (this.editId) this.router.navigate(['/shop-management/supplier-ledger', this.editId]);
   }
 
   done(): void {
@@ -162,6 +173,18 @@ export class ShopSupplierEditorComponent implements OnInit {
     this.service
       .get(id)
       .pipe(finalize(() => (this.loading = false)))
-      .subscribe(dto => this.patchForm(dto));
+      .subscribe(dto => {
+        this.patchForm(dto);
+        this.loadLedgerSummary(id);
+      });
+  }
+
+  private loadLedgerSummary(supplierId: string): void {
+    this.ledgerSummary = undefined;
+    if (!this.canViewLedger) return;
+    this.ledgerService.getBalanceSummary(supplierId).subscribe({
+      next: summary => (this.ledgerSummary = summary),
+      error: () => (this.ledgerSummary = undefined),
+    });
   }
 }

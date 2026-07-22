@@ -19,6 +19,9 @@
 .row-heading { display: flex; align-items: center; margin-bottom: .8rem; padding-bottom: .65rem; border-bottom: 1px solid #edf2f6; }
 .row-heading h5 { font-size: .9rem; color: #315b82; margin: 0; }
 .row-number { display: grid; place-items: center; width: 27px; height: 27px; margin-right: .55rem; border-radius: 7px; background: #e7f1f9; color: #286b9f; font-size: .74rem; font-weight: 700; }
+.ledger-summary-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .6rem; margin-bottom: 1rem; padding: .75rem 1rem; border-radius: 10px; background: #f8fafc; }
+.ledger-summary-item span { display: block; color: #8a9bad; font-size: .64rem; text-transform: uppercase; margin-bottom: .2rem; }
+.ledger-summary-item strong { font-size: .95rem; color: #173f68; }
 
 .section-title { margin: 1.1rem 0 .6rem; padding-top: .75rem; border-top: 1px solid #edf2f6; color: #315b82; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
 label { display: block; margin-bottom: .25rem; color: #345c80; font-size: .74rem; font-weight: 600; }

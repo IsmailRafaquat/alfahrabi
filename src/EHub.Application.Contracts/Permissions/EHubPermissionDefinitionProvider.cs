@@ -64,6 +64,9 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Complete, L("Permission:ShopPurchaseReturns.Complete"));
         shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Cancel, L("Permission:ShopPurchaseReturns.Cancel"));
         shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.ViewCost, L("Permission:ShopPurchaseReturns.ViewCost"));
+        var shopSupplierLedger = shopManagement.AddChild(EHubPermissions.ShopSupplierLedger.Default, L("Permission:ShopSupplierLedger"));
+        shopSupplierLedger.AddChild(EHubPermissions.ShopSupplierLedger.ViewAmounts, L("Permission:ShopSupplierLedger.ViewAmounts"));
+        shopSupplierLedger.AddChild(EHubPermissions.ShopSupplierLedger.Export, L("Permission:ShopSupplierLedger.Export"));
 
 
         var dashboardPermission =

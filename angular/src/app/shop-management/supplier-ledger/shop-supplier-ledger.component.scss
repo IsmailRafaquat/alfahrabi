@@ -1,0 +1,109 @@
+:host { display: block; }
+.ledger-page { padding: 1.25rem; max-width: 1700px; margin: auto; }
+.page-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; h3 { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; color: #173f68; margin: 0; font-size: 1.35rem; font-weight: 700; } p { margin: .2rem 0 0; color: #718096; font-size: .8rem; } }
+.workflow-info-btn { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid #d7e6f2; background: #eef6fc; color: #2369a3; font-size: .68rem; font-weight: 700; padding: .3rem .65rem; border-radius: 999px; cursor: help; }
+.workflow-info-btn:hover { background: #e2f0fa; }
+.tooltip-lang-tabs { display: flex; gap: .35rem; margin-bottom: .55rem; border-bottom: 1px solid rgba(255,255,255,.18); padding-bottom: .5rem; }
+.tooltip-lang-tabs button { border: 0; background: transparent; color: rgba(255,255,255,.65); font-size: .85rem; font-weight: 700; padding: .25rem .65rem; border-radius: 4px; cursor: pointer; }
+.tooltip-lang-tabs button.active { background: rgba(255,255,255,.16); color: #fff; }
+.tooltip-lang-text { max-width: 340px; font-size: .95rem; line-height: 1.6; color: rgba(255,255,255,.95); }
+.tooltip-lang-text[dir="rtl"] { text-align: right; font-size: 1.15rem; line-height: 2; font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif; }
+.ledger-card { border: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(20, 55, 90, .07); overflow: hidden; }
+.filters { padding: 1rem; border-bottom: 1px solid #edf2f7; }
+.filters-row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: flex-end; }
+.filters-row + .filters-row { margin-top: .75rem; }
+.filter-field { display: flex; flex-direction: column; gap: .25rem; flex: 1 1 160px; min-width: 160px; }
+.filter-field label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: #8a9bad; }
+.filter-field.supplier-field { flex: 1 1 240px; min-width: 220px; }
+.filter-field.filter-search { flex: 2 1 320px; min-width: 260px; }
+.filter-buttons { display: flex; gap: .5rem; flex: 0 0 auto; }
+.filter-buttons .btn { white-space: nowrap; min-width: 96px; }
+.statement-actions { display: flex; gap: .5rem; margin-left: auto; }
+.statement-actions .btn { white-space: nowrap; }
+.search-box { position: relative; i { position: absolute; left: .7rem; top: .58rem; color: #8da1b5; font-size: .75rem; } input { padding-left: 2rem; } }
+.form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
+
+@media(max-width:767.98px) {
+  .filters-row { flex-direction: column; align-items: stretch; }
+  .filter-field, .filter-field.supplier-field, .filter-field.filter-search { flex: 1 1 auto; min-width: 0; }
+  .filter-buttons { justify-content: flex-start; }
+  .statement-actions { margin-left: 0; flex-wrap: wrap; }
+}
+
+.summary-section { border-bottom: 1px solid #edf2f7; }
+.summary-header { display: flex; justify-content: flex-end; padding: .6rem 1rem 0; }
+.summary-info-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid #d7e6f2; border-radius: 50%; background: #eef6fc; color: #2369a3; font-size: .8rem; cursor: help; }
+.summary-info-btn:hover { background: #e2f0fa; }
+.summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; padding: .5rem 1rem 1rem; }
+.summary-card { padding: .75rem 1rem; border-radius: 10px; background: #f8fafc; span { display: block; color: #8a9bad; font-size: .68rem; text-transform: uppercase; margin-bottom: .25rem; } strong { font-size: 1.05rem; color: #173f68; } }
+.summary-card.grand { background: #eef6fc; strong { color: #2369a3; } }
+.summary-card.payable { background: #fdeced; strong { color: #c83e4d; } }
+.summary-card.advance { background: #e9f7ef; strong { color: #198754; } }
+
+table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #56708b; font-size: .72rem; text-transform: uppercase; border-bottom: 1px solid #e4ebf2; padding: .7rem; } tbody td { color: #435b73; font-size: .8rem; padding: .65rem .7rem; border-color: #edf2f6; } }
+.balance-cell { font-weight: 700; color: #173f68; }
+.type-badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+.type-badge.opening { color: #63707d; background: #eef1f4; }
+.type-badge.goods-receipt { color: #2369a3; background: #eaf3fa; }
+.type-badge.payment { color: #198754; background: #e9f7ef; }
+.type-badge.return { color: #b5670a; background: #fef3e2; }
+.empty-state { text-align: center; padding: 3rem !important; color: #8a9bad !important; i { display: block; font-size: 1.8rem; margin-bottom: .6rem; } }
+.loading { text-align: center; padding: 1rem; }
+
+@media(max-width:767.98px){.ledger-page{padding:.65rem}.page-heading{align-items:flex-start;gap:.75rem;h3{font-size:1.1rem}p{display:none}}.filters{padding:.75rem}.summary-cards{grid-template-columns:repeat(2,1fr)}}
+
+.print-only { display: none; }
+
+// While generating the WhatsApp PDF, html2canvas needs the statement actually rendered
+// in the layout (display:none elements have no box to capture), so briefly render it
+// off-screen instead of relying on the print-only media query.
+.print-only.capturing {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 800px;
+  padding: 24px;
+  background: #fff;
+  color: #000;
+  font-family: Arial, sans-serif;
+  z-index: -1;
+}
+
+// These rules apply whenever `.statement-print` is actually rendered — either during
+// real browser printing (`@media print` flips `.print-only` to display:block) or during
+// WhatsApp PDF capture (`.capturing` does the same). They must NOT live inside a
+// `@media print` block, because html2canvas renders the DOM in the normal screen
+// context and never matches print media queries — that was silently dropping the
+// table borders, totals spacing, and RTL layout from the shared PDF.
+.statement-print { padding: 0; font-family: Arial, sans-serif; color: #000; }
+.statement-header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: .75rem; margin-bottom: 1rem; }
+.statement-header h2 { margin: 0 0 .2rem; font-size: 1.3rem; }
+.statement-header p { margin: 0; font-size: .8rem; }
+.statement-title { text-align: right; }
+.statement-title h3 { margin: 0; font-size: 1.1rem; }
+.supplier-info { margin-bottom: 1rem; font-size: .85rem; }
+.supplier-info p { margin: .1rem 0; }
+.statement-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.statement-table th, .statement-table td { border: 1px solid #999; padding: .4rem .5rem; }
+.statement-table th { background: #eee; text-align: left; }
+.statement-totals { margin-top: 1rem; display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; font-size: .85rem; }
+.statement-totals > div { display: flex; justify-content: space-between; gap: 1.5rem; min-width: 220px; }
+.statement-totals .grand { font-weight: 700; font-size: 1rem; border-top: 2px solid #000; padding-top: .3rem; margin-top: .2rem; }
+.statement-totals .status { margin-top: .5rem; font-weight: 700; flex-direction: column; align-items: flex-end; gap: .2rem; }
+
+.statement-print.rtl {
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+  text-align: right;
+}
+.statement-print.rtl .statement-title { text-align: left; }
+.statement-print.rtl .statement-table th { text-align: right; }
+.statement-print.rtl .statement-table td.text-end,
+.statement-print.rtl .statement-table th.text-end { text-align: left; }
+.statement-print.rtl .statement-totals { align-items: flex-start; }
+.statement-print.rtl .statement-totals .status { align-items: flex-start; }
+
+@media print {
+  .screen-only { display: none !important; }
+  .print-only { display: block !important; }
+}
