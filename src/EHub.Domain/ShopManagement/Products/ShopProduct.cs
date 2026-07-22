@@ -85,6 +85,13 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         CurrentStock += quantity;
     }
 
+    public void DecreaseStock(decimal quantity)
+    {
+        if (quantity <= 0) throw new BusinessException("ShopManagement:ProductStockDecreaseMustBePositive");
+        if (CurrentStock < quantity) throw new BusinessException("ShopManagement:InsufficientProductStock").WithData("Product", Name);
+        CurrentStock -= quantity;
+    }
+
     internal void Update(
         Guid categoryId,
         Guid unitId,

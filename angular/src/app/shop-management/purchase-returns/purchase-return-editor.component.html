@@ -1,0 +1,28 @@
+<div class="editor-page">
+  <div class="editor-header"><div><button class="back-btn" (click)="done()"><i class="fas fa-arrow-left"></i></button><span><h3 class="help-title">Manage Purchase Returns
+    <details class="transaction-help"><summary aria-label="Purchase return fields help" title="Field descriptions"><i class="fas fa-info-circle"></i></summary>
+      <div class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+        <div class="transaction-help-item"><strong dir="ltr">Goods Receipt</strong><span>وہ رسید جس میں ملا ہوا سامان درج ہے اور جس میں سے سامان واپس کرنا ہے۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Supplier</strong><span>وہ سپلائر جس کو سامان واپس بھیجا جائے گا۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Return Date</strong><span>جس تاریخ کو سامان سپلائر کو واپس کیا جا رہا ہے۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Return Reason</strong><span>سامان واپس کرنے کی بنیادی وجہ منتخب کریں، مثلاً خراب یا غلط سامان۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Reason Details</strong><span>واپسی کی وجہ کے بارے میں مزید آسان وضاحت لکھیں۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Other Charges</strong><span>واپسی پر ہونے والا کوئی اضافی خرچ یہاں درج کریں۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Return Quantity</strong><span>ہر پروڈکٹ کی جتنی مقدار واپس کرنی ہے وہ لکھیں۔ یہ Returnable مقدار سے زیادہ نہیں ہو سکتی۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Item Reason</strong><span>ہر پروڈکٹ واپس کرنے کی الگ وجہ منتخب کریں۔</span></div>
+        <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>واپسی سے متعلق کوئی ضروری اضافی بات لکھیں۔</span></div>
+      </div>
+    </details>
+  </h3><p>Create a supplier return from received goods.</p></span></div></div>
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()" class="return-form-card">
+    <div class="row-heading"><span class="row-number"><i [class]="id ? 'fas fa-pen' : 'fas fa-undo-alt'"></i></span><h5>{{readonlyMode?'Purchase Return Details':(id?'Edit Purchase Return':'Create Purchase Return')}}</h5></div>
+    <h6 class="section-title">Goods Receipt Information</h6>
+    <div class="receipt-summary row g-3"><div class="col-12 col-md-4"><label>Goods Receipt Number</label><strong>{{receipt.goodsReceiptNumber}}</strong></div><div class="col-12 col-md-4"><label>Supplier</label><strong>{{receipt.supplierName}}</strong></div><div class="col-12 col-md-4" *ngIf="receipt.receiptDate"><label>Receipt Date</label><strong>{{receipt.receiptDate|date:'mediumDate'}}</strong></div></div>
+    <h6 class="section-title">Return Information</h6>
+    <div class="row g-3"><div class="col-12 col-md-6 col-xl-3"><label>Return Date <b>*</b></label><input type="date" class="form-control form-control-sm" formControlName="returnDate"></div><div class="col-12 col-md-6 col-xl-3"><label>Return Reason <b>*</b></label><nz-select class="w-100" formControlName="reason"><nz-option *ngFor="let r of reasons;let i=index" [nzValue]="i" [nzLabel]="r"></nz-option></nz-select></div><div class="col-12 col-md-6 col-xl-3"><label>Other Charges</label><input type="number" min="0" class="form-control form-control-sm" formControlName="otherCharges"></div><div class="col-12 col-md-6 col-xl-3"><label>Reason Details</label><input class="form-control form-control-sm" formControlName="reasonDetails"></div><div class="col-12"><label>Notes</label><textarea class="form-control form-control-sm" rows="2" formControlName="notes"></textarea></div></div>
+    <h6 class="section-title">Return Items</h6>
+    <div class="items-panel table-responsive" formArrayName="items"><table class="table align-middle mb-0"><thead><tr><th>Product</th><th>Received</th><th>Bonus</th><th>Previously Returned</th><th>Returnable</th><th>Return Quantity</th><th *ngIf="canCost">Purchase Price</th><th>Batch</th><th>Expiry</th><th>Reason</th><th *ngIf="canCost">Line Total</th></tr></thead><tbody><tr *ngFor="let row of items.controls;let i=index" [formGroupName]="i"><td><strong>{{row.value.productName}}</strong><small>{{row.value.productCode}}</small></td><td>{{row.value.receivedQuantity}}</td><td>{{row.value.bonusQuantity}}</td><td>{{row.value.previouslyReturnedQuantity}}</td><td><span class="returnable">{{row.value.returnableQuantity}}</span></td><td><input type="number" min="0" [max]="row.value.returnableQuantity" class="form-control form-control-sm qty" formControlName="returnQuantity"></td><td *ngIf="canCost">{{row.value.purchasePrice|number:'1.2-2'}}</td><td>{{row.value.batchNumber||'—'}}</td><td>{{row.value.expiryDate?(row.value.expiryDate|date:'mediumDate'):'—'}}</td><td><nz-select class="reason" formControlName="reason"><nz-option *ngFor="let r of reasons;let ri=index" [nzValue]="ri" [nzLabel]="r"></nz-option></nz-select></td><td *ngIf="canCost"><strong>{{lineTotal(row)|number:'1.2-2'}}</strong></td></tr></tbody></table></div>
+    <div class="card-save"><button type="button" class="btn btn-light btn-sm" (click)="done()">{{readonlyMode?'Back':'Cancel'}}</button><button *ngIf="!readonlyMode" type="submit" class="btn btn-primary btn-sm" [disabled]="submitting"><span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!submitting" class="fas fa-save me-2"></i>{{id?'Update Purchase Return':'Save Purchase Return'}}</button></div>
+  </form>
+</div>

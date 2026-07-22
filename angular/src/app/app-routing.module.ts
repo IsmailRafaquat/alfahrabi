@@ -179,6 +179,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/supplier-payments/shop-supplier-payments.module').then(m => m.ShopSupplierPaymentsModule),
   },
   {
+    path: 'shop-management/purchase-returns', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseReturns' },
+    loadChildren: () => import('./shop-management/purchase-returns/purchase-returns.module').then(m => m.PurchaseReturnsModule),
+  },
+  {
     path: 'shop-management/stock-transactions', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.StockTransactions' },
     loadChildren: () => import('./shop-management/stock-transactions/shop-stock-transactions.module').then(m => m.ShopStockTransactionsModule),
   },

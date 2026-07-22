@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
+import { PurchaseReturnService } from '../purchase-returns/purchase-return.service';
 import {
   ShopGoodsReceiptDto,
   ShopGoodsReceiptPaymentStatus,
@@ -20,6 +21,7 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
   private readonly confirmation = inject(ConfirmationService);
   private readonly toaster = inject(ToasterService);
   private readonly fb = inject(FormBuilder);
+  private readonly purchaseReturns = inject(PurchaseReturnService);
 
   readonly ShopGoodsReceiptStatus = ShopGoodsReceiptStatus;
   readonly canEdit = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.Edit');
@@ -30,11 +32,13 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
   readonly canViewPaymentAmount = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.ViewAmount');
   readonly canCreateSupplierPayment = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.Create');
+  readonly canCreatePurchaseReturn = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Create');
 
   id!: string;
   dto?: ShopGoodsReceiptDto;
   loading = false;
   actionInProgress = false;
+  hasReturnableItems = false;
 
   cancelModalOpen = false;
   readonly cancelForm = this.fb.group({ cancellationReason: ['', [Validators.required, Validators.maxLength(500)]] });
@@ -49,7 +53,16 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
     this.service
       .get(this.id)
       .pipe(finalize(() => (this.loading = false)))
-      .subscribe(dto => (this.dto = dto));
+      .subscribe(dto => {
+        this.dto = dto;
+        this.hasReturnableItems = false;
+        if (dto.status === ShopGoodsReceiptStatus.Completed && this.canCreatePurchaseReturn) {
+          this.purchaseReturns.getReceipt(this.id).subscribe({
+            next: x => this.hasReturnableItems = !!x.items?.length,
+            error: () => this.hasReturnableItems = false,
+          });
+        }
+      });
   }
 
   statusLabel(status: ShopGoodsReceiptStatus): string {
@@ -85,6 +98,7 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
   makeSupplierPayment(): void {
     this.router.navigate(['/shop-management/supplier-payments/create'], { queryParams: { goodsReceiptId: this.id } });
   }
+  createPurchaseReturn(): void { this.router.navigate(['/shop-management/purchase-returns/create', this.id]); }
 
   edit(): void {
     this.router.navigate(['/shop-management/goods-receipts', this.id, 'edit']);

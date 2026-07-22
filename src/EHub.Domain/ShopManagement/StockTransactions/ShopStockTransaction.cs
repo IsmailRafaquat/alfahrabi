@@ -43,7 +43,7 @@ public class ShopStockTransaction : Entity<Guid>, IMultiTenant
 
     protected ShopStockTransaction() { }
 
-    internal ShopStockTransaction(
+    public ShopStockTransaction(
         Guid id,
         Guid tenantId,
         Guid productId,

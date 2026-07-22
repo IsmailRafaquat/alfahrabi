@@ -90,6 +90,14 @@ public static class EHubPermissions
         public const string ViewAmount = Default + ".ViewAmount";
     }
 
+    public static class ShopPurchaseReturns
+    {
+        public const string Default = ManagementMenus.Shop + ".PurchaseReturns";
+        public const string Create = Default + ".Create"; public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete"; public const string Complete = Default + ".Complete";
+        public const string Cancel = Default + ".Cancel"; public const string ViewCost = Default + ".ViewCost";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

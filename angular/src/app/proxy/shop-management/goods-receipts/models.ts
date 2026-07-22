@@ -41,6 +41,7 @@ export interface ShopGoodsReceiptDto extends EntityDto<string> {
   otherCharges?: number;
   grandTotal?: number;
   paidAmount?: number;
+  returnAmount?: number;
   pendingAmount?: number;
   paymentStatus?: ShopGoodsReceiptPaymentStatus;
   notes?: string;

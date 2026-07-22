@@ -10,6 +10,7 @@ using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
 using EHub.ShopManagement.SupplierPayments;
+using EHub.ShopManagement.PurchaseReturns;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -96,6 +97,8 @@ public class EHubDbContext :
     public DbSet<ShopStockTransaction> ShopStockTransactions { get; set; }
     public DbSet<ShopSupplierPayment> ShopSupplierPayments { get; set; }
     public DbSet<ShopSupplierPaymentAllocation> ShopSupplierPaymentAllocations { get; set; }
+    public DbSet<ShopPurchaseReturn> ShopPurchaseReturns { get; set; }
+    public DbSet<ShopPurchaseReturnItem> ShopPurchaseReturnItems { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1023,6 +1026,25 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.PurchaseOrderItemId });
             b.HasIndex(x => new { x.TenantId, x.ProductId });
             b.HasIndex(x => new { x.GoodsReceiptId, x.PurchaseOrderItemId }).IsUnique();
+        });
+
+        builder.Entity<ShopPurchaseReturn>(b =>
+        {
+            b.ToTable("ShopPurchaseReturns", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired(); b.Property(x => x.PurchaseReturnNumber).IsRequired().HasMaxLength(ShopPurchaseReturnConsts.NumberMaxLength);
+            b.Property(x => x.Status).HasConversion<int>(); b.Property(x => x.Reason).HasConversion<int>(); b.Property(x => x.ReasonDetails).HasMaxLength(ShopPurchaseReturnConsts.ReasonDetailsMaxLength);
+            b.Property(x => x.SubTotal).HasPrecision(18,2); b.Property(x => x.TaxAmount).HasPrecision(18,2); b.Property(x => x.OtherCharges).HasPrecision(18,2); b.Property(x => x.GrandTotal).HasPrecision(18,2);
+            b.Property(x => x.Notes).HasMaxLength(ShopPurchaseReturnConsts.NotesMaxLength); b.Property(x => x.CancellationReason).HasMaxLength(ShopPurchaseReturnConsts.CancellationReasonMaxLength);
+            b.HasOne(x=>x.Supplier).WithMany().HasForeignKey(x=>x.SupplierId).OnDelete(DeleteBehavior.Restrict); b.HasOne(x=>x.GoodsReceipt).WithMany().HasForeignKey(x=>x.GoodsReceiptId).OnDelete(DeleteBehavior.Restrict);
+            b.HasMany(x=>x.Items).WithOne(x=>x.PurchaseReturn).HasForeignKey(x=>x.PurchaseReturnId).OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(x=>new{x.TenantId,x.PurchaseReturnNumber}).IsUnique(); b.HasIndex(x=>new{x.TenantId,x.SupplierId}); b.HasIndex(x=>new{x.TenantId,x.GoodsReceiptId}); b.HasIndex(x=>new{x.TenantId,x.Status}); b.HasIndex(x=>new{x.TenantId,x.ReturnDate});
+        });
+        builder.Entity<ShopPurchaseReturnItem>(b =>
+        {
+            b.ToTable("ShopPurchaseReturnItems", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x=>x.Id); b.Property(x=>x.TenantId).IsRequired();
+            b.Property(x=>x.ProductNameSnapshot).HasMaxLength(ShopPurchaseReturnConsts.SnapshotMaxLength); b.Property(x=>x.ProductCodeSnapshot).HasMaxLength(ShopPurchaseReturnConsts.CodeMaxLength); b.Property(x=>x.UnitNameSnapshot).HasMaxLength(ShopPurchaseReturnConsts.UnitMaxLength); b.Property(x=>x.UnitShortNameSnapshot).HasMaxLength(ShopPurchaseReturnConsts.UnitMaxLength); b.Property(x=>x.BatchNumber).HasMaxLength(ShopPurchaseReturnConsts.BatchMaxLength); b.Property(x=>x.Notes).HasMaxLength(ShopPurchaseReturnConsts.NotesMaxLength);
+            b.Property(x=>x.ReceivedQuantitySnapshot).HasPrecision(18,4); b.Property(x=>x.PreviouslyReturnedQuantity).HasPrecision(18,4); b.Property(x=>x.ReturnQuantity).HasPrecision(18,4); b.Property(x=>x.UnitPurchasePrice).HasPrecision(18,2); b.Property(x=>x.TaxPercentage).HasPrecision(5,2); b.Property(x=>x.TaxAmount).HasPrecision(18,2); b.Property(x=>x.LineSubTotal).HasPrecision(18,2); b.Property(x=>x.LineTotal).HasPrecision(18,2);
+            b.HasOne(x=>x.GoodsReceiptItem).WithMany().HasForeignKey(x=>x.GoodsReceiptItemId).OnDelete(DeleteBehavior.Restrict); b.HasOne(x=>x.Product).WithMany().HasForeignKey(x=>x.ProductId).OnDelete(DeleteBehavior.Restrict); b.HasIndex(x=>new{x.PurchaseReturnId,x.GoodsReceiptItemId}).IsUnique();
         });
 
         builder.Entity<ShopStockTransaction>(b =>

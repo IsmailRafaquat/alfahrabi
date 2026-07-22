@@ -7,6 +7,7 @@ using EHub.Permissions;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.SupplierPayments;
+using EHub.ShopManagement.PurchaseReturns;
 using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.Units;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +29,7 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly ShopGoodsReceiptManager _manager;
     private readonly ShopSupplierPaymentManager _supplierPaymentManager;
+    private readonly IRepository<ShopPurchaseReturn, Guid> _purchaseReturnRepository;
 
     public ShopGoodsReceiptAppService(
         IRepository<ShopGoodsReceipt, Guid> repository,
@@ -36,7 +38,8 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
         ShopGoodsReceiptManager manager,
-        ShopSupplierPaymentManager supplierPaymentManager)
+        ShopSupplierPaymentManager supplierPaymentManager,
+        IRepository<ShopPurchaseReturn, Guid> purchaseReturnRepository)
     {
         _repository = repository;
         _purchaseOrderRepository = purchaseOrderRepository;
@@ -45,6 +48,7 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
         _unitRepository = unitRepository;
         _manager = manager;
         _supplierPaymentManager = supplierPaymentManager;
+        _purchaseReturnRepository = purchaseReturnRepository;
     }
 
     public async Task<PagedResultDto<ShopGoodsReceiptDto>> GetListAsync(GetShopGoodsReceiptsInput input)
@@ -264,14 +268,19 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
 
         var receiptIds = items.Select(x => x.Id).ToList();
         var paidAmounts = await _supplierPaymentManager.GetPostedAllocatedAmountsAsync(tenantId, receiptIds, excludePaymentId: null);
+        var returnQuery = await _purchaseReturnRepository.GetQueryableAsync();
+        var returnAmounts = (await AsyncExecuter.ToListAsync(returnQuery.Where(x => x.TenantId == tenantId && receiptIds.Contains(x.GoodsReceiptId) && x.Status == ShopPurchaseReturnStatus.Completed)))
+            .GroupBy(x => x.GoodsReceiptId).ToDictionary(x => x.Key, x => x.Sum(y => y.GrandTotal));
 
         foreach (var dto in items)
         {
             var grandTotal = dto.GrandTotal ?? 0;
             var paid = paidAmounts.TryGetValue(dto.Id, out var value) ? value : 0;
-            var pending = Math.Max(0, grandTotal - paid);
+            var returned = returnAmounts.TryGetValue(dto.Id, out var returnValue) ? returnValue : 0;
+            var pending = Math.Max(0, grandTotal - paid - returned);
 
             dto.PaidAmount = paid;
+            dto.ReturnAmount = returned;
             dto.PendingAmount = pending;
             dto.PaymentStatus = ComputePaymentStatus(paid, pending);
         }
@@ -290,6 +299,7 @@ public class ShopGoodsReceiptAppService : ApplicationService, IShopGoodsReceiptA
         foreach (var dto in items)
         {
             dto.PaidAmount = null;
+            dto.ReturnAmount = null;
             dto.PendingAmount = null;
         }
     }

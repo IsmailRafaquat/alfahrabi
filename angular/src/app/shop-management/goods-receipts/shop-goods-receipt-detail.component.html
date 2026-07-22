@@ -14,6 +14,7 @@
       <button *ngIf="canCancel && dto.status === ShopGoodsReceiptStatus.Draft" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelGoodsReceipt' | abpLocalization }}</button>
       <button *ngIf="canViewStockTransactions && dto.status === ShopGoodsReceiptStatus.Completed" class="btn btn-outline-primary btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::StockTransactions' | abpLocalization }}</button>
       <button *ngIf="canCreateSupplierPayment && canMakeSupplierPayment()" class="btn btn-primary btn-sm" (click)="makeSupplierPayment()"><i class="fas fa-money-check-alt me-2"></i>{{ '::MakeSupplierPayment' | abpLocalization }}</button>
+      <button *ngIf="canCreatePurchaseReturn && hasReturnableItems" class="btn btn-warning btn-sm" (click)="createPurchaseReturn()"><i class="fas fa-undo-alt me-2"></i>Create Purchase Return</button>
     </div>
   </div>
 
@@ -73,6 +74,7 @@
         <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ dto.grandTotal | number:'1.2-2' }}</strong></div>
         <ng-container *ngIf="canViewPaymentAmount">
           <div class="totals-row"><span>{{ '::PaidAmount' | abpLocalization }}</span><strong>{{ dto.paidAmount | number:'1.2-2' }}</strong></div>
+          <div class="totals-row"><span>Return Amount</span><strong>{{ $any(dto).returnAmount | number:'1.2-2' }}</strong></div>
           <div class="totals-row"><span>{{ '::PendingAmount' | abpLocalization }}</span><strong>{{ dto.pendingAmount | number:'1.2-2' }}</strong></div>
         </ng-container>
       </div>

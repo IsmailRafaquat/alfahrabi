@@ -65,6 +65,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.SupplierPayments',
     },
     {
+      path: '/shop-management/purchase-returns', name: '::PurchaseReturns', parentName: '::Purchases',
+      iconClass: 'fas fa-undo-alt', order: 4, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.PurchaseReturns',
+    },
+    {
       name: '::Inventory', parentName: '::ShopManagement', iconClass: 'fas fa-warehouse', order: 5,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.StockTransactions',
     },

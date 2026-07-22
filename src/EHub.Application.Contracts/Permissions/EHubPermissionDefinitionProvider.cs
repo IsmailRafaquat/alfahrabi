@@ -57,6 +57,13 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Post, L("Permission:ShopSupplierPayments.Post"));
         shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.Cancel, L("Permission:ShopSupplierPayments.Cancel"));
         shopSupplierPayments.AddChild(EHubPermissions.ShopSupplierPayments.ViewAmount, L("Permission:ShopSupplierPayments.ViewAmount"));
+        var shopPurchaseReturns = shopManagement.AddChild(EHubPermissions.ShopPurchaseReturns.Default, L("Permission:ShopPurchaseReturns"));
+        shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Create, L("Permission:ShopPurchaseReturns.Create"));
+        shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Edit, L("Permission:ShopPurchaseReturns.Edit"));
+        shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Delete, L("Permission:ShopPurchaseReturns.Delete"));
+        shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Complete, L("Permission:ShopPurchaseReturns.Complete"));
+        shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.Cancel, L("Permission:ShopPurchaseReturns.Cancel"));
+        shopPurchaseReturns.AddChild(EHubPermissions.ShopPurchaseReturns.ViewCost, L("Permission:ShopPurchaseReturns.ViewCost"));
 
 
         var dashboardPermission =
