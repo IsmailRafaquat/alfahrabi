@@ -105,6 +105,15 @@ public static class EHubPermissions
         public const string Export = Default + ".Export";
     }
 
+    public static class ShopCustomers
+    {
+        public const string Default = ManagementMenus.Shop + ".Customers";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewBalance = Default + ".ViewBalance";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

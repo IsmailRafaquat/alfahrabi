@@ -167,6 +167,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/suppliers/shop-suppliers.module').then(m => m.ShopSuppliersModule),
   },
   {
+    path: 'shop-management/customers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Customers' },
+    loadChildren: () => import('./shop-management/customers/shop-customers.module').then(m => m.ShopCustomersModule),
+  },
+  {
     path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
     loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
   },

@@ -67,6 +67,11 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         var shopSupplierLedger = shopManagement.AddChild(EHubPermissions.ShopSupplierLedger.Default, L("Permission:ShopSupplierLedger"));
         shopSupplierLedger.AddChild(EHubPermissions.ShopSupplierLedger.ViewAmounts, L("Permission:ShopSupplierLedger.ViewAmounts"));
         shopSupplierLedger.AddChild(EHubPermissions.ShopSupplierLedger.Export, L("Permission:ShopSupplierLedger.Export"));
+        var shopCustomers = shopManagement.AddChild(EHubPermissions.ShopCustomers.Default, L("Permission:ShopCustomers"));
+        shopCustomers.AddChild(EHubPermissions.ShopCustomers.Create, L("Permission:ShopCustomers.Create"));
+        shopCustomers.AddChild(EHubPermissions.ShopCustomers.Edit, L("Permission:ShopCustomers.Edit"));
+        shopCustomers.AddChild(EHubPermissions.ShopCustomers.Delete, L("Permission:ShopCustomers.Delete"));
+        shopCustomers.AddChild(EHubPermissions.ShopCustomers.ViewBalance, L("Permission:ShopCustomers.ViewBalance"));
 
 
         var dashboardPermission =
