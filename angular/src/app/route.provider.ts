@@ -50,7 +50,16 @@ function configureRoutes() {
       order: 4, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Customers',
     },
     {
-      name: '::Purchases', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice', order: 5,
+      name: '::Sales', parentName: '::ShopManagement', iconClass: 'fas fa-cash-register', order: 5,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Sales',
+    },
+    {
+      path: '/shop-management/sales', name: '::SalesPOS', parentName: '::Sales',
+      iconClass: 'fas fa-receipt', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.Sales',
+    },
+    {
+      name: '::Purchases', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice', order: 6,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.PurchaseOrders',
     },
     {
@@ -79,7 +88,7 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.SupplierLedger',
     },
     {
-      name: '::Inventory', parentName: '::ShopManagement', iconClass: 'fas fa-warehouse', order: 6,
+      name: '::Inventory', parentName: '::ShopManagement', iconClass: 'fas fa-warehouse', order: 7,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.StockTransactions',
     },
     {
