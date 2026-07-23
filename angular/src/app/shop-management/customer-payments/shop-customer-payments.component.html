@@ -1,0 +1,102 @@
+<div class="cp-page">
+  <div class="page-heading">
+    <div>
+      <h3>
+        {{ '::CustomerPayments' | abpLocalization }}
+        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'A Customer Payment records money received from a customer and lets you match it against one or more completed Sales. Once posted, it reduces the pending balance on those sales.', ur: 'Customer Payment وہ ریکارڈ ہے جس میں آپ کسٹمر سے موصول رقم درج کرتے ہیں اور اسے مکمل ہونے والی Sales کے ساتھ ملاتے ہیں۔ Post کرنے کے بعد ان فروختوں کا بقایا رقم خود کم ہو جاتی ہے۔' }">
+          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+        </button>
+      </h3>
+      <p>{{ '::CustomerPaymentsDescription' | abpLocalization }}</p>
+    </div>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateCustomerPayment' | abpLocalization }}</button>
+  </div>
+  <div class="card cp-card">
+    <div class="filters row g-2">
+      <div class="col-12 col-lg-3">
+        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchCustomerPayments' | abpLocalization"></div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="customerFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
+          <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::PaymentType' | abpLocalization">
+          <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::PaymentStatus' | abpLocalization">
+          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-1">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateFrom" (change)="load(true)" [title]="'::PaymentDate' | abpLocalization">
+      </div>
+      <div class="col-6 col-lg-1">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateTo" (change)="load(true)" [title]="'::PaymentDate' | abpLocalization">
+      </div>
+      <div class="col-12 col-lg-1">
+        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::PaymentNumber' | abpLocalization }}</th>
+            <th>{{ '::Customer' | abpLocalization }}</th>
+            <th>{{ '::PaymentDate' | abpLocalization }}</th>
+            <th>{{ '::PaymentType' | abpLocalization }}</th>
+            <th>{{ '::PaymentMethod' | abpLocalization }}</th>
+            <th *ngIf="canViewAmount">{{ '::Amount' | abpLocalization }}</th>
+            <th *ngIf="canViewAmount">{{ '::AllocatedAmount' | abpLocalization }}</th>
+            <th *ngIf="canViewAmount">{{ '::UnallocatedAmount' | abpLocalization }}</th>
+            <th>{{ '::PaymentStatus' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="cp-link" (click)="view(row)">{{ row.paymentNumber }}</a></td>
+            <td>{{ row.customerCode }} - {{ row.customerName }}</td>
+            <td>{{ row.paymentDate | date:'mediumDate' }}</td>
+            <td>{{ typeLabel(row.paymentType) | abpLocalization }}</td>
+            <td>{{ methodLabel(row.paymentMethod) | abpLocalization }}</td>
+            <td *ngIf="canViewAmount">{{ row.amount != null ? (row.amount | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewAmount">{{ row.allocatedAmount != null ? (row.allocatedAmount | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewAmount">{{ row.unallocatedAmount != null ? (row.unallocatedAmount | number:'1.2-2') : '—' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" [title]="'::CustomerPayment' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" (click)="edit(row)" [title]="'::EditCustomerPayment' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canPost && isDraft(row)" class="icon-btn" (click)="post(row)" [title]="'::PostCustomerPayment' | abpLocalization"><i class="fas fa-check"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteCustomerPayment' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewAmount ? 10 : 7" class="empty-state"><i class="fas fa-money-bill-wave"></i><span>{{ '::NoCustomerPaymentsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

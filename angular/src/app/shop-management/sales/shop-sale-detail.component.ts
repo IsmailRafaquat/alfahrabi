@@ -5,10 +5,12 @@ import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
 import { ShopSaleDto, ShopSalePaymentMethod, ShopSaleService, ShopSaleStatus, ShopSaleType } from '../../proxy/shop-management/sales';
+import { ShopCustomerPaymentService } from '../../proxy/shop-management/customer-payments';
 
 @Component({ selector: 'app-shop-sale-detail', standalone: false, templateUrl: './shop-sale-detail.component.html', styleUrl: './shop-sale-detail.component.scss' })
 export class ShopSaleDetailComponent implements OnInit {
   private readonly service = inject(ShopSaleService);
+  private readonly customerPaymentService = inject(ShopCustomerPaymentService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -25,11 +27,16 @@ export class ShopSaleDetailComponent implements OnInit {
   readonly canViewPrice = this.permissions.getGrantedPolicy('ShopManagement.Sales.ViewPrice');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.Sales.ViewCost');
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
+  readonly canCreateCustomerPayment = this.permissions.getGrantedPolicy('ShopManagement.CustomerPayments.Create');
 
   id!: string;
   dto?: ShopSaleDto;
   loading = false;
   actionInProgress = false;
+
+  totalPaidAmount?: number;
+  currentPendingAmount?: number;
+  paymentStatus: 'Unpaid' | 'PartiallyPaid' | 'Paid' = 'Unpaid';
 
   cancelModalOpen = false;
   readonly cancelForm = this.fb.group({ cancellationReason: ['', [Validators.required, Validators.maxLength(500)]] });
@@ -44,7 +51,26 @@ export class ShopSaleDetailComponent implements OnInit {
     this.service
       .get(this.id)
       .pipe(finalize(() => (this.loading = false)))
-      .subscribe(dto => (this.dto = dto));
+      .subscribe(dto => {
+        this.dto = dto;
+        if (dto.status === ShopSaleStatus.Completed && dto.customerId) this.loadPaymentSummary(dto);
+      });
+  }
+
+  private loadPaymentSummary(sale: ShopSaleDto): void {
+    this.customerPaymentService.getOutstandingSales(sale.customerId!).subscribe(result => {
+      const row = (result.items || []).find(x => x.saleId === this.id);
+      const grandTotal = sale.grandTotal ?? 0;
+      const totalPaid = row?.totalPaidAmount ?? grandTotal;
+      const pending = row?.pendingAmount ?? 0;
+      this.totalPaidAmount = totalPaid;
+      this.currentPendingAmount = pending;
+      this.paymentStatus = pending <= 0 ? 'Paid' : (totalPaid > 0 ? 'PartiallyPaid' : 'Unpaid');
+    });
+  }
+
+  receiveCustomerPayment(): void {
+    this.router.navigate(['/shop-management/customer-payments/create'], { queryParams: { saleId: this.id } });
   }
 
   statusLabel(status: ShopSaleStatus): string {

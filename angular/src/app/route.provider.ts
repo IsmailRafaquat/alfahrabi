@@ -59,6 +59,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.Sales',
     },
     {
+      path: '/shop-management/customer-payments', name: '::CustomerPayments', parentName: '::Sales',
+      iconClass: 'fas fa-hand-holding-usd', order: 2, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.CustomerPayments',
+    },
+    {
       name: '::Purchases', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice', order: 6,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.PurchaseOrders',
     },

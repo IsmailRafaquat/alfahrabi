@@ -175,6 +175,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/sales/shop-sales.module').then(m => m.ShopSalesModule),
   },
   {
+    path: 'shop-management/customer-payments', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CustomerPayments' },
+    loadChildren: () => import('./shop-management/customer-payments/shop-customer-payments.module').then(m => m.ShopCustomerPaymentsModule),
+  },
+  {
     path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
     loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
   },
