@@ -28,6 +28,7 @@ export class ShopSaleDetailComponent implements OnInit {
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.Sales.ViewCost');
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
   readonly canCreateCustomerPayment = this.permissions.getGrantedPolicy('ShopManagement.CustomerPayments.Create');
+  readonly canViewCustomerLedger = this.permissions.getGrantedPolicy('ShopManagement.CustomerLedger');
 
   id!: string;
   dto?: ShopSaleDto;
@@ -71,6 +72,10 @@ export class ShopSaleDetailComponent implements OnInit {
 
   receiveCustomerPayment(): void {
     this.router.navigate(['/shop-management/customer-payments/create'], { queryParams: { saleId: this.id } });
+  }
+
+  viewCustomerLedger(): void {
+    if (this.dto?.customerId) this.router.navigate(['/shop-management/customer-ledger', this.dto.customerId]);
   }
 
   statusLabel(status: ShopSaleStatus): string {

@@ -8,6 +8,7 @@
       </span>
     </div>
     <div class="actions" *ngIf="dto as d">
+      <button *ngIf="canViewCustomerLedger" class="btn btn-light btn-sm" (click)="viewCustomerLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewCustomerLedger' | abpLocalization }}</button>
       <button *ngIf="canViewStockTransactions && d.status === ShopSaleStatus.Completed" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>
       <button *ngIf="canEdit && d.status === ShopSaleStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditSale' | abpLocalization }}</button>
       <button *ngIf="canDelete && d.status === ShopSaleStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteSale' | abpLocalization }}</button>

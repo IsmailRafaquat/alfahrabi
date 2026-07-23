@@ -5,6 +5,7 @@ import { PermissionService } from '@abp/ng.core';
 import { ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
 import { CreateUpdateShopCustomerDto, ShopCustomerDto, ShopCustomerService, ShopCustomerType } from '../../proxy/shop-management/customers';
+import { ShopCustomerBalanceSummaryDto, ShopCustomerLedgerService } from '../../proxy/shop-management/customer-ledger';
 
 const BLANK_VALUE = {
   code: '',
@@ -33,6 +34,7 @@ const BLANK_VALUE = {
 export class ShopCustomerEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ShopCustomerService);
+  private readonly ledgerService = inject(ShopCustomerLedgerService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -40,12 +42,15 @@ export class ShopCustomerEditorComponent implements OnInit {
 
   readonly ShopCustomerType = ShopCustomerType;
   readonly canViewBalance = this.permissions.getGrantedPolicy('ShopManagement.Customers.ViewBalance');
+  readonly canViewLedger = this.permissions.getGrantedPolicy('ShopManagement.CustomerLedger');
+  readonly canViewLedgerAmounts = this.permissions.getGrantedPolicy('ShopManagement.CustomerLedger.ViewAmounts');
 
   id?: string;
   loading = false;
   submitting = false;
   readonlyMode = false;
   helpOpen = false;
+  ledgerSummary?: ShopCustomerBalanceSummaryDto;
 
   get isEdit(): boolean {
     return !!this.id;
@@ -126,6 +131,10 @@ export class ShopCustomerEditorComponent implements OnInit {
     this.router.navigate(['/shop-management/customers']);
   }
 
+  viewLedger(): void {
+    if (this.id) this.router.navigate(['/shop-management/customer-ledger', this.id]);
+  }
+
   private onWalkInToggle(isWalkIn: boolean): void {
     if (isWalkIn) {
       this.form.controls.customerType.setValue(ShopCustomerType.WalkIn);
@@ -172,6 +181,18 @@ export class ShopCustomerEditorComponent implements OnInit {
     this.service
       .get(id)
       .pipe(finalize(() => (this.loading = false)))
-      .subscribe(dto => this.patchForm(dto));
+      .subscribe(dto => {
+        this.patchForm(dto);
+        this.loadLedgerSummary(id);
+      });
+  }
+
+  private loadLedgerSummary(customerId: string): void {
+    this.ledgerSummary = undefined;
+    if (!this.canViewLedger) return;
+    this.ledgerService.getBalanceSummary(customerId).subscribe({
+      next: summary => (this.ledgerSummary = summary),
+      error: () => (this.ledgerSummary = undefined),
+    });
   }
 }

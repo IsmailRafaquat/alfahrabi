@@ -64,6 +64,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.CustomerPayments',
     },
     {
+      path: '/shop-management/customer-ledger', name: '::CustomerLedger', parentName: '::Sales',
+      iconClass: 'fas fa-book', order: 3, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.CustomerLedger',
+    },
+    {
       name: '::Purchases', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice', order: 6,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.PurchaseOrders',
     },

@@ -24,6 +24,15 @@
         </h3>
       </span>
     </div>
+    <button *ngIf="isEdit && canViewLedger" type="button" class="btn btn-outline-primary btn-sm" (click)="viewLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewLedger' | abpLocalization }}</button>
+  </div>
+
+  <div *ngIf="!loading && isEdit && ledgerSummary && canViewLedgerAmounts" class="ledger-summary-panel">
+    <div class="ledger-summary-item"><span>{{ '::CurrentReceivable' | abpLocalization }}</span><strong>{{ ledgerSummary.receivableAmount | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::AvailableAdvance' | abpLocalization }}</span><strong>{{ ledgerSummary.advanceAmount | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::TotalSales' | abpLocalization }}</span><strong>{{ ledgerSummary.totalCompletedSales | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::PaidAtSale' | abpLocalization }}</span><strong>{{ ledgerSummary.totalInitialPaidAtSale | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::AdditionalPayments' | abpLocalization }}</span><strong>{{ ledgerSummary.totalPostedCustomerPayments | number:'1.2-2' }}</strong></div>
   </div>
 
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>

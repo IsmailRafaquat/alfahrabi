@@ -179,6 +179,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/customer-payments/shop-customer-payments.module').then(m => m.ShopCustomerPaymentsModule),
   },
   {
+    path: 'shop-management/customer-ledger', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CustomerLedger' },
+    loadChildren: () => import('./shop-management/customer-ledger/shop-customer-ledger.module').then(m => m.ShopCustomerLedgerModule),
+  },
+  {
     path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
     loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
   },

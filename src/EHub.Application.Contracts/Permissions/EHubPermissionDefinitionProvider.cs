@@ -72,6 +72,9 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopCustomers.AddChild(EHubPermissions.ShopCustomers.Edit, L("Permission:ShopCustomers.Edit"));
         shopCustomers.AddChild(EHubPermissions.ShopCustomers.Delete, L("Permission:ShopCustomers.Delete"));
         shopCustomers.AddChild(EHubPermissions.ShopCustomers.ViewBalance, L("Permission:ShopCustomers.ViewBalance"));
+        var shopCustomerLedger = shopManagement.AddChild(EHubPermissions.ShopCustomerLedger.Default, L("Permission:ShopCustomerLedger"));
+        shopCustomerLedger.AddChild(EHubPermissions.ShopCustomerLedger.ViewAmounts, L("Permission:ShopCustomerLedger.ViewAmounts"));
+        shopCustomerLedger.AddChild(EHubPermissions.ShopCustomerLedger.Print, L("Permission:ShopCustomerLedger.Print"));
         var shopCustomerPayments = shopManagement.AddChild(EHubPermissions.ShopCustomerPayments.Default, L("Permission:ShopCustomerPayments"));
         shopCustomerPayments.AddChild(EHubPermissions.ShopCustomerPayments.Create, L("Permission:ShopCustomerPayments.Create"));
         shopCustomerPayments.AddChild(EHubPermissions.ShopCustomerPayments.Edit, L("Permission:ShopCustomerPayments.Edit"));

@@ -1675,6 +1675,24 @@
     "CustomerPaymentCannotBeEdited": "Only draft customer payments can be edited.",
     "CustomerPaymentCannotBeDeleted": "Only draft customer payments can be deleted.",
     "CustomerPaymentCannotBePosted": "Only draft customer payments can be posted.",
-    "CustomerPaymentCannotBeCancelled": "Only posted customer payments can be cancelled."
+    "CustomerPaymentCannotBeCancelled": "Only posted customer payments can be cancelled.",
+
+    "Permission:ShopCustomerLedger": "Customer Ledger",
+    "Permission:ShopCustomerLedger.ViewAmounts": "View customer ledger amounts",
+    "Permission:ShopCustomerLedger.Print": "Print customer statement",
+    "ShopManagement:CustomerLedgerNotFound": "The requested customer was not found.",
+    "CustomerLedgerNotFound": "The requested customer was not found.",
+
+    "CustomerLedger": "Customer Ledger",
+    "CustomerStatement": "Customer Statement",
+    "TotalSales": "Total Sales",
+    "PaidAtSale": "Paid at Sale",
+    "AdditionalPayments": "Additional Payments",
+    "ReceivableAmount": "Receivable Amount",
+    "ViewCustomerLedger": "View Customer Ledger",
+    "CustomerLedgerDescription": "View a customer's running balance from completed Sales and posted Customer Payments.",
+    "SelectCustomerToViewLedger": "Select a customer to view their ledger.",
+    "SearchCustomerLedger": "Search by reference number or description",
+    "CurrentReceivable": "Current Receivable"
   }
 }

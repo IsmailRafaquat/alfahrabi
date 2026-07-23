@@ -1,0 +1,189 @@
+<div class="ledger-page screen-only">
+  <div class="page-heading">
+    <div>
+      <h3>
+        {{ '::CustomerLedger' | abpLocalization }}
+        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'The Customer Ledger is built automatically from completed Sales and posted Customer Payments — it is not a separate record you create. A positive balance means the customer owes your shop; a negative balance means the customer has an advance with your shop.', ur: 'Customer Ledger خود بخود مکمل شدہ Sales اور posted Customer Payments سے بنتا ہے، یہ کوئی الگ سے بنایا ہوا ریکارڈ نہیں۔ مثبت بیلنس کا مطلب ہے کسٹمر نے آپ کی دکان کو رقم دینی ہے، منفی بیلنس کا مطلب ہے کسٹمر کے پاس آپ کی دکان کا ایڈوانس ہے۔' }">
+          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+        </button>
+      </h3>
+      <p>{{ '::CustomerLedgerDescription' | abpLocalization }}</p>
+    </div>
+  </div>
+
+  <div class="card ledger-card">
+    <div class="filters">
+      <div class="filters-row">
+        <div class="filter-field customer-field">
+          <label>{{ '::Customer' | abpLocalization }}</label>
+          <nz-select class="w-100" [(ngModel)]="customerId" (ngModelChange)="onCustomerChange()" nzShowSearch [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
+            <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+          </nz-select>
+        </div>
+        <div class="filter-field">
+          <label>{{ '::DateFrom' | abpLocalization }}</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom">
+        </div>
+        <div class="filter-field">
+          <label>{{ '::DateTo' | abpLocalization }}</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo">
+        </div>
+        <div class="filter-field">
+          <label>{{ '::ReferenceType' | abpLocalization }}</label>
+          <nz-select class="w-100" [(ngModel)]="referenceType" nzAllowClear [nzPlaceHolder]="'::AllReferenceTypes' | abpLocalization">
+            <nz-option *ngFor="let x of referenceTypeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div class="filters-row filters-row-actions">
+        <div class="filter-field filter-search">
+          <label>{{ '::Filter' | abpLocalization }}</label>
+          <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="filter" (keyup.enter)="load()" [placeholder]="'::SearchCustomerLedger' | abpLocalization"></div>
+        </div>
+        <div class="filter-buttons">
+          <button class="btn btn-primary btn-sm" [disabled]="!customerId" (click)="load()"><i class="fas fa-filter me-2"></i>{{ '::Apply' | abpLocalization }}</button>
+          <button class="btn btn-light btn-sm" (click)="reset()">{{ '::Reset' | abpLocalization }}</button>
+        </div>
+        <div *ngIf="canPrint && customerId" class="statement-actions">
+          <button class="btn btn-outline-primary btn-sm" [disabled]="printing" (click)="openPrintLanguageDialog('print')">
+            <span *ngIf="printing" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!printing" class="fas fa-print me-2"></i>{{ '::PrintStatement' | abpLocalization }}
+          </button>
+          <button class="btn btn-success btn-sm" [disabled]="sharing" (click)="openPrintLanguageDialog('share')">
+            <span *ngIf="sharing" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!sharing" class="fab fa-whatsapp me-2"></i>{{ '::ShareOnWhatsApp' | abpLocalization }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!customerId" class="empty-state"><i class="fas fa-book"></i><span>{{ '::SelectCustomerToViewLedger' | abpLocalization }}</span></div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+    <ng-container *ngIf="customerId && !loading && ledger">
+      <div class="summary-section" *ngIf="canViewAmounts">
+        <div class="summary-header">
+          <button type="button" class="summary-info-btn" nz-tooltip nzTooltipPlacement="bottomRight" [nzTooltipTitle]="bilingualTooltip"
+              [nzTooltipTitleContext]="{ en: 'These cards summarize the customer\'s account: Opening Balance is the starting balance, Total Sales / Paid at Sale / Additional Payments are totals for the selected period, and Closing Balance is the running total after them. If Receivable Amount is shown, the customer owes your shop that much; if Advance Amount is shown, the customer already has that much credit with your shop.', ur: 'یہ کارڈز کسٹمر کے حساب کا خلاصہ دکھاتے ہیں۔ Opening Balance شروع کا بیلنس ہے۔ Total Sales، Paid at Sale اور Additional Payments منتخب مدت کی کل رقمیں ہیں، اور Closing Balance ان کے بعد کا آخری بیلنس ہے۔ اگر Receivable Amount نظر آئے تو کسٹمر نے آپ کی دکان کو اتنی رقم دینی ہے، اور اگر Advance Amount نظر آئے تو کسٹمر کے پاس آپ کی دکان کا اتنا ایڈوانس پہلے سے موجود ہے۔' }">
+            <i class="fas fa-info-circle"></i>
+          </button>
+        </div>
+        <div class="summary-cards">
+          <div class="summary-card"><span>{{ '::OpeningBalance' | abpLocalization }}</span><strong>{{ ledger.openingBalance | number:'1.2-2' }}</strong></div>
+          <div class="summary-card"><span>{{ '::TotalSales' | abpLocalization }}</span><strong>{{ ledger.totalSales | number:'1.2-2' }}</strong></div>
+          <div class="summary-card"><span>{{ '::PaidAtSale' | abpLocalization }}</span><strong>{{ ledger.totalInitialPaid | number:'1.2-2' }}</strong></div>
+          <div class="summary-card"><span>{{ '::AdditionalPayments' | abpLocalization }}</span><strong>{{ ledger.totalAdditionalPayments | number:'1.2-2' }}</strong></div>
+          <div class="summary-card grand"><span>{{ '::ClosingBalance' | abpLocalization }}</span><strong>{{ ledger.closingBalance | number:'1.2-2' }}</strong></div>
+          <div class="summary-card receivable"><span>{{ '::ReceivableAmount' | abpLocalization }}</span><strong>{{ ledger.receivableAmount | number:'1.2-2' }}</strong></div>
+          <div class="summary-card advance"><span>{{ '::AdvanceAmount' | abpLocalization }}</span><strong>{{ ledger.advanceAmount | number:'1.2-2' }}</strong></div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{{ '::TransactionDate' | abpLocalization }}</th>
+              <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+              <th>{{ '::ReferenceType' | abpLocalization }}</th>
+              <th>{{ '::TransactionDescription' | abpLocalization }}</th>
+              <th *ngIf="canViewAmounts">{{ '::Debit' | abpLocalization }}</th>
+              <th *ngIf="canViewAmounts">{{ '::Credit' | abpLocalization }}</th>
+              <th *ngIf="canViewAmounts">{{ '::RunningBalance' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of ledger.entries">
+              <td>{{ row.transactionDate | date:'mediumDate' }}</td>
+              <td><strong>{{ row.referenceNumber }}</strong></td>
+              <td><span class="type-badge" [ngClass]="referenceTypeClass(row.referenceType)">{{ referenceTypeLabel(row.referenceType) | abpLocalization }}</span></td>
+              <td>{{ row.description }}</td>
+              <td *ngIf="canViewAmounts">{{ row.debitAmount ? (row.debitAmount | number:'1.2-2') : '—' }}</td>
+              <td *ngIf="canViewAmounts">{{ row.creditAmount ? (row.creditAmount | number:'1.2-2') : '—' }}</td>
+              <td *ngIf="canViewAmounts" class="balance-cell">{{ row.runningBalance | number:'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="!ledger.entries.length">
+              <td [attr.colspan]="canViewAmounts ? 7 : 4" class="empty-state"><i class="fas fa-book"></i><span>{{ '::NoLedgerEntriesFound' | abpLocalization }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>
+
+<abp-modal [(visible)]="printLangModalOpen">
+  <ng-template #abpHeader><h5>{{ '::PrintStatement' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <p>Choose the language for the statement.</p>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-outline-primary btn-sm" [disabled]="printing || sharing" (click)="selectLanguage('en')">English</button>
+    <button class="btn btn-primary btn-sm" [disabled]="printing || sharing" (click)="selectLanguage('ur')">اردو</button>
+  </ng-template>
+</abp-modal>
+
+<div #statementRef class="statement-print print-only" [class.rtl]="printLang === 'ur'" [class.capturing]="capturing" [attr.dir]="printLang === 'ur' ? 'rtl' : 'ltr'" *ngIf="statement">
+  <div class="statement-header">
+    <div class="shop-info">
+      <h2>{{ statement.shopName }}</h2>
+      <p *ngIf="statement.shopAddress">{{ statement.shopAddress }}</p>
+      <p *ngIf="statement.shopPhone || statement.shopEmail">{{ statement.shopPhone }} <span *ngIf="statement.shopPhone && statement.shopEmail"> · </span>{{ statement.shopEmail }}</p>
+    </div>
+    <div class="statement-title">
+      <h3>{{ statementLabels.statementTitle }}</h3>
+      <p>{{ statement.generatedDate | date:'mediumDate' }}</p>
+    </div>
+  </div>
+
+  <div class="customer-info">
+    <strong>{{ statement.customerCode }} - {{ statement.customerName }}</strong>
+    <p *ngIf="statement.customerAddress">{{ statement.customerAddress }}</p>
+    <p *ngIf="statement.customerPhone || statement.customerEmail">{{ statement.customerPhone }} <span *ngIf="statement.customerPhone && statement.customerEmail"> · </span>{{ statement.customerEmail }}</p>
+    <p *ngIf="statement.dateFrom || statement.dateTo">
+      {{ statement.dateFrom ? (statement.dateFrom | date:'mediumDate') : '—' }} &ndash; {{ statement.dateTo ? (statement.dateTo | date:'mediumDate') : (statement.generatedDate | date:'mediumDate') }}
+    </p>
+  </div>
+
+  <table class="statement-table">
+    <thead>
+      <tr>
+        <th>{{ statementLabels.date }}</th>
+        <th>{{ statementLabels.referenceNumber }}</th>
+        <th>{{ statementLabels.description }}</th>
+        <th class="text-end">{{ statementLabels.debit }}</th>
+        <th class="text-end">{{ statementLabels.credit }}</th>
+        <th class="text-end">{{ statementLabels.runningBalance }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of statement.entries">
+        <td>{{ row.transactionDate | date:'mediumDate' }}</td>
+        <td>{{ row.referenceNumber }}</td>
+        <td>{{ row.description }}</td>
+        <td class="text-end">{{ row.debitAmount ? (row.debitAmount | number:'1.2-2') : '—' }}</td>
+        <td class="text-end">{{ row.creditAmount ? (row.creditAmount | number:'1.2-2') : '—' }}</td>
+        <td class="text-end">{{ row.runningBalance | number:'1.2-2' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="statement-totals">
+    <div><span>{{ statementLabels.totalDebit }}</span><strong>{{ statement.totalDebit | number:'1.2-2' }}</strong></div>
+    <div><span>{{ statementLabels.totalCredit }}</span><strong>{{ statement.totalCredit | number:'1.2-2' }}</strong></div>
+    <div class="grand"><span>{{ statementLabels.closingBalance }}</span><strong>{{ statement.closingBalance | number:'1.2-2' }}</strong></div>
+    <div class="status">
+      <span *ngIf="(statement.receivableAmount || 0) > 0">{{ statementLabels.receivableAmount }}: {{ statement.receivableAmount | number:'1.2-2' }}</span>
+      <span *ngIf="(statement.advanceAmount || 0) > 0">{{ statementLabels.advanceAmount }}: {{ statement.advanceAmount | number:'1.2-2' }}</span>
+    </div>
+  </div>
+</div>
