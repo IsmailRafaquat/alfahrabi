@@ -1,0 +1,28 @@
+:host { display: block; }
+.detail-page { max-width: 900px; margin: auto; padding: 1.25rem; }
+.detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .75rem; }
+.detail-header > div:first-child { display: flex; align-items: center; gap: .75rem; }
+.detail-header h3 { font-size: 1.2rem; color: #173f68; margin: 0; font-weight: 700; display: flex; align-items: center; gap: .6rem; }
+.detail-header p { font-size: .8rem; color: #7a8da0; margin: .2rem 0 0; }
+.back-btn { width: 35px; height: 35px; border: 0; border-radius: 8px; color: #286b9f; background: #eaf3fa; flex: none; }
+.actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+.status-badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; vertical-align: middle; }
+.status-badge.draft { color: #63707d; background: #eef1f4; }
+.status-badge.posted { color: #198754; background: #e9f7ef; }
+.status-badge.cancelled { color: #7b8794; background: #edf0f3; }
+
+.detail-card { padding: 1.1rem 1.25rem; margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); }
+.section-title { margin: 0 0 .8rem; color: #315b82; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.field-label { display: block; color: #8a9bad; font-size: .68rem; text-transform: uppercase; margin-bottom: .2rem; }
+.notes-text { margin: 0; color: #435b73; font-size: .85rem; white-space: pre-line; }
+
+.totals-card { margin-top: 1rem; }
+.totals-row { display: flex; justify-content: space-between; padding: .4rem 0; font-size: .82rem; color: #435b73; }
+.totals-row.grand { font-size: 1.1rem; color: #173f68; font-weight: 700; padding-top: .6rem; border-top: 2px solid #dce6ef; }
+
+@media(max-width:767.98px) {
+  .detail-page { padding: .65rem; }
+  .detail-header { flex-direction: column; align-items: flex-start; }
+  .detail-card { padding: .8rem; }
+}

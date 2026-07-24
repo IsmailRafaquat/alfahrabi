@@ -9,6 +9,7 @@ using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
 using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.ExpenseCategories;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -53,6 +54,8 @@ public class EHubApplicationAutoMapperProfile : Profile
         CreateMap<ShopSupplier, ShopSupplierDto>();
         CreateMap<ShopSupplier, ShopSupplierLookupDto>()
             .ForMember(x => x.DisplayName, opt => opt.MapFrom(src => src.Code + " - " + src.Name));
+        CreateMap<ShopExpenseCategory, ShopExpenseCategoryDto>();
+        CreateMap<ShopExpenseCategory, ShopExpenseCategoryLookupDto>();
         CreateMap<ShopPurchaseOrder, ShopPurchaseOrderDto>()
             .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
             .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty));

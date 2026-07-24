@@ -98,6 +98,17 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.Cancel, L("Permission:ShopSaleReturns.Cancel"));
         shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.ViewPrice, L("Permission:ShopSaleReturns.ViewPrice"));
         shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.ViewCost, L("Permission:ShopSaleReturns.ViewCost"));
+        var shopExpenseCategories = shopManagement.AddChild(EHubPermissions.ShopExpenseCategories.Default, L("Permission:ShopExpenseCategories"));
+        shopExpenseCategories.AddChild(EHubPermissions.ShopExpenseCategories.Create, L("Permission:ShopExpenseCategories.Create"));
+        shopExpenseCategories.AddChild(EHubPermissions.ShopExpenseCategories.Edit, L("Permission:ShopExpenseCategories.Edit"));
+        shopExpenseCategories.AddChild(EHubPermissions.ShopExpenseCategories.Delete, L("Permission:ShopExpenseCategories.Delete"));
+        var shopExpenses = shopManagement.AddChild(EHubPermissions.ShopExpenses.Default, L("Permission:ShopExpenses"));
+        shopExpenses.AddChild(EHubPermissions.ShopExpenses.Create, L("Permission:ShopExpenses.Create"));
+        shopExpenses.AddChild(EHubPermissions.ShopExpenses.Edit, L("Permission:ShopExpenses.Edit"));
+        shopExpenses.AddChild(EHubPermissions.ShopExpenses.Delete, L("Permission:ShopExpenses.Delete"));
+        shopExpenses.AddChild(EHubPermissions.ShopExpenses.Post, L("Permission:ShopExpenses.Post"));
+        shopExpenses.AddChild(EHubPermissions.ShopExpenses.Cancel, L("Permission:ShopExpenses.Cancel"));
+        shopExpenses.AddChild(EHubPermissions.ShopExpenses.ViewAmount, L("Permission:ShopExpenses.ViewAmount"));
 
 
         var dashboardPermission =

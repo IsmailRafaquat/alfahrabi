@@ -15,6 +15,8 @@ using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.Sales;
 using EHub.ShopManagement.SaleReturns;
 using EHub.ShopManagement.CustomerPayments;
+using EHub.ShopManagement.ExpenseCategories;
+using EHub.ShopManagement.Expenses;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -110,6 +112,8 @@ public class EHubDbContext :
     public DbSet<ShopCustomerPaymentAllocation> ShopCustomerPaymentAllocations { get; set; }
     public DbSet<ShopSaleReturn> ShopSaleReturns { get; set; }
     public DbSet<ShopSaleReturnItem> ShopSaleReturnItems { get; set; }
+    public DbSet<ShopExpenseCategory> ShopExpenseCategories { get; set; }
+    public DbSet<ShopExpense> ShopExpenses { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1109,6 +1113,51 @@ public class EHubDbContext :
 
             b.HasIndex(x => new { x.TenantId, x.SaleReturnId });
             b.HasIndex(x => new { x.SaleReturnId, x.SaleItemId }).IsUnique();
+        });
+
+        builder.Entity<ShopExpenseCategory>(b =>
+        {
+            b.ToTable("ShopExpenseCategories", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(ShopExpenseCategoryConsts.CodeMaxLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(ShopExpenseCategoryConsts.NameMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopExpenseCategoryConsts.DescriptionMaxLength);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.Name });
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
+        });
+
+        builder.Entity<ShopExpense>(b =>
+        {
+            b.ToTable("ShopExpenses", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.ExpenseNumber).IsRequired().HasMaxLength(ShopExpenseConsts.ExpenseNumberMaxLength);
+            b.Property(x => x.ExpenseCategoryId).IsRequired();
+            b.Property(x => x.ExpenseDate).IsRequired();
+            b.Property(x => x.Amount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.PaymentMethod).IsRequired().HasConversion<int>().HasDefaultValue(ShopExpensePaymentMethod.Cash);
+            b.Property(x => x.PaidTo).HasMaxLength(ShopExpenseConsts.PaidToMaxLength);
+            b.Property(x => x.ReferenceNumber).HasMaxLength(ShopExpenseConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.ChequeNumber).HasMaxLength(ShopExpenseConsts.ChequeNumberMaxLength);
+            b.Property(x => x.BankName).HasMaxLength(ShopExpenseConsts.BankNameMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopExpenseConsts.DescriptionMaxLength);
+            b.Property(x => x.Notes).HasMaxLength(ShopExpenseConsts.NotesMaxLength);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopExpenseStatus.Draft);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopExpenseConsts.CancellationReasonMaxLength);
+
+            b.HasOne(x => x.ExpenseCategory).WithMany().HasForeignKey(x => x.ExpenseCategoryId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.ExpenseNumber }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ExpenseCategoryId });
+            b.HasIndex(x => new { x.TenantId, x.ExpenseDate });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.PaymentMethod });
+            b.HasIndex(x => new { x.TenantId, x.PaidTo });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

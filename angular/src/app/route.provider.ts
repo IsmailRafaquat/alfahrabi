@@ -111,6 +111,20 @@ function configureRoutes() {
       iconClass: 'fas fa-exchange-alt', order: 1, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.StockTransactions',
     },
+    {
+      name: '::ExpensesMenu', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice-dollar', order: 8,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Expenses',
+    },
+    {
+      path: '/shop-management/expense-categories', name: '::ExpenseCategories', parentName: '::ExpensesMenu',
+      iconClass: 'fas fa-tags', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.ExpenseCategories',
+    },
+    {
+      path: '/shop-management/expenses', name: '::Expenses', parentName: '::ExpensesMenu',
+      iconClass: 'fas fa-receipt', order: 2, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.Expenses',
+    },
     // Home / Dashboard
     {
       path: '/',

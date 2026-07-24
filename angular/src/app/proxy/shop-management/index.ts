@@ -1,6 +1,8 @@
 import * as CustomerLedger from './customer-ledger';
 import * as CustomerPayments from './customer-payments';
 import * as Customers from './customers';
+import * as ExpenseCategories from './expense-categories';
+import * as Expenses from './expenses';
 import * as GoodsReceipts from './goods-receipts';
 import * as ProductCategories from './product-categories';
 import * as Products from './products';
@@ -14,4 +16,4 @@ import * as SupplierLedger from './supplier-ledger';
 import * as SupplierPayments from './supplier-payments';
 import * as Suppliers from './suppliers';
 import * as Units from './units';
-export { CustomerLedger, CustomerPayments, Customers, GoodsReceipts, ProductCategories, Products, PurchaseOrders, PurchaseReturns, SaleReturns, Sales, Settings, StockTransactions, SupplierLedger, SupplierPayments, Suppliers, Units };
+export { CustomerLedger, CustomerPayments, Customers, ExpenseCategories, Expenses, GoodsReceipts, ProductCategories, Products, PurchaseOrders, PurchaseReturns, SaleReturns, Sales, Settings, StockTransactions, SupplierLedger, SupplierPayments, Suppliers, Units };

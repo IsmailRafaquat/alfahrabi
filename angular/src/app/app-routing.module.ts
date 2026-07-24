@@ -187,6 +187,14 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/sale-returns/shop-sale-returns.module').then(m => m.ShopSaleReturnsModule),
   },
   {
+    path: 'shop-management/expense-categories', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.ExpenseCategories' },
+    loadChildren: () => import('./shop-management/expense-categories/shop-expense-categories.module').then(m => m.ShopExpenseCategoriesModule),
+  },
+  {
+    path: 'shop-management/expenses', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Expenses' },
+    loadChildren: () => import('./shop-management/expenses/shop-expenses.module').then(m => m.ShopExpensesModule),
+  },
+  {
     path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
     loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
   },
