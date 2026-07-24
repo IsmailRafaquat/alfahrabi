@@ -109,6 +109,18 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopExpenses.AddChild(EHubPermissions.ShopExpenses.Post, L("Permission:ShopExpenses.Post"));
         shopExpenses.AddChild(EHubPermissions.ShopExpenses.Cancel, L("Permission:ShopExpenses.Cancel"));
         shopExpenses.AddChild(EHubPermissions.ShopExpenses.ViewAmount, L("Permission:ShopExpenses.ViewAmount"));
+        var shopCashRegisters = shopManagement.AddChild(EHubPermissions.ShopCashRegisters.Default, L("Permission:ShopCashRegisters"));
+        shopCashRegisters.AddChild(EHubPermissions.ShopCashRegisters.Create, L("Permission:ShopCashRegisters.Create"));
+        shopCashRegisters.AddChild(EHubPermissions.ShopCashRegisters.Edit, L("Permission:ShopCashRegisters.Edit"));
+        shopCashRegisters.AddChild(EHubPermissions.ShopCashRegisters.Delete, L("Permission:ShopCashRegisters.Delete"));
+        var shopCashClosings = shopManagement.AddChild(EHubPermissions.ShopCashClosings.Default, L("Permission:ShopCashClosings"));
+        shopCashClosings.AddChild(EHubPermissions.ShopCashClosings.Open, L("Permission:ShopCashClosings.Open"));
+        shopCashClosings.AddChild(EHubPermissions.ShopCashClosings.Close, L("Permission:ShopCashClosings.Close"));
+        shopCashClosings.AddChild(EHubPermissions.ShopCashClosings.Cancel, L("Permission:ShopCashClosings.Cancel"));
+        shopCashClosings.AddChild(EHubPermissions.ShopCashClosings.ViewAmounts, L("Permission:ShopCashClosings.ViewAmounts"));
+        var shopCashTransactions = shopManagement.AddChild(EHubPermissions.ShopCashTransactions.Default, L("Permission:ShopCashTransactions"));
+        shopCashTransactions.AddChild(EHubPermissions.ShopCashTransactions.ManualMovement, L("Permission:ShopCashTransactions.ManualMovement"));
+        shopCashTransactions.AddChild(EHubPermissions.ShopCashTransactions.ViewAmounts, L("Permission:ShopCashTransactions.ViewAmounts"));
 
 
         var dashboardPermission =

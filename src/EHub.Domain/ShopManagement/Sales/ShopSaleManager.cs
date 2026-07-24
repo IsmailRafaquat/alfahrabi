@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
@@ -26,6 +27,7 @@ public class ShopSaleManager : DomainService
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
+    private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -36,6 +38,7 @@ public class ShopSaleManager : DomainService
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
         ShopDocumentNumberGenerator numberGenerator,
+        ShopCashRegisterManager cashRegisterManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -45,6 +48,7 @@ public class ShopSaleManager : DomainService
         _unitRepository = unitRepository;
         _stockTransactionRepository = stockTransactionRepository;
         _numberGenerator = numberGenerator;
+        _cashRegisterManager = cashRegisterManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -146,6 +150,15 @@ public class ShopSaleManager : DomainService
         }
 
         sale.MarkAsCompleted(completedByUserId, completedDate);
+
+        // Only the cash actually received at completion time affects the cash drawer - never the
+        // full GrandTotal, since a credit sale may only be partially paid in cash up front.
+        if (sale.PaymentMethod == ShopSalePaymentMethod.Cash && sale.PaidAmount > 0)
+        {
+            await _cashRegisterManager.RecordAutomaticTransactionAsync(
+                tenantId, ShopCashTransactionType.CashSale, ShopCashDirection.In, sale.PaidAmount,
+                ShopCashReferenceType.Sale, sale.Id, sale.SaleNumber, $"Cash sale - {sale.SaleNumber}", sale.SaleDate);
+        }
     }
 
     public Task CancelAsync(ShopSale sale, string cancellationReason)

@@ -125,6 +125,25 @@ function configureRoutes() {
       iconClass: 'fas fa-receipt', order: 2, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.Expenses',
     },
+    {
+      name: '::CashManagement', parentName: '::ShopManagement', iconClass: 'fas fa-cash-register', order: 9,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.CashRegisters',
+    },
+    {
+      path: '/shop-management/cash-register', name: '::CashRegister', parentName: '::CashManagement',
+      iconClass: 'fas fa-cash-register', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.CashRegisters',
+    },
+    {
+      path: '/shop-management/cash-register/transactions', name: '::CashTransactions', parentName: '::CashManagement',
+      iconClass: 'fas fa-exchange-alt', order: 2, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.CashTransactions',
+    },
+    {
+      path: '/shop-management/cash-register/closings', name: '::DailyClosings', parentName: '::CashManagement',
+      iconClass: 'fas fa-book', order: 3, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.CashClosings',
+    },
     // Home / Dashboard
     {
       path: '/',

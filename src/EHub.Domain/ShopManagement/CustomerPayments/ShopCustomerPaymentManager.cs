@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.Sales;
@@ -22,6 +23,7 @@ public class ShopCustomerPaymentManager : DomainService
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopSale, Guid> _saleRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
+    private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -30,6 +32,7 @@ public class ShopCustomerPaymentManager : DomainService
         IRepository<ShopCustomer, Guid> customerRepository,
         IRepository<ShopSale, Guid> saleRepository,
         ShopDocumentNumberGenerator numberGenerator,
+        ShopCashRegisterManager cashRegisterManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -37,6 +40,7 @@ public class ShopCustomerPaymentManager : DomainService
         _customerRepository = customerRepository;
         _saleRepository = saleRepository;
         _numberGenerator = numberGenerator;
+        _cashRegisterManager = cashRegisterManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -94,13 +98,26 @@ public class ShopCustomerPaymentManager : DomainService
         await ValidateAllocationsAgainstPendingAsync(tenantId, payment.CustomerId, inputs, excludePaymentId: payment.Id);
 
         payment.MarkAsPosted(_currentUser.GetId(), Clock.Now);
+
+        if (payment.PaymentMethod == ShopCustomerPaymentMethod.Cash)
+        {
+            await _cashRegisterManager.RecordAutomaticTransactionAsync(
+                tenantId, ShopCashTransactionType.CustomerPayment, ShopCashDirection.In, payment.Amount,
+                ShopCashReferenceType.CustomerPayment, payment.Id, payment.PaymentNumber, $"Customer payment - {payment.PaymentNumber}", payment.PaymentDate);
+        }
     }
 
-    public Task CancelAsync(ShopCustomerPayment payment, string cancellationReason)
+    public async Task CancelAsync(ShopCustomerPayment payment, string cancellationReason)
     {
-        RequireTenantOwnership(payment);
+        var tenantId = RequireTenantOwnership(payment);
         payment.MarkAsCancelled(_currentUser.GetId(), Clock.Now, cancellationReason);
-        return Task.CompletedTask;
+
+        if (payment.PaymentMethod == ShopCustomerPaymentMethod.Cash)
+        {
+            await _cashRegisterManager.RecordReversalIfExistsAsync(
+                tenantId, ShopCashTransactionType.CustomerPayment, ShopCashReferenceType.CustomerPayment,
+                payment.Id, payment.PaymentNumber, $"Reversal - cancelled customer payment {payment.PaymentNumber}", Clock.Now);
+        }
     }
 
     public Task ValidateDeleteAsync(ShopCustomerPayment payment)

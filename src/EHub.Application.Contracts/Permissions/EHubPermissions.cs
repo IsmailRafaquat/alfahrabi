@@ -175,6 +175,30 @@ public static class EHubPermissions
         public const string ViewAmount = Default + ".ViewAmount";
     }
 
+    public static class ShopCashRegisters
+    {
+        public const string Default = ManagementMenus.Shop + ".CashRegisters";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class ShopCashClosings
+    {
+        public const string Default = ManagementMenus.Shop + ".CashClosings";
+        public const string Open = Default + ".Open";
+        public const string Close = Default + ".Close";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+    }
+
+    public static class ShopCashTransactions
+    {
+        public const string Default = ManagementMenus.Shop + ".CashTransactions";
+        public const string ManualMovement = Default + ".ManualMovement";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

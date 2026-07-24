@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.ExpenseCategories;
 using EHub.ShopManagement.PurchaseOrders;
 using Volo.Abp;
@@ -19,6 +20,7 @@ public class ShopExpenseManager : DomainService
     private readonly IRepository<ShopExpense, Guid> _repository;
     private readonly IRepository<ShopExpenseCategory, Guid> _categoryRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
+    private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -26,12 +28,14 @@ public class ShopExpenseManager : DomainService
         IRepository<ShopExpense, Guid> repository,
         IRepository<ShopExpenseCategory, Guid> categoryRepository,
         ShopDocumentNumberGenerator numberGenerator,
+        ShopCashRegisterManager cashRegisterManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
         _repository = repository;
         _categoryRepository = categoryRepository;
         _numberGenerator = numberGenerator;
+        _cashRegisterManager = cashRegisterManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -84,13 +88,26 @@ public class ShopExpenseManager : DomainService
         if (expense.Amount <= 0) throw new BusinessException("ShopManagement:ExpenseAmountMustBeGreaterThanZero");
 
         expense.MarkAsPosted(_currentUser.GetId(), Clock.Now);
+
+        if (expense.PaymentMethod == ShopExpensePaymentMethod.Cash)
+        {
+            await _cashRegisterManager.RecordAutomaticTransactionAsync(
+                tenantId, ShopCashTransactionType.Expense, ShopCashDirection.Out, expense.Amount,
+                ShopCashReferenceType.Expense, expense.Id, expense.ExpenseNumber, $"Expense - {expense.ExpenseNumber}", expense.ExpenseDate);
+        }
     }
 
-    public Task CancelAsync(ShopExpense expense, string cancellationReason)
+    public async Task CancelAsync(ShopExpense expense, string cancellationReason)
     {
-        RequireTenantOwnership(expense);
+        var tenantId = RequireTenantOwnership(expense);
         expense.MarkAsCancelled(_currentUser.GetId(), Clock.Now, cancellationReason);
-        return Task.CompletedTask;
+
+        if (expense.PaymentMethod == ShopExpensePaymentMethod.Cash)
+        {
+            await _cashRegisterManager.RecordReversalIfExistsAsync(
+                tenantId, ShopCashTransactionType.Expense, ShopCashReferenceType.Expense,
+                expense.Id, expense.ExpenseNumber, $"Reversal - cancelled expense {expense.ExpenseNumber}", Clock.Now);
+        }
     }
 
     public Task ValidateDeleteAsync(ShopExpense expense)

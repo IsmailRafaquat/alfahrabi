@@ -17,6 +17,7 @@ using EHub.ShopManagement.SaleReturns;
 using EHub.ShopManagement.CustomerPayments;
 using EHub.ShopManagement.ExpenseCategories;
 using EHub.ShopManagement.Expenses;
+using EHub.ShopManagement.CashRegisters;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -114,6 +115,9 @@ public class EHubDbContext :
     public DbSet<ShopSaleReturnItem> ShopSaleReturnItems { get; set; }
     public DbSet<ShopExpenseCategory> ShopExpenseCategories { get; set; }
     public DbSet<ShopExpense> ShopExpenses { get; set; }
+    public DbSet<ShopCashRegister> ShopCashRegisters { get; set; }
+    public DbSet<ShopCashRegisterTransaction> ShopCashRegisterTransactions { get; set; }
+    public DbSet<ShopCashClosing> ShopCashClosings { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1158,6 +1162,76 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.PaymentMethod });
             b.HasIndex(x => new { x.TenantId, x.PaidTo });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
+        });
+
+        builder.Entity<ShopCashRegister>(b =>
+        {
+            b.ToTable("ShopCashRegisters", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(ShopCashRegisterConsts.CodeMaxLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(ShopCashRegisterConsts.NameMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopCashRegisterConsts.DescriptionMaxLength);
+            b.Property(x => x.IsDefault).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.IsDefault });
+        });
+
+        builder.Entity<ShopCashClosing>(b =>
+        {
+            b.ToTable("ShopCashClosings", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.CashRegisterId).IsRequired();
+            b.Property(x => x.BusinessDate).IsRequired();
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopCashClosingStatus.Open);
+            b.Property(x => x.OpeningCash).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CashSales).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CustomerCashPayments).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.SupplierCashPayments).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CashExpenses).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CustomerRefunds).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ManualCashIn).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ManualCashOut).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ExpectedClosingCash).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ActualClosingCash).HasPrecision(18, 2);
+            b.Property(x => x.DifferenceAmount).HasPrecision(18, 2);
+            b.Property(x => x.Notes).HasMaxLength(ShopCashRegisterConsts.NotesMaxLength);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopCashRegisterConsts.CancellationReasonMaxLength);
+
+            b.HasOne(x => x.CashRegister).WithMany().HasForeignKey(x => x.CashRegisterId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.CashRegisterId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.CashRegisterId, x.BusinessDate });
+        });
+
+        builder.Entity<ShopCashRegisterTransaction>(b =>
+        {
+            b.ToTable("ShopCashRegisterTransactions", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.CashRegisterId).IsRequired();
+            b.Property(x => x.TransactionDate).IsRequired();
+            b.Property(x => x.TransactionType).IsRequired().HasConversion<int>();
+            b.Property(x => x.Direction).IsRequired().HasConversion<int>();
+            b.Property(x => x.Amount).HasPrecision(18, 2);
+            b.Property(x => x.ReferenceType).IsRequired().HasConversion<int>();
+            b.Property(x => x.ReferenceId).IsRequired();
+            b.Property(x => x.ReferenceNumber).IsRequired().HasMaxLength(ShopCashRegisterConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopCashRegisterConsts.NotesMaxLength);
+
+            b.HasOne(x => x.CashRegister).WithMany().HasForeignKey(x => x.CashRegisterId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.CashClosing).WithMany().HasForeignKey(x => x.CashClosingId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.TransactionDate });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
+            // Includes Direction (beyond the minimal example in the spec) so that an opposite-direction
+            // reversal transaction (created when a cash-affecting source is cancelled) can coexist with
+            // its original posting under the same reference+type, while still preventing an exact
+            // duplicate re-post of the same direction for the same source event.
+            b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId, x.TransactionType, x.Direction }).IsUnique();
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

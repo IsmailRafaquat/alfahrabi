@@ -195,6 +195,14 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/expenses/shop-expenses.module').then(m => m.ShopExpensesModule),
   },
   {
+    path: 'shop-management/cash-registers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CashRegisters' },
+    loadChildren: () => import('./shop-management/cash-registers/shop-cash-registers.module').then(m => m.ShopCashRegistersModule),
+  },
+  {
+    path: 'shop-management/cash-register', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CashRegisters' },
+    loadChildren: () => import('./shop-management/cash-register/shop-cash-register.module').then(m => m.ShopCashRegisterModule),
+  },
+  {
     path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
     loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
   },

@@ -1,0 +1,163 @@
+<div class="register-page">
+  <div class="page-heading">
+    <div>
+      <h3>{{ '::CashRegister' | abpLocalization }}</h3>
+      <p>{{ '::CashManagementDescription' | abpLocalization }}</p>
+    </div>
+    <div class="heading-actions">
+      <button class="btn btn-outline-primary btn-sm" (click)="viewTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::CashTransactions' | abpLocalization }}</button>
+      <button class="btn btn-outline-primary btn-sm" (click)="viewClosings()"><i class="fas fa-book me-2"></i>{{ '::DailyClosings' | abpLocalization }}</button>
+      <button *ngIf="canManageRegisters" class="btn btn-light btn-sm" (click)="manageRegisters()"><i class="fas fa-cog me-2"></i>{{ '::CashRegisters' | abpLocalization }}</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <ng-container *ngIf="!loading">
+    <div class="card register-card" *ngIf="!registers.length">
+      <div class="empty-state">
+        <i class="fas fa-cash-register"></i>
+        <span>{{ '::NoCashRegistersFound' | abpLocalization }}</span>
+        <button *ngIf="canManageRegisters" class="btn btn-primary btn-sm mt-3" (click)="manageRegisters()">{{ '::CreateCashRegister' | abpLocalization }}</button>
+      </div>
+    </div>
+
+    <div class="card register-card" *ngIf="registers.length">
+      <div class="register-select-row">
+        <label>{{ '::SelectCashRegister' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="selectedRegisterId" (ngModelChange)="onRegisterChange()" [nzPlaceHolder]="'::SelectCashRegister' | abpLocalization">
+          <nz-option *ngFor="let r of registers" [nzValue]="r.id" [nzLabel]="r.code + ' - ' + r.name"></nz-option>
+        </nz-select>
+      </div>
+
+      <ng-container *ngIf="checkedOpenState">
+        <div class="open-form" *ngIf="!openClosing">
+          <p class="no-register-open"><i class="fas fa-info-circle me-2"></i>{{ '::NoRegisterOpen' | abpLocalization }}</p>
+          <form [formGroup]="openForm" *ngIf="canOpen" class="row g-3">
+            <div class="col-12 col-md-4">
+              <label>{{ '::BusinessDate' | abpLocalization }} <b class="required">*</b></label>
+              <input type="date" class="form-control form-control-sm" formControlName="businessDate">
+            </div>
+            <div class="col-12 col-md-4">
+              <label>{{ '::OpeningCash' | abpLocalization }} <b class="required">*</b></label>
+              <input type="number" step="0.01" min="0" class="form-control form-control-sm" formControlName="openingCash">
+              <small class="error" *ngIf="openForm.controls.openingCash.touched && openForm.controls.openingCash.hasError('min')">{{ '::CashClosingOpeningCashCannotBeNegative' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-end">
+              <button class="btn btn-primary btn-sm w-100" [disabled]="submitting" (click)="submitOpen()">
+                <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>{{ '::OpenRegister' | abpLocalization }}
+              </button>
+            </div>
+            <div class="col-12">
+              <label>{{ '::Notes' | abpLocalization }}</label>
+              <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+            </div>
+          </form>
+        </div>
+
+        <div class="summary-section" *ngIf="openClosing">
+          <div class="summary-cards">
+            <div class="summary-card"><span>{{ '::OpeningCash' | abpLocalization }}</span><strong>{{ openClosing.openingCash != null ? (openClosing.openingCash | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::CashSales' | abpLocalization }}</span><strong>{{ openClosing.cashSales != null ? (openClosing.cashSales | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::CustomerCashPayments' | abpLocalization }}</span><strong>{{ openClosing.customerCashPayments != null ? (openClosing.customerCashPayments | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::SupplierCashPayments' | abpLocalization }}</span><strong>{{ openClosing.supplierCashPayments != null ? (openClosing.supplierCashPayments | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::CashExpenses' | abpLocalization }}</span><strong>{{ openClosing.cashExpenses != null ? (openClosing.cashExpenses | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::CustomerRefunds' | abpLocalization }}</span><strong>{{ openClosing.customerRefunds != null ? (openClosing.customerRefunds | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::ManualCashIn' | abpLocalization }}</span><strong>{{ openClosing.manualCashIn != null ? (openClosing.manualCashIn | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card"><span>{{ '::ManualCashOut' | abpLocalization }}</span><strong>{{ openClosing.manualCashOut != null ? (openClosing.manualCashOut | number:'1.2-2') : '—' }}</strong></div>
+            <div class="summary-card expected"><span>{{ '::ExpectedClosingCash' | abpLocalization }}</span><strong>{{ openClosing.expectedClosingCash != null ? (openClosing.expectedClosingCash | number:'1.2-2') : '—' }}</strong></div>
+          </div>
+
+          <div class="register-actions">
+            <button *ngIf="canManualMovement" class="btn btn-outline-success btn-sm" (click)="openMovementModal(ShopCashDirection.In)"><i class="fas fa-plus-circle me-2"></i>{{ '::CashIn' | abpLocalization }}</button>
+            <button *ngIf="canManualMovement" class="btn btn-outline-danger btn-sm" (click)="openMovementModal(ShopCashDirection.Out)"><i class="fas fa-minus-circle me-2"></i>{{ '::CashOut' | abpLocalization }}</button>
+            <button *ngIf="canClose" class="btn btn-primary btn-sm" (click)="openCloseModal()"><i class="fas fa-lock me-2"></i>{{ '::CloseRegister' | abpLocalization }}</button>
+            <button *ngIf="canCancel" class="btn btn-link btn-sm text-danger" (click)="openCancelModal()">{{ '::CancelClosing' | abpLocalization }}</button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<abp-modal [(visible)]="movementModalOpen" [busy]="submitting">
+  <ng-template #abpHeader>
+    <h5>{{ (movementDirection === ShopCashDirection.In ? '::CashIn' : '::CashOut') | abpLocalization }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="movementForm">
+      <div class="mb-2">
+        <label>{{ '::BusinessDate' | abpLocalization }} <b class="required">*</b></label>
+        <input type="date" class="form-control form-control-sm" formControlName="transactionDate">
+      </div>
+      <div class="mb-2">
+        <label>{{ '::Amount' | abpLocalization }} <b class="required">*</b></label>
+        <input type="number" step="0.01" min="0.01" class="form-control form-control-sm" formControlName="amount">
+        <small class="error" *ngIf="movementForm.controls.amount.touched && movementForm.controls.amount.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="mb-2">
+        <label>{{ '::ReferenceNumber' | abpLocalization }}</label>
+        <input class="form-control form-control-sm" formControlName="referenceNumber">
+      </div>
+      <div class="mb-2">
+        <label>{{ '::Description' | abpLocalization }}</label>
+        <textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-primary btn-sm" [disabled]="submitting" (click)="submitMovement()">{{ '::Save' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>
+
+<abp-modal [(visible)]="closeModalOpen" [busy]="submitting">
+  <ng-template #abpHeader><h5>{{ '::CloseRegister' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="closeForm">
+      <div class="mb-2 readonly-field">
+        <label>{{ '::ExpectedClosingCash' | abpLocalization }}</label>
+        <strong>{{ openClosing?.expectedClosingCash != null ? (openClosing!.expectedClosingCash! | number:'1.2-2') : '—' }}</strong>
+      </div>
+      <div class="mb-2">
+        <label>{{ '::ActualClosingCash' | abpLocalization }} <b class="required">*</b></label>
+        <input type="number" step="0.01" min="0" class="form-control form-control-sm" formControlName="actualClosingCash">
+        <small class="error" *ngIf="closeForm.controls.actualClosingCash.touched && closeForm.controls.actualClosingCash.hasError('min')">{{ '::CashClosingActualCashCannotBeNegative' | abpLocalization }}</small>
+        <small class="error" *ngIf="closeForm.controls.actualClosingCash.touched && closeForm.controls.actualClosingCash.hasError('required')">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="mb-2">
+        <label>{{ '::Notes' | abpLocalization }}</label>
+        <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+      </div>
+      <div class="difference-preview" [ngClass]="{ short: differencePreview < 0, excess: differencePreview > 0 }">
+        <span>{{ '::DifferenceAmount' | abpLocalization }}</span>
+        <strong>{{ differencePreview | number:'1.2-2' }}</strong>
+        <span class="badge" *ngIf="differencePreview < 0">{{ '::CashShortage' | abpLocalization }}</span>
+        <span class="badge" *ngIf="differencePreview > 0">{{ '::CashExcess' | abpLocalization }}</span>
+        <span class="badge matched" *ngIf="differencePreview === 0">{{ '::CashMatched' | abpLocalization }}</span>
+      </div>
+      <p class="close-confirm-note">{{ '::ConfirmCloseRegister' | abpLocalization }}</p>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-primary btn-sm" [disabled]="submitting" (click)="submitClose()">{{ '::CloseRegister' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>
+
+<abp-modal [(visible)]="cancelModalOpen" [busy]="submitting">
+  <ng-template #abpHeader><h5>{{ '::CancelClosing' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="cancelForm">
+      <div class="mb-2">
+        <label>{{ '::CancellationReason' | abpLocalization }} <b class="required">*</b></label>
+        <textarea rows="3" class="form-control form-control-sm" formControlName="cancellationReason"></textarea>
+        <small class="error" *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="submitting" (click)="submitCancel()">{{ '::CancelClosing' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>

@@ -1,0 +1,21 @@
+:host { display: block; }
+.sp-page { padding: 1.25rem; max-width: 1400px; margin: auto; }
+.page-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; h3 { color: #173f68; margin: 0; font-size: 1.35rem; font-weight: 700; } }
+.back-btn { width: 35px; height: 35px; border: 0; border-radius: 8px; color: #286b9f; background: #eaf3fa; flex: none; }
+.sp-card { border: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(20, 55, 90, .07); overflow: hidden; }
+.filters { padding: 1rem; border-bottom: 1px solid #edf2f7; align-items: center; }
+.form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
+table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #56708b; font-size: .72rem; text-transform: uppercase; border-bottom: 1px solid #e4ebf2; padding: .7rem; } tbody td { color: #435b73; font-size: .8rem; padding: .65rem .7rem; border-color: #edf2f6; } }
+.sp-link { color: #1d5f96; font-weight: 600; cursor: pointer; text-decoration: none; }
+.sp-link:hover { text-decoration: underline; }
+.status-badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+.status-badge.open { color: #1d5f96; background: #eaf3fa; }
+.status-badge.closed { color: #198754; background: #e9f7ef; }
+.status-badge.cancelled { color: #7b8794; background: #edf0f3; }
+.text-danger { color: #c83e4d !important; font-weight: 600; }
+.text-success { color: #198754 !important; font-weight: 600; }
+.empty-state { text-align: center; padding: 3rem !important; color: #8a9bad !important; i { display: block; font-size: 1.8rem; margin-bottom: .6rem; } }
+.loading { text-align: center; padding: 1rem; }
+.pager { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; color: #75879a; font-size: .75rem; border-top: 1px solid #edf2f6; button { margin-left: .3rem; } }
+
+@media(max-width:767.98px){.sp-page{padding:.65rem}.filters{padding:.75rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}}

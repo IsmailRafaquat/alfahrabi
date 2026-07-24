@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.Sales;
@@ -27,6 +28,7 @@ public class ShopSaleReturnManager : DomainService
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
+    private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -38,6 +40,7 @@ public class ShopSaleReturnManager : DomainService
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
         ShopDocumentNumberGenerator numberGenerator,
+        ShopCashRegisterManager cashRegisterManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -48,6 +51,7 @@ public class ShopSaleReturnManager : DomainService
         _unitRepository = unitRepository;
         _stockTransactionRepository = stockTransactionRepository;
         _numberGenerator = numberGenerator;
+        _cashRegisterManager = cashRegisterManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -146,6 +150,13 @@ public class ShopSaleReturnManager : DomainService
         }
 
         saleReturn.MarkAsCompleted(completedByUserId, completedDate);
+
+        if (saleReturn.SettlementType == ShopSaleReturnSettlementType.CashRefund && saleReturn.RefundAmount > 0)
+        {
+            await _cashRegisterManager.RecordAutomaticTransactionAsync(
+                tenantId, ShopCashTransactionType.CustomerRefund, ShopCashDirection.Out, saleReturn.RefundAmount,
+                ShopCashReferenceType.SaleReturn, saleReturn.Id, saleReturn.SaleReturnNumber, $"Cash refund - {saleReturn.SaleReturnNumber}", saleReturn.ReturnDate);
+        }
     }
 
     public Task CancelAsync(ShopSaleReturn saleReturn, string cancellationReason)
