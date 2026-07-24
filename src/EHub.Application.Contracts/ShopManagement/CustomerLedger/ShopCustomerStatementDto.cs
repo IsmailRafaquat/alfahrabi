@@ -28,5 +28,9 @@ public class ShopCustomerStatementDto
     public decimal? ReceivableAmount { get; set; }
     public decimal? AdvanceAmount { get; set; }
 
+    public decimal? TotalSaleReturns { get; set; }
+    public decimal? TotalRefunds { get; set; }
+    public decimal? TotalCustomerCredits { get; set; }
+
     public List<ShopCustomerLedgerEntryDto> Entries { get; set; } = new();
 }

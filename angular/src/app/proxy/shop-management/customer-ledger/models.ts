@@ -37,6 +37,9 @@ export interface ShopCustomerLedgerDto {
   closingBalance?: number;
   receivableAmount?: number;
   advanceAmount?: number;
+  totalSaleReturns?: number;
+  totalRefunds?: number;
+  totalCustomerCredits?: number;
   entries: ShopCustomerLedgerEntryDto[];
 }
 
@@ -73,5 +76,8 @@ export interface ShopCustomerStatementDto {
   closingBalance?: number;
   receivableAmount?: number;
   advanceAmount?: number;
+  totalSaleReturns?: number;
+  totalRefunds?: number;
+  totalCustomerCredits?: number;
   entries: ShopCustomerLedgerEntryDto[];
 }

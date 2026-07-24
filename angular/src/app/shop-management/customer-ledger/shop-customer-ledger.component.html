@@ -178,6 +178,9 @@
   </table>
 
   <div class="statement-totals">
+    <div *ngIf="(statement.totalSaleReturns || 0) > 0"><span>{{ statementLabels.totalSaleReturns }}</span><strong>{{ statement.totalSaleReturns | number:'1.2-2' }}</strong></div>
+    <div *ngIf="(statement.totalRefunds || 0) > 0"><span>{{ statementLabels.totalRefunds }}</span><strong>{{ statement.totalRefunds | number:'1.2-2' }}</strong></div>
+    <div *ngIf="(statement.totalCustomerCredits || 0) > 0"><span>{{ statementLabels.totalCustomerCredits }}</span><strong>{{ statement.totalCustomerCredits | number:'1.2-2' }}</strong></div>
     <div><span>{{ statementLabels.totalDebit }}</span><strong>{{ statement.totalDebit | number:'1.2-2' }}</strong></div>
     <div><span>{{ statementLabels.totalCredit }}</span><strong>{{ statement.totalCredit | number:'1.2-2' }}</strong></div>
     <div class="grand"><span>{{ statementLabels.closingBalance }}</span><strong>{{ statement.closingBalance | number:'1.2-2' }}</strong></div>

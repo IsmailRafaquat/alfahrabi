@@ -1,0 +1,108 @@
+<div class="sale-returns-page">
+  <div class="page-heading">
+    <div>
+      <h3>{{ '::SaleReturns' | abpLocalization }}</h3>
+      <p>{{ '::SaleReturnsDescription' | abpLocalization }}</p>
+    </div>
+  </div>
+  <div class="card sale-returns-card">
+    <div class="filters row g-2">
+      <div class="col-12 col-lg-3">
+        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchSaleReturns' | abpLocalization"></div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="customerFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
+          <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="reasonFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllReasons' | abpLocalization">
+          <nz-option *ngFor="let x of reasonOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-1">
+        <nz-select class="w-100" [(ngModel)]="settlementTypeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllSettlementTypes' | abpLocalization">
+          <nz-option *ngFor="let x of settlementTypeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-1">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="returnDateFrom" (change)="load(true)" [title]="'::DateFrom' | abpLocalization">
+      </div>
+      <div class="col-6 col-lg-1">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="returnDateTo" (change)="load(true)" [title]="'::DateTo' | abpLocalization">
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::SaleReturnNumber' | abpLocalization }}</th>
+            <th>{{ '::SaleNumber' | abpLocalization }}</th>
+            <th>{{ '::Customer' | abpLocalization }}</th>
+            <th>{{ '::ReturnDate' | abpLocalization }}</th>
+            <th>{{ '::ReturnReason' | abpLocalization }}</th>
+            <th>{{ '::SettlementType' | abpLocalization }}</th>
+            <th *ngIf="canViewPrice">{{ '::GrandTotal' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::CompletedDate' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="return-link" (click)="view(row)">{{ row.saleReturnNumber }}</a></td>
+            <td>{{ row.saleNumber }}</td>
+            <td>{{ row.customerCode }} - {{ row.customerName }}</td>
+            <td>{{ row.returnDate | date:'mediumDate' }}</td>
+            <td>{{ reasonLabel(row.reason) | abpLocalization }}</td>
+            <td>{{ settlementTypeLabel(row.settlementType) | abpLocalization }}</td>
+            <td *ngIf="canViewPrice">{{ row.grandTotal != null ? (row.grandTotal | number:'1.2-2') : '—' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td>{{ row.completedDate ? (row.completedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" nz-tooltip [nzTooltipTitle]="'::ViewSaleReturn' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewSaleReturn' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" (click)="edit(row)" nz-tooltip [nzTooltipTitle]="'::EditSaleReturn' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::EditSaleReturn' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canComplete && isDraft(row)" class="icon-btn success" [disabled]="actionInProgress" (click)="complete(row)" nz-tooltip [nzTooltipTitle]="'::CompleteSaleReturn' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::CompleteSaleReturn' | abpLocalization"><i class="fas fa-check"></i></button>
+              <button *ngIf="canCancel && isDraft(row)" class="icon-btn" [disabled]="actionInProgress" (click)="openCancel(row)" nz-tooltip [nzTooltipTitle]="'::CancelSaleReturn' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::CancelSaleReturn' | abpLocalization"><i class="fas fa-ban"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" nz-tooltip [nzTooltipTitle]="'::DeleteSaleReturn' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::DeleteSaleReturn' | abpLocalization"><i class="fas fa-trash"></i></button>
+              <button *ngIf="canViewStockTransactions && row.status === ShopSaleReturnStatus.Completed" class="icon-btn" (click)="viewStockTransactions(row)" nz-tooltip [nzTooltipTitle]="'::ViewStockTransactions' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewStockTransactions' | abpLocalization"><i class="fas fa-exchange-alt"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewPrice ? 10 : 9" class="empty-state"><i class="fas fa-undo-alt"></i><span>{{ '::NoSaleReturnsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::CancelSaleReturn' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="cancelForm">
+      <div class="mb-3">
+        <label>{{ '::CancellationReason' | abpLocalization }} <b>*</b></label>
+        <textarea rows="3" class="form-control" formControlName="cancellationReason"></textarea>
+        <small *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || actionInProgress" (click)="confirmCancel()">{{ '::CancelSaleReturn' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>

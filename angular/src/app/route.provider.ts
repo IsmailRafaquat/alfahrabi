@@ -69,6 +69,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.CustomerLedger',
     },
     {
+      path: '/shop-management/sale-returns', name: '::SaleReturns', parentName: '::Sales',
+      iconClass: 'fas fa-undo-alt', order: 4, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.SaleReturns',
+    },
+    {
       name: '::Purchases', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice', order: 6,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.PurchaseOrders',
     },

@@ -6,11 +6,13 @@ import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme
 import { finalize } from 'rxjs';
 import { ShopSaleDto, ShopSalePaymentMethod, ShopSaleService, ShopSaleStatus, ShopSaleType } from '../../proxy/shop-management/sales';
 import { ShopCustomerPaymentService } from '../../proxy/shop-management/customer-payments';
+import { ShopSaleReturnService, ShopSaleReturnStatus } from '../../proxy/shop-management/sale-returns';
 
 @Component({ selector: 'app-shop-sale-detail', standalone: false, templateUrl: './shop-sale-detail.component.html', styleUrl: './shop-sale-detail.component.scss' })
 export class ShopSaleDetailComponent implements OnInit {
   private readonly service = inject(ShopSaleService);
   private readonly customerPaymentService = inject(ShopCustomerPaymentService);
+  private readonly saleReturnService = inject(ShopSaleReturnService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -29,6 +31,7 @@ export class ShopSaleDetailComponent implements OnInit {
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
   readonly canCreateCustomerPayment = this.permissions.getGrantedPolicy('ShopManagement.CustomerPayments.Create');
   readonly canViewCustomerLedger = this.permissions.getGrantedPolicy('ShopManagement.CustomerLedger');
+  readonly canCreateSaleReturn = this.permissions.getGrantedPolicy('ShopManagement.SaleReturns.Create');
 
   id!: string;
   dto?: ShopSaleDto;
@@ -38,6 +41,11 @@ export class ShopSaleDetailComponent implements OnInit {
   totalPaidAmount?: number;
   currentPendingAmount?: number;
   paymentStatus: 'Unpaid' | 'PartiallyPaid' | 'Paid' = 'Unpaid';
+
+  returnAmount = 0;
+  refundAmount = 0;
+  creditAmount = 0;
+  hasReturnableItems = false;
 
   cancelModalOpen = false;
   readonly cancelForm = this.fb.group({ cancellationReason: ['', [Validators.required, Validators.maxLength(500)]] });
@@ -54,7 +62,10 @@ export class ShopSaleDetailComponent implements OnInit {
       .pipe(finalize(() => (this.loading = false)))
       .subscribe(dto => {
         this.dto = dto;
-        if (dto.status === ShopSaleStatus.Completed && dto.customerId) this.loadPaymentSummary(dto);
+        if (dto.status === ShopSaleStatus.Completed && dto.customerId) {
+          this.loadPaymentSummary(dto);
+          this.checkReturnableItems();
+        }
       });
   }
 
@@ -63,15 +74,35 @@ export class ShopSaleDetailComponent implements OnInit {
       const row = (result.items || []).find(x => x.saleId === this.id);
       const grandTotal = sale.grandTotal ?? 0;
       const totalPaid = row?.totalPaidAmount ?? grandTotal;
-      const pending = row?.pendingAmount ?? 0;
+      const paymentOnlyPending = row?.pendingAmount ?? 0;
       this.totalPaidAmount = totalPaid;
-      this.currentPendingAmount = pending;
-      this.paymentStatus = pending <= 0 ? 'Paid' : (totalPaid > 0 ? 'PartiallyPaid' : 'Unpaid');
+
+      this.saleReturnService.getList({ saleId: this.id, status: ShopSaleReturnStatus.Completed, maxResultCount: 1000 }).subscribe(returns => {
+        const rows = returns.items || [];
+        this.returnAmount = rows.reduce((sum, x) => sum + (x.grandTotal ?? 0), 0);
+        this.refundAmount = rows.reduce((sum, x) => sum + (x.refundAmount ?? 0), 0);
+        this.creditAmount = rows.reduce((sum, x) => sum + (x.customerCreditAmount ?? 0), 0);
+
+        const pending = Math.max(0, paymentOnlyPending - this.returnAmount);
+        this.currentPendingAmount = pending;
+        this.paymentStatus = pending <= 0 ? 'Paid' : (totalPaid > 0 || this.returnAmount > 0 ? 'PartiallyPaid' : 'Unpaid');
+      });
+    });
+  }
+
+  private checkReturnableItems(): void {
+    this.saleReturnService.getSaleForReturn(this.id).subscribe({
+      next: result => (this.hasReturnableItems = (result.items || []).length > 0),
+      error: () => (this.hasReturnableItems = false),
     });
   }
 
   receiveCustomerPayment(): void {
     this.router.navigate(['/shop-management/customer-payments/create'], { queryParams: { saleId: this.id } });
+  }
+
+  createSaleReturn(): void {
+    this.router.navigate(['/shop-management/sale-returns/create', this.id]);
   }
 
   viewCustomerLedger(): void {

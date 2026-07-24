@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EHub.Permissions;
 using EHub.ShopManagement.CustomerPayments;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.SaleReturns;
 using EHub.ShopManagement.Sales;
 using EHub.ShopManagement.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -20,17 +21,20 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopSale, Guid> _saleRepository;
     private readonly IRepository<ShopCustomerPayment, Guid> _paymentRepository;
+    private readonly IRepository<ShopSaleReturn, Guid> _saleReturnRepository;
     private readonly IRepository<ShopSetting, Guid> _settingRepository;
 
     public ShopCustomerLedgerAppService(
         IRepository<ShopCustomer, Guid> customerRepository,
         IRepository<ShopSale, Guid> saleRepository,
         IRepository<ShopCustomerPayment, Guid> paymentRepository,
+        IRepository<ShopSaleReturn, Guid> saleReturnRepository,
         IRepository<ShopSetting, Guid> settingRepository)
     {
         _customerRepository = customerRepository;
         _saleRepository = saleRepository;
         _paymentRepository = paymentRepository;
+        _saleReturnRepository = saleReturnRepository;
         _settingRepository = settingRepository;
     }
 
@@ -45,7 +49,7 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
     {
         var tenantId = RequireTenant();
         var customer = await GetCustomerAsync(customerId, tenantId);
-        var (rows, sales) = await LoadDataAsync(tenantId, customerId);
+        var (rows, sales, _) = await LoadDataAsync(tenantId, customerId);
 
         var totalSales = Round(sales.Sum(x => x.GrandTotal));
         var totalInitialPaid = Round(sales.Sum(x => x.PaidAmount));
@@ -102,6 +106,9 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
             ClosingBalance = ledger.ClosingBalance,
             ReceivableAmount = ledger.ReceivableAmount,
             AdvanceAmount = ledger.AdvanceAmount,
+            TotalSaleReturns = ledger.TotalSaleReturns,
+            TotalRefunds = ledger.TotalRefunds,
+            TotalCustomerCredits = ledger.TotalCustomerCredits,
             Entries = ledger.Entries
         };
 
@@ -113,12 +120,13 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
     {
         var tenantId = RequireTenant();
         var customer = await GetCustomerAsync(input.CustomerId, tenantId);
-        var (allRows, allSales) = await LoadDataAsync(tenantId, input.CustomerId);
+        var (allRows, allSales, allSaleReturns) = await LoadDataAsync(tenantId, input.CustomerId);
 
         var openingBalance = customer.OpeningBalance;
         var effectiveOpening = openingBalance;
         var periodRows = allRows;
         var periodSales = allSales;
+        var periodSaleReturns = allSaleReturns;
 
         if (input.DateFrom.HasValue)
         {
@@ -126,12 +134,14 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
             effectiveOpening = Round(openingBalance + before.Sum(x => x.Debit - x.Credit));
             periodRows = allRows.Where(x => x.TransactionDate.Date >= input.DateFrom.Value.Date).ToList();
             periodSales = allSales.Where(x => x.SaleDate.Date >= input.DateFrom.Value.Date).ToList();
+            periodSaleReturns = allSaleReturns.Where(x => x.ReturnDate.Date >= input.DateFrom.Value.Date).ToList();
         }
 
         if (input.DateTo.HasValue)
         {
             periodRows = periodRows.Where(x => x.TransactionDate.Date <= input.DateTo.Value.Date).ToList();
             periodSales = periodSales.Where(x => x.SaleDate.Date <= input.DateTo.Value.Date).ToList();
+            periodSaleReturns = periodSaleReturns.Where(x => x.ReturnDate.Date <= input.DateTo.Value.Date).ToList();
         }
 
         var entries = new List<ShopCustomerLedgerEntryDto> { BuildOpeningEntry(customer, input.DateFrom, effectiveOpening, openingBalance) };
@@ -157,8 +167,12 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
 
         var totalDebit = Round(periodRows.Sum(x => x.Debit));
         var totalCredit = Round(periodRows.Sum(x => x.Credit));
+        var totalPayments = Round(periodRows.Where(x => x.ReferenceType == ShopCustomerLedgerReferenceType.CustomerPayment).Sum(x => x.Credit));
         var totalSales = Round(periodSales.Sum(x => x.GrandTotal));
         var totalInitialPaid = Round(periodSales.Sum(x => x.PaidAmount));
+        var totalSaleReturns = Round(periodSaleReturns.Sum(x => x.GrandTotal));
+        var totalRefunds = Round(periodSaleReturns.Sum(x => x.RefundAmount));
+        var totalCustomerCredits = Round(periodSaleReturns.Sum(x => x.CustomerCreditAmount));
         var closingBalance = running;
 
         var displayEntries = new List<ShopCustomerLedgerEntryDto> { entries[0] };
@@ -174,12 +188,15 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
             OpeningBalance = effectiveOpening,
             TotalSales = totalSales,
             TotalInitialPaid = totalInitialPaid,
-            TotalAdditionalPayments = totalCredit,
+            TotalAdditionalPayments = totalPayments,
             TotalDebit = totalDebit,
             TotalCredit = totalCredit,
             ClosingBalance = closingBalance,
             ReceivableAmount = Math.Max(closingBalance, 0),
             AdvanceAmount = Math.Max(-closingBalance, 0),
+            TotalSaleReturns = totalSaleReturns,
+            TotalRefunds = totalRefunds,
+            TotalCustomerCredits = totalCustomerCredits,
             Entries = displayEntries
         };
     }
@@ -233,7 +250,7 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         };
     }
 
-    private async Task<(List<LedgerRow> Rows, List<ShopSale> Sales)> LoadDataAsync(Guid tenantId, Guid customerId)
+    private async Task<(List<LedgerRow> Rows, List<ShopSale> Sales, List<ShopSaleReturn> SaleReturns)> LoadDataAsync(Guid tenantId, Guid customerId)
     {
         var saleQuery = await _saleRepository.GetQueryableAsync();
         var sales = await AsyncExecuter.ToListAsync(saleQuery.Where(x =>
@@ -242,6 +259,10 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         var paymentQuery = await _paymentRepository.GetQueryableAsync();
         var payments = await AsyncExecuter.ToListAsync(paymentQuery.Where(x =>
             x.TenantId == tenantId && x.CustomerId == customerId && x.Status == ShopCustomerPaymentStatus.Posted));
+
+        var saleReturnQuery = await _saleReturnRepository.GetQueryableAsync();
+        var saleReturns = await AsyncExecuter.ToListAsync(saleReturnQuery.Where(x =>
+            x.TenantId == tenantId && x.CustomerId == customerId && x.Status == ShopSaleReturnStatus.Completed));
 
         var rows = new List<LedgerRow>();
 
@@ -264,8 +285,18 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
                 0, payment.Amount, "Posted"));
         }
 
+        foreach (var saleReturn in saleReturns)
+        {
+            // Both settlement types offset what the customer owed at sale time by the same amount;
+            // RefundAmount vs CustomerCreditAmount is purely informational (see BuildSaleReturnDescription).
+            rows.Add(new LedgerRow(
+                saleReturn.ReturnDate, saleReturn.CreationTime, ShopCustomerLedgerReferenceType.SaleReturn,
+                saleReturn.Id, saleReturn.SaleReturnNumber, BuildSaleReturnDescription(saleReturn),
+                0, saleReturn.GrandTotal, "Completed"));
+        }
+
         var orderedRows = rows.OrderBy(x => x.TransactionDate).ThenBy(x => x.CreationTime).ThenBy(x => x.ReferenceNumber).ToList();
-        return (orderedRows, sales);
+        return (orderedRows, sales, saleReturns);
     }
 
     private static string BuildSaleDescription(ShopSale sale) => $"Sale - {sale.SaleType}";
@@ -276,6 +307,13 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         if (!string.IsNullOrWhiteSpace(payment.ReferenceNumber)) text += $" (Ref: {payment.ReferenceNumber})";
         return text;
     }
+
+    private static string BuildSaleReturnDescription(ShopSaleReturn saleReturn) => saleReturn.SettlementType switch
+    {
+        ShopSaleReturnSettlementType.CashRefund => "Sale Return - Cash Refund",
+        ShopSaleReturnSettlementType.Exchange => "Sale Return - Exchange",
+        _ => "Sale Return - Customer Credit"
+    };
 
     private static string? CombineAddress(string? line1, string? line2, string? city, string? state, string? postalCode, string? country)
     {
@@ -297,6 +335,9 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         dto.ClosingBalance = null;
         dto.ReceivableAmount = null;
         dto.AdvanceAmount = null;
+        dto.TotalSaleReturns = null;
+        dto.TotalRefunds = null;
+        dto.TotalCustomerCredits = null;
         foreach (var entry in dto.Entries)
         {
             entry.DebitAmount = null;
@@ -328,6 +369,9 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         dto.ClosingBalance = null;
         dto.ReceivableAmount = null;
         dto.AdvanceAmount = null;
+        dto.TotalSaleReturns = null;
+        dto.TotalRefunds = null;
+        dto.TotalCustomerCredits = null;
         foreach (var entry in dto.Entries)
         {
             entry.DebitAmount = null;

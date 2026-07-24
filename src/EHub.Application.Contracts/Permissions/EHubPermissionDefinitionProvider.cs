@@ -90,6 +90,14 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopSales.AddChild(EHubPermissions.ShopSales.Cancel, L("Permission:ShopSales.Cancel"));
         shopSales.AddChild(EHubPermissions.ShopSales.ViewPrice, L("Permission:ShopSales.ViewPrice"));
         shopSales.AddChild(EHubPermissions.ShopSales.ViewCost, L("Permission:ShopSales.ViewCost"));
+        var shopSaleReturns = shopManagement.AddChild(EHubPermissions.ShopSaleReturns.Default, L("Permission:ShopSaleReturns"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.Create, L("Permission:ShopSaleReturns.Create"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.Edit, L("Permission:ShopSaleReturns.Edit"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.Delete, L("Permission:ShopSaleReturns.Delete"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.Complete, L("Permission:ShopSaleReturns.Complete"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.Cancel, L("Permission:ShopSaleReturns.Cancel"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.ViewPrice, L("Permission:ShopSaleReturns.ViewPrice"));
+        shopSaleReturns.AddChild(EHubPermissions.ShopSaleReturns.ViewCost, L("Permission:ShopSaleReturns.ViewCost"));
 
 
         var dashboardPermission =

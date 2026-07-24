@@ -13,6 +13,7 @@ using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.PurchaseReturns;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.Sales;
+using EHub.ShopManagement.SaleReturns;
 using EHub.ShopManagement.CustomerPayments;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
@@ -107,6 +108,8 @@ public class EHubDbContext :
     public DbSet<ShopSaleItem> ShopSaleItems { get; set; }
     public DbSet<ShopCustomerPayment> ShopCustomerPayments { get; set; }
     public DbSet<ShopCustomerPaymentAllocation> ShopCustomerPaymentAllocations { get; set; }
+    public DbSet<ShopSaleReturn> ShopSaleReturns { get; set; }
+    public DbSet<ShopSaleReturnItem> ShopSaleReturnItems { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1039,6 +1042,73 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.CustomerPaymentId });
             b.HasIndex(x => new { x.TenantId, x.SaleId });
             b.HasIndex(x => new { x.CustomerPaymentId, x.SaleId }).IsUnique();
+        });
+
+        builder.Entity<ShopSaleReturn>(b =>
+        {
+            b.ToTable("ShopSaleReturns", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.SaleReturnNumber).IsRequired().HasMaxLength(ShopSaleReturnConsts.SaleReturnNumberMaxLength);
+            b.Property(x => x.SaleId).IsRequired();
+            b.Property(x => x.CustomerId).IsRequired();
+            b.Property(x => x.ReturnDate).IsRequired();
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopSaleReturnStatus.Draft);
+            b.Property(x => x.Reason).IsRequired().HasConversion<int>();
+            b.Property(x => x.ReasonDetails).HasMaxLength(ShopSaleReturnConsts.ReasonDetailsMaxLength);
+            b.Property(x => x.SettlementType).IsRequired().HasConversion<int>();
+            b.Property(x => x.SubTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.OtherCharges).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.GrandTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.RefundAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CustomerCreditAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.Notes).HasMaxLength(ShopSaleReturnConsts.NotesMaxLength);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopSaleReturnConsts.CancellationReasonMaxLength);
+
+            b.HasOne<ShopSale>().WithMany().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopCustomer>().WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            b.HasMany(x => x.Items).WithOne(x => x.SaleReturn).HasForeignKey(x => x.SaleReturnId).OnDelete(DeleteBehavior.Cascade);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.SaleReturnNumber }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.SaleId });
+            b.HasIndex(x => new { x.TenantId, x.CustomerId });
+            b.HasIndex(x => new { x.TenantId, x.ReturnDate });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+        });
+
+        builder.Entity<ShopSaleReturnItem>(b =>
+        {
+            b.ToTable("ShopSaleReturnItems", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.SaleReturnId).IsRequired();
+            b.Property(x => x.SaleItemId).IsRequired();
+            b.Property(x => x.ProductId).IsRequired();
+            b.Property(x => x.ProductCodeSnapshot).IsRequired().HasMaxLength(ShopSaleReturnConsts.ProductCodeSnapshotMaxLength);
+            b.Property(x => x.ProductNameSnapshot).IsRequired().HasMaxLength(ShopSaleReturnConsts.ProductNameSnapshotMaxLength);
+            b.Property(x => x.UnitNameSnapshot).IsRequired().HasMaxLength(ShopSaleReturnConsts.UnitNameSnapshotMaxLength);
+            b.Property(x => x.UnitShortNameSnapshot).IsRequired().HasMaxLength(ShopSaleReturnConsts.UnitShortNameSnapshotMaxLength);
+            b.Property(x => x.BatchNumber).HasMaxLength(ShopSaleReturnConsts.BatchNumberMaxLength);
+            b.Property(x => x.SoldQuantitySnapshot).HasPrecision(18, 4);
+            b.Property(x => x.PreviouslyReturnedQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.ReturnQuantity).HasPrecision(18, 4);
+            b.Property(x => x.UnitSalePrice).HasPrecision(18, 2);
+            b.Property(x => x.UnitCostSnapshot).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.DiscountPercentage).HasPrecision(5, 2).HasDefaultValue(0);
+            b.Property(x => x.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.TaxPercentage).HasPrecision(5, 2).HasDefaultValue(0);
+            b.Property(x => x.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.LineSubTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.LineTotal).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.Reason).IsRequired().HasConversion<int>();
+            b.Property(x => x.Notes).HasMaxLength(ShopSaleReturnConsts.NotesMaxLength);
+
+            b.HasOne(x => x.SaleItem).WithMany().HasForeignKey(x => x.SaleItemId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopProduct>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => new { x.TenantId, x.SaleReturnId });
+            b.HasIndex(x => new { x.SaleReturnId, x.SaleItemId }).IsUnique();
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

@@ -63,6 +63,9 @@ export class ShopCustomerLedgerComponent implements OnInit {
       closingBalance: 'Closing Balance',
       receivableAmount: 'Receivable Amount',
       advanceAmount: 'Advance Amount',
+      totalSaleReturns: 'Total Sale Returns',
+      totalRefunds: 'Total Refunds',
+      totalCustomerCredits: 'Total Customer Credits',
     },
     ur: {
       statementTitle: 'کسٹمر اسٹیٹمنٹ',
@@ -77,6 +80,9 @@ export class ShopCustomerLedgerComponent implements OnInit {
       closingBalance: 'اختتامی بیلنس',
       receivableAmount: 'وصولی رقم',
       advanceAmount: 'ایڈوانس رقم',
+      totalSaleReturns: 'کل سیل ریٹرن',
+      totalRefunds: 'کل ریفنڈ',
+      totalCustomerCredits: 'کل کسٹمر کریڈٹ',
     },
   };
 
@@ -134,6 +140,7 @@ export class ShopCustomerLedgerComponent implements OnInit {
       case ShopCustomerLedgerReferenceType.OpeningBalance: return 'opening';
       case ShopCustomerLedgerReferenceType.Sale: return 'sale';
       case ShopCustomerLedgerReferenceType.CustomerPayment: return 'payment';
+      case ShopCustomerLedgerReferenceType.SaleReturn: return 'sale-return';
       default: return 'opening';
     }
   }
