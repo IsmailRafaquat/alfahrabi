@@ -20,6 +20,7 @@
 .filter-buttons .btn { white-space: nowrap; min-width: 96px; }
 .statement-actions { display: flex; gap: .5rem; margin-left: auto; }
 .statement-actions .btn { white-space: nowrap; }
+.btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; flex: none; }
 .search-box { position: relative; i { position: absolute; left: .7rem; top: .58rem; color: #8da1b5; font-size: .75rem; } input { padding-left: 2rem; } }
 .form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
 

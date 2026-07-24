@@ -47,11 +47,11 @@
           <button class="btn btn-light btn-sm" (click)="reset()">{{ '::Reset' | abpLocalization }}</button>
         </div>
         <div *ngIf="canPrint && customerId" class="statement-actions">
-          <button class="btn btn-outline-primary btn-sm" [disabled]="printing" (click)="openPrintLanguageDialog('print')">
-            <span *ngIf="printing" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!printing" class="fas fa-print me-2"></i>{{ '::PrintStatement' | abpLocalization }}
+          <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" [title]="'::PrintStatement' | abpLocalization" (click)="openPrintLanguageDialog('print')">
+            <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
           </button>
-          <button class="btn btn-success btn-sm" [disabled]="sharing" (click)="openPrintLanguageDialog('share')">
-            <span *ngIf="sharing" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!sharing" class="fab fa-whatsapp me-2"></i>{{ '::ShareOnWhatsApp' | abpLocalization }}
+          <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" [title]="'::ShareOnWhatsApp' | abpLocalization" (click)="openPrintLanguageDialog('share')">
+            <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
           </button>
         </div>
       </div>
