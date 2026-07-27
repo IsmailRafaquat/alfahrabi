@@ -1,0 +1,68 @@
+<div class="editor-page">
+  <div class="editor-header">
+    <div>
+      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
+      <span>
+        <h3 class="help-title">{{ (isEdit ? '::EditStockCount' : '::CreateStockCount') | abpLocalization }}
+          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock count fields help</span></button>
+          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+            <div class="transaction-help-item"><strong dir="ltr">Count Date</strong><span>جس دن یہ فزیکل اسٹاک کاؤنٹ کیا جا رہا ہے وہ تاریخ۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Scope</strong><span>All Products تمام فعال پروڈکٹس شامل کرتا ہے، Category صرف منتخب کیٹیگری کی پروڈکٹس، اور Selected Products آپ کی اپنی منتخب کردہ پروڈکٹس۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>اس کاؤنٹ سے متعلق ضروری اضافی بات لکھیں۔</span></div>
+            <div class="transaction-help-item"><strong dir="ltr">Start</strong><span>Save کرنے کے بعد Draft بنتا ہے۔ گنتی شروع کرنے کے لیے Start پر کلک کریں۔</span></div>
+          </div>
+        </h3>
+        <p *ngIf="isEdit">{{ stockCountNumber }}</p>
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <div class="count-form-card">
+      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::CountDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="countDate">
+          <small class="error" *ngIf="form.controls.countDate.touched && form.controls.countDate.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::CountScope' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="scope">
+            <nz-option *ngFor="let x of scopeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4" *ngIf="form.value.scope === ShopStockCountScope.Category">
+          <label>{{ '::Category' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="productCategoryId" nzShowSearch [nzPlaceHolder]="'::Category' | abpLocalization">
+            <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12" *ngIf="form.value.scope === ShopStockCountScope.SelectedProducts">
+          <label>{{ '::SelectedProducts' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="selectedProductIds" nzMode="multiple" nzShowSearch [nzPlaceHolder]="'::SelectProduct' | abpLocalization">
+            <nz-option *ngFor="let x of products" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.code + ')'" [nzDisabled]="x.trackBatch || x.trackSerialNumber"></nz-option>
+          </nz-select>
+          <small class="warn-hint">{{ '::SerialTrackingWarning' | abpLocalization }}</small>
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+        <div class="col-12">
+          <div class="product-count-banner"><i class="fas fa-boxes me-2"></i>{{ '::TotalProducts' | abpLocalization }}: <strong>{{ eligibleProductCount }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="submitting || eligibleProductCount === 0">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+</div>

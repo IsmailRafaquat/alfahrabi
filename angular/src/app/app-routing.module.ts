@@ -243,6 +243,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/stock-adjustments/shop-stock-adjustments.module').then(m => m.ShopStockAdjustmentsModule),
   },
   {
+    path: 'shop-management/stock-counts', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.StockCounts' },
+    loadChildren: () => import('./shop-management/stock-counts/shop-stock-counts.module').then(m => m.ShopStockCountsModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),

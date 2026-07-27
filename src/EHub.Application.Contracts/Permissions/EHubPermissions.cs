@@ -90,6 +90,20 @@ public static class EHubPermissions
         public const string ViewCost = Default + ".ViewCost";
     }
 
+    public static class ShopStockCounts
+    {
+        public const string Default = ManagementMenus.Shop + ".StockCounts";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Start = Default + ".Start";
+        public const string Count = Default + ".Count";
+        public const string Complete = Default + ".Complete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
     public static class ShopSupplierPayments
     {
         public const string Default = ManagementMenus.Shop + ".SupplierPayments";

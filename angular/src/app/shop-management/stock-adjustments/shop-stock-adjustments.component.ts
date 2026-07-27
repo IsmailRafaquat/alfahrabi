@@ -47,6 +47,8 @@ export class ShopStockAdjustmentsComponent implements OnInit {
   loading = false;
   actionInProgress = false;
 
+  tooltipLang: 'en' | 'ur' = 'en';
+
   search = '';
   statusFilter: ShopStockAdjustmentStatus | '' = '';
   reasonFilter: ShopStockAdjustmentReason | '' = '';

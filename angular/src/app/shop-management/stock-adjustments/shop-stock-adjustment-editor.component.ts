@@ -84,6 +84,7 @@ export class ShopStockAdjustmentEditorComponent implements OnInit {
   adjustmentNumber = '';
   loading = false;
   submitting = false;
+  helpOpen = false;
 
   get isEdit(): boolean {
     return !!this.editId;

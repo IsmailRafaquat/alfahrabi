@@ -1,7 +1,13 @@
 <div class="stock-adjustments-page">
   <div class="page-heading">
     <div>
-      <h3>{{ '::StockAdjustments' | abpLocalization }}</h3>
+      <h3>
+        {{ '::StockAdjustments' | abpLocalization }}
+        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'A Stock Adjustment corrects a product\'s stock quantity for reasons like damage, loss, theft, or a physical counting difference. Draft adjustments do not change stock — stock only changes once you Post the adjustment.', ur: 'Stock Adjustment کسی پروڈکٹ کی مقدار کو درست کرنے کے لیے استعمال ہوتا ہے، مثلاً نقصان، گمشدگی، چوری یا گنتی میں فرق کی وجہ سے۔ Draft ایڈجسٹمنٹ سے اسٹاک میں کوئی تبدیلی نہیں آتی — اسٹاک صرف Post کرنے پر تبدیل ہوتا ہے۔' }">
+          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+        </button>
+      </h3>
       <p>{{ '::StockAdjustmentsDescription' | abpLocalization }}</p>
     </div>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateStockAdjustment' | abpLocalization }}</button>
@@ -88,6 +94,14 @@
     </div>
   </div>
 </div>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::CancelStockAdjustment' | abpLocalization }}</h5></ng-template>
