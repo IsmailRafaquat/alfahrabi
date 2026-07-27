@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
@@ -24,6 +25,7 @@ public class ShopStockCountManager : DomainService
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopProductCategory, Guid> _categoryRepository;
+    private readonly IRepository<ShopProductBatch, Guid> _productBatchRepository;
     private readonly IRepository<ShopStockAdjustment, Guid> _stockAdjustmentRepository;
     private readonly ShopStockAdjustmentManager _stockAdjustmentManager;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
@@ -35,6 +37,7 @@ public class ShopStockCountManager : DomainService
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopProductCategory, Guid> categoryRepository,
+        IRepository<ShopProductBatch, Guid> productBatchRepository,
         IRepository<ShopStockAdjustment, Guid> stockAdjustmentRepository,
         ShopStockAdjustmentManager stockAdjustmentManager,
         ShopDocumentNumberGenerator numberGenerator,
@@ -45,6 +48,7 @@ public class ShopStockCountManager : DomainService
         _productRepository = productRepository;
         _unitRepository = unitRepository;
         _categoryRepository = categoryRepository;
+        _productBatchRepository = productBatchRepository;
         _stockAdjustmentRepository = stockAdjustmentRepository;
         _stockAdjustmentManager = stockAdjustmentManager;
         _numberGenerator = numberGenerator;
@@ -140,6 +144,14 @@ public class ShopStockCountManager : DomainService
         var productQuery = await _productRepository.GetQueryableAsync();
         var products = productQuery.Where(x => productIds.Contains(x.Id) && x.TenantId == tenantId).ToList().ToDictionary(x => x.Id);
 
+        var batchIds = stockCount.Items.Where(x => x.ProductBatchId.HasValue).Select(x => x.ProductBatchId!.Value).Distinct().ToList();
+        var batches = new Dictionary<Guid, ShopProductBatch>();
+        if (batchIds.Count > 0)
+        {
+            var batchQuery = await _productBatchRepository.GetQueryableAsync();
+            batches = batchQuery.Where(x => batchIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
+        }
+
         var changedProducts = new List<string>();
         foreach (var item in stockCount.Items)
         {
@@ -147,8 +159,18 @@ public class ShopStockCountManager : DomainService
                 throw new BusinessException("ShopManagement:StockCountProductNotFound");
             if (!product.IsActive)
                 throw new BusinessException("ShopManagement:StockCountProductInactive").WithData("Product", product.Name);
-            if (product.CurrentStock != item.SystemQuantitySnapshot)
+
+            if (item.ProductBatchId.HasValue)
+            {
+                if (!batches.TryGetValue(item.ProductBatchId.Value, out var batch))
+                    throw new BusinessException("ShopManagement:BatchNotFound");
+                if (batch.AvailableQuantity != item.SystemQuantitySnapshot)
+                    changedProducts.Add($"{product.Name} ({item.BatchNumberSnapshot})");
+            }
+            else if (product.CurrentStock != item.SystemQuantitySnapshot)
+            {
                 changedProducts.Add(product.Name);
+            }
         }
 
         if (changedProducts.Count > 0)
@@ -161,8 +183,9 @@ public class ShopStockCountManager : DomainService
                 ProductId = x.ProductId,
                 AdjustmentType = x.AdjustmentType!.Value,
                 AdjustmentQuantity = Math.Abs(x.DifferenceQuantity),
-                BatchNumber = null,
-                ExpiryDate = null,
+                BatchNumber = x.BatchNumberSnapshot,
+                ExpiryDate = x.ExpiryDateSnapshot,
+                ProductBatchId = x.ProductBatchId,
                 Reason = ShopStockAdjustmentReason.CountingCorrection,
                 Notes = x.Notes,
             })
@@ -253,20 +276,19 @@ public class ShopStockCountManager : DomainService
         if (blockIncompatibleProducts)
         {
             // The user explicitly chose these products, so an incompatible one is a mistake worth
-            // surfacing rather than silently dropping.
+            // surfacing rather than silently dropping. Batch-tracked products are fine now - they are
+            // expanded into one row per batch by BuildItemEntitiesAsync.
             foreach (var product in products)
             {
                 if (product.TrackSerialNumber)
                     throw new BusinessException("ShopManagement:StockCountSerialTrackingNotSupported").WithData("Product", product.Name);
-                if (product.TrackBatch)
-                    throw new BusinessException("ShopManagement:StockCountBatchTrackingNotSupported").WithData("Product", product.Name);
             }
         }
         else
         {
-            // Bulk scopes (AllProducts/Category) simply exclude batch/serial tracked products rather
-            // than failing the whole count over a product the user did not explicitly pick.
-            products = products.Where(x => !x.TrackSerialNumber && !x.TrackBatch).ToList();
+            // Bulk scopes (AllProducts/Category) simply exclude serial-tracked products rather than
+            // failing the whole count over a product the user did not explicitly pick.
+            products = products.Where(x => !x.TrackSerialNumber).ToList();
         }
 
         if (products.Count == 0) throw new BusinessException("ShopManagement:StockCountRequiresProducts");
@@ -280,14 +302,38 @@ public class ShopStockCountManager : DomainService
         var unitQuery = await _unitRepository.GetQueryableAsync();
         var units = unitQuery.Where(x => unitIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
 
+        var batchTrackedProductIds = products.Where(x => x.TrackBatch).Select(x => x.Id).ToList();
+        var batchesByProduct = new Dictionary<Guid, List<ShopProductBatch>>();
+        if (batchTrackedProductIds.Count > 0)
+        {
+            var batchQuery = await _productBatchRepository.GetQueryableAsync();
+            var batches = batchQuery.Where(x => x.TenantId == tenantId && batchTrackedProductIds.Contains(x.ProductId) && !x.IsBlocked).ToList();
+            batchesByProduct = batches.GroupBy(x => x.ProductId).ToDictionary(g => g.Key, g => g.ToList());
+        }
+
         var items = new List<ShopStockCountItem>();
         foreach (var product in products)
         {
             if (!units.TryGetValue(product.UnitId, out var unit))
                 throw new BusinessException("ShopManagement:StockCountProductNotFound");
 
-            items.Add(new ShopStockCountItem(GuidGenerator.Create(), tenantId, stockCountId, product, unit.Name, unit.ShortName, product.CurrentStock));
+            if (product.TrackBatch)
+            {
+                // A batch-tracked product is counted batch-by-batch, not as one product-level row.
+                // A product with no batch history yet has nothing to count and is simply skipped.
+                if (!batchesByProduct.TryGetValue(product.Id, out var productBatches)) continue;
+                foreach (var batch in productBatches)
+                {
+                    items.Add(new ShopStockCountItem(GuidGenerator.Create(), tenantId, stockCountId, product, unit.Name, unit.ShortName, batch.AvailableQuantity, batch));
+                }
+            }
+            else
+            {
+                items.Add(new ShopStockCountItem(GuidGenerator.Create(), tenantId, stockCountId, product, unit.Name, unit.ShortName, product.CurrentStock));
+            }
         }
+
+        if (items.Count == 0) throw new BusinessException("ShopManagement:StockCountRequiresProducts");
 
         return items;
     }

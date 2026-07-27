@@ -13,6 +13,8 @@ interface CountingRow {
   itemId: string;
   productCode?: string;
   productName?: string;
+  batchNumber?: string;
+  expiryDate?: string;
   unitName?: string;
   unitShortName?: string;
   unitAllowDecimal: boolean;
@@ -149,6 +151,8 @@ export class ShopStockCountCountingComponent implements OnInit {
       itemId: item.id,
       productCode: item.productCode,
       productName: item.productName,
+      batchNumber: item.batchNumber,
+      expiryDate: item.expiryDate,
       unitName: item.unitName,
       unitShortName: item.unitShortName,
       unitAllowDecimal: item.unitAllowDecimal,

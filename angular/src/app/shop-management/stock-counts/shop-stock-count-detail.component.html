@@ -41,6 +41,8 @@
           <thead>
             <tr>
               <th>{{ '::Product' | abpLocalization }}</th>
+              <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ExpiryDate' | abpLocalization }}</th>
               <th>{{ '::SystemQuantity' | abpLocalization }}</th>
               <th>{{ '::PhysicalQuantity' | abpLocalization }}</th>
               <th>{{ '::Difference' | abpLocalization }}</th>
@@ -52,6 +54,8 @@
           <tbody>
             <tr *ngFor="let item of d.items">
               <td><strong>{{ item.productName }}</strong><br><span class="code-chip">{{ item.productCode }}</span></td>
+              <td>{{ item.batchNumber || '—' }}</td>
+              <td>{{ item.expiryDate ? (item.expiryDate | date:'mediumDate') : '—' }}</td>
               <td>{{ item.systemQuantity | number:'1.0-4' }} {{ item.unitShortName }}</td>
               <td>{{ item.physicalQuantity != null ? (item.physicalQuantity | number:'1.0-4') : '—' }}</td>
               <td [ngClass]="{'diff-positive': item.differenceQuantity > 0, 'diff-negative': item.differenceQuantity < 0}">{{ item.isCounted ? (item.differenceQuantity | number:'1.0-4') : '—' }}</td>

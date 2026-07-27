@@ -68,6 +68,7 @@
               <th>{{ '::AdjustmentQuantity' | abpLocalization }}</th>
               <th>{{ '::FinalQuantity' | abpLocalization }}</th>
               <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ManufacturingDate' | abpLocalization }}</th>
               <th>{{ '::ExpiryDate' | abpLocalization }}</th>
               <th>{{ '::AdjustmentReason' | abpLocalization }}</th>
               <th>{{ '::Notes' | abpLocalization }}</th>
@@ -86,7 +87,7 @@
               </td>
               <td class="amount-cell">{{ row.value.systemStock ?? '—' }}</td>
               <td>
-                <nz-select class="w-100 type-select" formControlName="adjustmentType">
+                <nz-select class="w-100 type-select" formControlName="adjustmentType" (ngModelChange)="onTypeChange(i)">
                   <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
                 </nz-select>
               </td>
@@ -94,15 +95,26 @@
                 <input type="number" min="0" [step]="row.value.allowDecimal ? '0.01' : '1'" class="form-control form-control-sm qty-input" formControlName="adjustmentQuantity">
                 <small class="error" *ngIf="row.errors?.['wholeQuantityRequired']">{{ '::StockAdjustmentWholeQuantityRequired' | abpLocalization }}</small>
                 <small class="error" *ngIf="row.errors?.['insufficientStock']">{{ '::StockAdjustmentInsufficientStock' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['batchInsufficientStock']">{{ '::BatchInsufficientStock' | abpLocalization }}</small>
               </td>
               <td class="amount-cell total-cell">{{ finalQuantity(i) | number:'1.0-4' }}</td>
               <td>
-                <input class="form-control form-control-sm batch-input" formControlName="batchNumber">
+                <ng-container *ngIf="!row.value.trackBatch || row.value.adjustmentType !== ShopStockAdjustmentType.Decrease; else batchSelect">
+                  <input class="form-control form-control-sm batch-input" formControlName="batchNumber" [disabled]="!row.value.trackBatch">
+                </ng-container>
+                <ng-template #batchSelect>
+                  <nz-select class="w-100" formControlName="productBatchId" nzShowSearch (ngModelChange)="onBatchSelected(i)" [nzPlaceHolder]="'::SelectBatch' | abpLocalization">
+                    <nz-option *ngFor="let b of row.value.availableBatches" [nzValue]="b.id" [nzLabel]="b.batchNumber + ' (' + b.availableQuantity + ')'"></nz-option>
+                  </nz-select>
+                  <small class="unit-hint" *ngIf="row.value.selectedBatchAvailableQuantity != null">{{ '::AvailableQuantity' | abpLocalization }}: {{ row.value.selectedBatchAvailableQuantity | number:'1.0-4' }}</small>
+                </ng-template>
                 <small class="error" *ngIf="row.errors?.['batchRequired']">{{ '::StockAdjustmentBatchRequired' | abpLocalization }}</small>
-                <small class="error" *ngIf="row.errors?.['batchDeductionNotSupported']">{{ '::StockAdjustmentBatchDeductionNotSupported' | abpLocalization }}</small>
               </td>
               <td>
-                <input type="date" class="form-control form-control-sm date-input" formControlName="expiryDate">
+                <input type="date" class="form-control form-control-sm date-input" formControlName="manufacturingDate" [disabled]="!row.value.trackBatch || row.value.adjustmentType === ShopStockAdjustmentType.Decrease">
+              </td>
+              <td>
+                <input type="date" class="form-control form-control-sm date-input" formControlName="expiryDate" [disabled]="row.value.adjustmentType === ShopStockAdjustmentType.Decrease">
                 <small class="error" *ngIf="row.errors?.['expiryRequired']">{{ '::StockAdjustmentExpiryRequired' | abpLocalization }}</small>
                 <small class="error" *ngIf="expiryDateInvalid(i)">{{ '::StockAdjustmentInvalidExpiryDate' | abpLocalization }}</small>
               </td>

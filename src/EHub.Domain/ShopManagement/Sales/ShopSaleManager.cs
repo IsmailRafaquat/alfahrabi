@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.StockTransactions;
@@ -21,11 +22,16 @@ public class ShopSaleManager : DomainService
     private const string DocumentType = "Sale";
     private const string NumberPrefix = "SAL-";
 
+    private static readonly IReadOnlyList<ShopBatchAllocationInput> NoManualAllocation = Array.Empty<ShopBatchAllocationInput>();
+
     private readonly IRepository<ShopSale, Guid> _repository;
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
+    private readonly IRepository<ShopSaleItemBatchAllocation, Guid> _batchAllocationRepository;
+    private readonly IRepository<ShopProductBatch, Guid> _productBatchRepository;
+    private readonly ShopProductBatchManager _batchManager;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ICurrentTenant _currentTenant;
@@ -37,6 +43,9 @@ public class ShopSaleManager : DomainService
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
+        IRepository<ShopSaleItemBatchAllocation, Guid> batchAllocationRepository,
+        IRepository<ShopProductBatch, Guid> productBatchRepository,
+        ShopProductBatchManager batchManager,
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
         ICurrentTenant currentTenant,
@@ -47,6 +56,9 @@ public class ShopSaleManager : DomainService
         _productRepository = productRepository;
         _unitRepository = unitRepository;
         _stockTransactionRepository = stockTransactionRepository;
+        _batchAllocationRepository = batchAllocationRepository;
+        _productBatchRepository = productBatchRepository;
+        _batchManager = batchManager;
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
         _currentTenant = currentTenant;
@@ -106,7 +118,7 @@ public class ShopSaleManager : DomainService
         await ValidateCreditLimitAsync(customer, saleType, sale.PendingAmount, sale.Id, tenantId);
     }
 
-    public async Task CompleteAsync(ShopSale sale)
+    public async Task CompleteAsync(ShopSale sale, IReadOnlyDictionary<Guid, IReadOnlyList<ShopBatchAllocationInput>>? manualAllocationsBySaleItemId = null)
     {
         var tenantId = RequireTenantOwnership(sale);
         sale.EnsureCompletable();
@@ -124,24 +136,38 @@ public class ShopSaleManager : DomainService
             x.TenantId == tenantId && x.ReferenceType == ShopStockReferenceType.Sale && x.SourceItemId.HasValue && itemIds.Contains(x.SourceItemId.Value));
         if (alreadyHasTransactions) throw new BusinessException("ShopManagement:SaleStockTransactionAlreadyExists");
 
+        var allocationQuery = await _batchAllocationRepository.GetQueryableAsync();
+        var alreadyHasAllocations = await AsyncExecuter.AnyAsync(allocationQuery.Where(x => x.TenantId == tenantId && x.SaleId == sale.Id));
+        if (alreadyHasAllocations) throw new BusinessException("ShopManagement:SaleStockTransactionAlreadyExists");
+
         var completedByUserId = _currentUser.GetId();
         var completedDate = Clock.Now;
 
         foreach (var item in sale.Items)
         {
             if (!products.TryGetValue(item.ProductId, out var product)) throw new BusinessException("ShopManagement:SaleProductNotFound");
-            if (product.TrackBatch) throw new BusinessException("ShopManagement:SaleBatchTrackedProductNotSupported").WithData("Product", product.Name);
-            if (product.TrackExpiry) throw new BusinessException("ShopManagement:SaleExpiryTrackedProductNotSupported").WithData("Product", product.Name);
 
             product.DecreaseStock(item.Quantity);
-            item.SetCostSnapshot(product.PurchasePrice);
 
-            var transaction = new ShopStockTransaction(
-                GuidGenerator.Create(), tenantId, item.ProductId, ShopStockTransactionType.Sale, ShopStockReferenceType.Sale,
-                sale.Id, sale.SaleNumber, item.Id, sale.SaleDate,
-                0, item.Quantity, product.CurrentStock, item.UnitCostSnapshot, item.BatchNumber, item.ExpiryDate,
-                null, completedByUserId, completedDate);
-            await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
+            if (product.TrackBatch)
+            {
+                var manualAllocations = manualAllocationsBySaleItemId != null && manualAllocationsBySaleItemId.TryGetValue(item.Id, out var manual)
+                    ? manual
+                    : NoManualAllocation;
+
+                await CompleteBatchItemAsync(sale, item, product, manualAllocations, tenantId, completedByUserId, completedDate);
+            }
+            else
+            {
+                item.SetCostSnapshot(product.PurchasePrice);
+
+                var transaction = new ShopStockTransaction(
+                    GuidGenerator.Create(), tenantId, item.ProductId, ShopStockTransactionType.Sale, ShopStockReferenceType.Sale,
+                    sale.Id, sale.SaleNumber, item.Id, sale.SaleDate,
+                    0, item.Quantity, product.CurrentStock, item.UnitCostSnapshot, item.BatchNumber, item.ExpiryDate,
+                    null, completedByUserId, completedDate);
+                await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
+            }
         }
 
         foreach (var product in products.Values)
@@ -159,6 +185,55 @@ public class ShopSaleManager : DomainService
                 tenantId, ShopCashTransactionType.CashSale, ShopCashDirection.In, sale.PaidAmount,
                 ShopCashReferenceType.Sale, sale.Id, sale.SaleNumber, $"Cash sale - {sale.SaleNumber}", sale.SaleDate);
         }
+    }
+
+    /// <summary>
+    /// Deducts a batch-tracked item's quantity from one or more product batches - either the batches
+    /// the user explicitly chose (manual allocation) or the FEFO/FIFO plan computed automatically -
+    /// and records one immutable Stock Transaction per batch actually touched.
+    /// </summary>
+    private async Task CompleteBatchItemAsync(
+        ShopSale sale, ShopSaleItem item, ShopProduct product,
+        IReadOnlyList<ShopBatchAllocationInput> manualAllocations,
+        Guid tenantId, Guid completedByUserId, DateTime completedDate)
+    {
+        List<(Guid BatchId, decimal Quantity)> plan;
+
+        if (manualAllocations.Count > 0)
+        {
+            await _batchManager.ValidateManualAllocationsAsync(product.Id, item.Quantity, manualAllocations);
+            plan = manualAllocations.Select(x => (x.ProductBatchId, x.Quantity)).ToList();
+        }
+        else
+        {
+            var autoPlan = await _batchManager.AllocateAsync(product.Id, item.Quantity, sale.SaleDate);
+            plan = autoPlan.Select(x => (x.ProductBatchId, x.Quantity)).ToList();
+        }
+
+        var batchQuery = await _productBatchRepository.GetQueryableAsync();
+        var batchIds = plan.Select(x => x.BatchId).ToList();
+        var batches = batchQuery.Where(x => batchIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
+
+        decimal totalCost = 0;
+        foreach (var (batchId, quantity) in plan)
+        {
+            if (!batches.TryGetValue(batchId, out var batch)) throw new BusinessException("ShopManagement:BatchNotFound");
+
+            await _batchManager.RemoveStockAsync(batch, quantity, sale.SaleDate, allowExpired: !product.BlockExpiredSale);
+            totalCost += quantity * batch.UnitCost;
+
+            var allocation = new ShopSaleItemBatchAllocation(GuidGenerator.Create(), tenantId, sale.Id, item.Id, product.Id, batch, quantity, batch.UnitCost);
+            await _batchAllocationRepository.InsertAsync(allocation, autoSave: true);
+
+            var transaction = new ShopStockTransaction(
+                GuidGenerator.Create(), tenantId, product.Id, ShopStockTransactionType.Sale, ShopStockReferenceType.Sale,
+                sale.Id, sale.SaleNumber, allocation.Id, sale.SaleDate,
+                0, quantity, product.CurrentStock, batch.UnitCost, batch.BatchNumber, batch.ExpiryDate,
+                null, completedByUserId, completedDate, batch.Id, batch.AvailableQuantity);
+            await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
+        }
+
+        item.SetCostSnapshot(item.Quantity > 0 ? Math.Round(totalCost / item.Quantity, 2, MidpointRounding.AwayFromZero) : 0);
     }
 
     public Task CancelAsync(ShopSale sale, string cancellationReason)

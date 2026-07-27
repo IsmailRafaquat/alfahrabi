@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.StockTransactions;
@@ -24,6 +25,7 @@ public class ShopGoodsReceiptManager : DomainService
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
+    private readonly ShopProductBatchManager _batchManager;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
@@ -34,6 +36,7 @@ public class ShopGoodsReceiptManager : DomainService
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
+        ShopProductBatchManager batchManager,
         ShopDocumentNumberGenerator numberGenerator,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
@@ -43,6 +46,7 @@ public class ShopGoodsReceiptManager : DomainService
         _productRepository = productRepository;
         _unitRepository = unitRepository;
         _stockTransactionRepository = stockTransactionRepository;
+        _batchManager = batchManager;
         _numberGenerator = numberGenerator;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
@@ -130,11 +134,22 @@ public class ShopGoodsReceiptManager : DomainService
             var stockIncrease = item.ReceivedQuantity + item.BonusQuantity;
             product.IncreaseStock(stockIncrease);
 
+            Guid? productBatchId = null;
+            decimal? batchBalanceQuantity = null;
+            if (product.TrackBatch)
+            {
+                var batch = await _batchManager.FindOrCreateBatchAsync(product.Id, item.BatchNumber!, item.ManufacturingDate,
+                    item.ExpiryDate, purchaseOrder.SupplierId, goodsReceipt.Id, item.Id);
+                await _batchManager.AddStockAsync(batch, stockIncrease, item.PurchasePrice, goodsReceipt.ReceiptDate);
+                productBatchId = batch.Id;
+                batchBalanceQuantity = batch.AvailableQuantity;
+            }
+
             var transaction = new ShopStockTransaction(
                 GuidGenerator.Create(), tenantId, item.ProductId, ShopStockTransactionType.Purchase, ShopStockReferenceType.GoodsReceipt,
                 goodsReceipt.Id, goodsReceipt.GoodsReceiptNumber, item.Id, goodsReceipt.ReceiptDate,
                 stockIncrease, 0, product.CurrentStock, item.PurchasePrice, item.BatchNumber, item.ExpiryDate,
-                null, completedByUserId, completedDate);
+                null, completedByUserId, completedDate, productBatchId, batchBalanceQuantity);
             await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
         }
 

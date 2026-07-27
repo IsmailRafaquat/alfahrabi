@@ -19,7 +19,9 @@ public class ShopStockAdjustmentItemDto : EntityDto<Guid>
     public decimal? UnitCostSnapshot { get; set; }
 
     public string? BatchNumber { get; set; }
+    public DateTime? ManufacturingDate { get; set; }
     public DateTime? ExpiryDate { get; set; }
+    public Guid? ProductBatchId { get; set; }
 
     public ShopStockAdjustmentReason Reason { get; set; }
     public string? Notes { get; set; }

@@ -597,7 +597,7 @@ public abstract class ShopCustomerPaymentAppServiceTests<TStartupModule> : EHubA
         var customer = await CreateCustomerAsync();
         var product = await CreateProductWithStockAsync(quantity, purchasePrice: price / 2, salePrice: price);
         var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, (product.Id, quantity, price, 0, 0), paidAmount));
-        var completed = await _saleAppService.CompleteAsync(sale.Id);
+        var completed = await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
         return (customer, completed);
     }
 

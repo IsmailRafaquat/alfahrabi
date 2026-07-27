@@ -23,6 +23,8 @@ public class ShopStockTransactionDto : EntityDto<Guid>
 
     public string? BatchNumber { get; set; }
     public DateTime? ExpiryDate { get; set; }
+    public Guid? ProductBatchId { get; set; }
+    public decimal? BatchBalanceQuantity { get; set; }
     public string? Notes { get; set; }
 
     public DateTime CreationTime { get; set; }

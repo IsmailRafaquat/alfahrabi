@@ -158,7 +158,9 @@ public class ShopStockAdjustmentAppService : ApplicationService, IShopStockAdjus
             AdjustmentType = x.AdjustmentType,
             AdjustmentQuantity = x.AdjustmentQuantity,
             BatchNumber = x.BatchNumber,
+            ManufacturingDate = x.ManufacturingDate,
             ExpiryDate = x.ExpiryDate,
+            ProductBatchId = x.ProductBatchId,
             Reason = x.Reason,
             Notes = x.Notes
         }).ToList();
@@ -203,7 +205,9 @@ public class ShopStockAdjustmentAppService : ApplicationService, IShopStockAdjus
         FinalQuantity = item.FinalQuantity,
         UnitCostSnapshot = item.UnitCostSnapshot,
         BatchNumber = item.BatchNumber,
+        ManufacturingDate = item.ManufacturingDate,
         ExpiryDate = item.ExpiryDate,
+        ProductBatchId = item.ProductBatchId,
         Reason = item.Reason,
         Notes = item.Notes
     };

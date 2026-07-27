@@ -545,7 +545,7 @@ public abstract class ShopSaleReturnAppServiceTests<TStartupModule> : EHubApplic
         var effectiveStock = stockQuantity > 0 ? stockQuantity : quantity;
         var product = await CreateProductWithStockAsync(effectiveStock, price / 2, price, allowDecimal);
         var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, (product.Id, quantity, price, batchNumber, expiryDate), paidAmount, saleType));
-        var completed = await _saleAppService.CompleteAsync(sale.Id);
+        var completed = await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
         return (customer, completed, completed.Items[0], product);
     }
 

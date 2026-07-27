@@ -57,6 +57,9 @@ export interface ShopStockCountItemDto extends EntityDto<string> {
   unitName?: string;
   unitShortName?: string;
   unitAllowDecimal: boolean;
+  productBatchId?: string;
+  batchNumber?: string;
+  expiryDate?: string;
   systemQuantity: number;
   physicalQuantity?: number;
   differenceQuantity: number;

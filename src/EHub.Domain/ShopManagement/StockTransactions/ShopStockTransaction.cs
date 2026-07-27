@@ -36,6 +36,8 @@ public class ShopStockTransaction : Entity<Guid>, IMultiTenant
     public decimal TotalCost { get; protected set; }
     public string? BatchNumber { get; protected set; }
     public DateTime? ExpiryDate { get; protected set; }
+    public Guid? ProductBatchId { get; protected set; }
+    public decimal? BatchBalanceQuantity { get; protected set; }
     public string? Notes { get; protected set; }
 
     public Guid? CreatedByUserId { get; protected set; }
@@ -61,7 +63,9 @@ public class ShopStockTransaction : Entity<Guid>, IMultiTenant
         DateTime? expiryDate,
         string? notes,
         Guid? createdByUserId,
-        DateTime creationTime) : base(id)
+        DateTime creationTime,
+        Guid? productBatchId = null,
+        decimal? batchBalanceQuantity = null) : base(id)
     {
         TenantId = tenantId;
         ProductId = productId;
@@ -78,6 +82,8 @@ public class ShopStockTransaction : Entity<Guid>, IMultiTenant
         TotalCost = Math.Round((quantityIn + quantityOut) * unitCost, 2, MidpointRounding.AwayFromZero);
         BatchNumber = Check.Length(batchNumber?.Trim(), nameof(batchNumber), ShopStockTransactionConsts.BatchNumberMaxLength);
         ExpiryDate = expiryDate;
+        ProductBatchId = productBatchId;
+        BatchBalanceQuantity = batchBalanceQuantity;
         Notes = Check.Length(notes?.Trim(), nameof(notes), ShopStockTransactionConsts.NotesMaxLength);
         CreatedByUserId = createdByUserId;
         CreationTime = creationTime;

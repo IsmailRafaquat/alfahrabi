@@ -284,7 +284,7 @@ public abstract class ShopCustomerLedgerAppServiceTests<TStartupModule> : EHubAp
             var earlyInput = BuildSaleCreateInput(customer.Id, (product.Id, 10, 100, 0, 0), 0);
             earlyInput.SaleDate = DateTime.Today.AddDays(-10);
             var earlySale = await _saleAppService.CreateAsync(earlyInput);
-            await _saleAppService.CompleteAsync(earlySale.Id);
+            await _saleAppService.CompleteAsync(earlySale.Id, new CompleteShopSaleDto());
 
             var payment = await _paymentAppService.CreateAsync(BuildAdvancePaymentInput(customer.Id, 300));
             await _paymentAppService.PostAsync(payment.Id);
@@ -518,7 +518,7 @@ public abstract class ShopCustomerLedgerAppServiceTests<TStartupModule> : EHubAp
         var customer = await CreateCustomerAsync(openingBalance);
         var product = await CreateProductWithStockAsync(quantity, price / 2, price);
         var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, (product.Id, quantity, price, 0, 0), paidAmount, saleType));
-        var completed = await _saleAppService.CompleteAsync(sale.Id);
+        var completed = await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
         return (customer, completed);
     }
 

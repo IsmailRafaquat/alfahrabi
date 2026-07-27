@@ -12347,6 +12347,773 @@
             }
           }
         },
+        "EHub.ShopManagement.ProductBatches.ShopProductBatchAppService": {
+          "controllerName": "ShopProductBatch",
+          "controllerGroupName": "ShopProductBatch",
+          "isRemoteService": true,
+          "isIntegrationService": false,
+          "apiVersion": null,
+          "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchAppService",
+          "interfaces": [
+            {
+              "type": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService",
+              "name": "IShopProductBatchAppService",
+              "methods": [
+                {
+                  "name": "GetListAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput",
+                      "typeSimple": "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchDto>"
+                  }
+                },
+                {
+                  "name": "GetAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                    "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+                  }
+                },
+                {
+                  "name": "UpdateAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    },
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto",
+                      "typeSimple": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                    "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+                  }
+                },
+                {
+                  "name": "GetAvailableBatchesAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "productId",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto>"
+                  }
+                },
+                {
+                  "name": "CheckAvailabilityAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "productId",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    },
+                    {
+                      "name": "requiredQuantity",
+                      "typeAsString": "System.Decimal, System.Private.CoreLib",
+                      "type": "System.Decimal",
+                      "typeSimple": "number",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.ProductBatches.ShopBatchAvailabilityDto",
+                    "typeSimple": "EHub.ShopManagement.ProductBatches.ShopBatchAvailabilityDto"
+                  }
+                },
+                {
+                  "name": "GetSummaryAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "productId",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.ProductBatches.ShopBatchSummaryDto",
+                    "typeSimple": "EHub.ShopManagement.ProductBatches.ShopBatchSummaryDto"
+                  }
+                },
+                {
+                  "name": "GetTransactionsAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.StockTransactions.ShopStockTransactionDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.StockTransactions.ShopStockTransactionDto>"
+                  }
+                },
+                {
+                  "name": "BlockAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    },
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto",
+                      "typeSimple": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                    "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+                  }
+                },
+                {
+                  "name": "UnblockAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                    "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+                  }
+                },
+                {
+                  "name": "RefreshStatusesAsync",
+                  "parametersOnMethod": [],
+                  "returnValue": {
+                    "type": "System.Void",
+                    "typeSimple": "System.Void"
+                  }
+                }
+              ]
+            }
+          ],
+          "actions": {
+            "GetListAsyncByInput": {
+              "uniqueName": "GetListAsyncByInput",
+              "name": "GetListAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-product-batch",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput",
+                  "typeSimple": "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "Filter",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "ProductId",
+                  "jsonName": null,
+                  "type": "System.Guid?",
+                  "typeSimple": "string?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "ProductCategoryId",
+                  "jsonName": null,
+                  "type": "System.Guid?",
+                  "typeSimple": "string?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "SupplierId",
+                  "jsonName": null,
+                  "type": "System.Guid?",
+                  "typeSimple": "string?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "Status",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "BatchNumber",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "ExpiryFrom",
+                  "jsonName": null,
+                  "type": "System.DateTime?",
+                  "typeSimple": "string?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "ExpiryTo",
+                  "jsonName": null,
+                  "type": "System.DateTime?",
+                  "typeSimple": "string?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "NearExpiryOnly",
+                  "jsonName": null,
+                  "type": "System.Boolean?",
+                  "typeSimple": "boolean?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "ExpiredOnly",
+                  "jsonName": null,
+                  "type": "System.Boolean?",
+                  "typeSimple": "boolean?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "HasAvailableStock",
+                  "jsonName": null,
+                  "type": "System.Boolean?",
+                  "typeSimple": "boolean?",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "Sorting",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "SkipCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "MaxResultCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchDto>"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "GetAsyncById": {
+              "uniqueName": "GetAsyncById",
+              "name": "GetAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-product-batch/{id}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "UpdateAsyncByIdAndInput": {
+              "uniqueName": "UpdateAsyncByIdAndInput",
+              "name": "UpdateAsync",
+              "httpMethod": "PUT",
+              "url": "api/app/shop-product-batch/{id}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto",
+                  "typeSimple": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto",
+                  "typeSimple": "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "GetAvailableBatchesAsyncByProductId": {
+              "uniqueName": "GetAvailableBatchesAsyncByProductId",
+              "name": "GetAvailableBatchesAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-product-batch/available-batches/{productId}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "productId",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "productId",
+                  "name": "productId",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto>"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "CheckAvailabilityAsyncByProductIdAndRequiredQuantity": {
+              "uniqueName": "CheckAvailabilityAsyncByProductIdAndRequiredQuantity",
+              "name": "CheckAvailabilityAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-product-batch/check-availability/{productId}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "productId",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "requiredQuantity",
+                  "typeAsString": "System.Decimal, System.Private.CoreLib",
+                  "type": "System.Decimal",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "productId",
+                  "name": "productId",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "requiredQuantity",
+                  "name": "requiredQuantity",
+                  "jsonName": null,
+                  "type": "System.Decimal",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.ProductBatches.ShopBatchAvailabilityDto",
+                "typeSimple": "EHub.ShopManagement.ProductBatches.ShopBatchAvailabilityDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "GetTransactionsAsyncById": {
+              "uniqueName": "GetTransactionsAsyncById",
+              "name": "GetTransactionsAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-product-batch/{id}/transactions",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.StockTransactions.ShopStockTransactionDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.StockTransactions.ShopStockTransactionDto>"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "GetSummaryAsyncByProductId": {
+              "uniqueName": "GetSummaryAsyncByProductId",
+              "name": "GetSummaryAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-product-batch/summary/{productId}",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "productId",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "productId",
+                  "name": "productId",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.ProductBatches.ShopBatchSummaryDto",
+                "typeSimple": "EHub.ShopManagement.ProductBatches.ShopBatchSummaryDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "BlockAsyncByIdAndInput": {
+              "uniqueName": "BlockAsyncByIdAndInput",
+              "name": "BlockAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-product-batch/{id}/block",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto",
+                  "typeSimple": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto",
+                  "typeSimple": "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "UnblockAsyncById": {
+              "uniqueName": "UnblockAsyncById",
+              "name": "UnblockAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-product-batch/{id}/unblock",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto",
+                "typeSimple": "EHub.ShopManagement.ProductBatches.ShopProductBatchDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            },
+            "RefreshStatusesAsync": {
+              "uniqueName": "RefreshStatusesAsync",
+              "name": "RefreshStatusesAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-product-batch/refresh-statuses",
+              "supportedVersions": [],
+              "parametersOnMethod": [],
+              "parameters": [],
+              "returnValue": {
+                "type": "System.Void",
+                "typeSimple": "System.Void"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.ProductBatches.IShopProductBatchAppService"
+            }
+          }
+        },
         "EHub.ShopManagement.ProductCategories.ShopProductCategoryAppService": {
           "controllerName": "ShopProductCategory",
           "controllerGroupName": "ShopProductCategory",
@@ -15362,6 +16129,14 @@
                       "typeSimple": "string",
                       "isOptional": false,
                       "defaultValue": null
+                    },
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.Sales.CompleteShopSaleDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.Sales.CompleteShopSaleDto",
+                      "typeSimple": "EHub.ShopManagement.Sales.CompleteShopSaleDto",
+                      "isOptional": false,
+                      "defaultValue": null
                     }
                   ],
                   "returnValue": {
@@ -15752,8 +16527,8 @@
               "allowAnonymous": false,
               "implementFrom": "EHub.ShopManagement.Sales.IShopSaleAppService"
             },
-            "CompleteAsyncById": {
-              "uniqueName": "CompleteAsyncById",
+            "CompleteAsyncByIdAndInput": {
+              "uniqueName": "CompleteAsyncByIdAndInput",
               "name": "CompleteAsync",
               "httpMethod": "POST",
               "url": "api/app/shop-sale/{id}/complete",
@@ -15764,6 +16539,14 @@
                   "typeAsString": "System.Guid, System.Private.CoreLib",
                   "type": "System.Guid",
                   "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                },
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.Sales.CompleteShopSaleDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.Sales.CompleteShopSaleDto",
+                  "typeSimple": "EHub.ShopManagement.Sales.CompleteShopSaleDto",
                   "isOptional": false,
                   "defaultValue": null
                 }
@@ -15779,6 +16562,18 @@
                   "defaultValue": null,
                   "constraintTypes": [],
                   "bindingSourceId": "Path",
+                  "descriptorName": ""
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.Sales.CompleteShopSaleDto",
+                  "typeSimple": "EHub.ShopManagement.Sales.CompleteShopSaleDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
                   "descriptorName": ""
                 }
               ],
@@ -38183,6 +38978,845 @@
       "genericArguments": null,
       "properties": []
     },
+    "EHub.ShopManagement.ProductBatches.BlockShopProductBatchDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "BlockReason",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": 0,
+          "maxLength": 500,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.ProductBatches.GetShopProductBatchesInput": {
+      "baseType": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Filter",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductCategoryId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "SupplierId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchStatus?",
+          "typeSimple": "enum?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchNumber",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryFrom",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryTo",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "NearExpiryOnly",
+          "jsonName": null,
+          "type": "System.Boolean?",
+          "typeSimple": "boolean?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiredOnly",
+          "jsonName": null,
+          "type": "System.Boolean?",
+          "typeSimple": "boolean?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "HasAvailableStock",
+          "jsonName": null,
+          "type": "System.Boolean?",
+          "typeSimple": "boolean?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.ProductBatches.ShopBatchAvailabilityDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ProductId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "RequiredQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "TotalAvailableQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsSufficient",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Batches",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto]",
+          "typeSimple": "[EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.ProductBatches.ShopBatchSummaryDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ProductId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "TotalBatches",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ActiveBatches",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "NearExpiryBatches",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiredBatches",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExhaustedBatches",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BlockedBatches",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "TotalReceivedQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "TotalIssuedQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "TotalAvailableQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "NearestExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.ProductBatches.ShopProductBatchDto": {
+      "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ProductId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductCode",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "UnitName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "UnitShortName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchNumber",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ManufacturingDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ReceivedQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IssuedQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ReservedQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AvailableQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "UnitCost",
+          "jsonName": null,
+          "type": "System.Decimal?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DaysToExpiry",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "FirstReceivedDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "LastMovementDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "SupplierId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "SupplierName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GoodsReceiptId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GoodsReceiptNumber",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Notes",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsBlocked",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BlockReason",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CreationTime",
+          "jsonName": null,
+          "type": "System.DateTime",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.ProductBatches.ShopProductBatchLookupDto": {
+      "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ProductId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchNumber",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DaysToExpiry",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AvailableQuantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.ProductBatches.ShopProductBatchStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsBlocked",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.ProductBatches.ShopProductBatchStatus": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Active",
+        "NearExpiry",
+        "Expired",
+        "Exhausted",
+        "Blocked"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "EHub.ShopManagement.ProductBatches.UpdateShopProductBatchDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ManufacturingDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Notes",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": 0,
+          "maxLength": 1000,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
     "EHub.ShopManagement.ProductCategories.CreateUpdateShopProductCategoryDto": {
       "baseType": null,
       "isEnum": false,
@@ -38985,6 +40619,30 @@
           "regex": null
         },
         {
+          "name": "ExpiryAlertDays",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BlockExpiredSale",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
           "name": "TrackSerialNumber",
           "jsonName": null,
           "type": "System.Boolean",
@@ -39259,6 +40917,30 @@
         },
         {
           "name": "TrackExpiry",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryAlertDays",
+          "jsonName": null,
+          "type": "System.Int32?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BlockExpiredSale",
           "jsonName": null,
           "type": "System.Boolean",
           "typeSimple": "boolean",
@@ -42826,6 +44508,60 @@
         }
       ]
     },
+    "EHub.ShopManagement.Sales.CompleteShopSaleDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ItemBatchAllocations",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.Sales.CompleteShopSaleItemBatchAllocationDto]",
+          "typeSimple": "[EHub.ShopManagement.Sales.CompleteShopSaleItemBatchAllocationDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.Sales.CompleteShopSaleItemBatchAllocationDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "SaleItemId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Allocations",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.Sales.ShopBatchAllocationLineDto]",
+          "typeSimple": "[EHub.ShopManagement.Sales.ShopBatchAllocationLineDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
     "EHub.ShopManagement.Sales.CreateShopSaleDto": {
       "baseType": "EHub.ShopManagement.Sales.ShopSaleEditDtoBase<EHub.ShopManagement.Sales.CreateShopSaleItemDto>",
       "isEnum": false,
@@ -42950,6 +44686,39 @@
           "jsonName": null,
           "type": "System.Boolean?",
           "typeSimple": "boolean?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.Sales.ShopBatchAllocationLineDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ProductBatchId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Quantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -43399,6 +45168,75 @@
         }
       ]
     },
+    "EHub.ShopManagement.Sales.ShopSaleItemBatchAllocationDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ProductBatchId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchNumber",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Quantity",
+          "jsonName": null,
+          "type": "System.Decimal",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "UnitCostSnapshot",
+          "jsonName": null,
+          "type": "System.Decimal?",
+          "typeSimple": "number?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
     "EHub.ShopManagement.Sales.ShopSaleItemDto": {
       "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
       "isEnum": false,
@@ -43603,6 +45441,18 @@
           "jsonName": null,
           "type": "System.DateTime?",
           "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchAllocations",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.Sales.ShopSaleItemBatchAllocationDto]",
+          "typeSimple": "[EHub.ShopManagement.Sales.ShopSaleItemBatchAllocationDto]",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -44721,9 +46571,33 @@
           "regex": null
         },
         {
+          "name": "ManufacturingDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
           "name": "ExpiryDate",
           "jsonName": null,
           "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductBatchId",
+          "jsonName": null,
+          "type": "System.Guid?",
           "typeSimple": "string?",
           "isRequired": false,
           "minLength": null,
@@ -45168,9 +47042,33 @@
           "regex": null
         },
         {
+          "name": "ManufacturingDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
           "name": "ExpiryDate",
           "jsonName": null,
           "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductBatchId",
+          "jsonName": null,
+          "type": "System.Guid?",
           "typeSimple": "string?",
           "isRequired": false,
           "minLength": null,
@@ -46003,6 +47901,42 @@
           "regex": null
         },
         {
+          "name": "ProductBatchId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchNumber",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
           "name": "SystemQuantity",
           "jsonName": null,
           "type": "System.Decimal",
@@ -46755,6 +48689,30 @@
           "jsonName": null,
           "type": "System.DateTime?",
           "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ProductBatchId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BatchBalanceQuantity",
+          "jsonName": null,
+          "type": "System.Decimal?",
+          "typeSimple": "number?",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,

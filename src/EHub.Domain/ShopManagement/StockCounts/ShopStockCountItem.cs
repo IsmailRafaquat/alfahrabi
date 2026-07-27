@@ -1,4 +1,5 @@
 using System;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.StockAdjustments;
 using Volo.Abp;
@@ -22,6 +23,11 @@ public class ShopStockCountItem : AuditedEntity<Guid>, IMultiTenant
     public string UnitNameSnapshot { get; protected set; } = string.Empty;
     public string UnitShortNameSnapshot { get; protected set; } = string.Empty;
 
+    public Guid? ProductBatchId { get; protected set; }
+    public ShopProductBatch? ProductBatch { get; protected set; }
+    public string? BatchNumberSnapshot { get; protected set; }
+    public DateTime? ExpiryDateSnapshot { get; protected set; }
+
     public decimal SystemQuantitySnapshot { get; protected set; }
     public decimal? PhysicalQuantity { get; protected set; }
     public decimal DifferenceQuantity { get; protected set; }
@@ -40,7 +46,8 @@ public class ShopStockCountItem : AuditedEntity<Guid>, IMultiTenant
         ShopProduct product,
         string unitName,
         string unitShortName,
-        decimal systemQuantitySnapshot) : base(id)
+        decimal systemQuantitySnapshot,
+        ShopProductBatch? batch = null) : base(id)
     {
         TenantId = tenantId;
         StockCountId = stockCountId;
@@ -52,6 +59,13 @@ public class ShopStockCountItem : AuditedEntity<Guid>, IMultiTenant
         SystemQuantitySnapshot = systemQuantitySnapshot;
         DifferenceQuantity = 0;
         IsCounted = false;
+
+        if (batch != null)
+        {
+            ProductBatchId = batch.Id;
+            BatchNumberSnapshot = batch.BatchNumber;
+            ExpiryDateSnapshot = batch.ExpiryDate;
+        }
     }
 
     internal void SetPhysicalQuantity(decimal physicalQuantity, string? notes, bool unitAllowDecimal, Guid countedByUserId, DateTime countedDate)

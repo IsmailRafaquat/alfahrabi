@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "c:\\Users\\X1\\Documents\\GitHub\\alfahrabi\\src\\EHub.Domain"
+    ],
+    "allow": [
+      "Bash(dotnet tool *)"
+    ]
+  }
+}

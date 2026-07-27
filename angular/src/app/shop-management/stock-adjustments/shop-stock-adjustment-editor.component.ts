@@ -16,6 +16,7 @@ import {
   shopStockAdjustmentReasonOptions,
   shopStockAdjustmentTypeOptions,
 } from '../../proxy/shop-management/stock-adjustments';
+import { ShopProductBatchLookupDto, ShopProductBatchService } from '../../proxy/shop-management/product-batches';
 
 function duplicateProductValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -53,8 +54,22 @@ function batchValidator(): ValidatorFn {
     const trackBatch = control.get('trackBatch')?.value;
     if (!trackBatch) return null;
     const type = control.get('adjustmentType')?.value;
-    if (type === ShopStockAdjustmentType.Decrease) return { batchDeductionNotSupported: true };
+    if (type === ShopStockAdjustmentType.Decrease) {
+      return control.get('productBatchId')?.value ? null : { batchRequired: true };
+    }
     return control.get('batchNumber')?.value ? null : { batchRequired: true };
+  };
+}
+
+function decreaseBatchQuantityValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const type = control.get('adjustmentType')?.value;
+    if (type !== ShopStockAdjustmentType.Decrease) return null;
+    const productBatchId = control.get('productBatchId')?.value;
+    const available = control.get('selectedBatchAvailableQuantity')?.value;
+    const quantity = control.get('adjustmentQuantity')?.value;
+    if (!productBatchId || available == null || quantity == null) return null;
+    return quantity > available ? { batchInsufficientStock: true } : null;
   };
 }
 
@@ -71,6 +86,7 @@ function expiryValidator(): ValidatorFn {
 export class ShopStockAdjustmentEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ShopStockAdjustmentService);
+  private readonly productBatchService = inject(ShopProductBatchService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toaster = inject(ToasterService);
@@ -136,6 +152,36 @@ export class ShopStockAdjustmentEditorComponent implements OnInit {
       trackBatch: product.trackBatch,
       trackExpiry: product.trackExpiry,
       trackSerialNumber: product.trackSerialNumber,
+      productBatchId: null,
+      selectedBatchAvailableQuantity: null,
+    });
+    row.get('availableBatches')?.setValue([]);
+    this.loadAvailableBatchesIfNeeded(index);
+  }
+
+  onTypeChange(index: number): void {
+    const row = this.items.at(index);
+    row.patchValue({ productBatchId: null, selectedBatchAvailableQuantity: null });
+    this.loadAvailableBatchesIfNeeded(index);
+  }
+
+  onBatchSelected(index: number): void {
+    const row = this.items.at(index);
+    const batches: ShopProductBatchLookupDto[] = row.value.availableBatches || [];
+    const batch = batches.find(x => x.id === row.value.productBatchId);
+    row.patchValue({ selectedBatchAvailableQuantity: batch?.availableQuantity ?? null, expiryDate: batch?.expiryDate ? batch.expiryDate.substring(0, 10) : null });
+  }
+
+  private loadAvailableBatchesIfNeeded(index: number): void {
+    const row = this.items.at(index);
+    const productId = row.value.productId;
+    if (!productId || !row.value.trackBatch || row.value.adjustmentType !== ShopStockAdjustmentType.Decrease) return;
+
+    this.productBatchService.getAvailableBatches(productId).subscribe(result => {
+      const batches = result.items || [];
+      row.get('availableBatches')?.setValue(batches);
+      const selected = batches.find(x => x.id === row.value.productBatchId);
+      if (selected) row.get('selectedBatchAvailableQuantity')?.setValue(selected.availableQuantity);
     });
   }
 
@@ -172,7 +218,9 @@ export class ShopStockAdjustmentEditorComponent implements OnInit {
       adjustmentType: x.adjustmentType,
       adjustmentQuantity: x.adjustmentQuantity,
       batchNumber: x.batchNumber || undefined,
+      manufacturingDate: x.manufacturingDate || undefined,
       expiryDate: x.expiryDate || undefined,
+      productBatchId: x.productBatchId || undefined,
       reason: x.itemReason,
       notes: x.itemNotes || undefined,
     }));
@@ -222,7 +270,7 @@ export class ShopStockAdjustmentEditorComponent implements OnInit {
         });
 
         this.items.clear();
-        dto.items.forEach(item => {
+        dto.items.forEach((item, index) => {
           const product = this.products.find(x => x.id === item.productId);
           this.items.push(
             this.createItemRow({
@@ -237,11 +285,14 @@ export class ShopStockAdjustmentEditorComponent implements OnInit {
               adjustmentType: item.adjustmentType,
               adjustmentQuantity: item.adjustmentQuantity,
               batchNumber: item.batchNumber || '',
+              manufacturingDate: item.manufacturingDate ? item.manufacturingDate.substring(0, 10) : null,
               expiryDate: item.expiryDate ? item.expiryDate.substring(0, 10) : null,
+              productBatchId: item.productBatchId ?? null,
               itemReason: item.reason,
               itemNotes: item.notes || '',
             }),
           );
+          this.loadAvailableBatchesIfNeeded(index);
         });
       });
   }
@@ -260,11 +311,15 @@ export class ShopStockAdjustmentEditorComponent implements OnInit {
         adjustmentType: [value.adjustmentType ?? ShopStockAdjustmentType.Increase, Validators.required],
         adjustmentQuantity: [value.adjustmentQuantity ?? 0, [Validators.required, Validators.min(0.0001)]],
         batchNumber: [value.batchNumber ?? '', Validators.maxLength(128)],
+        manufacturingDate: [value.manufacturingDate ?? null],
         expiryDate: [value.expiryDate ?? null],
+        productBatchId: [value.productBatchId ?? null],
+        availableBatches: [[] as ShopProductBatchLookupDto[]],
+        selectedBatchAvailableQuantity: [null as number | null],
         itemReason: [value.itemReason ?? this.form?.controls.reason.value ?? ShopStockAdjustmentReason.Damaged],
         itemNotes: [value.itemNotes ?? '', Validators.maxLength(500)],
       },
-      { validators: [wholeQuantityValidator(), insufficientStockValidator(), serialTrackingValidator(), batchValidator(), expiryValidator()] },
+      { validators: [wholeQuantityValidator(), insufficientStockValidator(), decreaseBatchQuantityValidator(), serialTrackingValidator(), batchValidator(), expiryValidator()] },
     );
   }
 

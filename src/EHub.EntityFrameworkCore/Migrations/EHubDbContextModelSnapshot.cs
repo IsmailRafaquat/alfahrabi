@@ -2410,6 +2410,167 @@ namespace EHub.Migrations
                     b.ToTable("ShopGoodsReceiptItems", (string)null);
                 });
 
+            modelBuilder.Entity("EHub.ShopManagement.ProductBatches.ShopProductBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AvailableQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("BatchNumber")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("BlockReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<DateTime?>("FirstReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("GoodsReceiptId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("GoodsReceiptItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsBlocked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<decimal>("IssuedQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<DateTime?>("LastMovementDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ManufacturingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NormalizedBatchNumber")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ReceivedQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("ReservedQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("TenantId");
+
+                    b.Property<decimal>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoodsReceiptId");
+
+                    b.HasIndex("GoodsReceiptItemId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "AvailableQuantity");
+
+                    b.HasIndex("TenantId", "ExpiryDate");
+
+                    b.HasIndex("TenantId", "ProductId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.HasIndex("TenantId", "SupplierId");
+
+                    b.HasIndex("TenantId", "ProductId", "NormalizedBatchNumber")
+                        .IsUnique();
+
+                    b.ToTable("ShopProductBatches", (string)null);
+                });
+
             modelBuilder.Entity("EHub.ShopManagement.ProductCategories.ShopProductCategory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2521,6 +2682,11 @@ namespace EHub.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
+                    b.Property<bool>("BlockExpiredSale")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Brand")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -2565,6 +2731,9 @@ namespace EHub.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("ExpiryAlertDays")
+                        .HasColumnType("int");
 
                     b.Property<string>("ExtraProperties")
                         .IsRequired()
@@ -3865,6 +4034,75 @@ namespace EHub.Migrations
                     b.ToTable("ShopSaleItems", (string)null);
                 });
 
+            modelBuilder.Entity("EHub.ShopManagement.Sales.ShopSaleItemBatchAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BatchNumberSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<DateTime?>("ExpiryDateSnapshot")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProductBatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SaleItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("TenantId");
+
+                    b.Property<decimal>("UnitCostSnapshot")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductBatchId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SaleId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("SaleItemId", "ProductBatchId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "ProductBatchId");
+
+                    b.HasIndex("TenantId", "SaleId");
+
+                    b.HasIndex("TenantId", "SaleItemId");
+
+                    b.ToTable("ShopSaleItemBatchAllocations", (string)null);
+                });
+
             modelBuilder.Entity("EHub.ShopManagement.Settings.ShopSetting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4195,9 +4433,15 @@ namespace EHub.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<DateTime?>("ManufacturingDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("ProductBatchId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProductCodeSnapshot")
                         .IsRequired()
@@ -4244,16 +4488,19 @@ namespace EHub.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductBatchId");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("StockAdjustmentId", "ProductId")
-                        .IsUnique();
-
                     b.HasIndex("TenantId", "ProductId");
 
                     b.HasIndex("TenantId", "StockAdjustmentId");
+
+                    b.HasIndex("StockAdjustmentId", "ProductId", "ProductBatchId")
+                        .IsUnique()
+                        .HasFilter("[ProductBatchId] IS NOT NULL");
 
                     b.ToTable("ShopStockAdjustmentItems", (string)null);
                 });
@@ -4395,6 +4642,10 @@ namespace EHub.Migrations
                     b.Property<int?>("AdjustmentType")
                         .HasColumnType("int");
 
+                    b.Property<string>("BatchNumberSnapshot")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
                     b.Property<Guid?>("CountedByUserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -4414,6 +4665,9 @@ namespace EHub.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)")
                         .HasDefaultValue(0m);
+
+                    b.Property<DateTime?>("ExpiryDateSnapshot")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsCounted")
                         .ValueGeneratedOnAdd()
@@ -4435,6 +4689,9 @@ namespace EHub.Migrations
                     b.Property<decimal?>("PhysicalQuantity")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid?>("ProductBatchId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProductCodeSnapshot")
                         .IsRequired()
@@ -4472,16 +4729,19 @@ namespace EHub.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductBatchId");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("StockCountId", "ProductId")
-                        .IsUnique();
-
                     b.HasIndex("TenantId", "ProductId");
 
                     b.HasIndex("TenantId", "StockCountId");
+
+                    b.HasIndex("StockCountId", "ProductId", "ProductBatchId")
+                        .IsUnique()
+                        .HasFilter("[ProductBatchId] IS NOT NULL");
 
                     b.ToTable("ShopStockCountItems", (string)null);
                 });
@@ -4496,6 +4756,10 @@ namespace EHub.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)")
                         .HasDefaultValue(0m);
+
+                    b.Property<decimal?>("BatchBalanceQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<string>("BatchNumber")
                         .HasMaxLength(128)
@@ -4513,6 +4777,9 @@ namespace EHub.Migrations
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("ProductBatchId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -4567,9 +4834,13 @@ namespace EHub.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductBatchId");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "ProductBatchId");
 
                     b.HasIndex("TenantId", "ProductId");
 
@@ -7935,6 +8206,32 @@ namespace EHub.Migrations
                     b.Navigation("PurchaseOrderItem");
                 });
 
+            modelBuilder.Entity("EHub.ShopManagement.ProductBatches.ShopProductBatch", b =>
+                {
+                    b.HasOne("EHub.ShopManagement.GoodsReceipts.ShopGoodsReceipt", null)
+                        .WithMany()
+                        .HasForeignKey("GoodsReceiptId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("EHub.ShopManagement.GoodsReceipts.ShopGoodsReceiptItem", null)
+                        .WithMany()
+                        .HasForeignKey("GoodsReceiptItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("EHub.ShopManagement.Products.ShopProduct", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EHub.ShopManagement.Suppliers.ShopSupplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("EHub.ShopManagement.ProductCategories.ShopProductCategory", b =>
                 {
                     b.HasOne("EHub.ShopManagement.ProductCategories.ShopProductCategory", "ParentCategory")
@@ -8110,8 +8407,48 @@ namespace EHub.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("EHub.ShopManagement.Sales.ShopSaleItemBatchAllocation", b =>
+                {
+                    b.HasOne("EHub.ShopManagement.ProductBatches.ShopProductBatch", "ProductBatch")
+                        .WithMany()
+                        .HasForeignKey("ProductBatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EHub.ShopManagement.Products.ShopProduct", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EHub.ShopManagement.Sales.ShopSale", "Sale")
+                        .WithMany()
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EHub.ShopManagement.Sales.ShopSaleItem", "SaleItem")
+                        .WithMany()
+                        .HasForeignKey("SaleItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductBatch");
+
+                    b.Navigation("Sale");
+
+                    b.Navigation("SaleItem");
+                });
+
             modelBuilder.Entity("EHub.ShopManagement.StockAdjustments.ShopStockAdjustmentItem", b =>
                 {
+                    b.HasOne("EHub.ShopManagement.ProductBatches.ShopProductBatch", null)
+                        .WithMany()
+                        .HasForeignKey("ProductBatchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("EHub.ShopManagement.Products.ShopProduct", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -8144,6 +8481,11 @@ namespace EHub.Migrations
 
             modelBuilder.Entity("EHub.ShopManagement.StockCounts.ShopStockCountItem", b =>
                 {
+                    b.HasOne("EHub.ShopManagement.ProductBatches.ShopProductBatch", "ProductBatch")
+                        .WithMany()
+                        .HasForeignKey("ProductBatchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("EHub.ShopManagement.Products.ShopProduct", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -8158,11 +8500,18 @@ namespace EHub.Migrations
 
                     b.Navigation("Product");
 
+                    b.Navigation("ProductBatch");
+
                     b.Navigation("StockCount");
                 });
 
             modelBuilder.Entity("EHub.ShopManagement.StockTransactions.ShopStockTransaction", b =>
                 {
+                    b.HasOne("EHub.ShopManagement.ProductBatches.ShopProductBatch", null)
+                        .WithMany()
+                        .HasForeignKey("ProductBatchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("EHub.ShopManagement.Products.ShopProduct", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -8246,7 +8595,7 @@ namespace EHub.Migrations
 
                             b1.HasKey("StaffDocumentId");
 
-                            b1.ToTable("AppStaffDocuments");
+                            b1.ToTable("AppStaffDocuments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StaffDocumentId");
@@ -8301,7 +8650,7 @@ namespace EHub.Migrations
 
                             b1.HasKey("StudentDocumentId");
 
-                            b1.ToTable("AppStudentDocuments");
+                            b1.ToTable("AppStudentDocuments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentDocumentId");

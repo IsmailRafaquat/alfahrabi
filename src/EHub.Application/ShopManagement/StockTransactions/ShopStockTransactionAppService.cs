@@ -100,6 +100,8 @@ public class ShopStockTransactionAppService : ApplicationService, IShopStockTran
         TotalCost = t.TotalCost,
         BatchNumber = t.BatchNumber,
         ExpiryDate = t.ExpiryDate,
+        ProductBatchId = t.ProductBatchId,
+        BatchBalanceQuantity = t.BatchBalanceQuantity,
         Notes = t.Notes,
         CreationTime = t.CreationTime
     };

@@ -18,7 +18,11 @@ public class CreateShopStockAdjustmentItemDto
     [StringLength(ShopStockAdjustmentConsts.BatchNumberMaxLength)]
     public string? BatchNumber { get; set; }
 
+    public DateTime? ManufacturingDate { get; set; }
     public DateTime? ExpiryDate { get; set; }
+
+    /// <summary>Required for Decrease adjustments on batch-tracked products; ignored for Increase.</summary>
+    public Guid? ProductBatchId { get; set; }
 
     public ShopStockAdjustmentReason Reason { get; set; }
 

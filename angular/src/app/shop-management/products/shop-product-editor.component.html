@@ -148,6 +148,14 @@
       <div class="col-6 col-md-3"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
     </div>
 
+    <div class="row g-3" *ngIf="form.controls.trackExpiry.enabled">
+      <div class="col-12 col-md-6 col-xl-3">
+        <label>{{ '::ExpiryAlertDays' | abpLocalization }}</label>
+        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="expiryAlertDays">
+      </div>
+      <div class="col-6 col-md-3"><label class="active-label">{{ '::BlockExpiredSale' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="blockExpiredSale"></label></div>
+    </div>
+
     <div class="card-save">
       <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
         <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CashRegisters;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.Sales;
@@ -28,6 +29,9 @@ public class ShopSaleReturnManager : DomainService
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
+    private readonly IRepository<ShopSaleItemBatchAllocation, Guid> _saleBatchAllocationRepository;
+    private readonly IRepository<ShopProductBatch, Guid> _productBatchRepository;
+    private readonly ShopProductBatchManager _batchManager;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ShopBankAccountManager _bankAccountManager;
@@ -41,6 +45,9 @@ public class ShopSaleReturnManager : DomainService
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
+        IRepository<ShopSaleItemBatchAllocation, Guid> saleBatchAllocationRepository,
+        IRepository<ShopProductBatch, Guid> productBatchRepository,
+        ShopProductBatchManager batchManager,
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
         ShopBankAccountManager bankAccountManager,
@@ -53,6 +60,9 @@ public class ShopSaleReturnManager : DomainService
         _productRepository = productRepository;
         _unitRepository = unitRepository;
         _stockTransactionRepository = stockTransactionRepository;
+        _saleBatchAllocationRepository = saleBatchAllocationRepository;
+        _productBatchRepository = productBatchRepository;
+        _batchManager = batchManager;
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
         _bankAccountManager = bankAccountManager;
@@ -124,11 +134,9 @@ public class ShopSaleReturnManager : DomainService
             if (item.ReturnQuantity > returnable) throw new BusinessException("ShopManagement:SaleReturnQuantityExceedsReturnable");
         }
 
-        var itemIds = saleReturn.Items.Select(x => x.Id).ToList();
         var existingTransactionQuery = await _stockTransactionRepository.GetQueryableAsync();
         var alreadyHasTransactions = await AsyncExecuter.AnyAsync(existingTransactionQuery.Where(x =>
-            x.TenantId == tenantId && x.ReferenceType == ShopStockReferenceType.SaleReturn &&
-            x.SourceItemId.HasValue && itemIds.Contains(x.SourceItemId.Value)));
+            x.TenantId == tenantId && x.ReferenceType == ShopStockReferenceType.SaleReturn && x.ReferenceId == saleReturn.Id));
         if (alreadyHasTransactions) throw new BusinessException("ShopManagement:SaleReturnStockTransactionAlreadyExists");
 
         var productIds = saleReturn.Items.Select(x => x.ProductId).Distinct().ToList();
@@ -144,12 +152,19 @@ public class ShopSaleReturnManager : DomainService
 
             product.IncreaseStock(item.ReturnQuantity);
 
-            var transaction = new ShopStockTransaction(
-                GuidGenerator.Create(), tenantId, item.ProductId, ShopStockTransactionType.SaleReturn, ShopStockReferenceType.SaleReturn,
-                saleReturn.Id, saleReturn.SaleReturnNumber, item.Id, saleReturn.ReturnDate,
-                item.ReturnQuantity, 0, product.CurrentStock, item.UnitCostSnapshot, item.BatchNumber, item.ExpiryDate,
-                null, completedByUserId, completedDate);
-            await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
+            if (product.TrackBatch)
+            {
+                await CompleteBatchItemAsync(saleReturn, item, product, tenantId, completedByUserId, completedDate);
+            }
+            else
+            {
+                var transaction = new ShopStockTransaction(
+                    GuidGenerator.Create(), tenantId, item.ProductId, ShopStockTransactionType.SaleReturn, ShopStockReferenceType.SaleReturn,
+                    saleReturn.Id, saleReturn.SaleReturnNumber, item.Id, saleReturn.ReturnDate,
+                    item.ReturnQuantity, 0, product.CurrentStock, item.UnitCostSnapshot, item.BatchNumber, item.ExpiryDate,
+                    null, completedByUserId, completedDate);
+                await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
+            }
         }
 
         foreach (var product in products.Values)
@@ -171,6 +186,74 @@ public class ShopSaleReturnManager : DomainService
                 tenantId, saleReturn.BankAccountId.Value, ShopBankTransactionType.CustomerRefund, ShopBankDirection.Out, saleReturn.RefundAmount,
                 ShopBankReferenceType.SaleReturn, saleReturn.Id, saleReturn.SaleReturnNumber, $"Bank refund - {saleReturn.SaleReturnNumber}", saleReturn.ReturnDate);
         }
+    }
+
+    /// <summary>
+    /// Restocks a batch-tracked return item into the exact batch(es) the original Sale drew from
+    /// (oldest allocation first), capped so the cumulative returned quantity per original allocation
+    /// never exceeds what was actually sold from it.
+    /// </summary>
+    private async Task CompleteBatchItemAsync(
+        ShopSaleReturn saleReturn, ShopSaleReturnItem item, ShopProduct product,
+        Guid tenantId, Guid completedByUserId, DateTime completedDate)
+    {
+        var allocationQuery = await _saleBatchAllocationRepository.GetQueryableAsync();
+        var originalAllocations = allocationQuery
+            .Where(x => x.TenantId == tenantId && x.SaleItemId == item.SaleItemId)
+            .OrderBy(x => x.CreationTime)
+            .ToList();
+        if (originalAllocations.Count == 0) throw new BusinessException("ShopManagement:BatchNotFound");
+
+        var batchQuery = await _productBatchRepository.GetQueryableAsync();
+        var batchIds = originalAllocations.Select(x => x.ProductBatchId).Distinct().ToList();
+        var batches = batchQuery.Where(x => batchIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
+
+        var remaining = item.ReturnQuantity;
+        foreach (var allocation in originalAllocations)
+        {
+            if (remaining <= 0) break;
+            if (!batches.TryGetValue(allocation.ProductBatchId, out var batch)) continue;
+
+            var alreadyReturned = await GetBatchReturnedQuantityAsync(item.SaleItemId, allocation.ProductBatchId, tenantId);
+            var capacity = allocation.Quantity - alreadyReturned;
+            if (capacity <= 0) continue;
+
+            var take = Math.Min(remaining, capacity);
+            await _batchManager.ReturnStockAsync(batch, take, saleReturn.ReturnDate);
+
+            var transaction = new ShopStockTransaction(
+                GuidGenerator.Create(), tenantId, product.Id, ShopStockTransactionType.SaleReturn, ShopStockReferenceType.SaleReturn,
+                saleReturn.Id, saleReturn.SaleReturnNumber, GuidGenerator.Create(), saleReturn.ReturnDate,
+                take, 0, product.CurrentStock, item.UnitCostSnapshot, batch.BatchNumber, batch.ExpiryDate,
+                null, completedByUserId, completedDate, batch.Id, batch.AvailableQuantity);
+            await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
+
+            remaining -= take;
+        }
+
+        if (remaining > 0) throw new BusinessException("ShopManagement:BatchAllocationExceedsAvailableStock");
+    }
+
+    private async Task<decimal> GetBatchReturnedQuantityAsync(Guid saleItemId, Guid productBatchId, Guid tenantId)
+    {
+        // A SaleReturn can contain at most one line per original SaleItemId (enforced by
+        // ValidateNoDuplicateSaleItems), so filtering by the parent return's id unambiguously
+        // attributes every stock transaction under it to this original sale item.
+        var itemQuery = await _itemRepository.GetQueryableAsync();
+        var returnQuery = await _repository.GetQueryableAsync();
+
+        var relevantSaleReturnIds = await AsyncExecuter.ToListAsync(
+            from ri in itemQuery
+            join r in returnQuery on ri.SaleReturnId equals r.Id
+            where ri.SaleItemId == saleItemId && ri.TenantId == tenantId && r.Status == ShopSaleReturnStatus.Completed
+            select r.Id);
+
+        if (relevantSaleReturnIds.Count == 0) return 0;
+
+        var stockQuery = await _stockTransactionRepository.GetQueryableAsync();
+        return await AsyncExecuter.SumAsync(stockQuery.Where(x =>
+            x.TenantId == tenantId && x.ReferenceType == ShopStockReferenceType.SaleReturn &&
+            x.ProductBatchId == productBatchId && relevantSaleReturnIds.Contains(x.ReferenceId)).Select(x => x.QuantityIn));
     }
 
     private async Task ValidateBankAccountAsync(Guid? bankAccountId, Guid tenantId)

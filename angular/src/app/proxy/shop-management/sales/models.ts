@@ -7,6 +7,15 @@ export interface CancelShopSaleDto {
   cancellationReason: string;
 }
 
+export interface CompleteShopSaleDto {
+  itemBatchAllocations: CompleteShopSaleItemBatchAllocationDto[];
+}
+
+export interface CompleteShopSaleItemBatchAllocationDto {
+  saleItemId?: string;
+  allocations: ShopBatchAllocationLineDto[];
+}
+
 export interface CreateShopSaleDto extends ShopSaleEditDtoBase<CreateShopSaleItemDto> {
 }
 
@@ -23,6 +32,11 @@ export interface GetShopSalesInput extends PagedAndSortedResultRequestDto {
   minimumGrandTotal?: number;
   maximumGrandTotal?: number;
   hasPendingAmount?: boolean;
+}
+
+export interface ShopBatchAllocationLineDto {
+  productBatchId?: string;
+  quantity: number;
 }
 
 export interface ShopSaleDto extends EntityDto<string> {
@@ -66,6 +80,14 @@ export interface ShopSaleEditDtoBase<TItem> {
   items: TItem[];
 }
 
+export interface ShopSaleItemBatchAllocationDto {
+  productBatchId?: string;
+  batchNumber?: string;
+  expiryDate?: string;
+  quantity: number;
+  unitCostSnapshot?: number;
+}
+
 export interface ShopSaleItemDto extends EntityDto<string> {
   productId?: string;
   productName?: string;
@@ -84,6 +106,7 @@ export interface ShopSaleItemDto extends EntityDto<string> {
   lineTotal?: number;
   batchNumber?: string;
   expiryDate?: string;
+  batchAllocations: ShopSaleItemBatchAllocationDto[];
 }
 
 export interface ShopSaleItemEditDtoBase {

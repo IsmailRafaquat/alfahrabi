@@ -1,7 +1,17 @@
 using System;
+using System.Collections.Generic;
 using Volo.Abp.Application.Dtos;
 
 namespace EHub.ShopManagement.Sales;
+
+public class ShopSaleItemBatchAllocationDto
+{
+    public Guid ProductBatchId { get; set; }
+    public string BatchNumber { get; set; } = string.Empty;
+    public DateTime? ExpiryDate { get; set; }
+    public decimal Quantity { get; set; }
+    public decimal? UnitCostSnapshot { get; set; }
+}
 
 public class ShopSaleItemDto : EntityDto<Guid>
 {
@@ -25,4 +35,6 @@ public class ShopSaleItemDto : EntityDto<Guid>
 
     public string? BatchNumber { get; set; }
     public DateTime? ExpiryDate { get; set; }
+
+    public List<ShopSaleItemBatchAllocationDto> BatchAllocations { get; set; } = new();
 }

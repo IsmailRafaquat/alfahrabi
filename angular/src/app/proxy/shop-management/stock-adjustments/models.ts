@@ -20,7 +20,9 @@ export interface CreateShopStockAdjustmentItemDto {
   adjustmentType: ShopStockAdjustmentType;
   adjustmentQuantity: number;
   batchNumber?: string;
+  manufacturingDate?: string;
   expiryDate?: string;
+  productBatchId?: string;
   reason?: ShopStockAdjustmentReason;
   notes?: string;
 }
@@ -64,7 +66,9 @@ export interface ShopStockAdjustmentItemDto extends EntityDto<string> {
   finalQuantity: number;
   unitCostSnapshot?: number;
   batchNumber?: string;
+  manufacturingDate?: string;
   expiryDate?: string;
+  productBatchId?: string;
   reason?: ShopStockAdjustmentReason;
   notes?: string;
 }

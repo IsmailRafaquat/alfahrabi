@@ -104,6 +104,18 @@ public static class EHubPermissions
         public const string ViewCost = Default + ".ViewCost";
     }
 
+    public static class ShopProductBatches
+    {
+        public const string Default = ManagementMenus.Shop + ".ProductBatches";
+        public const string View = Default + ".View";
+        public const string ViewCost = Default + ".ViewCost";
+        public const string EditMetadata = Default + ".EditMetadata";
+        public const string Block = Default + ".Block";
+        public const string Unblock = Default + ".Unblock";
+        public const string ViewExpired = Default + ".ViewExpired";
+        public const string ViewTransactions = Default + ".ViewTransactions";
+    }
+
     public static class ShopSupplierPayments
     {
         public const string Default = ManagementMenus.Shop + ".SupplierPayments";

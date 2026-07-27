@@ -47,6 +47,8 @@ const BLANK_VALUE = {
   reorderLevel: 0,
   trackBatch: false,
   trackExpiry: false,
+  expiryAlertDays: null as number | null,
+  blockExpiredSale: true,
   trackSerialNumber: false,
   isActive: true,
 };
@@ -98,7 +100,9 @@ export class ShopProductEditorComponent implements OnInit {
       maximumStockLevel: [BLANK_VALUE.maximumStockLevel, Validators.min(0)],
       reorderLevel: [BLANK_VALUE.reorderLevel, [Validators.required, Validators.min(0)]],
       trackBatch: [BLANK_VALUE.trackBatch],
-      trackExpiry: [BLANK_VALUE.trackExpiry],
+      trackExpiry: [{ value: BLANK_VALUE.trackExpiry, disabled: true }],
+      expiryAlertDays: [{ value: BLANK_VALUE.expiryAlertDays, disabled: true }, Validators.min(0)],
+      blockExpiredSale: [{ value: BLANK_VALUE.blockExpiredSale, disabled: true }],
       trackSerialNumber: [BLANK_VALUE.trackSerialNumber],
       isActive: [BLANK_VALUE.isActive],
     },
@@ -114,6 +118,27 @@ export class ShopProductEditorComponent implements OnInit {
       } else {
         this.form.controls.taxPercentage.setValue(0, { emitEvent: false });
         this.form.controls.taxPercentage.disable({ emitEvent: false });
+      }
+    });
+
+    this.form.controls.trackBatch.valueChanges.subscribe(trackBatch => {
+      if (trackBatch) {
+        this.form.controls.trackExpiry.enable({ emitEvent: false });
+      } else {
+        this.form.controls.trackExpiry.setValue(false, { emitEvent: false });
+        this.form.controls.trackExpiry.disable({ emitEvent: false });
+      }
+    });
+
+    this.form.controls.trackExpiry.valueChanges.subscribe(trackExpiry => {
+      if (trackExpiry) {
+        this.form.controls.expiryAlertDays.enable({ emitEvent: false });
+        this.form.controls.blockExpiredSale.enable({ emitEvent: false });
+        if (this.form.controls.expiryAlertDays.value == null) this.form.controls.expiryAlertDays.setValue(30, { emitEvent: false });
+      } else {
+        this.form.controls.expiryAlertDays.setValue(null, { emitEvent: false });
+        this.form.controls.expiryAlertDays.disable({ emitEvent: false });
+        this.form.controls.blockExpiredSale.disable({ emitEvent: false });
       }
     });
 
@@ -150,6 +175,8 @@ export class ShopProductEditorComponent implements OnInit {
       reorderLevel: raw.reorderLevel,
       trackBatch: raw.trackBatch,
       trackExpiry: raw.trackExpiry,
+      expiryAlertDays: raw.trackExpiry ? raw.expiryAlertDays ?? 30 : undefined,
+      blockExpiredSale: raw.blockExpiredSale,
       trackSerialNumber: raw.trackSerialNumber,
       isActive: raw.isActive,
     };
@@ -187,6 +214,9 @@ export class ShopProductEditorComponent implements OnInit {
     this.form.reset(BLANK_VALUE);
     this.currentStock = 0;
     this.form.controls.taxPercentage.disable({ emitEvent: false });
+    this.form.controls.trackExpiry.disable({ emitEvent: false });
+    this.form.controls.expiryAlertDays.disable({ emitEvent: false });
+    this.form.controls.blockExpiredSale.disable({ emitEvent: false });
   }
 
   private patchForm(dto: ShopProductDto): void {
@@ -212,11 +242,24 @@ export class ShopProductEditorComponent implements OnInit {
       reorderLevel: dto.reorderLevel,
       trackBatch: dto.trackBatch,
       trackExpiry: dto.trackExpiry,
+      expiryAlertDays: dto.expiryAlertDays ?? null,
+      blockExpiredSale: dto.blockExpiredSale,
       trackSerialNumber: dto.trackSerialNumber,
       isActive: dto.isActive,
     });
     if (dto.isTaxable) this.form.controls.taxPercentage.enable({ emitEvent: false });
     else this.form.controls.taxPercentage.disable({ emitEvent: false });
+
+    if (dto.trackBatch) this.form.controls.trackExpiry.enable({ emitEvent: false });
+    else this.form.controls.trackExpiry.disable({ emitEvent: false });
+
+    if (dto.trackExpiry) {
+      this.form.controls.expiryAlertDays.enable({ emitEvent: false });
+      this.form.controls.blockExpiredSale.enable({ emitEvent: false });
+    } else {
+      this.form.controls.expiryAlertDays.disable({ emitEvent: false });
+      this.form.controls.blockExpiredSale.disable({ emitEvent: false });
+    }
   }
 
   private loadForEdit(id: string): void {

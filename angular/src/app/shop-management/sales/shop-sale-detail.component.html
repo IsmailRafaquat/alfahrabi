@@ -112,3 +112,62 @@
     <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || actionInProgress" (click)="confirmCancel()">{{ '::CancelSale' | abpLocalization }}</button>
   </ng-template>
 </abp-modal>
+
+<abp-modal [(visible)]="completeModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::BatchAllocation' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <div *ngFor="let row of completeBatchItems" class="batch-allocation-item mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>{{ row.productName }} &mdash; {{ row.quantity | number:'1.0-4' }} {{ row.unitShortName }}</strong>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn" [class.btn-primary]="row.mode === 'auto'" [class.btn-outline-primary]="row.mode !== 'auto'" (click)="row.mode = 'auto'">{{ '::AutomaticBatchAllocation' | abpLocalization }}</button>
+          <button type="button" class="btn" [class.btn-primary]="row.mode === 'manual'" [class.btn-outline-primary]="row.mode !== 'manual'" (click)="row.mode = 'manual'; onAllocationModeChange(row)">{{ '::ManualBatchAllocation' | abpLocalization }}</button>
+        </div>
+      </div>
+
+      <div *ngIf="row.mode === 'auto'" class="text-muted small">{{ '::FEFO' | abpLocalization }}</div>
+
+      <div *ngIf="row.mode === 'manual'">
+        <div *ngIf="row.loadingBatches" class="text-center py-2"><span class="spinner-border spinner-border-sm"></span></div>
+        <table *ngIf="!row.loadingBatches" class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+              <th>{{ '::DaysToExpiry' | abpLocalization }}</th>
+              <th>{{ '::AvailableQuantity' | abpLocalization }}</th>
+              <th>{{ '::AllocatedQuantity' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let batch of row.batches">
+              <td><input type="checkbox" [checked]="isBatchSelected(row, batch.id)" (change)="toggleBatchAllocation(row, batch, $any($event.target).checked)"></td>
+              <td>{{ batch.batchNumber }}</td>
+              <td>{{ batch.expiryDate ? (batch.expiryDate | date:'mediumDate') : '—' }}</td>
+              <td>{{ batch.daysToExpiry ?? '—' }}</td>
+              <td>{{ batch.availableQuantity | number:'1.0-4' }}</td>
+              <td>
+                <input *ngIf="isBatchSelected(row, batch.id)" type="number" class="form-control form-control-sm" style="width: 100px"
+                  [min]="0" [max]="batch.availableQuantity" [ngModel]="allocationFor(row, batch.id)?.quantity"
+                  (ngModelChange)="allocationFor(row, batch.id)!.quantity = $event">
+              </td>
+            </tr>
+            <tr *ngIf="!row.batches.length">
+              <td colspan="6" class="text-center text-muted">{{ '::NoBatchesFound' | abpLocalization }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-between">
+          <span>{{ '::TotalAllocated' | abpLocalization }}: {{ allocatedQuantity(row) | number:'1.0-4' }}</span>
+          <span>{{ '::RemainingQuantity' | abpLocalization }}: {{ remainingQuantity(row) | number:'1.0-4' }}</span>
+        </div>
+        <small class="text-danger" *ngIf="allocatedQuantity(row) !== row.quantity">{{ '::BatchAllocationMismatch' | abpLocalization }}</small>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-primary btn-sm" [disabled]="completeModalInvalid || actionInProgress" (click)="confirmCompleteModal()">{{ '::CompleteSale' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>

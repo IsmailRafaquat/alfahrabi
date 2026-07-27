@@ -38,6 +38,8 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public bool TrackBatch { get; protected set; }
     public bool TrackExpiry { get; protected set; }
+    public int? ExpiryAlertDays { get; protected set; }
+    public bool BlockExpiredSale { get; protected set; } = true;
     public bool TrackSerialNumber { get; protected set; }
     public bool IsTaxable { get; protected set; }
     public bool IsActive { get; protected set; } = true;
@@ -66,6 +68,8 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         decimal reorderLevel,
         bool trackBatch,
         bool trackExpiry,
+        int? expiryAlertDays,
+        bool blockExpiredSale,
         bool trackSerialNumber,
         bool isTaxable,
         bool isActive) : base(id)
@@ -76,7 +80,7 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         CurrentStock = 0;
         SetValues(name, code, sku, barcode, description, brand, model, purchasePrice, salePrice, wholesalePrice,
             minimumSalePrice, taxPercentage, minimumStockLevel, maximumStockLevel, reorderLevel,
-            trackBatch, trackExpiry, trackSerialNumber, isTaxable, isActive);
+            trackBatch, trackExpiry, expiryAlertDays, blockExpiredSale, trackSerialNumber, isTaxable, isActive);
     }
 
     internal void IncreaseStock(decimal quantity)
@@ -112,6 +116,8 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         decimal reorderLevel,
         bool trackBatch,
         bool trackExpiry,
+        int? expiryAlertDays,
+        bool blockExpiredSale,
         bool trackSerialNumber,
         bool isTaxable,
         bool isActive)
@@ -120,7 +126,7 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         UnitId = unitId;
         SetValues(name, code, sku, barcode, description, brand, model, purchasePrice, salePrice, wholesalePrice,
             minimumSalePrice, taxPercentage, minimumStockLevel, maximumStockLevel, reorderLevel,
-            trackBatch, trackExpiry, trackSerialNumber, isTaxable, isActive);
+            trackBatch, trackExpiry, expiryAlertDays, blockExpiredSale, trackSerialNumber, isTaxable, isActive);
     }
 
     private void SetValues(
@@ -141,6 +147,8 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         decimal reorderLevel,
         bool trackBatch,
         bool trackExpiry,
+        int? expiryAlertDays,
+        bool blockExpiredSale,
         bool trackSerialNumber,
         bool isTaxable,
         bool isActive)
@@ -164,6 +172,8 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         if (reorderLevel < 0) throw new BusinessException("ShopManagement:ProductReorderLevelCannotBeNegative");
         if (maximumStockLevel.HasValue && maximumStockLevel.Value > 0 && maximumStockLevel.Value < minimumStockLevel)
             throw new BusinessException("ShopManagement:MaximumStockCannotBeLowerThanMinimumStock");
+        if (trackExpiry && !trackBatch) throw new BusinessException("ShopManagement:ExpiryRequiresBatchTracking");
+        if (expiryAlertDays.HasValue && expiryAlertDays.Value < 0) throw new BusinessException("ShopManagement:InvalidExpiryAlertDays");
 
         PurchasePrice = purchasePrice;
         SalePrice = salePrice;
@@ -176,6 +186,8 @@ public class ShopProduct : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ReorderLevel = reorderLevel;
         TrackBatch = trackBatch;
         TrackExpiry = trackExpiry;
+        ExpiryAlertDays = trackExpiry ? (expiryAlertDays ?? 30) : null;
+        BlockExpiredSale = blockExpiredSale;
         TrackSerialNumber = trackSerialNumber;
         IsActive = isActive;
     }

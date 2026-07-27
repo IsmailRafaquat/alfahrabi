@@ -184,7 +184,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
             var customer = await CreateCustomerAsync();
             var product = await CreateProductWithStockAsync(10, 50, 100);
             var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, product.Id, 5, 100, 500, ShopSaleType.Cash, ShopSalePaymentMethod.Cash));
-            await _saleAppService.CompleteAsync(sale.Id);
+            await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             var transactions = await _cashAppService.GetTransactionsAsync(new GetShopCashTransactionsInput { CashRegisterId = register.Id });
             var saleTx = transactions.Items.Single(x => x.TransactionType == ShopCashTransactionType.CashSale);
@@ -206,7 +206,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
             var product = await CreateProductWithStockAsync(10, 50, 100);
             // Credit sale (GrandTotal 1000) with only 300 paid in cash up front.
             var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, product.Id, 10, 100, 300, ShopSaleType.Credit, ShopSalePaymentMethod.Cash));
-            await _saleAppService.CompleteAsync(sale.Id);
+            await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             var transactions = await _cashAppService.GetTransactionsAsync(new GetShopCashTransactionsInput { CashRegisterId = register.Id });
             var saleTx = transactions.Items.Single(x => x.TransactionType == ShopCashTransactionType.CashSale);
@@ -352,7 +352,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
             var customer = await CreateCustomerAsync();
             var product = await CreateProductWithStockAsync(20, 100, 250, stockQuantity: 100);
             var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, product.Id, 20, 250, 5000, ShopSaleType.Cash, ShopSalePaymentMethod.Cash));
-            var completedSale = await _saleAppService.CompleteAsync(sale.Id);
+            var completedSale = await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             var saleReturn = await _saleReturnAppService.CreateAsync(new CreateShopSaleReturnDto
             {
@@ -440,7 +440,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
             var customer = await CreateCustomerAsync();
             var product = await CreateProductWithStockAsync(30, 500, 1000, stockQuantity: 100);
             var sale = await _saleAppService.CreateAsync(BuildSaleCreateInput(customer.Id, product.Id, 30, 1000, 30000, ShopSaleType.Cash, ShopSalePaymentMethod.Cash));
-            await _saleAppService.CompleteAsync(sale.Id);
+            await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             var customerPayment = await _customerPaymentAppService.CreateAsync(new CreateUpdateShopCustomerPaymentDto
             {

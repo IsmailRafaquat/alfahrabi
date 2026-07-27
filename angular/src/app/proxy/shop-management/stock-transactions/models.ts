@@ -28,6 +28,8 @@ export interface ShopStockTransactionDto extends EntityDto<string> {
   totalCost?: number;
   batchNumber?: string;
   expiryDate?: string;
+  productBatchId?: string;
+  batchBalanceQuantity?: number;
   notes?: string;
   creationTime?: string;
 }

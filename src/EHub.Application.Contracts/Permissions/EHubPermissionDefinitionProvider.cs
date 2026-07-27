@@ -57,6 +57,14 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopStockAdjustments.AddChild(EHubPermissions.ShopStockAdjustments.Post, L("Permission:ShopStockAdjustments.Post"));
         shopStockAdjustments.AddChild(EHubPermissions.ShopStockAdjustments.Cancel, L("Permission:ShopStockAdjustments.Cancel"));
         shopStockAdjustments.AddChild(EHubPermissions.ShopStockAdjustments.ViewCost, L("Permission:ShopStockAdjustments.ViewCost"));
+        var shopProductBatches = shopManagement.AddChild(EHubPermissions.ShopProductBatches.Default, L("Permission:ShopProductBatches"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.View, L("Permission:ShopProductBatches.View"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.ViewCost, L("Permission:ShopProductBatches.ViewCost"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.EditMetadata, L("Permission:ShopProductBatches.EditMetadata"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.Block, L("Permission:ShopProductBatches.Block"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.Unblock, L("Permission:ShopProductBatches.Unblock"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.ViewExpired, L("Permission:ShopProductBatches.ViewExpired"));
+        shopProductBatches.AddChild(EHubPermissions.ShopProductBatches.ViewTransactions, L("Permission:ShopProductBatches.ViewTransactions"));
         var shopStockCounts = shopManagement.AddChild(EHubPermissions.ShopStockCounts.Default, L("Permission:ShopStockCounts"));
         shopStockCounts.AddChild(EHubPermissions.ShopStockCounts.Create, L("Permission:ShopStockCounts.Create"));
         shopStockCounts.AddChild(EHubPermissions.ShopStockCounts.Edit, L("Permission:ShopStockCounts.Edit"));

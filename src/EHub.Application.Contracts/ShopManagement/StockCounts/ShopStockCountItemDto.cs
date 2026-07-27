@@ -13,6 +13,10 @@ public class ShopStockCountItemDto : EntityDto<Guid>
     public string UnitShortName { get; set; } = string.Empty;
     public bool UnitAllowDecimal { get; set; }
 
+    public Guid? ProductBatchId { get; set; }
+    public string? BatchNumber { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+
     public decimal SystemQuantity { get; set; }
     public decimal? PhysicalQuantity { get; set; }
     public decimal DifferenceQuantity { get; set; }

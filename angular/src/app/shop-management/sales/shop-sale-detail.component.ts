@@ -4,15 +4,34 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
-import { ShopSaleDto, ShopSalePaymentMethod, ShopSaleService, ShopSaleStatus, ShopSaleType } from '../../proxy/shop-management/sales';
+import { CompleteShopSaleDto, ShopSaleDto, ShopSalePaymentMethod, ShopSaleProductLookupDto, ShopSaleService, ShopSaleStatus, ShopSaleType } from '../../proxy/shop-management/sales';
 import { ShopCustomerPaymentService } from '../../proxy/shop-management/customer-payments';
 import { ShopSaleReturnService, ShopSaleReturnStatus } from '../../proxy/shop-management/sale-returns';
+import { ShopProductBatchLookupDto, ShopProductBatchService } from '../../proxy/shop-management/product-batches';
+
+interface CompleteBatchAllocationRow {
+  productBatchId: string;
+  quantity: number | null;
+}
+
+interface CompleteBatchItem {
+  saleItemId: string;
+  productId: string;
+  productName: string;
+  unitShortName: string;
+  quantity: number;
+  mode: 'auto' | 'manual';
+  loadingBatches: boolean;
+  batches: ShopProductBatchLookupDto[];
+  allocations: CompleteBatchAllocationRow[];
+}
 
 @Component({ selector: 'app-shop-sale-detail', standalone: false, templateUrl: './shop-sale-detail.component.html', styleUrl: './shop-sale-detail.component.scss' })
 export class ShopSaleDetailComponent implements OnInit {
   private readonly service = inject(ShopSaleService);
   private readonly customerPaymentService = inject(ShopCustomerPaymentService);
   private readonly saleReturnService = inject(ShopSaleReturnService);
+  private readonly productBatchService = inject(ShopProductBatchService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -49,6 +68,10 @@ export class ShopSaleDetailComponent implements OnInit {
 
   cancelModalOpen = false;
   readonly cancelForm = this.fb.group({ cancellationReason: ['', [Validators.required, Validators.maxLength(500)]] });
+
+  completeModalOpen = false;
+  completeBatchItems: CompleteBatchItem[] = [];
+  products: ShopSaleProductLookupDto[] = [];
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id')!;
@@ -152,11 +175,87 @@ export class ShopSaleDetailComponent implements OnInit {
   }
 
   complete(): void {
+    this.service.getSaleProductLookup().subscribe(result => {
+      this.products = result.items || [];
+      const batchTrackedItems = (this.dto!.items || []).filter(item => this.products.find(p => p.id === item.productId)?.trackBatch);
+
+      if (batchTrackedItems.length === 0) {
+        this.confirmAndComplete({ itemBatchAllocations: [] });
+        return;
+      }
+
+      this.completeBatchItems = batchTrackedItems.map(item => ({
+        saleItemId: item.id,
+        productId: item.productId!,
+        productName: item.productName!,
+        unitShortName: item.unitShortName,
+        quantity: item.quantity,
+        mode: 'auto',
+        loadingBatches: false,
+        batches: [],
+        allocations: [],
+      }));
+      this.completeModalOpen = true;
+    });
+  }
+
+  onAllocationModeChange(row: CompleteBatchItem): void {
+    if (row.mode === 'manual' && row.batches.length === 0) {
+      row.loadingBatches = true;
+      this.productBatchService
+        .getAvailableBatches(row.productId)
+        .pipe(finalize(() => (row.loadingBatches = false)))
+        .subscribe(result => (row.batches = result.items || []));
+    }
+  }
+
+  toggleBatchAllocation(row: CompleteBatchItem, batch: ShopProductBatchLookupDto, checked: boolean): void {
+    if (checked) row.allocations.push({ productBatchId: batch.id, quantity: null });
+    else row.allocations = row.allocations.filter(x => x.productBatchId !== batch.id);
+  }
+
+  isBatchSelected(row: CompleteBatchItem, batchId: string): boolean {
+    return row.allocations.some(x => x.productBatchId === batchId);
+  }
+
+  allocationFor(row: CompleteBatchItem, batchId: string): CompleteBatchAllocationRow | undefined {
+    return row.allocations.find(x => x.productBatchId === batchId);
+  }
+
+  allocatedQuantity(row: CompleteBatchItem): number {
+    return row.allocations.reduce((sum, x) => sum + (x.quantity || 0), 0);
+  }
+
+  remainingQuantity(row: CompleteBatchItem): number {
+    return row.quantity - this.allocatedQuantity(row);
+  }
+
+  get completeModalInvalid(): boolean {
+    return this.completeBatchItems.some(row => row.mode === 'manual' && (row.allocations.length === 0 || this.allocatedQuantity(row) !== row.quantity));
+  }
+
+  confirmCompleteModal(): void {
+    if (this.completeModalInvalid) return;
+
+    const input: CompleteShopSaleDto = {
+      itemBatchAllocations: this.completeBatchItems
+        .filter(row => row.mode === 'manual')
+        .map(row => ({
+          saleItemId: row.saleItemId,
+          allocations: row.allocations.map(a => ({ productBatchId: a.productBatchId, quantity: a.quantity || 0 })),
+        })),
+    };
+
+    this.completeModalOpen = false;
+    this.confirmAndComplete(input);
+  }
+
+  private confirmAndComplete(input: CompleteShopSaleDto): void {
     this.confirmation.warn('::ConfirmCompleteSale', this.dto!.saleNumber).subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.actionInProgress = true;
       this.service
-        .complete(this.id)
+        .complete(this.id, input)
         .pipe(finalize(() => (this.actionInProgress = false)))
         .subscribe({
           next: dto => {

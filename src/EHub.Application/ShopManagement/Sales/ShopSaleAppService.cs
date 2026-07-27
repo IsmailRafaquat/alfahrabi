@@ -5,6 +5,7 @@ using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using EHub.Permissions;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.Units;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,7 @@ public class ShopSaleAppService : ApplicationService, IShopSaleAppService
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
+    private readonly IRepository<ShopSaleItemBatchAllocation, Guid> _batchAllocationRepository;
     private readonly ShopSaleManager _manager;
 
     public ShopSaleAppService(
@@ -30,12 +32,14 @@ public class ShopSaleAppService : ApplicationService, IShopSaleAppService
         IRepository<ShopCustomer, Guid> customerRepository,
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
+        IRepository<ShopSaleItemBatchAllocation, Guid> batchAllocationRepository,
         ShopSaleManager manager)
     {
         _repository = repository;
         _customerRepository = customerRepository;
         _productRepository = productRepository;
         _unitRepository = unitRepository;
+        _batchAllocationRepository = batchAllocationRepository;
         _manager = manager;
     }
 
@@ -154,10 +158,16 @@ public class ShopSaleAppService : ApplicationService, IShopSaleAppService
     }
 
     [Authorize(EHubPermissions.ShopSales.Complete)]
-    public async Task<ShopSaleDto> CompleteAsync(Guid id)
+    public async Task<ShopSaleDto> CompleteAsync(Guid id, CompleteShopSaleDto input)
     {
         var entity = await FindEntityWithItemsAsync(id);
-        await _manager.CompleteAsync(entity);
+        var manualAllocations = input.ItemBatchAllocations.ToDictionary(
+            x => x.SaleItemId,
+            x => (IReadOnlyList<ShopBatchAllocationInput>)x.Allocations
+                .Select(a => new ShopBatchAllocationInput { ProductBatchId = a.ProductBatchId, Quantity = a.Quantity })
+                .ToList());
+
+        await _manager.CompleteAsync(entity, manualAllocations);
         await _repository.UpdateAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -227,6 +237,11 @@ public class ShopSaleAppService : ApplicationService, IShopSaleAppService
         var unitQuery = await _unitRepository.GetQueryableAsync();
         var units = unitQuery.Where(x => unitIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
 
+        var itemIds = entity.Items.Select(x => x.Id).ToList();
+        var allocationQuery = await _batchAllocationRepository.GetQueryableAsync();
+        var allocationsByItem = allocationQuery.Where(x => itemIds.Contains(x.SaleItemId)).ToList()
+            .GroupBy(x => x.SaleItemId).ToDictionary(g => g.Key, g => g.ToList());
+
         return new ShopSaleDto
         {
             Id = entity.Id,
@@ -278,7 +293,17 @@ public class ShopSaleAppService : ApplicationService, IShopSaleAppService
                     LineSubTotal = x.LineSubTotal,
                     LineTotal = x.LineTotal,
                     BatchNumber = x.BatchNumber,
-                    ExpiryDate = x.ExpiryDate
+                    ExpiryDate = x.ExpiryDate,
+                    BatchAllocations = allocationsByItem.TryGetValue(x.Id, out var allocations)
+                        ? allocations.Select(a => new ShopSaleItemBatchAllocationDto
+                        {
+                            ProductBatchId = a.ProductBatchId,
+                            BatchNumber = a.BatchNumberSnapshot,
+                            ExpiryDate = a.ExpiryDateSnapshot,
+                            Quantity = a.Quantity,
+                            UnitCostSnapshot = a.UnitCostSnapshot
+                        }).ToList()
+                        : new List<ShopSaleItemBatchAllocationDto>()
                 };
             }).ToList()
         };
@@ -318,7 +343,10 @@ public class ShopSaleAppService : ApplicationService, IShopSaleAppService
         if (await AuthorizationService.IsGrantedAsync(EHubPermissions.ShopSales.ViewCost)) return;
         foreach (var dto in items)
             foreach (var item in dto.Items)
+            {
                 item.UnitCostSnapshot = null;
+                foreach (var allocation in item.BatchAllocations) allocation.UnitCostSnapshot = null;
+            }
     }
 
     private Guid RequireTenant() => CurrentTenant.Id ?? throw new BusinessException("ShopManagement:TenantRequired");

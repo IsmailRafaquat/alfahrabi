@@ -122,6 +122,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.StockCounts',
     },
     {
+      path: '/shop-management/product-batches', name: '::ProductBatches', parentName: '::Inventory',
+      iconClass: 'fas fa-boxes', order: 4, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.ProductBatches.View',
+    },
+    {
       name: '::ExpensesMenu', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice-dollar', order: 8,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Expenses',
     },

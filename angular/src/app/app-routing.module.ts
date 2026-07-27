@@ -247,6 +247,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/stock-counts/shop-stock-counts.module').then(m => m.ShopStockCountsModule),
   },
   {
+    path: 'shop-management/product-batches', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.ProductBatches.View' },
+    loadChildren: () => import('./shop-management/product-batches/shop-product-batches.module').then(m => m.ShopProductBatchesModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),

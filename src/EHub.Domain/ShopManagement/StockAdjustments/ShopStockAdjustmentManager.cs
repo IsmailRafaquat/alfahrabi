@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.StockTransactions;
@@ -23,6 +24,8 @@ public class ShopStockAdjustmentManager : DomainService
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
+    private readonly IRepository<ShopProductBatch, Guid> _productBatchRepository;
+    private readonly ShopProductBatchManager _batchManager;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
@@ -32,6 +35,8 @@ public class ShopStockAdjustmentManager : DomainService
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
+        IRepository<ShopProductBatch, Guid> productBatchRepository,
+        ShopProductBatchManager batchManager,
         ShopDocumentNumberGenerator numberGenerator,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
@@ -40,6 +45,8 @@ public class ShopStockAdjustmentManager : DomainService
         _productRepository = productRepository;
         _unitRepository = unitRepository;
         _stockTransactionRepository = stockTransactionRepository;
+        _productBatchRepository = productBatchRepository;
+        _batchManager = batchManager;
         _numberGenerator = numberGenerator;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
@@ -101,7 +108,18 @@ public class ShopStockAdjustmentManager : DomainService
             if (!units.TryGetValue(product.UnitId, out var unit))
                 throw new BusinessException("ShopManagement:StockAdjustmentProductNotFound");
 
-            ValidateTrackingRules(product, item.AdjustmentType, item.BatchNumber, item.ExpiryDate, adjustment.AdjustmentDate);
+            await ValidateTrackingRulesAsync(product, new ShopStockAdjustmentItemInput
+            {
+                ProductId = item.ProductId,
+                AdjustmentType = item.AdjustmentType,
+                AdjustmentQuantity = item.AdjustmentQuantity,
+                BatchNumber = item.BatchNumber,
+                ManufacturingDate = item.ManufacturingDate,
+                ExpiryDate = item.ExpiryDate,
+                ProductBatchId = item.ProductBatchId,
+                Reason = item.Reason,
+                Notes = item.Notes
+            }, adjustment.AdjustmentDate);
             item.RefreshForPosting(product.CurrentStock, unit.AllowDecimal);
 
             var alreadyExists = await ExistsAsync(tenantId, item.Id);
@@ -126,6 +144,22 @@ public class ShopStockAdjustmentManager : DomainService
 
             await _productRepository.UpdateAsync(product, autoSave: true);
 
+            Guid? productBatchId = null;
+            decimal? batchBalanceQuantity = null;
+            if (product.TrackBatch)
+            {
+                if (!item.ProductBatchId.HasValue) throw new BusinessException("ShopManagement:BatchNotFound");
+                var batch = await _productBatchRepository.GetAsync(item.ProductBatchId.Value);
+
+                if (item.AdjustmentType == ShopStockAdjustmentType.Increase)
+                    await _batchManager.AddStockAsync(batch, item.AdjustmentQuantity, item.UnitCostSnapshot, adjustment.AdjustmentDate);
+                else
+                    await _batchManager.RemoveStockAsync(batch, item.AdjustmentQuantity, adjustment.AdjustmentDate, allowExpired: true);
+
+                productBatchId = batch.Id;
+                batchBalanceQuantity = batch.AvailableQuantity;
+            }
+
             var transactionType = item.AdjustmentType == ShopStockAdjustmentType.Increase
                 ? ShopStockTransactionType.StockAdjustmentIncrease
                 : ShopStockTransactionType.StockAdjustmentDecrease;
@@ -136,7 +170,7 @@ public class ShopStockAdjustmentManager : DomainService
                 GuidGenerator.Create(), tenantId, product.Id, transactionType, ShopStockReferenceType.StockAdjustment,
                 adjustment.Id, adjustment.AdjustmentNumber, item.Id, postedDate, quantityIn, quantityOut,
                 product.CurrentStock, item.UnitCostSnapshot, item.BatchNumber, item.ExpiryDate, item.Notes,
-                postedByUserId, postedDate);
+                postedByUserId, postedDate, productBatchId, batchBalanceQuantity);
             await _stockTransactionRepository.InsertAsync(transaction, autoSave: true);
         }
 
@@ -181,47 +215,73 @@ public class ShopStockAdjustmentManager : DomainService
             if (!units.TryGetValue(product.UnitId, out var unit))
                 throw new BusinessException("ShopManagement:StockAdjustmentProductNotFound");
 
-            ValidateTrackingRules(product, input.AdjustmentType, input.BatchNumber, input.ExpiryDate, adjustmentDate);
+            await ValidateTrackingRulesAsync(product, input, adjustmentDate);
+
+            Guid? productBatchId = input.ProductBatchId;
+            if (product.TrackBatch && input.AdjustmentType == ShopStockAdjustmentType.Increase && !input.ProductBatchId.HasValue)
+            {
+                // The batch shell is created (but not stocked) at draft time so conflicting expiry
+                // dates against an existing batch surface immediately, not only at posting. Callers
+                // that already resolved a real batch (e.g. Physical Stock Count) pass ProductBatchId
+                // directly and skip this lookup.
+                var batch = await _batchManager.FindOrCreateBatchAsync(product.Id, input.BatchNumber!,
+                    input.ManufacturingDate, input.ExpiryDate, supplierId: null, goodsReceiptId: null, goodsReceiptItemId: null);
+                productBatchId = batch.Id;
+            }
 
             entities.Add(new ShopStockAdjustmentItem(
                 GuidGenerator.Create(), tenantId, adjustmentId, product, unit.Name, unit.ShortName, unit.AllowDecimal,
                 input.AdjustmentType, product.CurrentStock, input.AdjustmentQuantity, product.PurchasePrice,
-                input.BatchNumber, input.ExpiryDate, input.Reason, input.Notes));
+                input.BatchNumber, input.ManufacturingDate, input.ExpiryDate, productBatchId, input.Reason, input.Notes));
         }
 
         return entities;
     }
 
-    private static void ValidateTrackingRules(
-        ShopProduct product, ShopStockAdjustmentType adjustmentType, string? batchNumber, DateTime? expiryDate, DateTime adjustmentDate)
+    private async Task ValidateTrackingRulesAsync(ShopProduct product, ShopStockAdjustmentItemInput input, DateTime adjustmentDate)
     {
         if (product.TrackSerialNumber)
             throw new BusinessException("ShopManagement:StockAdjustmentSerialTrackingNotSupported").WithData("Product", product.Name);
 
-        if (product.TrackBatch)
-        {
-            if (string.IsNullOrWhiteSpace(batchNumber))
-                throw new BusinessException("ShopManagement:StockAdjustmentBatchRequired").WithData("Product", product.Name);
+        if (!product.TrackBatch) return;
 
-            // Batch-level stock balances are not tracked in this codebase yet, so a Decrease cannot be
-            // safely validated against the selected batch's actual remaining quantity.
-            if (adjustmentType == ShopStockAdjustmentType.Decrease)
-                throw new BusinessException("ShopManagement:StockAdjustmentBatchDeductionNotSupported").WithData("Product", product.Name);
+        if (input.ProductBatchId.HasValue)
+        {
+            // Already resolved to a real batch by the caller (e.g. Physical Stock Count), so only the
+            // ownership needs re-checking here - not the free-text BatchNumber/expiry rules below.
+            var query = await _productBatchRepository.GetQueryableAsync();
+            var batch = query.FirstOrDefault(x => x.Id == input.ProductBatchId.Value);
+            if (batch == null) throw new BusinessException("ShopManagement:BatchNotFound");
+            if (batch.ProductId != product.Id) throw new BusinessException("ShopManagement:BatchProductMismatch");
+            return;
         }
 
-        if (product.TrackExpiry && adjustmentType == ShopStockAdjustmentType.Increase)
+        if (input.AdjustmentType == ShopStockAdjustmentType.Increase)
         {
-            if (!expiryDate.HasValue)
-                throw new BusinessException("ShopManagement:StockAdjustmentExpiryRequired").WithData("Product", product.Name);
-            if (expiryDate.Value.Date <= adjustmentDate.Date)
-                throw new BusinessException("ShopManagement:StockAdjustmentInvalidExpiryDate").WithData("Product", product.Name);
+            if (string.IsNullOrWhiteSpace(input.BatchNumber))
+                throw new BusinessException("ShopManagement:BatchNumberRequired").WithData("Product", product.Name);
+
+            if (product.TrackExpiry)
+            {
+                if (!input.ExpiryDate.HasValue)
+                    throw new BusinessException("ShopManagement:BatchExpiryRequired").WithData("Product", product.Name);
+                if (input.ExpiryDate.Value.Date <= adjustmentDate.Date)
+                    throw new BusinessException("ShopManagement:InvalidExpiryDate").WithData("Product", product.Name);
+            }
+        }
+        else
+        {
+            throw new BusinessException("ShopManagement:BatchNotFound").WithData("Product", product.Name);
         }
     }
 
     private static void ValidateNoDuplicateProducts(IReadOnlyList<ShopStockAdjustmentItemInput> items)
     {
-        var ids = items.Select(x => x.ProductId).ToList();
-        if (ids.Distinct().Count() != ids.Count) throw new BusinessException("ShopManagement:StockAdjustmentDuplicateProduct");
+        // A product may legitimately appear more than once when different batches are involved
+        // (e.g. a Physical Stock Count posting differences for two batches of the same product), so
+        // duplicates are keyed on (Product, Batch) rather than the product alone.
+        var keys = items.Select(x => (x.ProductId, BatchKey: x.ProductBatchId?.ToString() ?? (x.BatchNumber ?? string.Empty).Trim().ToUpperInvariant())).ToList();
+        if (keys.Distinct().Count() != keys.Count) throw new BusinessException("ShopManagement:StockAdjustmentDuplicateProduct");
     }
 
     private async Task<bool> ExistsAsync(Guid tenantId, Guid sourceItemId)

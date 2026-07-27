@@ -29,6 +29,8 @@ public class ShopStockAdjustmentItem : AuditedEntity<Guid>, IMultiTenant
 
     public string? BatchNumber { get; protected set; }
     public DateTime? ExpiryDate { get; protected set; }
+    public DateTime? ManufacturingDate { get; protected set; }
+    public Guid? ProductBatchId { get; protected set; }
 
     public ShopStockAdjustmentReason Reason { get; protected set; }
     public string? Notes { get; protected set; }
@@ -48,7 +50,9 @@ public class ShopStockAdjustmentItem : AuditedEntity<Guid>, IMultiTenant
         decimal adjustmentQuantity,
         decimal unitCostSnapshot,
         string? batchNumber,
+        DateTime? manufacturingDate,
         DateTime? expiryDate,
+        Guid? productBatchId,
         ShopStockAdjustmentReason reason,
         string? notes) : base(id)
     {
@@ -65,8 +69,12 @@ public class ShopStockAdjustmentItem : AuditedEntity<Guid>, IMultiTenant
 
         SetQuantities(adjustmentType, systemQuantitySnapshot, adjustmentQuantity, unitAllowDecimal);
         BatchNumber = Check.Length(batchNumber?.Trim(), nameof(batchNumber), ShopStockAdjustmentConsts.BatchNumberMaxLength);
+        ManufacturingDate = manufacturingDate;
         ExpiryDate = expiryDate;
+        ProductBatchId = productBatchId;
     }
+
+    internal void SetProductBatchId(Guid productBatchId) => ProductBatchId = productBatchId;
 
     /// <summary>
     /// Re-derives the system quantity snapshot and final quantity from the product's live stock at

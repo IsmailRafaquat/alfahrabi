@@ -36,6 +36,8 @@
           <tr>
             <th>{{ '::ProductCode' | abpLocalization }}</th>
             <th>{{ '::ProductName' | abpLocalization }}</th>
+            <th>{{ '::BatchNumber' | abpLocalization }}</th>
+            <th>{{ '::ExpiryDate' | abpLocalization }}</th>
             <th>{{ '::Unit' | abpLocalization }}</th>
             <th>{{ '::SystemQuantity' | abpLocalization }}</th>
             <th>{{ '::PhysicalQuantity' | abpLocalization }}</th>
@@ -48,6 +50,8 @@
           <tr *ngFor="let row of visibleRows; let i = index; trackBy: trackByItemId" [class.counted-row]="row.isCounted">
             <td>{{ row.productCode }}</td>
             <td>{{ row.productName }}</td>
+            <td>{{ row.batchNumber || '—' }}</td>
+            <td>{{ row.expiryDate ? (row.expiryDate | date:'mediumDate') : '—' }}</td>
             <td>{{ row.unitName }} ({{ row.unitShortName }})</td>
             <td class="amount-cell">{{ row.systemQuantity | number:'1.0-4' }}</td>
             <td>

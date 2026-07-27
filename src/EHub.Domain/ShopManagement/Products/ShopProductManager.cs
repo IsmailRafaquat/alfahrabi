@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
 using Volo.Abp;
@@ -15,17 +16,20 @@ public class ShopProductManager : DomainService
     private readonly IRepository<ShopProduct, Guid> _repository;
     private readonly IRepository<ShopProductCategory, Guid> _categoryRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
+    private readonly IRepository<ShopProductBatch, Guid> _batchRepository;
     private readonly ICurrentTenant _currentTenant;
 
     public ShopProductManager(
         IRepository<ShopProduct, Guid> repository,
         IRepository<ShopProductCategory, Guid> categoryRepository,
         IRepository<ShopUnit, Guid> unitRepository,
+        IRepository<ShopProductBatch, Guid> batchRepository,
         ICurrentTenant currentTenant)
     {
         _repository = repository;
         _categoryRepository = categoryRepository;
         _unitRepository = unitRepository;
+        _batchRepository = batchRepository;
         _currentTenant = currentTenant;
     }
 
@@ -49,6 +53,8 @@ public class ShopProductManager : DomainService
         decimal reorderLevel,
         bool trackBatch,
         bool trackExpiry,
+        int? expiryAlertDays,
+        bool blockExpiredSale,
         bool trackSerialNumber,
         bool isTaxable,
         bool isActive)
@@ -66,7 +72,7 @@ public class ShopProductManager : DomainService
         return new ShopProduct(GuidGenerator.Create(), tenantId, categoryId, unitId, normalizedName, normalizedCode,
             normalizedSku, normalizedBarcode, description, brand, model, purchasePrice, salePrice, wholesalePrice,
             minimumSalePrice, taxPercentage, minimumStockLevel, maximumStockLevel, reorderLevel,
-            trackBatch, trackExpiry, trackSerialNumber, isTaxable, isActive);
+            trackBatch, trackExpiry, expiryAlertDays, blockExpiredSale, trackSerialNumber, isTaxable, isActive);
     }
 
     public async Task UpdateAsync(
@@ -90,6 +96,8 @@ public class ShopProductManager : DomainService
         decimal reorderLevel,
         bool trackBatch,
         bool trackExpiry,
+        int? expiryAlertDays,
+        bool blockExpiredSale,
         bool trackSerialNumber,
         bool isTaxable,
         bool isActive)
@@ -106,10 +114,19 @@ public class ShopProductManager : DomainService
         await ValidateUnitAsync(unitId, tenantId, requireActive: false);
         await ValidateUniqueAsync(normalizedCode, normalizedSku, normalizedBarcode, tenantId, product.Id);
 
+        if (product.TrackBatch && !trackBatch) await EnsureNoBatchHistoryAsync(product.Id, tenantId);
+
         product.Update(categoryId, unitId, normalizedName, normalizedCode, normalizedSku, normalizedBarcode,
             description, brand, model, purchasePrice, salePrice, wholesalePrice, minimumSalePrice, taxPercentage,
-            minimumStockLevel, maximumStockLevel, reorderLevel, trackBatch, trackExpiry, trackSerialNumber,
-            isTaxable, isActive);
+            minimumStockLevel, maximumStockLevel, reorderLevel, trackBatch, trackExpiry, expiryAlertDays,
+            blockExpiredSale, trackSerialNumber, isTaxable, isActive);
+    }
+
+    private async Task EnsureNoBatchHistoryAsync(Guid productId, Guid tenantId)
+    {
+        var query = await _batchRepository.GetQueryableAsync();
+        var hasHistory = await AsyncExecuter.AnyAsync(query.Where(x => x.ProductId == productId && x.TenantId == tenantId));
+        if (hasHistory) throw new BusinessException("ShopManagement:CannotDisableBatchTracking");
     }
 
     public Task ValidateDeleteAsync(Guid id)

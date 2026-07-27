@@ -13,6 +13,7 @@ using Volo.Abp.OpenIddict;
 using Volo.Abp.PermissionManagement.OpenIddict;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
+using Volo.Abp.BackgroundWorkers;
 using Volo.Abp.Emailing;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
@@ -22,6 +23,9 @@ using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.FileSystem;
 using System.IO;
 using System;
+using System.Threading.Tasks;
+using EHub.ShopManagement.ProductBatches;
+using Volo.Abp;
 
 namespace EHub;
 
@@ -30,6 +34,7 @@ namespace EHub;
     typeof(AbpAuditLoggingDomainModule),
     typeof(AbpCachingModule),
     typeof(AbpBackgroundJobsDomainModule),
+    typeof(AbpBackgroundWorkersModule),
     typeof(AbpFeatureManagementDomainModule),
     typeof(AbpPermissionManagementDomainIdentityModule),
     typeof(AbpPermissionManagementDomainOpenIddictModule),
@@ -55,6 +60,11 @@ public class EHubDomainModule : AbpModule
 #if DEBUG
         context.Services.Replace(ServiceDescriptor.Singleton<IEmailSender, NullEmailSender>());
 #endif
+    }
+
+    public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
+    {
+        await context.AddBackgroundWorkerAsync<ShopBatchStatusRefreshWorker>();
     }
 
     private void ConfigureBlobStoringOptions(IConfiguration configuration)

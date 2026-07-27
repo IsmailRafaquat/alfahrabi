@@ -92,6 +92,8 @@ public class ShopProductAppService : ApplicationService, IShopProductAppService
                             ReorderLevel = product.ReorderLevel,
                             TrackBatch = product.TrackBatch,
                             TrackExpiry = product.TrackExpiry,
+                            ExpiryAlertDays = product.ExpiryAlertDays,
+                            BlockExpiredSale = product.BlockExpiredSale,
                             TrackSerialNumber = product.TrackSerialNumber,
                             IsTaxable = product.IsTaxable,
                             IsActive = product.IsActive,
@@ -119,8 +121,8 @@ public class ShopProductAppService : ApplicationService, IShopProductAppService
         var entity = await _manager.CreateAsync(input.CategoryId, input.UnitId, input.Name, input.Code, input.SKU,
             input.Barcode, input.Description, input.Brand, input.Model, input.PurchasePrice, input.SalePrice,
             input.WholesalePrice, input.MinimumSalePrice, input.TaxPercentage, input.MinimumStockLevel,
-            input.MaximumStockLevel, input.ReorderLevel, input.TrackBatch, input.TrackExpiry,
-            input.TrackSerialNumber, input.IsTaxable, input.IsActive);
+            input.MaximumStockLevel, input.ReorderLevel, input.TrackBatch, input.TrackExpiry, input.ExpiryAlertDays,
+            input.BlockExpiredSale, input.TrackSerialNumber, input.IsTaxable, input.IsActive);
         await _repository.InsertAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -132,8 +134,8 @@ public class ShopProductAppService : ApplicationService, IShopProductAppService
         await _manager.UpdateAsync(entity, input.CategoryId, input.UnitId, input.Name, input.Code, input.SKU,
             input.Barcode, input.Description, input.Brand, input.Model, input.PurchasePrice, input.SalePrice,
             input.WholesalePrice, input.MinimumSalePrice, input.TaxPercentage, input.MinimumStockLevel,
-            input.MaximumStockLevel, input.ReorderLevel, input.TrackBatch, input.TrackExpiry,
-            input.TrackSerialNumber, input.IsTaxable, input.IsActive);
+            input.MaximumStockLevel, input.ReorderLevel, input.TrackBatch, input.TrackExpiry, input.ExpiryAlertDays,
+            input.BlockExpiredSale, input.TrackSerialNumber, input.IsTaxable, input.IsActive);
         await _repository.UpdateAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }

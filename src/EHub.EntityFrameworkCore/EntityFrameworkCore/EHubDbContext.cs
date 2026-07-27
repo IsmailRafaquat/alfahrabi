@@ -11,6 +11,7 @@ using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
 using EHub.ShopManagement.StockAdjustments;
 using EHub.ShopManagement.StockCounts;
+using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.PurchaseReturns;
 using EHub.ShopManagement.Customers;
@@ -109,6 +110,8 @@ public class EHubDbContext :
     public DbSet<ShopStockAdjustmentItem> ShopStockAdjustmentItems { get; set; }
     public DbSet<ShopStockCount> ShopStockCounts { get; set; }
     public DbSet<ShopStockCountItem> ShopStockCountItems { get; set; }
+    public DbSet<ShopProductBatch> ShopProductBatches { get; set; }
+    public DbSet<ShopSaleItemBatchAllocation> ShopSaleItemBatchAllocations { get; set; }
     public DbSet<ShopSupplierPayment> ShopSupplierPayments { get; set; }
     public DbSet<ShopSupplierPaymentAllocation> ShopSupplierPaymentAllocations { get; set; }
     public DbSet<ShopPurchaseReturn> ShopPurchaseReturns { get; set; }
@@ -870,6 +873,8 @@ public class EHubDbContext :
 
             b.Property(x => x.TrackBatch).IsRequired().HasDefaultValue(false);
             b.Property(x => x.TrackExpiry).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.ExpiryAlertDays);
+            b.Property(x => x.BlockExpiredSale).IsRequired().HasDefaultValue(true);
             b.Property(x => x.TrackSerialNumber).IsRequired().HasDefaultValue(false);
             b.Property(x => x.IsTaxable).IsRequired().HasDefaultValue(false);
             b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
@@ -1492,10 +1497,12 @@ public class EHubDbContext :
             b.Property(x => x.UnitCost).HasPrecision(18, 2).HasDefaultValue(0);
             b.Property(x => x.TotalCost).HasPrecision(18, 2).HasDefaultValue(0);
             b.Property(x => x.BatchNumber).HasMaxLength(ShopStockTransactionConsts.BatchNumberMaxLength);
+            b.Property(x => x.BatchBalanceQuantity).HasPrecision(18, 4);
             b.Property(x => x.Notes).HasMaxLength(ShopStockTransactionConsts.NotesMaxLength);
             b.Property(x => x.CreationTime).IsRequired();
 
             b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopProductBatch>().WithMany().HasForeignKey(x => x.ProductBatchId).OnDelete(DeleteBehavior.Restrict);
 
             b.HasIndex(x => x.TenantId);
             b.HasIndex(x => new { x.TenantId, x.ProductId });
@@ -1503,6 +1510,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.TransactionType });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
+            b.HasIndex(x => new { x.TenantId, x.ProductBatchId });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.SourceItemId }).IsUnique();
         });
 
@@ -1547,11 +1555,14 @@ public class EHubDbContext :
             b.Property(x => x.Notes).HasMaxLength(ShopStockAdjustmentConsts.ItemNotesMaxLength);
 
             b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopProductBatch>().WithMany().HasForeignKey(x => x.ProductBatchId).OnDelete(DeleteBehavior.Restrict);
 
             b.HasIndex(x => x.TenantId);
             b.HasIndex(x => new { x.TenantId, x.StockAdjustmentId });
             b.HasIndex(x => new { x.TenantId, x.ProductId });
-            b.HasIndex(x => new { x.StockAdjustmentId, x.ProductId }).IsUnique();
+            // A product may appear more than once per adjustment when different batches are involved,
+            // so uniqueness is on (adjustment, product, batch) rather than (adjustment, product) alone.
+            b.HasIndex(x => new { x.StockAdjustmentId, x.ProductId, x.ProductBatchId }).IsUnique();
         });
 
         builder.Entity<ShopStockCount>(b =>
@@ -1588,6 +1599,7 @@ public class EHubDbContext :
             b.Property(x => x.ProductNameSnapshot).IsRequired().HasMaxLength(ShopStockCountConsts.ProductNameSnapshotMaxLength);
             b.Property(x => x.UnitNameSnapshot).IsRequired().HasMaxLength(ShopStockCountConsts.UnitNameSnapshotMaxLength);
             b.Property(x => x.UnitShortNameSnapshot).IsRequired().HasMaxLength(ShopStockCountConsts.UnitShortNameSnapshotMaxLength);
+            b.Property(x => x.BatchNumberSnapshot).HasMaxLength(ShopProductBatchConsts.BatchNumberMaxLength);
             b.Property(x => x.SystemQuantitySnapshot).HasPrecision(18, 4);
             b.Property(x => x.PhysicalQuantity).HasPrecision(18, 4);
             b.Property(x => x.DifferenceQuantity).HasPrecision(18, 4).HasDefaultValue(0);
@@ -1596,11 +1608,68 @@ public class EHubDbContext :
             b.Property(x => x.Notes).HasMaxLength(ShopStockCountConsts.ItemNotesMaxLength);
 
             b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.ProductBatch).WithMany().HasForeignKey(x => x.ProductBatchId).OnDelete(DeleteBehavior.Restrict);
 
             b.HasIndex(x => x.TenantId);
             b.HasIndex(x => new { x.TenantId, x.StockCountId });
             b.HasIndex(x => new { x.TenantId, x.ProductId });
-            b.HasIndex(x => new { x.StockCountId, x.ProductId }).IsUnique();
+            // Batch-tracked products contribute one row per batch, so uniqueness includes the batch.
+            b.HasIndex(x => new { x.StockCountId, x.ProductId, x.ProductBatchId }).IsUnique();
+        });
+
+        builder.Entity<ShopProductBatch>(b =>
+        {
+            b.ToTable("ShopProductBatches", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.ProductId).IsRequired();
+            b.Property(x => x.BatchNumber).IsRequired().HasMaxLength(ShopProductBatchConsts.BatchNumberMaxLength);
+            b.Property(x => x.NormalizedBatchNumber).IsRequired().HasMaxLength(ShopProductBatchConsts.NormalizedBatchNumberMaxLength);
+            b.Property(x => x.ReceivedQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.IssuedQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.AvailableQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.ReservedQuantity).HasPrecision(18, 4).HasDefaultValue(0);
+            b.Property(x => x.UnitCost).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopProductBatchStatus.Active);
+            b.Property(x => x.Notes).HasMaxLength(ShopProductBatchConsts.NotesMaxLength);
+            b.Property(x => x.IsBlocked).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.BlockReason).HasMaxLength(ShopProductBatchConsts.BlockReasonMaxLength);
+
+            b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopSupplier>().WithMany().HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopGoodsReceipt>().WithMany().HasForeignKey(x => x.GoodsReceiptId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopGoodsReceiptItem>().WithMany().HasForeignKey(x => x.GoodsReceiptItemId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.ProductId, x.NormalizedBatchNumber }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ExpiryDate });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.SupplierId });
+            b.HasIndex(x => new { x.TenantId, x.AvailableQuantity });
+        });
+
+        builder.Entity<ShopSaleItemBatchAllocation>(b =>
+        {
+            b.ToTable("ShopSaleItemBatchAllocations", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.SaleId).IsRequired();
+            b.Property(x => x.SaleItemId).IsRequired();
+            b.Property(x => x.ProductId).IsRequired();
+            b.Property(x => x.ProductBatchId).IsRequired();
+            b.Property(x => x.BatchNumberSnapshot).IsRequired().HasMaxLength(ShopProductBatchConsts.BatchNumberMaxLength);
+            b.Property(x => x.Quantity).HasPrecision(18, 4);
+            b.Property(x => x.UnitCostSnapshot).HasPrecision(18, 2).HasDefaultValue(0);
+
+            b.HasOne(x => x.Sale).WithMany().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.SaleItem).WithMany().HasForeignKey(x => x.SaleItemId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.ProductBatch).WithMany().HasForeignKey(x => x.ProductBatchId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.SaleId });
+            b.HasIndex(x => new { x.TenantId, x.SaleItemId });
+            b.HasIndex(x => new { x.TenantId, x.ProductBatchId });
+            b.HasIndex(x => new { x.SaleItemId, x.ProductBatchId }).IsUnique();
         });
 
         builder.Entity<ShopSupplierPayment>(b =>

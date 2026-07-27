@@ -47,6 +47,8 @@ public abstract class ShopProductEditDtoBase
 
     public bool TrackBatch { get; set; }
     public bool TrackExpiry { get; set; }
+    public int? ExpiryAlertDays { get; set; }
+    public bool BlockExpiredSale { get; set; } = true;
     public bool TrackSerialNumber { get; set; }
     public bool IsTaxable { get; set; }
     public bool IsActive { get; set; } = true;

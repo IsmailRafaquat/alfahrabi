@@ -39,6 +39,8 @@ export interface ShopProductDto extends EntityDto<string> {
   reorderLevel: number;
   trackBatch: boolean;
   trackExpiry: boolean;
+  expiryAlertDays?: number;
+  blockExpiredSale: boolean;
   trackSerialNumber: boolean;
   isTaxable: boolean;
   isActive: boolean;
@@ -65,6 +67,8 @@ export interface ShopProductEditDtoBase {
   reorderLevel: number;
   trackBatch: boolean;
   trackExpiry: boolean;
+  expiryAlertDays?: number;
+  blockExpiredSale: boolean;
   trackSerialNumber: boolean;
   isTaxable: boolean;
   isActive: boolean;

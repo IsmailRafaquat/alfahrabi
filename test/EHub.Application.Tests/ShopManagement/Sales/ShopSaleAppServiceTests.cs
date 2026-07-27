@@ -239,7 +239,7 @@ public abstract class ShopSaleAppServiceTests<TStartupModule> : EHubApplicationT
 
             var sale = await _saleAppService.CreateAsync(BuildCreateInput(customer.Id, DateTime.Today, null, ShopSaleType.Cash, 1000, (product.Id, 10, 100, 0, 0)));
 
-            var exception = await Should.ThrowAsync<BusinessException>(() => _saleAppService.CompleteAsync(sale.Id));
+            var exception = await Should.ThrowAsync<BusinessException>(() => _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto()));
             exception.Code.ShouldBe("ShopManagement:InsufficientProductStock");
         }
     }
@@ -355,7 +355,7 @@ public abstract class ShopSaleAppServiceTests<TStartupModule> : EHubApplicationT
             var stockBefore = (await _productAppService.GetAsync(product.Id)).CurrentStock;
 
             var sale = await _saleAppService.CreateAsync(BuildCreateInput(customer.Id, DateTime.Today, null, ShopSaleType.Cash, 5000, (product.Id, 20, 250, 0, 0)));
-            var completed = await _saleAppService.CompleteAsync(sale.Id);
+            var completed = await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             completed.Status.ShouldBe(ShopSaleStatus.Completed);
             completed.CompletedByUserId.ShouldNotBeNull();
@@ -374,7 +374,7 @@ public abstract class ShopSaleAppServiceTests<TStartupModule> : EHubApplicationT
             var stockBefore = (await _productAppService.GetAsync(product.Id)).CurrentStock;
 
             var sale = await _saleAppService.CreateAsync(BuildCreateInput(customer.Id, DateTime.Today, null, ShopSaleType.Cash, 5000, (product.Id, 20, 250, 0, 0)));
-            await _saleAppService.CompleteAsync(sale.Id);
+            await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             var transactions = await _stockTransactionAppService.GetListAsync(new GetShopStockTransactionsInput { ProductId = product.Id, TransactionType = ShopStockTransactionType.Sale });
             transactions.TotalCount.ShouldBe(1);
@@ -398,9 +398,9 @@ public abstract class ShopSaleAppServiceTests<TStartupModule> : EHubApplicationT
             var customer = await CreateCustomerAsync();
             var product = await CreateProductWithStockAsync(false, 100);
             var sale = await _saleAppService.CreateAsync(BuildCreateInput(customer.Id, DateTime.Today, null, ShopSaleType.Cash, 5000, (product.Id, 20, 250, 0, 0)));
-            await _saleAppService.CompleteAsync(sale.Id);
+            await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
-            var exception = await Should.ThrowAsync<BusinessException>(() => _saleAppService.CompleteAsync(sale.Id));
+            var exception = await Should.ThrowAsync<BusinessException>(() => _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto()));
             exception.Code.ShouldBe("ShopManagement:SaleAlreadyCompleted");
         }
     }
@@ -414,7 +414,7 @@ public abstract class ShopSaleAppServiceTests<TStartupModule> : EHubApplicationT
             var customer = await CreateCustomerAsync();
             var product = await CreateProductWithStockAsync(false, 100);
             var sale = await _saleAppService.CreateAsync(BuildCreateInput(customer.Id, DateTime.Today, null, ShopSaleType.Cash, 5000, (product.Id, 20, 250, 0, 0)));
-            await _saleAppService.CompleteAsync(sale.Id);
+            await _saleAppService.CompleteAsync(sale.Id, new CompleteShopSaleDto());
 
             var updateInput = new UpdateShopSaleDto
             {

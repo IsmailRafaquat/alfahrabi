@@ -1,4 +1,4 @@
-import type { CancelShopSaleDto, CreateShopSaleDto, GetShopSalesInput, ShopSaleDto, ShopSaleProductLookupDto, UpdateShopSaleDto } from './models';
+import type { CancelShopSaleDto, CompleteShopSaleDto, CreateShopSaleDto, GetShopSalesInput, ShopSaleDto, ShopSaleProductLookupDto, UpdateShopSaleDto } from './models';
 import { RestService, Rest } from '@abp/ng.core';
 import type { ListResultDto, PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
@@ -19,10 +19,11 @@ export class ShopSaleService {
     { apiName: this.apiName,...config });
   
 
-  complete = (id: string, config?: Partial<Rest.Config>) =>
+  complete = (id: string, input: CompleteShopSaleDto, config?: Partial<Rest.Config>) =>
     this.restService.request<any, ShopSaleDto>({
       method: 'POST',
       url: `/api/app/shop-sale/${id}/complete`,
+      body: input,
     },
     { apiName: this.apiName,...config });
   
