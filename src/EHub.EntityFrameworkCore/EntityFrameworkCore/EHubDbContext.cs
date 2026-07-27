@@ -9,6 +9,7 @@ using EHub.ShopManagement.Suppliers;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
+using EHub.ShopManagement.StockAdjustments;
 using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.PurchaseReturns;
 using EHub.ShopManagement.Customers;
@@ -103,6 +104,8 @@ public class EHubDbContext :
     public DbSet<ShopGoodsReceipt> ShopGoodsReceipts { get; set; }
     public DbSet<ShopGoodsReceiptItem> ShopGoodsReceiptItems { get; set; }
     public DbSet<ShopStockTransaction> ShopStockTransactions { get; set; }
+    public DbSet<ShopStockAdjustment> ShopStockAdjustments { get; set; }
+    public DbSet<ShopStockAdjustmentItem> ShopStockAdjustmentItems { get; set; }
     public DbSet<ShopSupplierPayment> ShopSupplierPayments { get; set; }
     public DbSet<ShopSupplierPaymentAllocation> ShopSupplierPaymentAllocations { get; set; }
     public DbSet<ShopPurchaseReturn> ShopPurchaseReturns { get; set; }
@@ -1498,6 +1501,54 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.SourceItemId }).IsUnique();
+        });
+
+        builder.Entity<ShopStockAdjustment>(b =>
+        {
+            b.ToTable("ShopStockAdjustments", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.AdjustmentNumber).IsRequired().HasMaxLength(ShopStockAdjustmentConsts.AdjustmentNumberMaxLength);
+            b.Property(x => x.AdjustmentDate).IsRequired();
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopStockAdjustmentStatus.Draft);
+            b.Property(x => x.Reason).IsRequired().HasConversion<int>();
+            b.Property(x => x.ReasonDetails).HasMaxLength(ShopStockAdjustmentConsts.ReasonDetailsMaxLength);
+            b.Property(x => x.Notes).HasMaxLength(ShopStockAdjustmentConsts.NotesMaxLength);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopStockAdjustmentConsts.CancellationReasonMaxLength);
+
+            b.HasMany(x => x.Items).WithOne(x => x.StockAdjustment).HasForeignKey(x => x.StockAdjustmentId).OnDelete(DeleteBehavior.Cascade);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.AdjustmentNumber }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.AdjustmentDate });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.Reason });
+        });
+
+        builder.Entity<ShopStockAdjustmentItem>(b =>
+        {
+            b.ToTable("ShopStockAdjustmentItems", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.StockAdjustmentId).IsRequired();
+            b.Property(x => x.ProductId).IsRequired();
+            b.Property(x => x.ProductCodeSnapshot).IsRequired().HasMaxLength(ShopStockAdjustmentConsts.ProductCodeSnapshotMaxLength);
+            b.Property(x => x.ProductNameSnapshot).IsRequired().HasMaxLength(ShopStockAdjustmentConsts.ProductNameSnapshotMaxLength);
+            b.Property(x => x.UnitNameSnapshot).IsRequired().HasMaxLength(ShopStockAdjustmentConsts.UnitNameSnapshotMaxLength);
+            b.Property(x => x.UnitShortNameSnapshot).IsRequired().HasMaxLength(ShopStockAdjustmentConsts.UnitShortNameSnapshotMaxLength);
+            b.Property(x => x.AdjustmentType).IsRequired().HasConversion<int>();
+            b.Property(x => x.SystemQuantitySnapshot).HasPrecision(18, 4);
+            b.Property(x => x.AdjustmentQuantity).HasPrecision(18, 4);
+            b.Property(x => x.FinalQuantity).HasPrecision(18, 4);
+            b.Property(x => x.UnitCostSnapshot).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.BatchNumber).HasMaxLength(ShopStockAdjustmentConsts.BatchNumberMaxLength);
+            b.Property(x => x.Reason).IsRequired().HasConversion<int>();
+            b.Property(x => x.Notes).HasMaxLength(ShopStockAdjustmentConsts.ItemNotesMaxLength);
+
+            b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.StockAdjustmentId });
+            b.HasIndex(x => new { x.TenantId, x.ProductId });
+            b.HasIndex(x => new { x.StockAdjustmentId, x.ProductId }).IsUnique();
         });
 
         builder.Entity<ShopSupplierPayment>(b =>

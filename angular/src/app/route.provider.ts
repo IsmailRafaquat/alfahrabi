@@ -112,6 +112,11 @@ function configureRoutes() {
       requiredPolicy: 'ShopManagement.StockTransactions',
     },
     {
+      path: '/shop-management/stock-adjustments', name: '::StockAdjustments', parentName: '::Inventory',
+      iconClass: 'fas fa-balance-scale', order: 2, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.StockAdjustments',
+    },
+    {
       name: '::ExpensesMenu', parentName: '::ShopManagement', iconClass: 'fas fa-file-invoice-dollar', order: 8,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Expenses',
     },

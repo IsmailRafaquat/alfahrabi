@@ -1,0 +1,116 @@
+<div class="editor-page">
+  <div class="editor-header">
+    <div>
+      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
+      <span>
+        <h3>{{ (isEdit ? '::EditStockAdjustment' : '::CreateStockAdjustment') | abpLocalization }}</h3>
+        <p *ngIf="isEdit">{{ adjustmentNumber }}</p>
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <div class="adjustment-form-card">
+      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::AdjustmentDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="adjustmentDate">
+          <small class="error" *ngIf="form.controls.adjustmentDate.touched && form.controls.adjustmentDate.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::AdjustmentReason' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="reason">
+            <nz-option *ngFor="let x of reasonOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-6">
+          <label>{{ '::ReasonDetails' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="reasonDetails">
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="adjustment-form-card items-card">
+      <div class="items-header">
+        <h6 class="section-title mb-0">{{ '::Product' | abpLocalization }}</h6>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()"><i class="fas fa-plus me-2"></i>{{ '::AddAdjustmentItem' | abpLocalization }}</button>
+      </div>
+      <small class="error d-block mb-2" *ngIf="form.errors?.['duplicateProduct']">{{ '::StockAdjustmentDuplicateProduct' | abpLocalization }}</small>
+
+      <div class="table-responsive">
+        <table class="table align-middle items-table">
+          <thead>
+            <tr>
+              <th class="col-product">{{ '::Product' | abpLocalization }}</th>
+              <th>{{ '::SystemQuantity' | abpLocalization }}</th>
+              <th>{{ '::AdjustmentType' | abpLocalization }}</th>
+              <th>{{ '::AdjustmentQuantity' | abpLocalization }}</th>
+              <th>{{ '::FinalQuantity' | abpLocalization }}</th>
+              <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+              <th>{{ '::AdjustmentReason' | abpLocalization }}</th>
+              <th>{{ '::Notes' | abpLocalization }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody [formArrayName]="'items'">
+            <tr *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+              <td class="col-product">
+                <nz-select class="w-100" formControlName="productId" nzShowSearch (ngModelChange)="onProductChange(i)" [nzPlaceHolder]="'::SelectProduct' | abpLocalization">
+                  <nz-option *ngFor="let x of productOptions(i)" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.code + ') - Stock: ' + x.currentStock"></nz-option>
+                </nz-select>
+                <small class="unit-hint" *ngIf="row.value.unitName">{{ row.value.unitName }} ({{ row.value.unitShortName }})</small>
+                <small class="error" *ngIf="row.get('productId')?.touched && row.get('productId')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['serialTrackingNotSupported']">{{ '::SerialTrackingWarning' | abpLocalization }}</small>
+              </td>
+              <td class="amount-cell">{{ row.value.systemStock ?? '—' }}</td>
+              <td>
+                <nz-select class="w-100 type-select" formControlName="adjustmentType">
+                  <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+                </nz-select>
+              </td>
+              <td>
+                <input type="number" min="0" [step]="row.value.allowDecimal ? '0.01' : '1'" class="form-control form-control-sm qty-input" formControlName="adjustmentQuantity">
+                <small class="error" *ngIf="row.errors?.['wholeQuantityRequired']">{{ '::StockAdjustmentWholeQuantityRequired' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['insufficientStock']">{{ '::StockAdjustmentInsufficientStock' | abpLocalization }}</small>
+              </td>
+              <td class="amount-cell total-cell">{{ finalQuantity(i) | number:'1.0-4' }}</td>
+              <td>
+                <input class="form-control form-control-sm batch-input" formControlName="batchNumber">
+                <small class="error" *ngIf="row.errors?.['batchRequired']">{{ '::StockAdjustmentBatchRequired' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['batchDeductionNotSupported']">{{ '::StockAdjustmentBatchDeductionNotSupported' | abpLocalization }}</small>
+              </td>
+              <td>
+                <input type="date" class="form-control form-control-sm date-input" formControlName="expiryDate">
+                <small class="error" *ngIf="row.errors?.['expiryRequired']">{{ '::StockAdjustmentExpiryRequired' | abpLocalization }}</small>
+                <small class="error" *ngIf="expiryDateInvalid(i)">{{ '::StockAdjustmentInvalidExpiryDate' | abpLocalization }}</small>
+              </td>
+              <td>
+                <nz-select class="w-100 reason-select" formControlName="itemReason">
+                  <nz-option *ngFor="let x of reasonOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+                </nz-select>
+              </td>
+              <td><input class="form-control form-control-sm notes-input" formControlName="itemNotes"></td>
+              <td class="text-end"><button type="button" class="remove-btn" [disabled]="items.length === 1" (click)="removeItem(i)"><i class="fas fa-trash"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+</div>
