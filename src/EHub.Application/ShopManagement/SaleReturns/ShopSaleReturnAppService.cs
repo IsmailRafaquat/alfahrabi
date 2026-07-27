@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using EHub.Permissions;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.Sales;
@@ -25,6 +26,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopProduct, Guid> _productRepository;
     private readonly IRepository<ShopUnit, Guid> _unitRepository;
+    private readonly IRepository<ShopBankAccount, Guid> _bankAccountRepository;
     private readonly ShopSaleReturnManager _manager;
 
     public ShopSaleReturnAppService(
@@ -33,6 +35,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
         IRepository<ShopCustomer, Guid> customerRepository,
         IRepository<ShopProduct, Guid> productRepository,
         IRepository<ShopUnit, Guid> unitRepository,
+        IRepository<ShopBankAccount, Guid> bankAccountRepository,
         ShopSaleReturnManager manager)
     {
         _repository = repository;
@@ -40,6 +43,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
         _customerRepository = customerRepository;
         _productRepository = productRepository;
         _unitRepository = unitRepository;
+        _bankAccountRepository = bankAccountRepository;
         _manager = manager;
     }
 
@@ -88,6 +92,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
         var customerMap = customers.Where(x => customerIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
 
         var dtos = rows.Select(x => MapHeader(x, saleMap.GetValueOrDefault(x.SaleId), customerMap.GetValueOrDefault(x.CustomerId))).ToList();
+        await PopulateBankAccountNamesAsync(dtos);
         await HidePriceIfNotAllowedAsync(dtos);
         await HideCostIfNotAllowedAsync(dtos);
         return new PagedResultDto<ShopSaleReturnDto>(totalCount, dtos);
@@ -169,7 +174,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
     public async Task<ShopSaleReturnDto> CreateAsync(CreateShopSaleReturnDto input)
     {
         var entity = await _manager.CreateAsync(input.SaleId, input.ReturnDate, input.Reason, input.ReasonDetails,
-            input.SettlementType, input.OtherCharges, input.Notes, ToItemInputs(input.Items));
+            input.SettlementType, input.BankAccountId, input.OtherCharges, input.Notes, ToItemInputs(input.Items));
         await _repository.InsertAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -179,7 +184,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
     {
         var entity = await FindEntityWithItemsAsync(id);
         await _manager.UpdateAsync(entity, input.ReturnDate, input.Reason, input.ReasonDetails, input.SettlementType,
-            input.OtherCharges, input.Notes, ToItemInputs(input.Items));
+            input.BankAccountId, input.OtherCharges, input.Notes, ToItemInputs(input.Items));
         await _repository.UpdateAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -233,6 +238,7 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
         Reason = entity.Reason,
         ReasonDetails = entity.ReasonDetails,
         SettlementType = entity.SettlementType,
+        BankAccountId = entity.BankAccountId,
         SubTotal = entity.SubTotal,
         DiscountAmount = entity.DiscountAmount,
         TaxAmount = entity.TaxAmount,
@@ -281,7 +287,26 @@ public class ShopSaleReturnAppService : ApplicationService, IShopSaleReturnAppSe
             Notes = x.Notes
         }).ToList();
 
+        await PopulateBankAccountNamesAsync(new List<ShopSaleReturnDto> { dto });
         return dto;
+    }
+
+    private async Task PopulateBankAccountNamesAsync(List<ShopSaleReturnDto> items)
+    {
+        var bankAccountIds = items.Where(x => x.BankAccountId.HasValue).Select(x => x.BankAccountId!.Value).Distinct().ToList();
+        if (bankAccountIds.Count == 0) return;
+
+        var query = await _bankAccountRepository.GetQueryableAsync();
+        var accounts = query.Where(x => bankAccountIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
+
+        foreach (var item in items)
+        {
+            if (item.BankAccountId.HasValue && accounts.TryGetValue(item.BankAccountId.Value, out var account))
+            {
+                item.BankAccountCode = account.Code;
+                item.BankAccountName = account.AccountName;
+            }
+        }
     }
 
     private async Task HidePriceIfNotAllowedAsync(List<ShopSaleReturnDto> items)

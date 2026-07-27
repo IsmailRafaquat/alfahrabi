@@ -50,6 +50,9 @@ public class ShopSaleReturnDto : EntityDto<Guid>
     public ShopSaleReturnReason Reason { get; set; }
     public string? ReasonDetails { get; set; }
     public ShopSaleReturnSettlementType SettlementType { get; set; }
+    public Guid? BankAccountId { get; set; }
+    public string? BankAccountCode { get; set; }
+    public string? BankAccountName { get; set; }
 
     public decimal? SubTotal { get; set; }
     public decimal? DiscountAmount { get; set; }

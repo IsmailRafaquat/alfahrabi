@@ -24,6 +24,7 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public string? ReferenceNumber { get; protected set; }
     public string? ChequeNumber { get; protected set; }
     public string? BankName { get; protected set; }
+    public Guid? BankAccountId { get; protected set; }
     public string? Notes { get; protected set; }
     public ShopSupplierPaymentStatus Status { get; protected set; } = ShopSupplierPaymentStatus.Draft;
 
@@ -49,6 +50,7 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? notes,
         List<ShopSupplierPaymentAllocation> allocations) : base(id)
     {
@@ -56,7 +58,7 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
         PaymentNumber = paymentNumber;
         SupplierId = supplierId;
         Status = ShopSupplierPaymentStatus.Draft;
-        SetValues(paymentDate, paymentType, paymentMethod, amount, referenceNumber, chequeNumber, bankName, notes);
+        SetValues(paymentDate, paymentType, paymentMethod, amount, referenceNumber, chequeNumber, bankName, bankAccountId, notes);
         ReplaceAllocations(allocations);
     }
 
@@ -68,10 +70,11 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? notes,
         List<ShopSupplierPaymentAllocation> allocations)
     {
-        SetValues(paymentDate, paymentType, paymentMethod, amount, referenceNumber, chequeNumber, bankName, notes);
+        SetValues(paymentDate, paymentType, paymentMethod, amount, referenceNumber, chequeNumber, bankName, bankAccountId, notes);
         ReplaceAllocations(allocations);
     }
 
@@ -110,6 +113,7 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? notes)
     {
         if (amount <= 0) throw new BusinessException("ShopManagement:SupplierPaymentInvalidAmount");
@@ -121,6 +125,8 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
             throw new BusinessException("ShopManagement:SupplierPaymentChequeNumberRequired");
         if ((paymentMethod == ShopSupplierPaymentMethod.Cheque || paymentMethod == ShopSupplierPaymentMethod.BankTransfer) && string.IsNullOrWhiteSpace(trimmedBankName))
             throw new BusinessException("ShopManagement:SupplierPaymentBankNameRequired");
+        if (RequiresBankAccount(paymentMethod) && !bankAccountId.HasValue)
+            throw new BusinessException("ShopManagement:BankAccountRequired");
 
         PaymentDate = paymentDate;
         PaymentType = paymentType;
@@ -129,8 +135,12 @@ public class ShopSupplierPayment : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ReferenceNumber = Check.Length(referenceNumber?.Trim(), nameof(referenceNumber), ShopSupplierPaymentConsts.ReferenceNumberMaxLength);
         ChequeNumber = trimmedChequeNumber;
         BankName = trimmedBankName;
+        BankAccountId = RequiresBankAccount(paymentMethod) ? bankAccountId : null;
         Notes = Check.Length(notes?.Trim(), nameof(notes), ShopSupplierPaymentConsts.NotesMaxLength);
     }
+
+    private static bool RequiresBankAccount(ShopSupplierPaymentMethod paymentMethod) =>
+        paymentMethod is ShopSupplierPaymentMethod.BankTransfer or ShopSupplierPaymentMethod.Card or ShopSupplierPaymentMethod.Cheque;
 
     private void ReplaceAllocations(List<ShopSupplierPaymentAllocation> allocations)
     {

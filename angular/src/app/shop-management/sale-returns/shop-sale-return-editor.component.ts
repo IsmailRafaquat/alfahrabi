@@ -16,6 +16,7 @@ import {
   shopSaleReturnReasonOptions,
   shopSaleReturnSettlementTypeOptions,
 } from '../../proxy/shop-management/sale-returns';
+import { ShopBankAccountLookupDto, ShopBankAccountService } from '../../proxy/shop-management/bank-accounts';
 
 function wholeQuantityValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -43,10 +44,19 @@ function atLeastOneReturnItemValidator(): ValidatorFn {
   };
 }
 
+function bankRefundValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const settlementType = control.get('settlementType')?.value;
+    const bankAccountId = control.get('bankAccountId')?.value;
+    return settlementType === ShopSaleReturnSettlementType.BankRefund && !bankAccountId ? { bankAccountRequired: true } : null;
+  };
+}
+
 @Component({ selector: 'app-shop-sale-return-editor', standalone: false, templateUrl: './shop-sale-return-editor.component.html', styleUrl: './shop-sale-return-editor.component.scss' })
 export class ShopSaleReturnEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ShopSaleReturnService);
+  private readonly bankAccountService = inject(ShopBankAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -54,6 +64,7 @@ export class ShopSaleReturnEditorComponent implements OnInit {
 
   readonly reasonOptions = shopSaleReturnReasonOptions;
   readonly settlementTypeOptions = shopSaleReturnSettlementTypeOptions;
+  readonly ShopSaleReturnSettlementType = ShopSaleReturnSettlementType;
   readonly canViewPrice = this.permissions.getGrantedPolicy('ShopManagement.SaleReturns.ViewPrice');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.SaleReturns.ViewCost');
 
@@ -61,11 +72,16 @@ export class ShopSaleReturnEditorComponent implements OnInit {
   editId?: string;
   saleId = '';
   saleReturnNumber = '';
+  bankAccounts: ShopBankAccountLookupDto[] = [];
   loading = false;
   submitting = false;
 
   get isEdit(): boolean {
     return !!this.editId;
+  }
+
+  get requiresBankAccount(): boolean {
+    return this.form.controls.settlementType.value === ShopSaleReturnSettlementType.BankRefund;
   }
 
   readonly form = this.fb.group(
@@ -74,11 +90,12 @@ export class ShopSaleReturnEditorComponent implements OnInit {
       reason: [ShopSaleReturnReason.Damaged, Validators.required],
       reasonDetails: ['', Validators.maxLength(500)],
       settlementType: [ShopSaleReturnSettlementType.CustomerCredit, Validators.required],
+      bankAccountId: [''],
       otherCharges: [0, Validators.min(0)],
       notes: ['', Validators.maxLength(1000)],
       items: this.fb.array<FormGroup>([]),
     },
-    { validators: [atLeastOneReturnItemValidator()] },
+    { validators: [atLeastOneReturnItemValidator(), bankRefundValidator()] },
   );
 
   get items(): FormArray<FormGroup> {
@@ -95,6 +112,17 @@ export class ShopSaleReturnEditorComponent implements OnInit {
       this.saleId = routeSaleId;
       this.loadSaleForReturn(routeSaleId);
     }
+
+    this.bankAccountService.getLookup().subscribe(result => (this.bankAccounts = result.items || []));
+
+    this.form.controls.settlementType.valueChanges.subscribe(settlementType => {
+      if (settlementType !== ShopSaleReturnSettlementType.BankRefund) {
+        this.form.controls.bankAccountId.setValue('');
+      } else if (!this.form.controls.bankAccountId.value) {
+        const defaultAccount = this.bankAccounts.find(a => a.isDefault);
+        if (defaultAccount) this.form.controls.bankAccountId.setValue(defaultAccount.id);
+      }
+    });
   }
 
   lineSubTotal(index: number): number {
@@ -154,6 +182,7 @@ export class ShopSaleReturnEditorComponent implements OnInit {
           reason: raw.reason,
           reasonDetails: raw.reasonDetails || undefined,
           settlementType: raw.settlementType,
+          bankAccountId: raw.bankAccountId || undefined,
           otherCharges: raw.otherCharges,
           notes: raw.notes || undefined,
           items,
@@ -164,6 +193,7 @@ export class ShopSaleReturnEditorComponent implements OnInit {
           reason: raw.reason,
           reasonDetails: raw.reasonDetails || undefined,
           settlementType: raw.settlementType,
+          bankAccountId: raw.bankAccountId || undefined,
           otherCharges: raw.otherCharges,
           notes: raw.notes || undefined,
           items,
@@ -220,6 +250,7 @@ export class ShopSaleReturnEditorComponent implements OnInit {
           reason: dto.reason,
           reasonDetails: dto.reasonDetails || '',
           settlementType: dto.settlementType,
+          bankAccountId: dto.bankAccountId || '',
           otherCharges: dto.otherCharges ?? 0,
           notes: dto.notes || '',
         });

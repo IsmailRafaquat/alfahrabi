@@ -216,6 +216,39 @@ public class ShopCashRegisterManager : DomainService
         return transaction;
     }
 
+    /// <summary>
+    /// Records the cash-drawer side of a Bank Transfer (Cash-to-Bank / Bank-to-Cash) against an explicit
+    /// register chosen on the transfer, rather than the tenant's implicit default register. Requires an
+    /// open closing and, for an outgoing amount, validates sufficient available cash.
+    /// </summary>
+    public async Task<ShopCashRegisterTransaction> RecordBankTransferCashTransactionAsync(
+        Guid cashRegisterId, DateTime transactionDate, ShopCashDirection direction, decimal amount, Guid transferId, string referenceNumber, string? description)
+    {
+        var tenantId = RequireTenant();
+        if (amount <= 0) throw new BusinessException("ShopManagement:CashMovementAmountMustBeGreaterThanZero");
+
+        var register = await GetRegisterAsync(cashRegisterId, tenantId);
+        if (!register.IsActive) throw new BusinessException("ShopManagement:CashRegisterInactive");
+
+        var openClosing = await FindOpenClosingAsync(register.Id, tenantId)
+            ?? throw new BusinessException("ShopManagement:CashRegisterNotOpen");
+
+        if (direction == ShopCashDirection.Out)
+        {
+            var summary = await ComputeSummaryAsync(openClosing, tenantId);
+            if (amount > summary.ExpectedClosingCash) throw new BusinessException("ShopManagement:InsufficientCashBalance");
+        }
+
+        var transactionType = direction == ShopCashDirection.In ? ShopCashTransactionType.CashIn : ShopCashTransactionType.CashOut;
+
+        var transaction = new ShopCashRegisterTransaction(
+            GuidGenerator.Create(), tenantId, register.Id, openClosing.Id, transactionDate, transactionType, direction, amount,
+            ShopCashReferenceType.BankTransfer, transferId, referenceNumber, description, transferId, _currentUser.GetId(), Clock.Now);
+
+        await _transactionRepository.InsertAsync(transaction, autoSave: true);
+        return transaction;
+    }
+
     // ---------------------------------------------------------------------
     // Automatic recording (called by Sale / CustomerPayment / SupplierPayment / Expense / SaleReturn managers)
     // ---------------------------------------------------------------------

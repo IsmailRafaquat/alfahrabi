@@ -1,0 +1,80 @@
+<div class="sp-page">
+  <div class="page-heading">
+    <div>
+      <h3>{{ '::BankAccounts' | abpLocalization }}</h3>
+      <p>{{ '::BankAccountsDescription' | abpLocalization }}</p>
+    </div>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateBankAccount' | abpLocalization }}</button>
+  </div>
+  <div class="card sp-card">
+    <div class="filters row g-2">
+      <div class="col-12 col-lg-4">
+        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchBankAccounts' | abpLocalization"></div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <input class="form-control form-control-sm" [(ngModel)]="bankNameFilter" (keyup.enter)="load(true)" [placeholder]="'::AllBankNames' | abpLocalization">
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+          <nz-option [nzValue]="true" [nzLabel]="'::Active' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="false" [nzLabel]="'::Inactive' | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="defaultFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::DefaultBankAccount' | abpLocalization">
+          <nz-option [nzValue]="true" [nzLabel]="'::DefaultBankAccount' | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-lg-2">
+        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::BankAccountCode' | abpLocalization }}</th>
+            <th>{{ '::AccountName' | abpLocalization }}</th>
+            <th>{{ '::BankName' | abpLocalization }}</th>
+            <th>{{ '::AccountNumber' | abpLocalization }}</th>
+            <th>{{ '::IBAN' | abpLocalization }}</th>
+            <th *ngIf="canViewBalance" class="text-end">{{ '::OpeningBalance' | abpLocalization }}</th>
+            <th *ngIf="canViewBalance" class="text-end">{{ '::CurrentBalance' | abpLocalization }}</th>
+            <th>{{ '::DefaultBankAccount' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="sp-link" (click)="view(row)">{{ row.code }}</a></td>
+            <td><strong>{{ row.accountName }}</strong></td>
+            <td>{{ row.bankName }}</td>
+            <td>{{ row.accountNumber || '—' }}</td>
+            <td>{{ row.iban || '—' }}</td>
+            <td *ngIf="canViewBalance" class="text-end">{{ row.openingBalance != null ? (row.openingBalance | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewBalance" class="text-end">{{ row.currentBalance != null ? (row.currentBalance | number:'1.2-2') : '—' }}</td>
+            <td><i class="fas fa-star" *ngIf="row.isDefault" [title]="'::DefaultBankAccount' | abpLocalization"></i></td>
+            <td><span class="status-badge" [class.inactive]="!row.isActive">{{ (row.isActive ? '::Active' : '::Inactive') | abpLocalization }}</span></td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" [title]="'::BankAccount' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit" class="icon-btn" (click)="edit(row)" [title]="'::EditBankAccount' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canDelete" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteBankAccount' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewBalance ? 10 : 8" class="empty-state"><i class="fas fa-university"></i><span>{{ '::NoBankAccountsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>

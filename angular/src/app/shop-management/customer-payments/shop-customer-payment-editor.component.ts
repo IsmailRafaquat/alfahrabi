@@ -17,16 +17,23 @@ import {
 } from '../../proxy/shop-management/customer-payments';
 import { ShopSaleService } from '../../proxy/shop-management/sales';
 import { ShopCustomerLookupDto, ShopCustomerService } from '../../proxy/shop-management/customers';
+import { ShopBankAccountLookupDto, ShopBankAccountService } from '../../proxy/shop-management/bank-accounts';
+
+function requiresBankAccount(method: ShopCustomerPaymentMethod | null | undefined): boolean {
+  return method === ShopCustomerPaymentMethod.BankTransfer || method === ShopCustomerPaymentMethod.Card || method === ShopCustomerPaymentMethod.Cheque;
+}
 
 function paymentMethodValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const method = control.get('paymentMethod')?.value;
     const chequeNumber = control.get('chequeNumber')?.value;
     const bankName = control.get('bankName')?.value;
+    const bankAccountId = control.get('bankAccountId')?.value;
 
     const errors: ValidationErrors = {};
     if (method === ShopCustomerPaymentMethod.Cheque && !chequeNumber) errors['chequeNumberRequired'] = true;
     if ((method === ShopCustomerPaymentMethod.Cheque || method === ShopCustomerPaymentMethod.BankTransfer) && !bankName) errors['bankNameRequired'] = true;
+    if (requiresBankAccount(method) && !bankAccountId) errors['bankAccountRequired'] = true;
     return Object.keys(errors).length ? errors : null;
   };
 }
@@ -63,6 +70,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
   private readonly service = inject(ShopCustomerPaymentService);
   private readonly saleService = inject(ShopSaleService);
   private readonly customerService = inject(ShopCustomerService);
+  private readonly bankAccountService = inject(ShopBankAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -75,6 +83,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
 
   editId?: string;
   customers: ShopCustomerLookupDto[] = [];
+  bankAccounts: ShopBankAccountLookupDto[] = [];
   loading = false;
   loadingSales = false;
   submitting = false;
@@ -90,6 +99,10 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
     return !!this.editId;
   }
 
+  get requiresBankAccount(): boolean {
+    return requiresBankAccount(this.form.controls.paymentMethod.value);
+  }
+
   readonly form = this.fb.group(
     {
       customerId: ['', Validators.required],
@@ -100,6 +113,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
       referenceNumber: ['', Validators.maxLength(128)],
       chequeNumber: ['', Validators.maxLength(64)],
       bankName: ['', Validators.maxLength(128)],
+      bankAccountId: [''],
       notes: ['', Validators.maxLength(1000)],
       allocations: this.fb.array<FormGroup>([]),
     },
@@ -120,6 +134,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this.customerService.getLookup().subscribe(result => (this.customers = result.items || []));
+    this.bankAccountService.getLookup().subscribe(result => (this.bankAccounts = result.items || []));
 
     this.editId = this.route.snapshot.paramMap.get('id') || undefined;
     const saleId = this.route.snapshot.queryParamMap.get('saleId') || undefined;
@@ -133,6 +148,15 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
     this.form.controls.customerId.valueChanges.subscribe(customerId => {
       if (customerId) this.loadOutstandingSales(customerId);
       else this.allocations.clear();
+    });
+
+    this.form.controls.paymentMethod.valueChanges.subscribe(method => {
+      if (!requiresBankAccount(method)) {
+        this.form.controls.bankAccountId.setValue('');
+      } else if (!this.form.controls.bankAccountId.value) {
+        const defaultAccount = this.bankAccounts.find(a => a.isDefault);
+        if (defaultAccount) this.form.controls.bankAccountId.setValue(defaultAccount.id);
+      }
     });
 
     // Any real (non-programmatic) change to Amount stops it from auto-following the
@@ -176,6 +200,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
       referenceNumber: raw.referenceNumber || undefined,
       chequeNumber: raw.chequeNumber || undefined,
       bankName: raw.bankName || undefined,
+      bankAccountId: raw.bankAccountId || undefined,
       notes: raw.notes || undefined,
       allocations,
     };
@@ -217,6 +242,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
           referenceNumber: dto.referenceNumber || '',
           chequeNumber: dto.chequeNumber || '',
           bankName: dto.bankName || '',
+          bankAccountId: dto.bankAccountId || '',
           notes: dto.notes || '',
         });
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using EHub.Permissions;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.ExpenseCategories;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp;
@@ -19,15 +20,18 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
 {
     private readonly IRepository<ShopExpense, Guid> _repository;
     private readonly IRepository<ShopExpenseCategory, Guid> _categoryRepository;
+    private readonly IRepository<ShopBankAccount, Guid> _bankAccountRepository;
     private readonly ShopExpenseManager _manager;
 
     public ShopExpenseAppService(
         IRepository<ShopExpense, Guid> repository,
         IRepository<ShopExpenseCategory, Guid> categoryRepository,
+        IRepository<ShopBankAccount, Guid> bankAccountRepository,
         ShopExpenseManager manager)
     {
         _repository = repository;
         _categoryRepository = categoryRepository;
+        _bankAccountRepository = bankAccountRepository;
         _manager = manager;
     }
 
@@ -77,6 +81,7 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
                             ReferenceNumber = expense.ReferenceNumber,
                             ChequeNumber = expense.ChequeNumber,
                             BankName = expense.BankName,
+                            BankAccountId = expense.BankAccountId,
                             Description = expense.Description,
                             Notes = expense.Notes,
                             Status = expense.Status,
@@ -87,6 +92,7 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
                         };
 
         var items = await AsyncExecuter.ToListAsync(projected);
+        await PopulateBankAccountNamesAsync(items);
         await HideAmountIfNotAllowedAsync(items);
         return new PagedResultDto<ShopExpenseDto>(totalCount, items);
     }
@@ -103,7 +109,7 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
     public async Task<ShopExpenseDto> CreateAsync(CreateUpdateShopExpenseDto input)
     {
         var entity = await _manager.CreateAsync(input.ExpenseCategoryId, input.ExpenseDate, input.Amount, input.PaymentMethod,
-            input.PaidTo, input.ReferenceNumber, input.ChequeNumber, input.BankName, input.Description, input.Notes);
+            input.PaidTo, input.ReferenceNumber, input.ChequeNumber, input.BankName, input.BankAccountId, input.Description, input.Notes);
         await _repository.InsertAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -113,7 +119,7 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
     {
         var entity = await FindEntityAsync(id);
         await _manager.UpdateAsync(entity, input.ExpenseCategoryId, input.ExpenseDate, input.Amount, input.PaymentMethod,
-            input.PaidTo, input.ReferenceNumber, input.ChequeNumber, input.BankName, input.Description, input.Notes);
+            input.PaidTo, input.ReferenceNumber, input.ChequeNumber, input.BankName, input.BankAccountId, input.Description, input.Notes);
         await _repository.UpdateAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -181,7 +187,7 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
         var category = await AsyncExecuter.FirstOrDefaultAsync(
             (await _categoryRepository.GetQueryableAsync()).Where(x => x.Id == entity.ExpenseCategoryId));
 
-        return new ShopExpenseDto
+        var dto = new ShopExpenseDto
         {
             Id = entity.Id,
             ExpenseNumber = entity.ExpenseNumber,
@@ -195,6 +201,7 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
             ReferenceNumber = entity.ReferenceNumber,
             ChequeNumber = entity.ChequeNumber,
             BankName = entity.BankName,
+            BankAccountId = entity.BankAccountId,
             Description = entity.Description,
             Notes = entity.Notes,
             Status = entity.Status,
@@ -203,6 +210,26 @@ public class ShopExpenseAppService : ApplicationService, IShopExpenseAppService
             CancellationReason = entity.CancellationReason,
             CreationTime = entity.CreationTime
         };
+        await PopulateBankAccountNamesAsync(new List<ShopExpenseDto> { dto });
+        return dto;
+    }
+
+    private async Task PopulateBankAccountNamesAsync(List<ShopExpenseDto> items)
+    {
+        var bankAccountIds = items.Where(x => x.BankAccountId.HasValue).Select(x => x.BankAccountId!.Value).Distinct().ToList();
+        if (bankAccountIds.Count == 0) return;
+
+        var query = await _bankAccountRepository.GetQueryableAsync();
+        var accounts = query.Where(x => bankAccountIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
+
+        foreach (var item in items)
+        {
+            if (item.BankAccountId.HasValue && accounts.TryGetValue(item.BankAccountId.Value, out var account))
+            {
+                item.BankAccountCode = account.Code;
+                item.BankAccountName = account.AccountName;
+            }
+        }
     }
 
     private async Task HideAmountIfNotAllowedAsync(List<ShopExpenseDto> items)

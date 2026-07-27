@@ -46,6 +46,13 @@
             <label>{{ '::OtherCharges' | abpLocalization }}</label>
             <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="otherCharges">
           </div>
+          <div class="col-12 col-md-6 col-xl-3" *ngIf="requiresBankAccount">
+            <label>{{ '::BankAccount' | abpLocalization }} <b class="required">*</b></label>
+            <nz-select class="w-100" formControlName="bankAccountId" nzShowSearch [nzPlaceHolder]="'::SelectBankAccount' | abpLocalization">
+              <nz-option *ngFor="let a of bankAccounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+            </nz-select>
+            <small class="error" *ngIf="form.touched && form.errors?.['bankAccountRequired']">{{ '::ValidationRequired' | abpLocalization }}</small>
+          </div>
           <div class="col-12">
             <label>{{ '::ReasonDetails' | abpLocalization }}</label>
             <textarea rows="2" class="form-control form-control-sm" formControlName="reasonDetails"></textarea>

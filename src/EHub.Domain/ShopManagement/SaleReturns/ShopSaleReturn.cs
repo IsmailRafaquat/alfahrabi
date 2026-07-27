@@ -21,6 +21,7 @@ public class ShopSaleReturn : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public ShopSaleReturnReason Reason { get; protected set; }
     public string? ReasonDetails { get; protected set; }
     public ShopSaleReturnSettlementType SettlementType { get; protected set; }
+    public Guid? BankAccountId { get; protected set; }
 
     public decimal SubTotal { get; protected set; }
     public decimal DiscountAmount { get; protected set; }
@@ -52,6 +53,7 @@ public class ShopSaleReturn : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ShopSaleReturnReason reason,
         string? reasonDetails,
         ShopSaleReturnSettlementType settlementType,
+        Guid? bankAccountId,
         decimal otherCharges,
         string? notes,
         List<ShopSaleReturnItem> items) : base(id)
@@ -61,7 +63,7 @@ public class ShopSaleReturn : FullAuditedAggregateRoot<Guid>, IMultiTenant
         SaleId = saleId;
         CustomerId = customerId;
         Status = ShopSaleReturnStatus.Draft;
-        SetValues(returnDate, reason, reasonDetails, settlementType, otherCharges, notes, items);
+        SetValues(returnDate, reason, reasonDetails, settlementType, bankAccountId, otherCharges, notes, items);
     }
 
     internal void Update(
@@ -69,12 +71,13 @@ public class ShopSaleReturn : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ShopSaleReturnReason reason,
         string? reasonDetails,
         ShopSaleReturnSettlementType settlementType,
+        Guid? bankAccountId,
         decimal otherCharges,
         string? notes,
         List<ShopSaleReturnItem> items)
     {
         EnsureEditable();
-        SetValues(returnDate, reason, reasonDetails, settlementType, otherCharges, notes, items);
+        SetValues(returnDate, reason, reasonDetails, settlementType, bankAccountId, otherCharges, notes, items);
     }
 
     internal void MarkAsCompleted(Guid completedByUserId, DateTime completedDate)
@@ -85,6 +88,7 @@ public class ShopSaleReturn : FullAuditedAggregateRoot<Guid>, IMultiTenant
         switch (SettlementType)
         {
             case ShopSaleReturnSettlementType.CashRefund:
+            case ShopSaleReturnSettlementType.BankRefund:
                 RefundAmount = GrandTotal;
                 CustomerCreditAmount = 0;
                 break;
@@ -134,17 +138,21 @@ public class ShopSaleReturn : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ShopSaleReturnReason reason,
         string? reasonDetails,
         ShopSaleReturnSettlementType settlementType,
+        Guid? bankAccountId,
         decimal otherCharges,
         string? notes,
         List<ShopSaleReturnItem> items)
     {
         if (otherCharges < 0) throw new BusinessException("ShopManagement:SaleReturnOtherChargesCannotBeNegative");
         if (items == null || items.Count == 0) throw new BusinessException("ShopManagement:SaleReturnRequiresItems");
+        if (settlementType == ShopSaleReturnSettlementType.BankRefund && !bankAccountId.HasValue)
+            throw new BusinessException("ShopManagement:BankAccountRequired");
 
         ReturnDate = returnDate;
         Reason = reason;
         ReasonDetails = Check.Length(reasonDetails?.Trim(), nameof(reasonDetails), ShopSaleReturnConsts.ReasonDetailsMaxLength);
         SettlementType = settlementType;
+        BankAccountId = settlementType == ShopSaleReturnSettlementType.BankRefund ? bankAccountId : null;
         OtherCharges = otherCharges;
         Notes = Check.Length(notes?.Trim(), nameof(notes), ShopSaleReturnConsts.NotesMaxLength);
 

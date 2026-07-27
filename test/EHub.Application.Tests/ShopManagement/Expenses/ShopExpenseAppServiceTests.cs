@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using EHub.Permissions;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.ExpenseCategories;
 using Microsoft.AspNetCore.Authorization;
 using Shouldly;
@@ -19,6 +20,7 @@ public abstract class ShopExpenseAppServiceTests<TStartupModule> : EHubApplicati
 {
     private readonly IShopExpenseAppService _expenseAppService;
     private readonly IShopExpenseCategoryAppService _categoryAppService;
+    private readonly IShopBankAccountAppService _bankAccountAppService;
     private readonly ITenantManager _tenantManager;
     private readonly IRepository<Tenant, Guid> _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
@@ -27,6 +29,7 @@ public abstract class ShopExpenseAppServiceTests<TStartupModule> : EHubApplicati
     {
         _expenseAppService = GetRequiredService<IShopExpenseAppService>();
         _categoryAppService = GetRequiredService<IShopExpenseCategoryAppService>();
+        _bankAccountAppService = GetRequiredService<IShopBankAccountAppService>();
         _tenantManager = GetRequiredService<ITenantManager>();
         _tenantRepository = GetRequiredService<IRepository<Tenant, Guid>>();
         _currentTenant = GetRequiredService<ICurrentTenant>();
@@ -98,7 +101,8 @@ public abstract class ShopExpenseAppServiceTests<TStartupModule> : EHubApplicati
         using (_currentTenant.Change(tenantId))
         {
             var category = await CreateCategoryAsync("CHQ");
-            var input = BuildInput(category.Id, 500);
+            var bankAccountId = await CreateBankAccountAsync("CHQBANK");
+            var input = BuildInput(category.Id, 500, bankAccountId);
             input.PaymentMethod = ShopExpensePaymentMethod.Cheque;
             input.BankName = "Meezan Bank";
             var exception = await Should.ThrowAsync<BusinessException>(() => _expenseAppService.CreateAsync(input));
@@ -117,7 +121,8 @@ public abstract class ShopExpenseAppServiceTests<TStartupModule> : EHubApplicati
         using (_currentTenant.Change(tenantId))
         {
             var category = await CreateCategoryAsync("BANK");
-            var input = BuildInput(category.Id, 18500);
+            var bankAccountId = await CreateBankAccountAsync("VALBANK");
+            var input = BuildInput(category.Id, 18500, bankAccountId);
             input.PaymentMethod = ShopExpensePaymentMethod.BankTransfer;
             input.BankName = null;
             var exception = await Should.ThrowAsync<BusinessException>(() => _expenseAppService.CreateAsync(input));
@@ -285,8 +290,9 @@ public abstract class ShopExpenseAppServiceTests<TStartupModule> : EHubApplicati
         {
             var utilCategory = await CreateCategoryAsync("UTILSEARCH");
             var rentCategory = await CreateCategoryAsync("RENTSEARCH");
+            var bankAccountId = await CreateBankAccountAsync("SEARCHBANK");
 
-            var utilInput = BuildInput(utilCategory.Id, 18500);
+            var utilInput = BuildInput(utilCategory.Id, 18500, bankAccountId);
             utilInput.PaidTo = "IESCO";
             utilInput.ReferenceNumber = "BILL-072026";
             var utilExpense = await _expenseAppService.CreateAsync(utilInput);
@@ -349,13 +355,28 @@ public abstract class ShopExpenseAppServiceTests<TStartupModule> : EHubApplicati
         });
     }
 
-    private static CreateUpdateShopExpenseDto BuildInput(Guid categoryId, decimal amount) => new()
+    private async Task<Guid> CreateBankAccountAsync(string code = "BANK")
+    {
+        var suffix = Guid.NewGuid().ToString("N").Substring(0, 6);
+        var dto = await _bankAccountAppService.CreateAsync(new CreateUpdateShopBankAccountDto
+        {
+            Code = code + "-" + suffix,
+            AccountName = code + " Account",
+            BankName = "Meezan Bank",
+            OpeningBalance = 1000000,
+            IsActive = true,
+        });
+        return dto.Id;
+    }
+
+    private static CreateUpdateShopExpenseDto BuildInput(Guid categoryId, decimal amount, Guid? bankAccountId = null) => new()
     {
         ExpenseCategoryId = categoryId,
         ExpenseDate = DateTime.Today,
         Amount = amount,
-        PaymentMethod = ShopExpensePaymentMethod.BankTransfer,
-        BankName = "Meezan Bank",
+        PaymentMethod = bankAccountId.HasValue ? ShopExpensePaymentMethod.BankTransfer : ShopExpensePaymentMethod.Cash,
+        BankName = bankAccountId.HasValue ? "Meezan Bank" : null,
+        BankAccountId = bankAccountId,
     };
 
     private static void AssertMethodPolicy(Type type, string methodName, string expectedPolicy)

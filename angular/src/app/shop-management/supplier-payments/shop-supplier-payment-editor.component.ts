@@ -17,16 +17,23 @@ import {
 } from '../../proxy/shop-management/supplier-payments';
 import { ShopGoodsReceiptService } from '../../proxy/shop-management/goods-receipts';
 import { ShopSupplierLookupDto, ShopSupplierService } from '../../proxy/shop-management/suppliers';
+import { ShopBankAccountLookupDto, ShopBankAccountService } from '../../proxy/shop-management/bank-accounts';
+
+function requiresBankAccount(method: ShopSupplierPaymentMethod | null | undefined): boolean {
+  return method === ShopSupplierPaymentMethod.BankTransfer || method === ShopSupplierPaymentMethod.Card || method === ShopSupplierPaymentMethod.Cheque;
+}
 
 function paymentMethodValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const method = control.get('paymentMethod')?.value;
     const chequeNumber = control.get('chequeNumber')?.value;
     const bankName = control.get('bankName')?.value;
+    const bankAccountId = control.get('bankAccountId')?.value;
 
     const errors: ValidationErrors = {};
     if (method === ShopSupplierPaymentMethod.Cheque && !chequeNumber) errors['chequeNumberRequired'] = true;
     if ((method === ShopSupplierPaymentMethod.Cheque || method === ShopSupplierPaymentMethod.BankTransfer) && !bankName) errors['bankNameRequired'] = true;
+    if (requiresBankAccount(method) && !bankAccountId) errors['bankAccountRequired'] = true;
     return Object.keys(errors).length ? errors : null;
   };
 }
@@ -63,6 +70,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
   private readonly service = inject(ShopSupplierPaymentService);
   private readonly goodsReceiptService = inject(ShopGoodsReceiptService);
   private readonly supplierService = inject(ShopSupplierService);
+  private readonly bankAccountService = inject(ShopBankAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -75,6 +83,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
 
   editId?: string;
   suppliers: ShopSupplierLookupDto[] = [];
+  bankAccounts: ShopBankAccountLookupDto[] = [];
   loading = false;
   loadingReceipts = false;
   submitting = false;
@@ -83,9 +92,14 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
 
   private existingAllocations: { goodsReceiptId: string; allocatedAmount?: number }[] = [];
   private preselectedGoodsReceiptId?: string;
+  private amountManuallyEdited = false;
 
   get isEdit(): boolean {
     return !!this.editId;
+  }
+
+  get requiresBankAccount(): boolean {
+    return requiresBankAccount(this.form.controls.paymentMethod.value);
   }
 
   readonly form = this.fb.group(
@@ -98,6 +112,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
       referenceNumber: ['', Validators.maxLength(128)],
       chequeNumber: ['', Validators.maxLength(64)],
       bankName: ['', Validators.maxLength(128)],
+      bankAccountId: [''],
       notes: ['', Validators.maxLength(1000)],
       allocations: this.fb.array<FormGroup>([]),
     },
@@ -114,6 +129,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this.supplierService.getLookup().subscribe(result => (this.suppliers = result.items || []));
+    this.bankAccountService.getLookup().subscribe(result => (this.bankAccounts = result.items || []));
 
     this.editId = this.route.snapshot.paramMap.get('id') || undefined;
     const goodsReceiptId = this.route.snapshot.queryParamMap.get('goodsReceiptId') || undefined;
@@ -127,6 +143,29 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
     this.form.controls.supplierId.valueChanges.subscribe(supplierId => {
       if (supplierId) this.loadOutstandingReceipts(supplierId);
       else this.allocations.clear();
+    });
+
+    this.form.controls.paymentMethod.valueChanges.subscribe(method => {
+      if (!requiresBankAccount(method)) {
+        this.form.controls.bankAccountId.setValue('');
+      } else if (!this.form.controls.bankAccountId.value) {
+        const defaultAccount = this.bankAccounts.find(a => a.isDefault);
+        if (defaultAccount) this.form.controls.bankAccountId.setValue(defaultAccount.id);
+      }
+    });
+
+    // Any real (non-programmatic) change to Amount stops it from auto-following the
+    // allocated total. Our own sync below always passes emitEvent: false, so this only
+    // fires for user edits (typing) or the initial patchValue() when loading an existing payment.
+    this.form.controls.amount.valueChanges.subscribe(() => (this.amountManuallyEdited = true));
+
+    this.form.valueChanges.subscribe(() => {
+      if (!this.amountManuallyEdited) {
+        const total = this.totalAllocated;
+        if (total > 0 && this.form.controls.amount.value !== total) {
+          this.form.controls.amount.setValue(total, { emitEvent: false });
+        }
+      }
     });
   }
 
@@ -155,6 +194,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
       referenceNumber: raw.referenceNumber || undefined,
       chequeNumber: raw.chequeNumber || undefined,
       bankName: raw.bankName || undefined,
+      bankAccountId: raw.bankAccountId || undefined,
       notes: raw.notes || undefined,
       allocations,
     };
@@ -196,6 +236,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
           referenceNumber: dto.referenceNumber || '',
           chequeNumber: dto.chequeNumber || '',
           bankName: dto.bankName || '',
+          bankAccountId: dto.bankAccountId || '',
           notes: dto.notes || '',
         });
 

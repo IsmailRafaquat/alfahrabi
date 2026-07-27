@@ -18,6 +18,7 @@ using EHub.ShopManagement.CustomerPayments;
 using EHub.ShopManagement.ExpenseCategories;
 using EHub.ShopManagement.Expenses;
 using EHub.ShopManagement.CashRegisters;
+using EHub.ShopManagement.BankAccounts;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -118,6 +119,9 @@ public class EHubDbContext :
     public DbSet<ShopCashRegister> ShopCashRegisters { get; set; }
     public DbSet<ShopCashRegisterTransaction> ShopCashRegisterTransactions { get; set; }
     public DbSet<ShopCashClosing> ShopCashClosings { get; set; }
+    public DbSet<ShopBankAccount> ShopBankAccounts { get; set; }
+    public DbSet<ShopBankTransaction> ShopBankTransactions { get; set; }
+    public DbSet<ShopBankTransfer> ShopBankTransfers { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1232,6 +1236,84 @@ public class EHubDbContext :
             // its original posting under the same reference+type, while still preventing an exact
             // duplicate re-post of the same direction for the same source event.
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId, x.TransactionType, x.Direction }).IsUnique();
+        });
+
+        builder.Entity<ShopBankAccount>(b =>
+        {
+            b.ToTable("ShopBankAccounts", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(ShopBankAccountConsts.CodeMaxLength);
+            b.Property(x => x.AccountName).IsRequired().HasMaxLength(ShopBankAccountConsts.AccountNameMaxLength);
+            b.Property(x => x.BankName).IsRequired().HasMaxLength(ShopBankAccountConsts.BankNameMaxLength);
+            b.Property(x => x.AccountNumber).HasMaxLength(ShopBankAccountConsts.AccountNumberMaxLength);
+            b.Property(x => x.IBAN).HasMaxLength(ShopBankAccountConsts.IbanMaxLength);
+            b.Property(x => x.BranchName).HasMaxLength(ShopBankAccountConsts.BranchNameMaxLength);
+            b.Property(x => x.OpeningBalance).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.CurrentBalance).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.IsDefault).IsRequired().HasDefaultValue(false);
+            b.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+            b.Property(x => x.Notes).HasMaxLength(ShopBankAccountConsts.NotesMaxLength);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.BankName });
+            b.HasIndex(x => new { x.TenantId, x.IsDefault });
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
+        });
+
+        builder.Entity<ShopBankTransaction>(b =>
+        {
+            b.ToTable("ShopBankTransactions", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.BankAccountId).IsRequired();
+            b.Property(x => x.TransactionDate).IsRequired();
+            b.Property(x => x.TransactionType).IsRequired().HasConversion<int>();
+            b.Property(x => x.Direction).IsRequired().HasConversion<int>();
+            b.Property(x => x.Amount).HasPrecision(18, 2);
+            b.Property(x => x.ReferenceType).IsRequired().HasConversion<int>();
+            b.Property(x => x.ReferenceId).IsRequired();
+            b.Property(x => x.ReferenceNumber).IsRequired().HasMaxLength(ShopBankAccountConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.Description).HasMaxLength(ShopBankAccountConsts.DescriptionMaxLength);
+            b.Property(x => x.BalanceAfterTransaction).HasPrecision(18, 2);
+            b.Property(x => x.IsReversal).IsRequired().HasDefaultValue(false);
+
+            b.HasOne(x => x.BankAccount).WithMany().HasForeignKey(x => x.BankAccountId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.BankAccountId });
+            b.HasIndex(x => new { x.TenantId, x.TransactionDate });
+            b.HasIndex(x => new { x.TenantId, x.TransactionType });
+            b.HasIndex(x => new { x.TenantId, x.Direction });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
+            b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
+            // Guarantees a given source event (an original posting, or its opposite-direction reversal)
+            // can only ever create one bank transaction per type (idempotency).
+            b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId, x.TransactionType, x.IsReversal }).IsUnique();
+        });
+
+        builder.Entity<ShopBankTransfer>(b =>
+        {
+            b.ToTable("ShopBankTransfers", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.TransferNumber).IsRequired().HasMaxLength(ShopBankAccountConsts.TransferNumberMaxLength);
+            b.Property(x => x.TransferDate).IsRequired();
+            b.Property(x => x.TransferType).IsRequired().HasConversion<int>();
+            b.Property(x => x.Amount).HasPrecision(18, 2);
+            b.Property(x => x.ReferenceNumber).HasMaxLength(ShopBankAccountConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.Notes).HasMaxLength(ShopBankAccountConsts.NotesMaxLength);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopBankTransferStatus.Draft);
+            b.Property(x => x.CancellationReason).HasMaxLength(ShopBankAccountConsts.CancellationReasonMaxLength);
+
+            b.HasOne(x => x.FromBankAccount).WithMany().HasForeignKey(x => x.FromBankAccountId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.ToBankAccount).WithMany().HasForeignKey(x => x.ToBankAccountId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.TransferNumber }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.TransferDate });
+            b.HasIndex(x => new { x.TenantId, x.TransferType });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.FromBankAccountId });
+            b.HasIndex(x => new { x.TenantId, x.ToBankAccountId });
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

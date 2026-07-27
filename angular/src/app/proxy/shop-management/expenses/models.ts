@@ -15,6 +15,7 @@ export interface CreateUpdateShopExpenseDto {
   referenceNumber?: string;
   chequeNumber?: string;
   bankName?: string;
+  bankAccountId?: string;
   description?: string;
   notes?: string;
 }
@@ -42,6 +43,9 @@ export interface ShopExpenseDto extends EntityDto<string> {
   referenceNumber?: string;
   chequeNumber?: string;
   bankName?: string;
+  bankAccountId?: string;
+  bankAccountCode?: string;
+  bankAccountName?: string;
   description?: string;
   notes?: string;
   status?: ShopExpenseStatus;

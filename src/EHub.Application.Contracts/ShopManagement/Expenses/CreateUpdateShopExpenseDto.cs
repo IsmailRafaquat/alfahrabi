@@ -29,6 +29,8 @@ public class CreateUpdateShopExpenseDto
     [StringLength(ShopExpenseConsts.BankNameMaxLength)]
     public string? BankName { get; set; }
 
+    public Guid? BankAccountId { get; set; }
+
     [StringLength(ShopExpenseConsts.DescriptionMaxLength)]
     public string? Description { get; set; }
 

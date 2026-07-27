@@ -13,6 +13,7 @@ export interface CreateShopSaleReturnDto {
   reason?: ShopSaleReturnReason;
   reasonDetails?: string;
   settlementType?: ShopSaleReturnSettlementType;
+  bankAccountId?: string;
   otherCharges: number;
   notes?: string;
   items: CreateShopSaleReturnItemDto[];
@@ -48,6 +49,9 @@ export interface ShopSaleReturnDto extends EntityDto<string> {
   reason?: ShopSaleReturnReason;
   reasonDetails?: string;
   settlementType?: ShopSaleReturnSettlementType;
+  bankAccountId?: string;
+  bankAccountCode?: string;
+  bankAccountName?: string;
   subTotal?: number;
   discountAmount?: number;
   taxAmount?: number;
@@ -123,6 +127,7 @@ export interface UpdateShopSaleReturnDto {
   reason?: ShopSaleReturnReason;
   reasonDetails?: string;
   settlementType?: ShopSaleReturnSettlementType;
+  bankAccountId?: string;
   otherCharges: number;
   notes?: string;
   items: UpdateShopSaleReturnItemDto[];

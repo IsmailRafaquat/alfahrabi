@@ -28,6 +28,7 @@
         <div class="col-6 col-md-3"><span class="field-label">{{ '::SaleNumber' | abpLocalization }}</span><strong>{{ d.saleNumber }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ReturnReason' | abpLocalization }}</span><strong>{{ reasonLabel(d.reason) | abpLocalization }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::SettlementType' | abpLocalization }}</span><strong>{{ settlementTypeLabel(d.settlementType) | abpLocalization }}</strong></div>
+        <div class="col-6 col-md-3" *ngIf="d.bankAccountName"><span class="field-label">{{ '::BankAccount' | abpLocalization }}</span><strong>{{ d.bankAccountCode }} - {{ d.bankAccountName }}</strong></div>
         <div class="col-12" *ngIf="d.reasonDetails"><span class="field-label">{{ '::ReasonDetails' | abpLocalization }}</span><p class="notes-text">{{ d.reasonDetails }}</p></div>
         <div class="col-12" *ngIf="d.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ d.notes }}</p></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::CreationTime' | abpLocalization }}</span><strong>{{ d.creationTime | date:'medium' }}</strong></div>

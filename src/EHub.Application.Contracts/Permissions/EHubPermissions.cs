@@ -199,6 +199,33 @@ public static class EHubPermissions
         public const string ViewAmounts = Default + ".ViewAmounts";
     }
 
+    public static class ShopBankAccounts
+    {
+        public const string Default = ManagementMenus.Shop + ".BankAccounts";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewBalance = Default + ".ViewBalance";
+    }
+
+    public static class ShopBankTransactions
+    {
+        public const string Default = ManagementMenus.Shop + ".BankTransactions";
+        public const string ManualMovement = Default + ".ManualMovement";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
+    public static class ShopBankTransfers
+    {
+        public const string Default = ManagementMenus.Shop + ".BankTransfers";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using EHub.Permissions;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CustomerPayments;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.ExpenseCategories;
@@ -38,6 +39,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
     private readonly IShopSupplierPaymentAppService _supplierPaymentAppService;
     private readonly IShopExpenseAppService _expenseAppService;
     private readonly IShopExpenseCategoryAppService _expenseCategoryAppService;
+    private readonly IShopBankAccountAppService _bankAccountAppService;
     private readonly IShopSaleReturnAppService _saleReturnAppService;
     private readonly IShopProductCategoryAppService _categoryAppService;
     private readonly IShopUnitAppService _unitAppService;
@@ -58,6 +60,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
         _supplierPaymentAppService = GetRequiredService<IShopSupplierPaymentAppService>();
         _expenseAppService = GetRequiredService<IShopExpenseAppService>();
         _expenseCategoryAppService = GetRequiredService<IShopExpenseCategoryAppService>();
+        _bankAccountAppService = GetRequiredService<IShopBankAccountAppService>();
         _saleReturnAppService = GetRequiredService<IShopSaleReturnAppService>();
         _categoryAppService = GetRequiredService<IShopProductCategoryAppService>();
         _unitAppService = GetRequiredService<IShopUnitAppService>();
@@ -302,6 +305,8 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
             var register = await CreateDefaultRegisterAsync();
             await OpenRegisterAsync(register.Id, 1000);
 
+            var bankAccountId = await CreateBankAccountAsync();
+
             var category = await CreateExpenseCategoryAsync();
             var bankExpense = await _expenseAppService.CreateAsync(new CreateUpdateShopExpenseDto
             {
@@ -310,6 +315,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
                 Amount = 300,
                 PaymentMethod = ShopExpensePaymentMethod.BankTransfer,
                 BankName = "Meezan Bank",
+                BankAccountId = bankAccountId,
             });
             await _expenseAppService.PostAsync(bankExpense.Id);
 
@@ -323,6 +329,7 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
                 Amount = 700,
                 ChequeNumber = "CHQ-1",
                 BankName = "HBL",
+                BankAccountId = bankAccountId,
                 Allocations = new List<CreateUpdateShopCustomerPaymentAllocationDto>(),
             });
             await _customerPaymentAppService.PostAsync(chequePayment.Id);
@@ -609,6 +616,20 @@ public abstract class ShopCashRegisterAppServiceTests<TStartupModule> : EHubAppl
         var suffix = Guid.NewGuid().ToString("N").Substring(0, 6);
         return await _expenseCategoryAppService.CreateAsync(new CreateUpdateShopExpenseCategoryDto
         { Code = "CAT-" + suffix, Name = "Category " + suffix, IsActive = true });
+    }
+
+    private async Task<Guid> CreateBankAccountAsync()
+    {
+        var suffix = Guid.NewGuid().ToString("N").Substring(0, 6);
+        var dto = await _bankAccountAppService.CreateAsync(new CreateUpdateShopBankAccountDto
+        {
+            Code = "BANK-" + suffix,
+            AccountName = "Account " + suffix,
+            BankName = "Meezan Bank",
+            OpeningBalance = 1000000,
+            IsActive = true,
+        });
+        return dto.Id;
     }
 
     private async Task<ShopCustomerDto> CreateCustomerAsync()

@@ -30,6 +30,8 @@ public class CreateUpdateShopSupplierPaymentDto
     [StringLength(ShopSupplierPaymentConsts.BankNameMaxLength)]
     public string? BankName { get; set; }
 
+    public Guid? BankAccountId { get; set; }
+
     [StringLength(ShopSupplierPaymentConsts.NotesMaxLength)]
     public string? Notes { get; set; }
 

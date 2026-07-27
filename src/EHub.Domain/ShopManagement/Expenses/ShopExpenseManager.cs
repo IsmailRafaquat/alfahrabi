@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.ExpenseCategories;
 using EHub.ShopManagement.PurchaseOrders;
@@ -21,6 +22,7 @@ public class ShopExpenseManager : DomainService
     private readonly IRepository<ShopExpenseCategory, Guid> _categoryRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
+    private readonly ShopBankAccountManager _bankAccountManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -29,6 +31,7 @@ public class ShopExpenseManager : DomainService
         IRepository<ShopExpenseCategory, Guid> categoryRepository,
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
+        ShopBankAccountManager bankAccountManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -36,6 +39,7 @@ public class ShopExpenseManager : DomainService
         _categoryRepository = categoryRepository;
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
+        _bankAccountManager = bankAccountManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -49,16 +53,18 @@ public class ShopExpenseManager : DomainService
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? description,
         string? notes)
     {
         var tenantId = RequireTenant();
         await ValidateCategoryAsync(expenseCategoryId, tenantId, requireActive: true);
+        await ValidateBankAccountAsync(bankAccountId, tenantId);
 
         var expenseNumber = await _numberGenerator.GetNextNumberAsync(tenantId, DocumentType, NumberPrefix);
 
         return new ShopExpense(GuidGenerator.Create(), tenantId, expenseNumber, expenseCategoryId, expenseDate, amount,
-            paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, description, notes);
+            paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, bankAccountId, description, notes);
     }
 
     public async Task UpdateAsync(
@@ -71,14 +77,16 @@ public class ShopExpenseManager : DomainService
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? description,
         string? notes)
     {
         var tenantId = RequireTenantOwnership(expense);
         expense.EnsureEditable();
         await ValidateCategoryAsync(expenseCategoryId, tenantId, requireActive: false);
+        await ValidateBankAccountAsync(bankAccountId, tenantId);
 
-        expense.Update(expenseCategoryId, expenseDate, amount, paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, description, notes);
+        expense.Update(expenseCategoryId, expenseDate, amount, paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, bankAccountId, description, notes);
     }
 
     public async Task PostAsync(ShopExpense expense)
@@ -95,6 +103,12 @@ public class ShopExpenseManager : DomainService
                 tenantId, ShopCashTransactionType.Expense, ShopCashDirection.Out, expense.Amount,
                 ShopCashReferenceType.Expense, expense.Id, expense.ExpenseNumber, $"Expense - {expense.ExpenseNumber}", expense.ExpenseDate);
         }
+        else if (expense.BankAccountId.HasValue)
+        {
+            await _bankAccountManager.RecordTransactionAsync(
+                tenantId, expense.BankAccountId.Value, ShopBankTransactionType.Expense, ShopBankDirection.Out, expense.Amount,
+                ShopBankReferenceType.Expense, expense.Id, expense.ExpenseNumber, $"Expense - {expense.ExpenseNumber}", expense.ExpenseDate);
+        }
     }
 
     public async Task CancelAsync(ShopExpense expense, string cancellationReason)
@@ -108,6 +122,17 @@ public class ShopExpenseManager : DomainService
                 tenantId, ShopCashTransactionType.Expense, ShopCashReferenceType.Expense,
                 expense.Id, expense.ExpenseNumber, $"Reversal - cancelled expense {expense.ExpenseNumber}", Clock.Now);
         }
+        else if (expense.BankAccountId.HasValue)
+        {
+            await _bankAccountManager.RecordReversalIfExistsAsync(
+                tenantId, ShopBankTransactionType.Expense, ShopBankReferenceType.Expense,
+                expense.Id, expense.ExpenseNumber, $"Reversal - cancelled expense {expense.ExpenseNumber}", Clock.Now);
+        }
+    }
+
+    private async Task ValidateBankAccountAsync(Guid? bankAccountId, Guid tenantId)
+    {
+        if (bankAccountId.HasValue) await _bankAccountManager.GetAccountAsync(bankAccountId.Value, tenantId);
     }
 
     public Task ValidateDeleteAsync(ShopExpense expense)

@@ -203,6 +203,18 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/cash-register/shop-cash-register.module').then(m => m.ShopCashRegisterModule),
   },
   {
+    path: 'shop-management/bank-accounts', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.BankAccounts' },
+    loadChildren: () => import('./shop-management/bank-accounts/shop-bank-accounts.module').then(m => m.ShopBankAccountsModule),
+  },
+  {
+    path: 'shop-management/bank-transactions', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.BankTransactions' },
+    loadChildren: () => import('./shop-management/bank-transactions/shop-bank-transactions.module').then(m => m.ShopBankTransactionsModule),
+  },
+  {
+    path: 'shop-management/bank-transfers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.BankTransfers' },
+    loadChildren: () => import('./shop-management/bank-transfers/shop-bank-transfers.module').then(m => m.ShopBankTransfersModule),
+  },
+  {
     path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
     loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
   },

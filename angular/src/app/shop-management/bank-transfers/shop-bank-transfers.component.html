@@ -1,0 +1,93 @@
+<div class="sp-page">
+  <div class="page-heading">
+    <div>
+      <h3>{{ '::BankTransfers' | abpLocalization }}</h3>
+      <p>{{ '::BankTransfersDescription' | abpLocalization }}</p>
+    </div>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateBankTransfer' | abpLocalization }}</button>
+  </div>
+  <div class="card sp-card">
+    <div class="filters row g-2">
+      <div class="col-12 col-lg-2">
+        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchBankTransfers' | abpLocalization"></div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllTransferTypes' | abpLocalization">
+          <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::Status' | abpLocalization">
+          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="fromAccountFilter" (ngModelChange)="load(true)" nzAllowClear nzShowSearch [nzPlaceHolder]="'::FromBankAccount' | abpLocalization">
+          <nz-option *ngFor="let a of accounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <nz-select class="w-100" [(ngModel)]="toAccountFilter" (ngModelChange)="load(true)" nzAllowClear nzShowSearch [nzPlaceHolder]="'::ToBankAccount' | abpLocalization">
+          <nz-option *ngFor="let a of accounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-6 col-lg-1">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)" [title]="'::TransferDate' | abpLocalization">
+      </div>
+      <div class="col-6 col-lg-1">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)" [title]="'::TransferDate' | abpLocalization">
+      </div>
+    </div>
+    <div class="filters second-row row g-2">
+      <div class="col-12 col-lg-2 offset-lg-10">
+        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::TransferNumber' | abpLocalization }}</th>
+            <th>{{ '::TransferDate' | abpLocalization }}</th>
+            <th>{{ '::TransferType' | abpLocalization }}</th>
+            <th>{{ '::FromBankAccount' | abpLocalization }}</th>
+            <th>{{ '::ToBankAccount' | abpLocalization }}</th>
+            <th *ngIf="canViewAmount" class="text-end">{{ '::Amount' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::PostedDate' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="sp-link" (click)="view(row)">{{ row.transferNumber }}</a></td>
+            <td>{{ row.transferDate | date:'mediumDate' }}</td>
+            <td>{{ typeLabel(row.transferType) | abpLocalization }}</td>
+            <td>{{ row.fromBankAccountName || (row.cashRegisterName ? ('::CashRegister' | abpLocalization) + ': ' + row.cashRegisterName : '—') }}</td>
+            <td>{{ row.toBankAccountName || (row.cashRegisterName ? ('::CashRegister' | abpLocalization) + ': ' + row.cashRegisterName : '—') }}</td>
+            <td *ngIf="canViewAmount" class="text-end">{{ row.amount != null ? (row.amount | number:'1.2-2') : '—' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td>{{ row.postedDate ? (row.postedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" [title]="'::BankTransfer' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && row.status === ShopBankTransferStatus.Draft" class="icon-btn" (click)="edit(row)" [title]="'::EditBankTransfer' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canPost && row.status === ShopBankTransferStatus.Draft" class="icon-btn" (click)="post(row)" [title]="'::PostBankTransfer' | abpLocalization"><i class="fas fa-check"></i></button>
+              <button *ngIf="canDelete && row.status === ShopBankTransferStatus.Draft" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteBankTransfer' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewAmount ? 9 : 8" class="empty-state"><i class="fas fa-exchange-alt"></i><span>{{ '::NoBankTransfersFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>

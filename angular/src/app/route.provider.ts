@@ -144,6 +144,25 @@ function configureRoutes() {
       iconClass: 'fas fa-book', order: 3, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.CashClosings',
     },
+    {
+      name: '::BankManagement', parentName: '::ShopManagement', iconClass: 'fas fa-university', order: 10,
+      layout: eLayoutType.application, requiredPolicy: 'ShopManagement.BankAccounts',
+    },
+    {
+      path: '/shop-management/bank-accounts', name: '::BankAccounts', parentName: '::BankManagement',
+      iconClass: 'fas fa-university', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.BankAccounts',
+    },
+    {
+      path: '/shop-management/bank-transactions', name: '::BankTransactions', parentName: '::BankManagement',
+      iconClass: 'fas fa-exchange-alt', order: 2, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.BankTransactions',
+    },
+    {
+      path: '/shop-management/bank-transfers', name: '::BankTransfers', parentName: '::BankManagement',
+      iconClass: 'fas fa-random', order: 3, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.BankTransfers',
+    },
     // Home / Dashboard
     {
       path: '/',

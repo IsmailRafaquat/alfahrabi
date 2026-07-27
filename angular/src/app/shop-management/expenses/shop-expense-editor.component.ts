@@ -12,17 +12,24 @@ import {
   shopExpensePaymentMethodOptions,
 } from '../../proxy/shop-management/expenses';
 import { ShopExpenseCategoryLookupDto, ShopExpenseCategoryService } from '../../proxy/shop-management/expense-categories';
+import { ShopBankAccountLookupDto, ShopBankAccountService } from '../../proxy/shop-management/bank-accounts';
+
+function requiresBankAccount(method: ShopExpensePaymentMethod | null | undefined): boolean {
+  return method === ShopExpensePaymentMethod.BankTransfer || method === ShopExpensePaymentMethod.Card || method === ShopExpensePaymentMethod.Cheque;
+}
 
 function chequeAndBankValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const paymentMethod = control.get('paymentMethod')?.value;
     const chequeNumber = (control.get('chequeNumber')?.value || '').trim();
     const bankName = (control.get('bankName')?.value || '').trim();
+    const bankAccountId = control.get('bankAccountId')?.value;
 
     const errors: ValidationErrors = {};
     if (paymentMethod === ShopExpensePaymentMethod.Cheque && !chequeNumber) errors['chequeNumberRequired'] = true;
     if ((paymentMethod === ShopExpensePaymentMethod.Cheque || paymentMethod === ShopExpensePaymentMethod.BankTransfer) && !bankName)
       errors['bankNameRequired'] = true;
+    if (requiresBankAccount(paymentMethod) && !bankAccountId) errors['bankAccountRequired'] = true;
 
     return Object.keys(errors).length ? errors : null;
   };
@@ -33,6 +40,7 @@ export class ShopExpenseEditorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ShopExpenseService);
   private readonly categoryService = inject(ShopExpenseCategoryService);
+  private readonly bankAccountService = inject(ShopBankAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toaster = inject(ToasterService);
@@ -41,6 +49,7 @@ export class ShopExpenseEditorComponent implements OnInit {
   readonly paymentMethodOptions = shopExpensePaymentMethodOptions;
 
   categories: ShopExpenseCategoryLookupDto[] = [];
+  bankAccounts: ShopBankAccountLookupDto[] = [];
   editId?: string;
   loading = false;
   submitting = false;
@@ -49,6 +58,10 @@ export class ShopExpenseEditorComponent implements OnInit {
 
   get isEdit(): boolean {
     return !!this.editId;
+  }
+
+  get requiresBankAccount(): boolean {
+    return requiresBankAccount(this.form.controls.paymentMethod.value);
   }
 
   readonly form = this.fb.group(
@@ -61,6 +74,7 @@ export class ShopExpenseEditorComponent implements OnInit {
       referenceNumber: ['', Validators.maxLength(128)],
       chequeNumber: ['', Validators.maxLength(64)],
       bankName: ['', Validators.maxLength(128)],
+      bankAccountId: [''],
       description: ['', Validators.maxLength(500)],
       notes: ['', Validators.maxLength(1000)],
     },
@@ -73,6 +87,16 @@ export class ShopExpenseEditorComponent implements OnInit {
     this.categoryService.getLookup().subscribe(result => {
       this.categories = result.items || [];
       if (this.editId) this.loadForEdit(this.editId);
+    });
+    this.bankAccountService.getLookup().subscribe(result => (this.bankAccounts = result.items || []));
+
+    this.form.controls.paymentMethod.valueChanges.subscribe(method => {
+      if (!requiresBankAccount(method)) {
+        this.form.controls.bankAccountId.setValue('');
+      } else if (!this.form.controls.bankAccountId.value) {
+        const defaultAccount = this.bankAccounts.find(a => a.isDefault);
+        if (defaultAccount) this.form.controls.bankAccountId.setValue(defaultAccount.id);
+      }
     });
   }
 
@@ -91,6 +115,7 @@ export class ShopExpenseEditorComponent implements OnInit {
       referenceNumber: raw.referenceNumber || undefined,
       chequeNumber: raw.chequeNumber || undefined,
       bankName: raw.bankName || undefined,
+      bankAccountId: raw.bankAccountId || undefined,
       description: raw.description || undefined,
       notes: raw.notes || undefined,
     };
@@ -138,6 +163,7 @@ export class ShopExpenseEditorComponent implements OnInit {
           referenceNumber: dto.referenceNumber || '',
           chequeNumber: dto.chequeNumber || '',
           bankName: dto.bankName || '',
+          bankAccountId: dto.bankAccountId || '',
           description: dto.description || '',
           notes: dto.notes || '',
         });

@@ -22,6 +22,7 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public string? ReferenceNumber { get; protected set; }
     public string? ChequeNumber { get; protected set; }
     public string? BankName { get; protected set; }
+    public Guid? BankAccountId { get; protected set; }
     public string? Description { get; protected set; }
     public string? Notes { get; protected set; }
     public ShopExpenseStatus Status { get; protected set; } = ShopExpenseStatus.Draft;
@@ -46,6 +47,7 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? description,
         string? notes) : base(id)
     {
@@ -53,7 +55,7 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ExpenseNumber = Check.NotNullOrWhiteSpace(expenseNumber, nameof(expenseNumber), ShopExpenseConsts.ExpenseNumberMaxLength);
         ExpenseCategoryId = expenseCategoryId;
         Status = ShopExpenseStatus.Draft;
-        SetValues(expenseDate, amount, paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, description, notes);
+        SetValues(expenseDate, amount, paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, bankAccountId, description, notes);
     }
 
     internal void Update(
@@ -65,12 +67,13 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? description,
         string? notes)
     {
         EnsureEditable();
         ExpenseCategoryId = expenseCategoryId;
-        SetValues(expenseDate, amount, paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, description, notes);
+        SetValues(expenseDate, amount, paymentMethod, paidTo, referenceNumber, chequeNumber, bankName, bankAccountId, description, notes);
     }
 
     internal void MarkAsPosted(Guid postedByUserId, DateTime postedDate)
@@ -113,6 +116,7 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? description,
         string? notes)
     {
@@ -125,6 +129,8 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
             throw new BusinessException("ShopManagement:ExpenseChequeNumberRequired");
         if ((paymentMethod == ShopExpensePaymentMethod.Cheque || paymentMethod == ShopExpensePaymentMethod.BankTransfer) && string.IsNullOrWhiteSpace(trimmedBankName))
             throw new BusinessException("ShopManagement:ExpenseBankNameRequired");
+        if (RequiresBankAccount(paymentMethod) && !bankAccountId.HasValue)
+            throw new BusinessException("ShopManagement:BankAccountRequired");
 
         ExpenseDate = expenseDate;
         Amount = amount;
@@ -133,7 +139,11 @@ public class ShopExpense : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ReferenceNumber = Check.Length(referenceNumber?.Trim(), nameof(referenceNumber), ShopExpenseConsts.ReferenceNumberMaxLength);
         ChequeNumber = trimmedChequeNumber;
         BankName = trimmedBankName;
+        BankAccountId = RequiresBankAccount(paymentMethod) ? bankAccountId : null;
         Description = Check.Length(description?.Trim(), nameof(description), ShopExpenseConsts.DescriptionMaxLength);
         Notes = Check.Length(notes?.Trim(), nameof(notes), ShopExpenseConsts.NotesMaxLength);
     }
+
+    private static bool RequiresBankAccount(ShopExpensePaymentMethod paymentMethod) =>
+        paymentMethod is ShopExpensePaymentMethod.BankTransfer or ShopExpensePaymentMethod.Card or ShopExpensePaymentMethod.Cheque;
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
@@ -29,6 +30,7 @@ public class ShopSaleReturnManager : DomainService
     private readonly IRepository<ShopStockTransaction, Guid> _stockTransactionRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
+    private readonly ShopBankAccountManager _bankAccountManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -41,6 +43,7 @@ public class ShopSaleReturnManager : DomainService
         IRepository<ShopStockTransaction, Guid> stockTransactionRepository,
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
+        ShopBankAccountManager bankAccountManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -52,6 +55,7 @@ public class ShopSaleReturnManager : DomainService
         _stockTransactionRepository = stockTransactionRepository;
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
+        _bankAccountManager = bankAccountManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -62,12 +66,14 @@ public class ShopSaleReturnManager : DomainService
         ShopSaleReturnReason reason,
         string? reasonDetails,
         ShopSaleReturnSettlementType settlementType,
+        Guid? bankAccountId,
         decimal otherCharges,
         string? notes,
         IReadOnlyList<ShopSaleReturnItemInput> items)
     {
         var tenantId = RequireTenant();
         var sale = await GetCompletedSaleAsync(saleId, tenantId);
+        await ValidateBankAccountAsync(bankAccountId, tenantId);
 
         var returnId = GuidGenerator.Create();
         var itemEntities = await BuildItemEntitiesAsync(returnId, tenantId, sale, items, excludeReturnId: null);
@@ -75,7 +81,7 @@ public class ShopSaleReturnManager : DomainService
         var number = await _numberGenerator.GetNextNumberAsync(tenantId, DocumentType, NumberPrefix);
 
         return new ShopSaleReturn(returnId, tenantId, number, sale.Id, sale.CustomerId, returnDate, reason,
-            reasonDetails, settlementType, otherCharges, notes, itemEntities);
+            reasonDetails, settlementType, bankAccountId, otherCharges, notes, itemEntities);
     }
 
     public async Task UpdateAsync(
@@ -84,17 +90,19 @@ public class ShopSaleReturnManager : DomainService
         ShopSaleReturnReason reason,
         string? reasonDetails,
         ShopSaleReturnSettlementType settlementType,
+        Guid? bankAccountId,
         decimal otherCharges,
         string? notes,
         IReadOnlyList<ShopSaleReturnItemInput> items)
     {
         var tenantId = RequireTenantOwnership(saleReturn);
         saleReturn.EnsureEditable();
+        await ValidateBankAccountAsync(bankAccountId, tenantId);
 
         var sale = await GetCompletedSaleAsync(saleReturn.SaleId, tenantId);
         var itemEntities = await BuildItemEntitiesAsync(saleReturn.Id, tenantId, sale, items, excludeReturnId: saleReturn.Id);
 
-        saleReturn.Update(returnDate, reason, reasonDetails, settlementType, otherCharges, notes, itemEntities);
+        saleReturn.Update(returnDate, reason, reasonDetails, settlementType, bankAccountId, otherCharges, notes, itemEntities);
     }
 
     public async Task CompleteAsync(ShopSaleReturn saleReturn)
@@ -157,6 +165,17 @@ public class ShopSaleReturnManager : DomainService
                 tenantId, ShopCashTransactionType.CustomerRefund, ShopCashDirection.Out, saleReturn.RefundAmount,
                 ShopCashReferenceType.SaleReturn, saleReturn.Id, saleReturn.SaleReturnNumber, $"Cash refund - {saleReturn.SaleReturnNumber}", saleReturn.ReturnDate);
         }
+        else if (saleReturn.SettlementType == ShopSaleReturnSettlementType.BankRefund && saleReturn.RefundAmount > 0 && saleReturn.BankAccountId.HasValue)
+        {
+            await _bankAccountManager.RecordTransactionAsync(
+                tenantId, saleReturn.BankAccountId.Value, ShopBankTransactionType.CustomerRefund, ShopBankDirection.Out, saleReturn.RefundAmount,
+                ShopBankReferenceType.SaleReturn, saleReturn.Id, saleReturn.SaleReturnNumber, $"Bank refund - {saleReturn.SaleReturnNumber}", saleReturn.ReturnDate);
+        }
+    }
+
+    private async Task ValidateBankAccountAsync(Guid? bankAccountId, Guid tenantId)
+    {
+        if (bankAccountId.HasValue) await _bankAccountManager.GetAccountAsync(bankAccountId.Value, tenantId);
     }
 
     public Task CancelAsync(ShopSaleReturn saleReturn, string cancellationReason)

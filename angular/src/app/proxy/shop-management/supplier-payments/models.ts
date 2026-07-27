@@ -21,6 +21,7 @@ export interface CreateUpdateShopSupplierPaymentDto {
   referenceNumber?: string;
   chequeNumber?: string;
   bankName?: string;
+  bankAccountId?: string;
   notes?: string;
   allocations: CreateUpdateShopSupplierPaymentAllocationDto[];
 }
@@ -67,6 +68,9 @@ export interface ShopSupplierPaymentDto extends EntityDto<string> {
   referenceNumber?: string;
   chequeNumber?: string;
   bankName?: string;
+  bankAccountId?: string;
+  bankAccountCode?: string;
+  bankAccountName?: string;
   notes?: string;
   status?: ShopSupplierPaymentStatus;
   allocatedAmount?: number;

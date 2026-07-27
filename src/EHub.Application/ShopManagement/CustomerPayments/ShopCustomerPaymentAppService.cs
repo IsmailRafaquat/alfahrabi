@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using EHub.Permissions;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.Sales;
 using Microsoft.AspNetCore.Authorization;
@@ -21,17 +22,20 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
     private readonly IRepository<ShopCustomerPayment, Guid> _repository;
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopSale, Guid> _saleRepository;
+    private readonly IRepository<ShopBankAccount, Guid> _bankAccountRepository;
     private readonly ShopCustomerPaymentManager _manager;
 
     public ShopCustomerPaymentAppService(
         IRepository<ShopCustomerPayment, Guid> repository,
         IRepository<ShopCustomer, Guid> customerRepository,
         IRepository<ShopSale, Guid> saleRepository,
+        IRepository<ShopBankAccount, Guid> bankAccountRepository,
         ShopCustomerPaymentManager manager)
     {
         _repository = repository;
         _customerRepository = customerRepository;
         _saleRepository = saleRepository;
+        _bankAccountRepository = bankAccountRepository;
         _manager = manager;
     }
 
@@ -85,6 +89,7 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
                             ReferenceNumber = payment.ReferenceNumber,
                             ChequeNumber = payment.ChequeNumber,
                             BankName = payment.BankName,
+                            BankAccountId = payment.BankAccountId,
                             Notes = payment.Notes,
                             Status = payment.Status,
                             PostedByUserId = payment.PostedByUserId,
@@ -98,6 +103,7 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
 
         var items = await AsyncExecuter.ToListAsync(projected);
         await PopulateAllocatedAmountsAsync(items);
+        await PopulateBankAccountNamesAsync(items);
         await HideAmountIfNotAllowedAsync(items);
         return new PagedResultDto<ShopCustomerPaymentDto>(totalCount, items);
     }
@@ -156,7 +162,7 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
     public async Task<ShopCustomerPaymentDto> CreateAsync(CreateUpdateShopCustomerPaymentDto input)
     {
         var entity = await _manager.CreateAsync(input.CustomerId, input.PaymentDate, input.PaymentType, input.PaymentMethod,
-            input.Amount, input.ReferenceNumber, input.ChequeNumber, input.BankName, input.Notes, ToAllocationInputs(input.Allocations));
+            input.Amount, input.ReferenceNumber, input.ChequeNumber, input.BankName, input.BankAccountId, input.Notes, ToAllocationInputs(input.Allocations));
         await _repository.InsertAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -168,7 +174,7 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
         if (input.CustomerId != entity.CustomerId) throw new BusinessException("ShopManagement:CustomerPaymentCustomerCannotBeChanged");
 
         await _manager.UpdateAsync(entity, input.PaymentDate, input.PaymentType, input.PaymentMethod, input.Amount,
-            input.ReferenceNumber, input.ChequeNumber, input.BankName, input.Notes, ToAllocationInputs(input.Allocations));
+            input.ReferenceNumber, input.ChequeNumber, input.BankName, input.BankAccountId, input.Notes, ToAllocationInputs(input.Allocations));
         await _repository.UpdateAsync(entity, autoSave: true);
         return await GetAsync(entity.Id);
     }
@@ -262,7 +268,7 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
 
         var allocatedAmount = entity.Allocations.Sum(x => x.AllocatedAmount);
 
-        return new ShopCustomerPaymentDto
+        var dto = new ShopCustomerPaymentDto
         {
             Id = entity.Id,
             PaymentNumber = entity.PaymentNumber,
@@ -276,6 +282,7 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
             ReferenceNumber = entity.ReferenceNumber,
             ChequeNumber = entity.ChequeNumber,
             BankName = entity.BankName,
+            BankAccountId = entity.BankAccountId,
             Notes = entity.Notes,
             Status = entity.Status,
             AllocatedAmount = allocatedAmount,
@@ -301,5 +308,25 @@ public class ShopCustomerPaymentAppService : ApplicationService, IShopCustomerPa
                 };
             }).ToList()
         };
+        await PopulateBankAccountNamesAsync(new List<ShopCustomerPaymentDto> { dto });
+        return dto;
+    }
+
+    private async Task PopulateBankAccountNamesAsync(List<ShopCustomerPaymentDto> items)
+    {
+        var bankAccountIds = items.Where(x => x.BankAccountId.HasValue).Select(x => x.BankAccountId!.Value).Distinct().ToList();
+        if (bankAccountIds.Count == 0) return;
+
+        var query = await _bankAccountRepository.GetQueryableAsync();
+        var accounts = query.Where(x => bankAccountIds.Contains(x.Id)).ToList().ToDictionary(x => x.Id);
+
+        foreach (var item in items)
+        {
+            if (item.BankAccountId.HasValue && accounts.TryGetValue(item.BankAccountId.Value, out var account))
+            {
+                item.BankAccountCode = account.Code;
+                item.BankAccountName = account.AccountName;
+            }
+        }
     }
 }

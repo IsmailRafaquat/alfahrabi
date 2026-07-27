@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Customers;
 using EHub.ShopManagement.PurchaseOrders;
@@ -24,6 +25,7 @@ public class ShopCustomerPaymentManager : DomainService
     private readonly IRepository<ShopSale, Guid> _saleRepository;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
+    private readonly ShopBankAccountManager _bankAccountManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -33,6 +35,7 @@ public class ShopCustomerPaymentManager : DomainService
         IRepository<ShopSale, Guid> saleRepository,
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
+        ShopBankAccountManager bankAccountManager,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -41,6 +44,7 @@ public class ShopCustomerPaymentManager : DomainService
         _saleRepository = saleRepository;
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
+        _bankAccountManager = bankAccountManager;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -54,11 +58,13 @@ public class ShopCustomerPaymentManager : DomainService
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? notes,
         IReadOnlyList<ShopCustomerPaymentAllocationInput> allocations)
     {
         var tenantId = RequireTenant();
         await ValidateCustomerAsync(customerId, tenantId);
+        await ValidateBankAccountAsync(bankAccountId, tenantId);
 
         var paymentId = GuidGenerator.Create();
         var allocationEntities = await BuildAllocationEntitiesAsync(paymentId, tenantId, customerId, allocations, excludePaymentId: null);
@@ -66,7 +72,7 @@ public class ShopCustomerPaymentManager : DomainService
         var paymentNumber = await _numberGenerator.GetNextNumberAsync(tenantId, DocumentType, NumberPrefix);
 
         return new ShopCustomerPayment(paymentId, tenantId, paymentNumber, customerId, paymentDate, paymentType,
-            paymentMethod, amount, referenceNumber, chequeNumber, bankName, notes, allocationEntities);
+            paymentMethod, amount, referenceNumber, chequeNumber, bankName, bankAccountId, notes, allocationEntities);
     }
 
     public async Task UpdateAsync(
@@ -78,15 +84,17 @@ public class ShopCustomerPaymentManager : DomainService
         string? referenceNumber,
         string? chequeNumber,
         string? bankName,
+        Guid? bankAccountId,
         string? notes,
         IReadOnlyList<ShopCustomerPaymentAllocationInput> allocations)
     {
         var tenantId = RequireTenantOwnership(payment);
         payment.EnsureEditable();
+        await ValidateBankAccountAsync(bankAccountId, tenantId);
 
         var allocationEntities = await BuildAllocationEntitiesAsync(payment.Id, tenantId, payment.CustomerId, allocations, excludePaymentId: payment.Id);
 
-        payment.Update(paymentDate, paymentType, paymentMethod, amount, referenceNumber, chequeNumber, bankName, notes, allocationEntities);
+        payment.Update(paymentDate, paymentType, paymentMethod, amount, referenceNumber, chequeNumber, bankName, bankAccountId, notes, allocationEntities);
     }
 
     public async Task PostAsync(ShopCustomerPayment payment)
@@ -105,6 +113,12 @@ public class ShopCustomerPaymentManager : DomainService
                 tenantId, ShopCashTransactionType.CustomerPayment, ShopCashDirection.In, payment.Amount,
                 ShopCashReferenceType.CustomerPayment, payment.Id, payment.PaymentNumber, $"Customer payment - {payment.PaymentNumber}", payment.PaymentDate);
         }
+        else if (payment.BankAccountId.HasValue)
+        {
+            await _bankAccountManager.RecordTransactionAsync(
+                tenantId, payment.BankAccountId.Value, ShopBankTransactionType.CustomerPayment, ShopBankDirection.In, payment.Amount,
+                ShopBankReferenceType.CustomerPayment, payment.Id, payment.PaymentNumber, $"Customer payment - {payment.PaymentNumber}", payment.PaymentDate);
+        }
     }
 
     public async Task CancelAsync(ShopCustomerPayment payment, string cancellationReason)
@@ -118,6 +132,17 @@ public class ShopCustomerPaymentManager : DomainService
                 tenantId, ShopCashTransactionType.CustomerPayment, ShopCashReferenceType.CustomerPayment,
                 payment.Id, payment.PaymentNumber, $"Reversal - cancelled customer payment {payment.PaymentNumber}", Clock.Now);
         }
+        else if (payment.BankAccountId.HasValue)
+        {
+            await _bankAccountManager.RecordReversalIfExistsAsync(
+                tenantId, ShopBankTransactionType.CustomerPayment, ShopBankReferenceType.CustomerPayment,
+                payment.Id, payment.PaymentNumber, $"Reversal - cancelled customer payment {payment.PaymentNumber}", Clock.Now);
+        }
+    }
+
+    private async Task ValidateBankAccountAsync(Guid? bankAccountId, Guid tenantId)
+    {
+        if (bankAccountId.HasValue) await _bankAccountManager.GetAccountAsync(bankAccountId.Value, tenantId);
     }
 
     public Task ValidateDeleteAsync(ShopCustomerPayment payment)

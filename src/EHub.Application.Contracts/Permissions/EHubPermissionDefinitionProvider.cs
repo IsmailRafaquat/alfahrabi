@@ -121,6 +121,21 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         var shopCashTransactions = shopManagement.AddChild(EHubPermissions.ShopCashTransactions.Default, L("Permission:ShopCashTransactions"));
         shopCashTransactions.AddChild(EHubPermissions.ShopCashTransactions.ManualMovement, L("Permission:ShopCashTransactions.ManualMovement"));
         shopCashTransactions.AddChild(EHubPermissions.ShopCashTransactions.ViewAmounts, L("Permission:ShopCashTransactions.ViewAmounts"));
+        var shopBankAccounts = shopManagement.AddChild(EHubPermissions.ShopBankAccounts.Default, L("Permission:ShopBankAccounts"));
+        shopBankAccounts.AddChild(EHubPermissions.ShopBankAccounts.Create, L("Permission:ShopBankAccounts.Create"));
+        shopBankAccounts.AddChild(EHubPermissions.ShopBankAccounts.Edit, L("Permission:ShopBankAccounts.Edit"));
+        shopBankAccounts.AddChild(EHubPermissions.ShopBankAccounts.Delete, L("Permission:ShopBankAccounts.Delete"));
+        shopBankAccounts.AddChild(EHubPermissions.ShopBankAccounts.ViewBalance, L("Permission:ShopBankAccounts.ViewBalance"));
+        var shopBankTransactions = shopManagement.AddChild(EHubPermissions.ShopBankTransactions.Default, L("Permission:ShopBankTransactions"));
+        shopBankTransactions.AddChild(EHubPermissions.ShopBankTransactions.ManualMovement, L("Permission:ShopBankTransactions.ManualMovement"));
+        shopBankTransactions.AddChild(EHubPermissions.ShopBankTransactions.ViewAmount, L("Permission:ShopBankTransactions.ViewAmount"));
+        var shopBankTransfers = shopManagement.AddChild(EHubPermissions.ShopBankTransfers.Default, L("Permission:ShopBankTransfers"));
+        shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.Create, L("Permission:ShopBankTransfers.Create"));
+        shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.Edit, L("Permission:ShopBankTransfers.Edit"));
+        shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.Delete, L("Permission:ShopBankTransfers.Delete"));
+        shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.Post, L("Permission:ShopBankTransfers.Post"));
+        shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.Cancel, L("Permission:ShopBankTransfers.Cancel"));
+        shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.ViewAmount, L("Permission:ShopBankTransfers.ViewAmount"));
 
 
         var dashboardPermission =

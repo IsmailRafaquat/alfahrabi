@@ -8,6 +8,7 @@ export enum ShopCashReferenceType {
   Expense = 4,
   SaleReturn = 5,
   ManualCashMovement = 6,
+  BankTransfer = 7,
 }
 
 export const shopCashReferenceTypeOptions = mapEnumToOptions(ShopCashReferenceType);

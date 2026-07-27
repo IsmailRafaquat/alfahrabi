@@ -8,5 +8,6 @@ public enum ShopCashReferenceType
     SupplierPayment = 3,
     Expense = 4,
     SaleReturn = 5,
-    ManualCashMovement = 6
+    ManualCashMovement = 6,
+    BankTransfer = 7
 }

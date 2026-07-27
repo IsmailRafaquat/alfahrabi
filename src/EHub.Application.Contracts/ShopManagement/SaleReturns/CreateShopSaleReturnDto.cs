@@ -25,6 +25,7 @@ public class CreateShopSaleReturnDto
     public ShopSaleReturnReason Reason { get; set; }
     public string? ReasonDetails { get; set; }
     public ShopSaleReturnSettlementType SettlementType { get; set; }
+    public Guid? BankAccountId { get; set; }
 
     [Range(0, double.MaxValue)]
     public decimal OtherCharges { get; set; }
