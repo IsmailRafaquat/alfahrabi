@@ -4,6 +4,7 @@ using EHub.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace EHub.Migrations
 {
     [DbContext(typeof(EHubDbContext))]
-    partial class EHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728073251_Added_ShopDashboardQueryIndexes")]
+    partial class Added_ShopDashboardQueryIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -8603,7 +8606,7 @@ namespace EHub.Migrations
 
                             b1.HasKey("StaffDocumentId");
 
-                            b1.ToTable("AppStaffDocuments", (string)null);
+                            b1.ToTable("AppStaffDocuments");
 
                             b1.WithOwner()
                                 .HasForeignKey("StaffDocumentId");
@@ -8658,7 +8661,7 @@ namespace EHub.Migrations
 
                             b1.HasKey("StudentDocumentId");
 
-                            b1.ToTable("AppStudentDocuments", (string)null);
+                            b1.ToTable("AppStudentDocuments");
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentDocumentId");

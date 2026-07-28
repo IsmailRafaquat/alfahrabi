@@ -16,6 +16,18 @@ public static class EHubPermissions
         public const string Manage = Default + ".Manage";
     }
 
+    public static class ShopDashboard
+    {
+        public const string Default = ManagementMenus.Shop + ".Dashboard";
+        public const string ViewFinancialSummary = Default + ".ViewFinancialSummary";
+        public const string ViewInventoryValue = Default + ".ViewInventoryValue";
+        public const string ViewBalances = Default + ".ViewBalances";
+        public const string ViewSalesChart = Default + ".ViewSalesChart";
+        public const string ViewTopProducts = Default + ".ViewTopProducts";
+        public const string ViewStockAlerts = Default + ".ViewStockAlerts";
+        public const string ViewRecentTransactions = Default + ".ViewRecentTransactions";
+    }
+
     public static class ShopProductCategories
     {
         public const string Default = ManagementMenus.Shop + ".ProductCategories";

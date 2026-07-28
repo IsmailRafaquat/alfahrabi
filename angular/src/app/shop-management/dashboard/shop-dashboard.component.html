@@ -1,0 +1,360 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h3>{{ dto?.shopDisplayName || ('::ShopDashboard' | abpLocalization) }}</h3>
+      <p>{{ '::ShopDashboard' | abpLocalization }}</p>
+    </div>
+    <div class="filters">
+      <nz-select class="period-select" [(ngModel)]="period" (ngModelChange)="onPeriodChange()">
+        <nz-option *ngFor="let x of periodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+      <ng-container *ngIf="period === ShopDashboardPeriod.Custom">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" [title]="'::DateFrom' | abpLocalization">
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" [title]="'::DateTo' | abpLocalization">
+        <button class="btn btn-primary btn-sm" [disabled]="!dateFrom || !dateTo || loading" (click)="applyCustomRange()">{{ '::ApplyFilter' | abpLocalization }}</button>
+      </ng-container>
+      <button class="btn btn-light btn-sm" [disabled]="loading" (click)="load()">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!loading" class="fas fa-sync-alt me-2"></i>{{ '::RefreshDashboard' | abpLocalization }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading && !dto" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <div *ngIf="error && !dto" class="empty-state page-empty"><i class="fas fa-exclamation-triangle"></i><span>{{ '::NoDashboardData' | abpLocalization }}</span></div>
+
+  <ng-container *ngIf="dto as d">
+    <!-- Summary cards -->
+    <div class="cards-row" *ngIf="canViewFinancialSummary || canViewBalances">
+      <div class="stat-card" (click)="goSales()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Total sales after deducting sale returns for the selected period (Gross Sales minus Sale Returns). Pending/unpaid amounts are still included since the sale itself is completed.', ur: 'منتخب مدت میں کل سیلز، سیل ریٹرن کی رقم منہا کرنے کے بعد (Gross Sales - Sale Returns)۔ ادائیگی باقی ہونے کے باوجود، مکمل ہونے والی سیل شامل ہوتی ہے۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-chart-line"></i>
+        <div><span class="stat-label">{{ '::NetSales' | abpLocalization }}</span><strong>{{ fmt(d.summary.netSales) }}</strong></div>
+      </div>
+      <div class="stat-card" (click)="goPurchases()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Total value of completed Goods Receipts (stock actually received from suppliers) in the selected period. Purchase Orders alone are not counted until goods are received.', ur: 'منتخب مدت میں مکمل ہونے والی Goods Receipts کی کل مالیت (سپلائیرز سے حقیقتاً موصول ہونے والا اسٹاک)۔ صرف Purchase Order بننے سے یہ شمار نہیں ہوتا، جب تک سامان وصول نہ ہو۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-truck"></i>
+        <div><span class="stat-label">{{ '::TotalPurchases' | abpLocalization }}</span><strong>{{ fmt(d.summary.totalPurchases) }}</strong></div>
+      </div>
+      <div class="stat-card" (click)="goExpenses()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Sum of all posted (approved) business expenses recorded within the selected period.', ur: 'منتخب مدت میں درج کیے گئے تمام posted (منظور شدہ) کاروباری اخراجات کا مجموعہ۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-file-invoice-dollar"></i>
+        <div><span class="stat-label">{{ '::TotalExpenses' | abpLocalization }}</span><strong>{{ fmt(d.summary.totalExpenses) }}</strong></div>
+      </div>
+      <div class="stat-card" *ngIf="canViewBalances" (click)="goCashManagement()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Current cash-in-hand balance across all cash registers. This is the live balance, not limited to the selected period.', ur: 'تمام کیش رجسٹرز میں موجودہ نقد رقم کا بیلنس۔ یہ ہر وقت کا موجودہ بیلنس ہے، منتخب مدت تک محدود نہیں۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-cash-register"></i>
+        <div><span class="stat-label">{{ '::CashBalance' | abpLocalization }}</span><strong>{{ fmt(d.summary.cashBalance) }}</strong></div>
+      </div>
+    </div>
+
+    <div class="cards-row" *ngIf="canViewBalances || canViewInventoryValue">
+      <div class="stat-card" *ngIf="canViewBalances" (click)="goBankManagement()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Total current balance of all active bank accounts. This is the live balance, not limited to the selected period.', ur: 'تمام ایکٹو بینک اکاؤنٹس کا موجودہ کل بیلنس۔ یہ ہر وقت کا موجودہ بیلنس ہے، منتخب مدت تک محدود نہیں۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-university"></i>
+        <div><span class="stat-label">{{ '::BankBalance' | abpLocalization }}</span><strong>{{ fmt(d.summary.bankBalance) }}</strong></div>
+      </div>
+      <div class="stat-card" *ngIf="canViewBalances" (click)="goCustomerLedger()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Total outstanding amount currently owed to you by all customers, across all their unpaid invoices - not limited to the selected period.', ur: 'تمام کسٹمرز کی جانب سے آپ کو واجب الادا کل رقم، ان کے تمام غیر ادا شدہ انوائسز کی بنیاد پر - یہ منتخب مدت تک محدود نہیں۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-hand-holding-usd"></i>
+        <div><span class="stat-label">{{ '::CustomerReceivables' | abpLocalization }}</span><strong>{{ fmt(d.summary.customerReceivables) }}</strong></div>
+      </div>
+      <div class="stat-card" *ngIf="canViewBalances" (click)="goSupplierLedger()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Total outstanding amount you currently owe to suppliers, across all unpaid purchases - not limited to the selected period.', ur: 'سپلائرز کو آپ کی جانب سے واجب الادا کل رقم، تمام غیر ادا شدہ خریداریوں کی بنیاد پر - یہ منتخب مدت تک محدود نہیں۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-money-bill-wave"></i>
+        <div><span class="stat-label">{{ '::SupplierPayables' | abpLocalization }}</span><strong>{{ fmt(d.summary.supplierPayables) }}</strong></div>
+      </div>
+      <div class="stat-card" *ngIf="canViewInventoryValue" (click)="goProducts()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Estimated value of all stock currently on hand, calculated using each product\'s purchase cost (or batch cost for batch-tracked products).', ur: 'اس وقت موجود تمام اسٹاک کی تخمینی مالیت، ہر پروڈکٹ کی خریداری قیمت (یا بیچ ٹریک شدہ پروڈکٹس کے لیے بیچ کاسٹ) کی بنیاد پر۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-warehouse"></i>
+        <div><span class="stat-label">{{ '::InventoryValue' | abpLocalization }}</span><strong>{{ fmt(d.summary.inventoryValue) }}</strong></div>
+      </div>
+    </div>
+
+    <div class="cards-row" *ngIf="canViewStockAlerts">
+      <div class="stat-card alert-card" (click)="goProducts()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Number of active products whose current stock has fallen to or below their reorder level.', ur: 'ایسی ایکٹو پروڈکٹس کی تعداد جن کا موجودہ اسٹاک ان کی Reorder Level کے برابر یا اس سے کم ہو چکا ہے۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-exclamation-triangle"></i>
+        <div><span class="stat-label">{{ '::LowStockProducts' | abpLocalization }}</span><strong>{{ d.summary.lowStockProductCount ?? '—' }}</strong></div>
+      </div>
+      <div class="stat-card alert-card" (click)="goProducts()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Number of active products with zero or negative current stock.', ur: 'ایسی ایکٹو پروڈکٹس کی تعداد جن کا موجودہ اسٹاک صفر یا اس سے کم ہے۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-ban"></i>
+        <div><span class="stat-label">{{ '::OutOfStockProducts' | abpLocalization }}</span><strong>{{ d.summary.outOfStockProductCount ?? '—' }}</strong></div>
+      </div>
+      <div class="stat-card alert-card" (click)="goProductBatches()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Number of product batches expiring soon, based on each product\'s Expiry Alert Days setting.', ur: 'ایسے پروڈکٹ بیچز کی تعداد جن کی میعاد جلد ختم ہونے والی ہے، ہر پروڈکٹ کی Expiry Alert Days سیٹنگ کی بنیاد پر۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-hourglass-half"></i>
+        <div><span class="stat-label">{{ '::NearExpiryBatches' | abpLocalization }}</span><strong>{{ d.summary.nearExpiryBatchCount ?? '—' }}</strong></div>
+      </div>
+      <div class="stat-card alert-card" (click)="goProductBatches()">
+        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'Number of product batches that have already expired but still have available stock remaining.', ur: 'ایسے پروڈکٹ بیچز کی تعداد جن کی میعاد ختم ہو چکی ہے مگر ان میں اسٹاک اب بھی باقی ہے۔' }"
+            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+        <i class="fas fa-skull-crossbones"></i>
+        <div><span class="stat-label">{{ '::ExpiredBatches' | abpLocalization }}</span><strong>{{ d.summary.expiredBatchCount ?? '—' }}</strong></div>
+      </div>
+    </div>
+
+    <!-- Chart + trend -->
+    <div class="chart-trend-row" *ngIf="canViewSalesChart">
+      <div class="detail-card chart-card">
+        <h6 class="section-title">{{ '::SalesVsExpenses' | abpLocalization }}</h6>
+        <div class="chart-wrap" *ngIf="d.salesExpenseChart">
+          <canvas #salesExpenseCanvas></canvas>
+        </div>
+        <div *ngIf="!d.salesExpenseChart" class="empty-state"><i class="fas fa-chart-line"></i><span>{{ '::NoSalesData' | abpLocalization }}</span></div>
+      </div>
+
+      <div class="detail-card trend-card" *ngIf="d.salesTrend as t">
+        <h6 class="section-title">{{ '::SalesTrend' | abpLocalization }}</h6>
+        <div class="trend-row"><span class="field-label">{{ '::CurrentPeriod' | abpLocalization }}</span><strong>{{ fmt(t.currentPeriodNetSales) }}</strong></div>
+        <div class="trend-row"><span class="field-label">{{ '::PreviousPeriod' | abpLocalization }}</span><strong>{{ fmt(t.previousPeriodNetSales) }}</strong></div>
+        <div class="trend-row">
+          <span class="field-label">{{ '::Growth' | abpLocalization }}</span>
+          <strong [ngClass]="t.salesGrowthAmount >= 0 ? 'growth-positive' : 'growth-negative'">
+            <i class="fas" [ngClass]="t.salesGrowthAmount >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+            {{ fmt(t.salesGrowthAmount) }}
+            <span *ngIf="t.salesGrowthPercentage != null">({{ t.salesGrowthPercentage | number:'1.1-1' }}%)</span>
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top products + Low stock -->
+    <div class="widgets-row">
+      <div class="detail-card widget-card" *ngIf="canViewTopProducts">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="section-title mb-0">{{ '::TopSellingProducts' | abpLocalization }}</h6>
+          <a class="view-all-link" (click)="goSales()">{{ '::ViewAll' | abpLocalization }}</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::ProductCode' | abpLocalization }}</th>
+                <th>{{ '::NetQuantitySold' | abpLocalization }}</th>
+                <th>{{ '::NetSalesAmount' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of d.topProducts; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ p.productName }}</td>
+                <td>{{ p.productCode }}</td>
+                <td>{{ num(p.netQuantitySold) }} {{ p.unitName }}</td>
+                <td>{{ fmt(p.netSalesAmount) }}</td>
+              </tr>
+              <tr *ngIf="!d.topProducts.length"><td colspan="5" class="empty-state"><i class="fas fa-box"></i><span>{{ '::NoSalesData' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="detail-card widget-card" *ngIf="canViewStockAlerts">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="section-title mb-0">{{ '::LowStockProducts' | abpLocalization }}</h6>
+          <a class="view-all-link" (click)="goProducts()">{{ '::ViewAll' | abpLocalization }}</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::CurrentStock' | abpLocalization }}</th>
+                <th>{{ '::ReorderLevel' | abpLocalization }}</th>
+                <th>{{ '::RequiredReorderQuantity' | abpLocalization }}</th>
+                <th>{{ '::Status' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of d.lowStockProducts">
+                <td>{{ p.productName }}<br><span class="code-chip">{{ p.productCode }}</span></td>
+                <td>{{ num(p.currentStock) }} {{ p.unitName }}</td>
+                <td>{{ num(p.reorderLevel) }}</td>
+                <td>{{ num(p.requiredReorderQuantity) }}</td>
+                <td><span class="status-badge" [ngClass]="p.isOutOfStock ? 'expired' : 'near-expiry'">{{ (p.isOutOfStock ? '::OutOfStockProducts' : '::LowStockProducts') | abpLocalization }}</span></td>
+              </tr>
+              <tr *ngIf="!d.lowStockProducts.length"><td colspan="5" class="empty-state"><i class="fas fa-box-open"></i><span>{{ '::NoLowStockProducts' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch alerts -->
+    <div class="widgets-row" *ngIf="canViewStockAlerts">
+      <div class="detail-card widget-card">
+        <h6 class="section-title">{{ '::NearExpiryBatches' | abpLocalization }}</h6>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::BatchNumber' | abpLocalization }}</th>
+                <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+                <th>{{ '::DaysToExpiry' | abpLocalization }}</th>
+                <th>{{ '::AvailableQuantity' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of d.nearExpiryBatches">
+                <td>{{ b.productName }}<br><span class="code-chip">{{ b.productCode }}</span></td>
+                <td>{{ b.batchNumber }}</td>
+                <td>{{ b.expiryDate ? (b.expiryDate | date:'mediumDate') : '—' }}</td>
+                <td>{{ b.daysToExpiry ?? '—' }}</td>
+                <td>{{ num(b.availableQuantity) }}</td>
+              </tr>
+              <tr *ngIf="!d.nearExpiryBatches.length"><td colspan="5" class="empty-state"><i class="fas fa-hourglass"></i><span>{{ '::NoNearExpiryBatches' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="detail-card widget-card">
+        <h6 class="section-title">{{ '::ExpiredBatches' | abpLocalization }}</h6>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::BatchNumber' | abpLocalization }}</th>
+                <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+                <th>{{ '::DaysToExpiry' | abpLocalization }}</th>
+                <th>{{ '::AvailableQuantity' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of d.expiredBatches">
+                <td>{{ b.productName }}<br><span class="code-chip">{{ b.productCode }}</span></td>
+                <td>{{ b.batchNumber }}</td>
+                <td>{{ b.expiryDate ? (b.expiryDate | date:'mediumDate') : '—' }}</td>
+                <td>{{ b.daysToExpiry ?? '—' }}</td>
+                <td>{{ num(b.availableQuantity) }}</td>
+              </tr>
+              <tr *ngIf="!d.expiredBatches.length"><td colspan="5" class="empty-state"><i class="fas fa-check-circle"></i><span>{{ '::NoExpiredBatches' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent transactions -->
+    <div class="widgets-row triple" *ngIf="canViewRecentTransactions">
+      <div class="detail-card widget-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="section-title mb-0">{{ '::RecentSales' | abpLocalization }}</h6>
+          <a class="view-all-link" (click)="goSales()">{{ '::ViewAll' | abpLocalization }}</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th>{{ '::Invoice' | abpLocalization }}</th><th>{{ '::SaleDate' | abpLocalization }}</th><th>{{ '::Customer' | abpLocalization }}</th><th>{{ '::TotalAmount' | abpLocalization }}</th><th>{{ '::PendingAmount' | abpLocalization }}</th><th>{{ '::Status' | abpLocalization }}</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let s of d.recentSales">
+                <td>{{ s.invoiceNumber }}</td>
+                <td>{{ s.saleDate | date:'mediumDate' }}</td>
+                <td>{{ s.customerName }}</td>
+                <td>{{ fmt(s.totalAmount) }}</td>
+                <td>{{ fmt(s.pendingAmount) }}</td>
+                <td><span class="status-badge" [ngClass]="paymentStatusClass(s.paymentStatus)">{{ paymentStatusLabel(s.paymentStatus) | abpLocalization }}</span></td>
+              </tr>
+              <tr *ngIf="!d.recentSales.length"><td colspan="6" class="empty-state"><i class="fas fa-receipt"></i><span>{{ '::NoSalesData' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="detail-card widget-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="section-title mb-0">{{ '::RecentPurchases' | abpLocalization }}</h6>
+          <a class="view-all-link" (click)="goPurchases()">{{ '::ViewAll' | abpLocalization }}</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th>{{ '::DocumentNumber' | abpLocalization }}</th><th>{{ '::Date' | abpLocalization }}</th><th>{{ '::Supplier' | abpLocalization }}</th><th>{{ '::TotalAmount' | abpLocalization }}</th><th>{{ '::PendingAmount' | abpLocalization }}</th><th>{{ '::Status' | abpLocalization }}</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let p of d.recentPurchases">
+                <td>{{ p.documentNumber }}</td>
+                <td>{{ p.documentDate | date:'mediumDate' }}</td>
+                <td>{{ p.supplierName }}</td>
+                <td>{{ fmt(p.totalAmount) }}</td>
+                <td>{{ fmt(p.pendingAmount) }}</td>
+                <td><span class="status-badge" [ngClass]="paymentStatusClass(p.status)">{{ paymentStatusLabel(p.status) | abpLocalization }}</span></td>
+              </tr>
+              <tr *ngIf="!d.recentPurchases.length"><td colspan="6" class="empty-state"><i class="fas fa-truck"></i><span>{{ '::NoSalesData' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="detail-card widget-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="section-title mb-0">{{ '::RecentExpenses' | abpLocalization }}</h6>
+          <a class="view-all-link" (click)="goExpenses()">{{ '::ViewAll' | abpLocalization }}</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th>{{ '::ExpenseNumber' | abpLocalization }}</th><th>{{ '::Date' | abpLocalization }}</th><th>{{ '::Category' | abpLocalization }}</th><th>{{ '::Amount' | abpLocalization }}</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let e of d.recentExpenses">
+                <td>{{ e.expenseNumber }}</td>
+                <td>{{ e.expenseDate | date:'mediumDate' }}</td>
+                <td>{{ e.expenseCategoryName }}</td>
+                <td>{{ fmt(e.amount) }}</td>
+              </tr>
+              <tr *ngIf="!d.recentExpenses.length"><td colspan="4" class="empty-state"><i class="fas fa-file-invoice"></i><span>{{ '::NoExpenseData' | abpLocalization }}</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="detail-card" *ngIf="hasAnyQuickAction">
+      <h6 class="section-title">{{ '::QuickActions' | abpLocalization }}</h6>
+      <div class="quick-actions">
+        <button *ngIf="canCreateSale" class="btn btn-outline-primary btn-sm" (click)="goCreateSale()"><i class="fas fa-cash-register me-2"></i>{{ '::NewSale' | abpLocalization }}</button>
+        <button *ngIf="canCreatePurchaseOrder" class="btn btn-outline-primary btn-sm" (click)="goCreatePurchaseOrder()"><i class="fas fa-file-invoice me-2"></i>{{ '::NewPurchaseOrder' | abpLocalization }}</button>
+        <button *ngIf="canReceiveGoods" class="btn btn-outline-primary btn-sm" (click)="goReceiveGoods()"><i class="fas fa-dolly me-2"></i>{{ '::ReceiveGoods' | abpLocalization }}</button>
+        <button *ngIf="canCreateExpense" class="btn btn-outline-primary btn-sm" (click)="goCreateExpense()"><i class="fas fa-file-invoice-dollar me-2"></i>{{ '::AddExpense' | abpLocalization }}</button>
+        <button *ngIf="canCreateCustomerPayment" class="btn btn-outline-primary btn-sm" (click)="goCreateCustomerPayment()"><i class="fas fa-hand-holding-usd me-2"></i>{{ '::CustomerPayment' | abpLocalization }}</button>
+        <button *ngIf="canCreateSupplierPayment" class="btn btn-outline-primary btn-sm" (click)="goCreateSupplierPayment()"><i class="fas fa-money-check-alt me-2"></i>{{ '::SupplierPayment' | abpLocalization }}</button>
+        <button *ngIf="canCreateStockAdjustment" class="btn btn-outline-primary btn-sm" (click)="goCreateStockAdjustment()"><i class="fas fa-balance-scale me-2"></i>{{ '::StockAdjustment' | abpLocalization }}</button>
+        <button *ngIf="canCreateStockCount" class="btn btn-outline-primary btn-sm" (click)="goCreateStockCount()"><i class="fas fa-clipboard-check me-2"></i>{{ '::PhysicalStockCount' | abpLocalization }}</button>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

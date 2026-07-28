@@ -19,12 +19,17 @@ function configureRoutes() {
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement',
     },
     {
+      path: '/shop-management/dashboard', name: '::ShopDashboard', parentName: '::ShopManagement',
+      iconClass: 'fas fa-tachometer-alt', order: 1, layout: eLayoutType.application,
+      requiredPolicy: 'ShopManagement.Dashboard',
+    },
+    {
       path: '/shop-management/settings', name: '::ShopSettings', parentName: '::ShopManagement',
-      iconClass: 'fas fa-cog', order: 1, layout: eLayoutType.application,
+      iconClass: 'fas fa-cog', order: 2, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.Settings',
     },
     {
-      name: '::Products', parentName: '::ShopManagement', iconClass: 'fas fa-boxes', order: 2,
+      name: '::Products', parentName: '::ShopManagement', iconClass: 'fas fa-boxes', order: 3,
       layout: eLayoutType.application, requiredPolicy: 'ShopManagement.ProductCategories',
     },
     {

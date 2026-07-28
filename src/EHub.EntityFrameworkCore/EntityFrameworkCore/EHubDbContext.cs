@@ -992,6 +992,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.SaleDate });
             b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.SaleType });
+            b.HasIndex(x => new { x.TenantId, x.Status, x.SaleDate });
             b.HasIndex(x => new { x.TenantId, x.SaleNumber }).IsUnique();
         });
 
@@ -1174,6 +1175,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.ExpenseCategoryId });
             b.HasIndex(x => new { x.TenantId, x.ExpenseDate });
             b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.Status, x.ExpenseDate });
             b.HasIndex(x => new { x.TenantId, x.PaymentMethod });
             b.HasIndex(x => new { x.TenantId, x.PaidTo });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
@@ -1423,6 +1425,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.SupplierId });
             b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.ReceiptDate });
+            b.HasIndex(x => new { x.TenantId, x.Status, x.ReceiptDate });
             b.HasIndex(x => new { x.TenantId, x.SupplierInvoiceNumber });
             b.HasIndex(x => new { x.TenantId, x.GoodsReceiptNumber }).IsUnique();
         });
@@ -1644,6 +1647,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.ProductId, x.NormalizedBatchNumber }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.ExpiryDate });
             b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.ExpiryDate, x.Status });
             b.HasIndex(x => new { x.TenantId, x.SupplierId });
             b.HasIndex(x => new { x.TenantId, x.AvailableQuantity });
         });

@@ -14,6 +14,14 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         var shopManagement = myGroup.AddPermission(EHubPermissions.ManagementMenus.Shop, L("Permission:ShopManagement"));
         var shopSettings = shopManagement.AddChild(EHubPermissions.ShopSettings.Default, L("Permission:ShopSettings"));
         shopSettings.AddChild(EHubPermissions.ShopSettings.Manage, L("Permission:ShopSettings.Manage"));
+        var shopDashboard = shopManagement.AddChild(EHubPermissions.ShopDashboard.Default, L("Permission:ShopDashboard"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewFinancialSummary, L("Permission:ShopDashboard.ViewFinancialSummary"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewInventoryValue, L("Permission:ShopDashboard.ViewInventoryValue"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewBalances, L("Permission:ShopDashboard.ViewBalances"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewSalesChart, L("Permission:ShopDashboard.ViewSalesChart"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewTopProducts, L("Permission:ShopDashboard.ViewTopProducts"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewStockAlerts, L("Permission:ShopDashboard.ViewStockAlerts"));
+        shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewRecentTransactions, L("Permission:ShopDashboard.ViewRecentTransactions"));
         var productCategories = shopManagement.AddChild(EHubPermissions.ShopProductCategories.Default, L("Permission:ShopProductCategories"));
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Create, L("Permission:ShopProductCategories.Create"));
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Edit, L("Permission:ShopProductCategories.Edit"));

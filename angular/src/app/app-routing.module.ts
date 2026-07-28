@@ -143,6 +143,12 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'shop-management/dashboard',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.Dashboard' },
+    loadChildren: () => import('./shop-management/dashboard/shop-dashboard.module').then(m => m.ShopDashboardModule),
+  },
+  {
     path: 'shop-management/settings',
     canActivate: [permissionGuard],
     data: { requiredPolicy: 'ShopManagement.Settings' },
