@@ -1,11 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { PermissionService } from '@abp/ng.core';
-import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { Confirmation, ToasterService } from '@abp/ng.theme.shared';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ShopProductDto, ShopProductService } from '../../proxy/shop-management/products';
 import { ShopProductCategoryLookupDto, ShopProductCategoryService } from '../../proxy/shop-management/product-categories';
 import { ShopUnitLookupDto, ShopUnitService } from '../../proxy/shop-management/units';
+import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
 
 @Component({ selector: 'app-shop-products', standalone: false, templateUrl: './shop-products.component.html', styleUrl: './shop-products.component.scss' })
 export class ShopProductsComponent implements OnInit {
@@ -15,7 +16,7 @@ export class ShopProductsComponent implements OnInit {
   private readonly unitService = inject(ShopUnitService);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
-  private readonly confirmation = inject(ConfirmationService);
+  private readonly confirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   readonly canCreate = this.permissions.getGrantedPolicy('ShopManagement.Products.Create');
@@ -31,7 +32,7 @@ export class ShopProductsComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   categoryFilter = '';
   unitFilter = '';
   statusFilter = '';
@@ -50,7 +51,7 @@ export class ShopProductsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         categoryId: this.categoryFilter || undefined,
         unitId: this.unitFilter || undefined,
         isActive: this.statusFilter === '' ? undefined : this.statusFilter === 'active',
@@ -82,7 +83,7 @@ export class ShopProductsComponent implements OnInit {
   }
 
   remove(row: ShopProductDto): void {
-    this.confirmation.warn('::ConfirmDeleteProduct', row.name).subscribe(status => {
+    this.confirmation.confirmDelete().subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.service.delete(row.id).subscribe({
         next: () => {

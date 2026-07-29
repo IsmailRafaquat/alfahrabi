@@ -1,159 +1,177 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="done()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3>{{ '::ManageProducts' | abpLocalization }}
-          <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Product fields help</span></button>
-          <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
-            <div class="editor-help-item"><strong dir="ltr">Product Name</strong><span>دکان میں خریدی یا بیچی جانے والی چیز کا مکمل نام۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Product Code</strong><span>پروڈکٹ کی منفرد پہچان۔ ہر پروڈکٹ کا کوڈ الگ رکھیں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Category</strong><span>پروڈکٹ جس قسم میں شامل ہے، وہ کیٹیگری منتخب کریں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Unit</strong><span>پروڈکٹ کس حساب سے بکتا ہے، جیسے عدد، ڈبہ، میٹر یا کلو۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">SKU / Barcode</strong><span>اسٹاک کے مختصر کوڈ اور اسکین کرنے والا بارکوڈ نمبر لکھیں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Brand / Model</strong><span>پروڈکٹ بنانے والی کمپنی اور اس کا ماڈل لکھیں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Purchase Price</strong><span>وہ قیمت جس پر پروڈکٹ سپلائر سے خریدا جاتا ہے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Sale Price</strong><span>وہ قیمت جس پر پروڈکٹ گاہک کو بیچا جاتا ہے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Wholesale / Minimum Sale Price</strong><span>تھوک کی قیمت اور سب سے کم اجازت والی فروخت قیمت۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Taxable / Tax Percentage</strong><span>ٹیکس لگتا ہو تو آن کریں اور ٹیکس کی شرح درج کریں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Minimum / Maximum Stock</strong><span>اسٹاک کی کم اور زیادہ حد درج کریں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Reorder Level</strong><span>اس مقدار پر پہنچنے کے بعد نیا مال منگوانا چاہیے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Track Batch / Expiry / Serial</strong><span>ضرورت کے مطابق بیچ، ایکسپائری یا سیریل نمبر کی نگرانی آن کریں۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر پروڈکٹ خرید و فروخت میں نظر آئے گا۔</span></div>
-          </div>
-        </h3>
-        <p>{{ '::QuickAddProductsDescription' | abpLocalization }}</p>
-      </span>
+<abp-page>
+<app-topbar-layout titleKey="::ManageProducts" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Product fields help</span></button>
+    <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
+      <div class="editor-help-item"><strong dir="ltr">Product Name</strong><span>دکان میں خریدی یا بیچی جانے والی چیز کا مکمل نام۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Product Code</strong><span>پروڈکٹ کی منفرد پہچان۔ ہر پروڈکٹ کا کوڈ الگ رکھیں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Category</strong><span>پروڈکٹ جس قسم میں شامل ہے، وہ کیٹیگری منتخب کریں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Unit</strong><span>پروڈکٹ کس حساب سے بکتا ہے، جیسے عدد، ڈبہ، میٹر یا کلو۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">SKU / Barcode</strong><span>اسٹاک کے مختصر کوڈ اور اسکین کرنے والا بارکوڈ نمبر لکھیں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Brand / Model</strong><span>پروڈکٹ بنانے والی کمپنی اور اس کا ماڈل لکھیں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Purchase Price</strong><span>وہ قیمت جس پر پروڈکٹ سپلائر سے خریدا جاتا ہے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Sale Price</strong><span>وہ قیمت جس پر پروڈکٹ گاہک کو بیچا جاتا ہے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Wholesale / Minimum Sale Price</strong><span>تھوک کی قیمت اور سب سے کم اجازت والی فروخت قیمت۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Taxable / Tax Percentage</strong><span>ٹیکس لگتا ہو تو آن کریں اور ٹیکس کی شرح درج کریں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Minimum / Maximum Stock</strong><span>اسٹاک کی کم اور زیادہ حد درج کریں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Reorder Level</strong><span>اس مقدار پر پہنچنے کے بعد نیا مال منگوانا چاہیے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Track Batch / Expiry / Serial</strong><span>ضرورت کے مطابق بیچ، ایکسپائری یا سیریل نمبر کی نگرانی آن کریں۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر پروڈکٹ خرید و فروخت میں نظر آئے گا۔</span></div>
     </div>
   </div>
 
+  <div topbarActions class="d-flex align-items-center gap-2">
+    <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="done()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
-  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()" class="product-form-card">
-    <div class="row-heading">
-      <span class="row-number"><i [class]="isEdit ? 'fas fa-pen' : 'fas fa-plus'"></i></span>
-      <h5>{{ (isEdit ? '::EditProduct' : '::CreateProduct') | abpLocalization }}</h5>
-      <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm ms-auto" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
-    </div>
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()" class="product-form-wrap">
+    <div class="row g-3 form-columns">
+      <div class="col-12 col-xl-7">
+        <section class="form-section section-product">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-box"></i></span><h6>{{ '::ProductDetails' | abpLocalization }}</h6></div>
+          <div class="section-body">
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <label>{{ '::ProductName' | abpLocalization }} <b class="required">*</b></label>
+              <input class="form-control form-control-sm" formControlName="name">
+              <small class="error" *ngIf="form.controls.name.touched && form.controls.name.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::ProductCode' | abpLocalization }} <b class="required">*</b></label>
+              <input class="form-control form-control-sm" formControlName="code">
+              <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::Category' | abpLocalization }} <b class="required">*</b></label>
+              <nz-select class="w-100" formControlName="categoryId" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCategory' | abpLocalization">
+                <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option>
+              </nz-select>
+              <small class="error" *ngIf="form.controls.categoryId.touched && form.controls.categoryId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::Unit' | abpLocalization }} <b class="required">*</b></label>
+              <nz-select class="w-100" formControlName="unitId" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectUnit' | abpLocalization">
+                <nz-option *ngFor="let x of units" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.shortName + ')'"></nz-option>
+              </nz-select>
+              <small class="error" *ngIf="form.controls.unitId.touched && form.controls.unitId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::SKU' | abpLocalization }}</label>
+              <input class="form-control form-control-sm" formControlName="sku">
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::Barcode' | abpLocalization }}</label>
+              <input class="form-control form-control-sm" formControlName="barcode">
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::Brand' | abpLocalization }}</label>
+              <input class="form-control form-control-sm" formControlName="brand">
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::Model' | abpLocalization }}</label>
+              <input class="form-control form-control-sm" formControlName="model">
+            </div>
+            <div class="col-12">
+              <label>{{ '::Description' | abpLocalization }}</label>
+              <textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea>
+            </div>
+          </div>
+          </div>
+        </section>
 
-    <div class="row g-3">
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::ProductName' | abpLocalization }} <b class="required">*</b></label>
-        <input class="form-control form-control-sm" formControlName="name">
-        <small class="error" *ngIf="form.controls.name.touched && form.controls.name.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        <section class="form-section section-tax">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-percent"></i></span><h6>{{ '::TaxPercentage' | abpLocalization }}</h6></div>
+          <div class="section-body">
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <label class="active-label">{{ '::IsTaxable' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isTaxable"></label>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::TaxPercentage' | abpLocalization }}</label>
+              <input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" formControlName="taxPercentage">
+              <small class="error" *ngIf="form.controls.taxPercentage.touched && form.controls.taxPercentage.invalid">{{ '::InvalidTaxPercentage' | abpLocalization }}</small>
+            </div>
+          </div>
+          </div>
+        </section>
       </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::ProductCode' | abpLocalization }} <b class="required">*</b></label>
-        <input class="form-control form-control-sm" formControlName="code">
-        <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::Category' | abpLocalization }} <b class="required">*</b></label>
-        <nz-select class="w-100" formControlName="categoryId" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCategory' | abpLocalization">
-          <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option>
-        </nz-select>
-        <small class="error" *ngIf="form.controls.categoryId.touched && form.controls.categoryId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::Unit' | abpLocalization }} <b class="required">*</b></label>
-        <nz-select class="w-100" formControlName="unitId" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectUnit' | abpLocalization">
-          <nz-option *ngFor="let x of units" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.shortName + ')'"></nz-option>
-        </nz-select>
-        <small class="error" *ngIf="form.controls.unitId.touched && form.controls.unitId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::SKU' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="sku">
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::Barcode' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="barcode">
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::Brand' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="brand">
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::Model' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="model">
-      </div>
-      <div class="col-12">
-        <label>{{ '::Description' | abpLocalization }}</label>
-        <textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea>
-      </div>
-    </div>
 
-    <h6 class="section-title">{{ '::PurchasePrice' | abpLocalization }} / {{ '::SalePrice' | abpLocalization }}</h6>
-    <div class="row g-3">
-      <div class="col-12 col-md-6 col-xl-3" *ngIf="canViewCost">
-        <label>{{ '::PurchasePrice' | abpLocalization }} <b class="required">*</b></label>
-        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="purchasePrice">
-        <small class="error" *ngIf="form.controls.purchasePrice.touched && form.controls.purchasePrice.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::SalePrice' | abpLocalization }} <b class="required">*</b></label>
-        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="salePrice">
-        <small class="error" *ngIf="form.controls.salePrice.touched && form.controls.salePrice.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::WholesalePrice' | abpLocalization }}</label>
-        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="wholesalePrice">
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::MinimumSalePrice' | abpLocalization }}</label>
-        <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="minimumSalePrice">
-        <small class="error" *ngIf="form.errors?.['minimumSalePriceExceedsSalePrice'] && form.controls.minimumSalePrice.touched">{{ '::MinimumSalePriceCannotExceedSalePrice' | abpLocalization }}</small>
-      </div>
-    </div>
+      <div class="col-12 col-xl-5">
+        <section class="form-section section-price">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-tags"></i></span><h6>{{ '::PurchasePrice' | abpLocalization }} / {{ '::SalePrice' | abpLocalization }}</h6></div>
+          <div class="section-body">
+          <div class="row g-3">
+            <div class="col-12 col-sm-6" *ngIf="canViewCost">
+              <label>{{ '::PurchasePrice' | abpLocalization }} <b class="required">*</b></label>
+              <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="purchasePrice">
+              <small class="error" *ngIf="form.controls.purchasePrice.touched && form.controls.purchasePrice.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::SalePrice' | abpLocalization }} <b class="required">*</b></label>
+              <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="salePrice">
+              <small class="error" *ngIf="form.controls.salePrice.touched && form.controls.salePrice.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::WholesalePrice' | abpLocalization }}</label>
+              <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="wholesalePrice">
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::MinimumSalePrice' | abpLocalization }}</label>
+              <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="minimumSalePrice">
+              <small class="error" *ngIf="form.errors?.['minimumSalePriceExceedsSalePrice'] && form.controls.minimumSalePrice.touched">{{ '::MinimumSalePriceCannotExceedSalePrice' | abpLocalization }}</small>
+            </div>
+          </div>
+          </div>
+        </section>
 
-    <h6 class="section-title">{{ '::TaxPercentage' | abpLocalization }}</h6>
-    <div class="row g-3">
-      <div class="col-12 col-md-6 col-xl-3">
-        <label class="active-label">{{ '::IsTaxable' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isTaxable"></label>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::TaxPercentage' | abpLocalization }}</label>
-        <input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" formControlName="taxPercentage">
-        <small class="error" *ngIf="form.controls.taxPercentage.touched && form.controls.taxPercentage.invalid">{{ '::InvalidTaxPercentage' | abpLocalization }}</small>
-      </div>
-    </div>
+        <section class="form-section section-stock">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-warehouse"></i></span><h6>{{ '::MinimumStockLevel' | abpLocalization }}</h6></div>
+          <div class="section-body">
+          <div class="row g-3">
+            <div class="col-12 col-sm-6" *ngIf="isEdit">
+              <label>{{ '::CurrentStock' | abpLocalization }}</label>
+              <input type="number" class="form-control form-control-sm" [value]="currentStock" disabled readonly>
+              <small class="hint">{{ '::StockCannotBeEditedHere' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::MinimumStockLevel' | abpLocalization }} <b class="required">*</b></label>
+              <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="minimumStockLevel">
+              <small class="error" *ngIf="form.controls.minimumStockLevel.touched && form.controls.minimumStockLevel.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::MaximumStockLevel' | abpLocalization }}</label>
+              <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="maximumStockLevel">
+              <small class="error" *ngIf="form.errors?.['maximumStockBelowMinimum'] && form.controls.maximumStockLevel.touched">{{ '::MaximumStockCannotBeLowerThanMinimumStock' | abpLocalization }}</small>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label>{{ '::ReorderLevel' | abpLocalization }} <b class="required">*</b></label>
+              <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="reorderLevel">
+            </div>
+          </div>
 
-    <h6 class="section-title">{{ '::MinimumStockLevel' | abpLocalization }}</h6>
-    <div class="row g-3">
-      <div class="col-12 col-md-6 col-xl-3" *ngIf="isEdit">
-        <label>{{ '::CurrentStock' | abpLocalization }}</label>
-        <input type="number" class="form-control form-control-sm" [value]="currentStock" disabled readonly>
-        <small class="hint">{{ '::StockCannotBeEditedHere' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::MinimumStockLevel' | abpLocalization }} <b class="required">*</b></label>
-        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="minimumStockLevel">
-        <small class="error" *ngIf="form.controls.minimumStockLevel.touched && form.controls.minimumStockLevel.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::MaximumStockLevel' | abpLocalization }}</label>
-        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="maximumStockLevel">
-        <small class="error" *ngIf="form.errors?.['maximumStockBelowMinimum'] && form.controls.maximumStockLevel.touched">{{ '::MaximumStockCannotBeLowerThanMinimumStock' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::ReorderLevel' | abpLocalization }} <b class="required">*</b></label>
-        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="reorderLevel">
-      </div>
-    </div>
+          <div class="row g-3 toggles-row">
+            <div class="col-6"><label class="active-label">{{ '::TrackBatch' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackBatch"></label></div>
+            <div class="col-6"><label class="active-label">{{ '::TrackExpiry' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackExpiry"></label></div>
+            <div class="col-6"><label class="active-label">{{ '::TrackSerialNumber' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackSerialNumber"></label></div>
+            <div class="col-6"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
+          </div>
 
-    <div class="row g-3 toggles-row">
-      <div class="col-6 col-md-3"><label class="active-label">{{ '::TrackBatch' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackBatch"></label></div>
-      <div class="col-6 col-md-3"><label class="active-label">{{ '::TrackExpiry' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackExpiry"></label></div>
-      <div class="col-6 col-md-3"><label class="active-label">{{ '::TrackSerialNumber' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="trackSerialNumber"></label></div>
-      <div class="col-6 col-md-3"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
-    </div>
-
-    <div class="row g-3" *ngIf="form.controls.trackExpiry.enabled">
-      <div class="col-12 col-md-6 col-xl-3">
-        <label>{{ '::ExpiryAlertDays' | abpLocalization }}</label>
-        <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="expiryAlertDays">
+          <div class="row g-3" *ngIf="form.controls.trackExpiry.enabled">
+            <div class="col-12 col-sm-6">
+              <label>{{ '::ExpiryAlertDays' | abpLocalization }}</label>
+              <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="expiryAlertDays">
+            </div>
+            <div class="col-12 col-sm-6"><label class="active-label">{{ '::BlockExpiredSale' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="blockExpiredSale"></label></div>
+          </div>
+          </div>
+        </section>
       </div>
-      <div class="col-6 col-md-3"><label class="active-label">{{ '::BlockExpiredSale' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="blockExpiredSale"></label></div>
     </div>
 
     <div class="card-save">
@@ -202,4 +220,6 @@
       </table>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

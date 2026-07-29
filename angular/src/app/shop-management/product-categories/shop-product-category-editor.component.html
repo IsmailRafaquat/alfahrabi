@@ -1,5 +1,8 @@
-<div class="editor-page">
-  <div class="editor-header"><div><button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button><span><h3>{{ '::ManageProductCategories' | abpLocalization }}
+<abp-page>
+<app-topbar-layout titleKey="::ManageProductCategories" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
     <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Category fields help</span></button>
     <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
       <div class="editor-help-item"><strong dir="ltr">Category Name</strong><span>کیٹیگری کا پورا نام، جیسے پائپس یا پانی کی ٹینکیاں۔</span></div>
@@ -8,7 +11,14 @@
       <div class="editor-help-item"><strong dir="ltr">Display Order</strong><span>چھوٹا نمبر والی کیٹیگری فہرست میں پہلے نظر آئے گی۔</span></div>
       <div class="editor-help-item"><strong dir="ltr">Description</strong><span>کیٹیگری کے بارے میں مختصر معلومات لکھیں۔</span></div>
       <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر یہ کیٹیگری نئی پروڈکٹ کے لیے منتخب ہو سکے گی۔</span></div>
-    </div></h3><p>{{ '::QuickAddProductCategoriesDescription' | abpLocalization }}</p></span></div></div>
+    </div>
+  </div>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
     <div formArrayName="categories">
@@ -33,4 +43,6 @@
       <tbody><tr *ngFor="let item of savedItems"><td><strong>{{ item.name }}</strong></td><td><span class="code-pill">{{ item.code }}</span></td><td>{{ item.parentCategoryName || ('::RootCategory' | abpLocalization) }}</td><td>{{ item.displayOrder }}</td><td><span class="status-pill" [class.inactive]="!item.isActive">{{ (item.isActive ? '::ActiveCategories' : '::InactiveCategories') | abpLocalization }}</span></td><td class="text-end"><button class="edit-row-btn" type="button" (click)="editSaved(item)"><i class="fas fa-pen"></i> {{ '::EditProductCategory' | abpLocalization }}</button></td></tr>
         <tr *ngIf="!savedItems.length"><td colspan="6" class="text-center text-muted py-4">{{ '::NoCategoriesAddedThisSession' | abpLocalization }}</td></tr></tbody></table></div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

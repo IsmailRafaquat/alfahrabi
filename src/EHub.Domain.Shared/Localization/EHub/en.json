@@ -984,6 +984,8 @@
     "Barcode": "Barcode",
     "Category": "Category",
     "Unit": "Unit",
+    "ProductDetails": "Product Details",
+    "Back": "Back",
     "Description": "Description",
     "Brand": "Brand",
     "Model": "Model",

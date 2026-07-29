@@ -1,33 +1,40 @@
-<div class="units-page">
-    <div class="page-head">
-        <div>
-            <h3>{{ '::Units' | abpLocalization }}
-                <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-                    [nzTooltipTitleContext]="{ en: 'A Unit tells how a product is measured or sold, like Piece, Meter, Kilogram, or Box. Units keep stock and sales quantities consistent across all products.', ur: 'Unit بتاتا ہے کہ پروڈکٹ کس پیمانے میں بکتا ہے، جیسے عدد، میٹر، کلو یا ڈبہ۔ اس سے تمام پروڈکٹس کا اسٹاک اور فروخت درست طریقے سے ریکارڈ ہوتا ہے۔' }">
-                    <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
-                </button>
-            </h3>
-            <p>{{ '::UnitsDescription' | abpLocalization }}</p>
-        </div><button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i
+<abp-page>
+<app-topbar-layout titleKey="::Units" [(filters)]="filters" showSearch="true"
+    [searchPlaceholder]="'::SearchUnits'" showFiltersToggle
+    [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+    <div topbarPills>
+        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'A Unit tells how a product is measured or sold, like Piece, Meter, Kilogram, or Box. Units keep stock and sales quantities consistent across all products.', ur: 'Unit بتاتا ہے کہ پروڈکٹ کس پیمانے میں بکتا ہے، جیسے عدد، میٹر، کلو یا ڈبہ۔ اس سے تمام پروڈکٹس کا اسٹاک اور فروخت درست طریقے سے ریکارڈ ہوتا ہے۔' }">
+            <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+        </button>
+    </div>
+
+    <div topbarActions>
+        <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i
                 class="fas fa-plus me-2"></i>{{ '::CreateUnit' | abpLocalization }}</button>
     </div>
-    <div class="card units-card">
-        <div class="filters row g-2">
-            <div class="col-12 col-lg-6"><input class="form-control" [(ngModel)]="search" (keyup.enter)="load(true)"
-                    [placeholder]="'::SearchUnits' | abpLocalization"></div>
-            <div class="col-6 col-lg-2"><nz-select class="w-100" [(ngModel)]="quantityFilter"
+
+    <ng-container ngProjectAs="[topbarFilters]">
+        <div class="col-6 col-lg-2">
+            <label>{{ '::AllowDecimal' | abpLocalization }}</label>
+            <nz-select class="w-100" [(ngModel)]="quantityFilter"
                     (ngModelChange)="load(true)" nzAllowClear
                     [nzPlaceHolder]="'::AllQuantityTypes' | abpLocalization"><nz-option [nzValue]="true"
                         [nzLabel]="'::DecimalQuantityAllowed' | abpLocalization"></nz-option><nz-option
                         [nzValue]="false" [nzLabel]="'::WholeNumbersOnly' | abpLocalization"></nz-option></nz-select>
-            </div>
-            <div class="col-6 col-lg-2"><nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)"
+        </div>
+        <div class="col-6 col-lg-2">
+            <label>{{ '::IsActive' | abpLocalization }}</label>
+            <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)"
                     nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization"><nz-option [nzValue]="true"
                         [nzLabel]="'::ActiveUnits' | abpLocalization"></nz-option><nz-option [nzValue]="false"
-                        [nzLabel]="'::InactiveUnits' | abpLocalization"></nz-option></nz-select></div>
-            <div class="col-12 col-lg-2"><button class="btn btn-outline-primary w-100" (click)="load(true)">{{
-                    '::Button:Filter' | abpLocalization }}</button></div>
+                        [nzLabel]="'::InactiveUnits' | abpLocalization"></nz-option></nz-select>
         </div>
+    </ng-container>
+
+    <div class="units-page">
+    <div class="card units-card">
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
@@ -67,7 +74,9 @@
                         class="fas fa-chevron-right"></i></button></div>
         </div>
     </div>
-</div>
+    </div>
+</app-topbar-layout>
+</abp-page>
 <abp-modal [(visible)]="modalOpen" [busy]="submitting"><ng-template #abpHeader>
         <h5 class="unit-modal-title">
             {{ (selected ? '::EditUnit' : '::CreateUnit') | abpLocalization }}
