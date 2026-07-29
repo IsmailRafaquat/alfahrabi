@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { PermissionService } from '@abp/ng.core';
-import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { Confirmation, ToasterService } from '@abp/ng.theme.shared';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ShopCustomerDto, ShopCustomerService, ShopCustomerType } from '../../proxy/shop-management/customers';
+import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
 
 @Component({ selector: 'app-shop-customers', standalone: false, templateUrl: './shop-customers.component.html', styleUrl: './shop-customers.component.scss' })
 export class ShopCustomersComponent implements OnInit {
@@ -12,7 +13,7 @@ export class ShopCustomersComponent implements OnInit {
   private readonly service = inject(ShopCustomerService);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
-  private readonly confirmation = inject(ConfirmationService);
+  private readonly confirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   readonly canCreate = this.permissions.getGrantedPolicy('ShopManagement.Customers.Create');
@@ -26,7 +27,7 @@ export class ShopCustomersComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   customerTypeFilter: ShopCustomerType | '' = '';
   cityFilter = '';
   countryFilter = '';
@@ -43,7 +44,7 @@ export class ShopCustomersComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         customerType: this.customerTypeFilter === '' ? undefined : this.customerTypeFilter,
         city: this.cityFilter || undefined,
         country: this.countryFilter || undefined,
@@ -72,7 +73,7 @@ export class ShopCustomersComponent implements OnInit {
   }
 
   remove(row: ShopCustomerDto): void {
-    this.confirmation.warn('::ConfirmDeleteCustomer', row.name).subscribe(status => {
+    this.confirmation.confirmDelete().subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.service.delete(row.id).subscribe({
         next: () => {
