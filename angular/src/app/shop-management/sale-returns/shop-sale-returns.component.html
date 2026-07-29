@@ -1,42 +1,45 @@
-<div class="sale-returns-page">
-  <div class="page-heading">
-    <div>
-      <h3>{{ '::SaleReturns' | abpLocalization }}</h3>
-      <p>{{ '::SaleReturnsDescription' | abpLocalization }}</p>
+<abp-page>
+<app-topbar-layout titleKey="::SaleReturns" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchSaleReturns'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Customer' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="customerFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
+        <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
     </div>
-  </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::ReturnReason' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="reasonFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllReasons' | abpLocalization">
+        <nz-option *ngFor="let x of reasonOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::SettlementType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="settlementTypeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllSettlementTypes' | abpLocalization">
+        <nz-option *ngFor="let x of settlementTypeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="returnDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="returnDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="sale-returns-page">
   <div class="card sale-returns-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-3">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchSaleReturns' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="customerFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
-          <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
-          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="reasonFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllReasons' | abpLocalization">
-          <nz-option *ngFor="let x of reasonOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <nz-select class="w-100" [(ngModel)]="settlementTypeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllSettlementTypes' | abpLocalization">
-          <nz-option *ngFor="let x of settlementTypeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="returnDateFrom" (change)="load(true)" [title]="'::DateFrom' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="returnDateTo" (change)="load(true)" [title]="'::DateTo' | abpLocalization">
-      </div>
-    </div>
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -88,7 +91,9 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::CancelSaleReturn' | abpLocalization }}</h5></ng-template>

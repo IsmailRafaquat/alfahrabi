@@ -13,6 +13,7 @@ import {
   shopCustomerPaymentTypeOptions,
 } from '../../proxy/shop-management/customer-payments';
 import { ShopCustomerLookupDto, ShopCustomerService } from '../../proxy/shop-management/customers';
+import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
 
 @Component({ selector: 'app-shop-customer-payments', standalone: false, templateUrl: './shop-customer-payments.component.html', styleUrl: './shop-customer-payments.component.scss' })
 export class ShopCustomerPaymentsComponent implements OnInit {
@@ -26,6 +27,7 @@ export class ShopCustomerPaymentsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly deleteConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   readonly canCreate = this.permissions.getGrantedPolicy('ShopManagement.CustomerPayments.Create');
@@ -42,7 +44,7 @@ export class ShopCustomerPaymentsComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   customerFilter = '';
   statusFilter: ShopCustomerPaymentStatus | '' = '';
   typeFilter: ShopCustomerPaymentType | '' = '';
@@ -61,7 +63,7 @@ export class ShopCustomerPaymentsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         customerId: this.customerFilter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         paymentType: this.typeFilter === '' ? undefined : this.typeFilter,
@@ -116,7 +118,7 @@ export class ShopCustomerPaymentsComponent implements OnInit {
   }
 
   remove(row: ShopCustomerPaymentDto): void {
-    this.confirmation.warn('::ConfirmDeleteCustomerPayment', row.paymentNumber).subscribe(status => {
+    this.deleteConfirmation.confirmDelete().subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.service.delete(row.id).subscribe({
         next: () => {

@@ -1,62 +1,49 @@
-<div class="ledger-page screen-only">
-  <div class="page-heading">
-    <div>
-      <h3>
-        {{ '::CustomerLedger' | abpLocalization }}
-        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'The Customer Ledger is built automatically from completed Sales and posted Customer Payments — it is not a separate record you create. A positive balance means the customer owes your shop; a negative balance means the customer has an advance with your shop.', ur: 'Customer Ledger خود بخود مکمل شدہ Sales اور posted Customer Payments سے بنتا ہے، یہ کوئی الگ سے بنایا ہوا ریکارڈ نہیں۔ مثبت بیلنس کا مطلب ہے کسٹمر نے آپ کی دکان کو رقم دینی ہے، منفی بیلنس کا مطلب ہے کسٹمر کے پاس آپ کی دکان کا ایڈوانس ہے۔' }">
-          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
-        </button>
-      </h3>
-      <p>{{ '::CustomerLedgerDescription' | abpLocalization }}</p>
-    </div>
+<abp-page class="screen-only">
+<app-topbar-layout titleKey="::CustomerLedger" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchCustomerLedger'" showFiltersToggle
+  [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="load()" (onReset)="reset()" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'The Customer Ledger is built automatically from completed Sales and posted Customer Payments — it is not a separate record you create. A positive balance means the customer owes your shop; a negative balance means the customer has an advance with your shop.', ur: 'Customer Ledger خود بخود مکمل شدہ Sales اور posted Customer Payments سے بنتا ہے، یہ کوئی الگ سے بنایا ہوا ریکارڈ نہیں۔ مثبت بیلنس کا مطلب ہے کسٹمر نے آپ کی دکان کو رقم دینی ہے، منفی بیلنس کا مطلب ہے کسٹمر کے پاس آپ کی دکان کا ایڈوانس ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
   </div>
 
-  <div class="card ledger-card">
-    <div class="filters">
-      <div class="filters-row">
-        <div class="filter-field customer-field">
-          <label>{{ '::Customer' | abpLocalization }}</label>
-          <nz-select class="w-100" [(ngModel)]="customerId" (ngModelChange)="onCustomerChange()" nzShowSearch [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
-            <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
-          </nz-select>
-        </div>
-        <div class="filter-field">
-          <label>{{ '::DateFrom' | abpLocalization }}</label>
-          <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom">
-        </div>
-        <div class="filter-field">
-          <label>{{ '::DateTo' | abpLocalization }}</label>
-          <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo">
-        </div>
-        <div class="filter-field">
-          <label>{{ '::ReferenceType' | abpLocalization }}</label>
-          <nz-select class="w-100" [(ngModel)]="referenceType" nzAllowClear [nzPlaceHolder]="'::AllReferenceTypes' | abpLocalization">
-            <nz-option *ngFor="let x of referenceTypeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-          </nz-select>
-        </div>
-      </div>
+  <div topbarActions *ngIf="canPrint && customerId" class="statement-actions">
+    <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" [title]="'::PrintStatement' | abpLocalization" (click)="openPrintLanguageDialog('print')">
+      <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
+    </button>
+    <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" [title]="'::ShareOnWhatsApp' | abpLocalization" (click)="openPrintLanguageDialog('share')">
+      <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
+    </button>
+  </div>
 
-      <div class="filters-row filters-row-actions">
-        <div class="filter-field filter-search">
-          <label>{{ '::Filter' | abpLocalization }}</label>
-          <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="filter" (keyup.enter)="load()" [placeholder]="'::SearchCustomerLedger' | abpLocalization"></div>
-        </div>
-        <div class="filter-buttons">
-          <button class="btn btn-primary btn-sm" [disabled]="!customerId" (click)="load()"><i class="fas fa-filter me-2"></i>{{ '::Apply' | abpLocalization }}</button>
-          <button class="btn btn-light btn-sm" (click)="reset()">{{ '::Reset' | abpLocalization }}</button>
-        </div>
-        <div *ngIf="canPrint && customerId" class="statement-actions">
-          <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" [title]="'::PrintStatement' | abpLocalization" (click)="openPrintLanguageDialog('print')">
-            <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
-          </button>
-          <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" [title]="'::ShareOnWhatsApp' | abpLocalization" (click)="openPrintLanguageDialog('share')">
-            <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
-          </button>
-        </div>
-      </div>
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-12 col-lg-3">
+      <label>{{ '::Customer' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="customerId" (ngModelChange)="onCustomerChange()" nzShowSearch [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
+        <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
     </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::ReferenceType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="referenceType" nzAllowClear [nzPlaceHolder]="'::AllReferenceTypes' | abpLocalization">
+        <nz-option *ngFor="let x of referenceTypeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+  </ng-container>
 
+  <div class="ledger-page">
+  <div class="card ledger-card">
     <div *ngIf="!customerId" class="empty-state"><i class="fas fa-book"></i><span>{{ '::SelectCustomerToViewLedger' | abpLocalization }}</span></div>
     <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
 
@@ -110,7 +97,9 @@
       </div>
     </ng-container>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <ng-template #bilingualTooltip let-en="en" let-ur="ur">
   <div class="tooltip-lang-tabs">

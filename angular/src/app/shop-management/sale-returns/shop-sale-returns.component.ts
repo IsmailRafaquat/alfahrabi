@@ -15,6 +15,7 @@ import {
   shopSaleReturnStatusOptions,
 } from '../../proxy/shop-management/sale-returns';
 import { ShopCustomerLookupDto, ShopCustomerService } from '../../proxy/shop-management/customers';
+import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
 
 @Component({ selector: 'app-shop-sale-returns', standalone: false, templateUrl: './shop-sale-returns.component.html', styleUrl: './shop-sale-returns.component.scss' })
 export class ShopSaleReturnsComponent implements OnInit {
@@ -29,6 +30,7 @@ export class ShopSaleReturnsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly deleteConfirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
   private readonly fb = inject(FormBuilder);
 
@@ -47,7 +49,7 @@ export class ShopSaleReturnsComponent implements OnInit {
   loading = false;
   actionInProgress = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   customerFilter = '';
   statusFilter: ShopSaleReturnStatus | '' = '';
   reasonFilter: ShopSaleReturnReason | '' = '';
@@ -69,7 +71,7 @@ export class ShopSaleReturnsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         customerId: this.customerFilter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         reason: this.reasonFilter === '' ? undefined : this.reasonFilter,
@@ -125,7 +127,7 @@ export class ShopSaleReturnsComponent implements OnInit {
   }
 
   remove(row: ShopSaleReturnDto): void {
-    this.confirmation.warn('::ConfirmDeleteSaleReturn', row.saleReturnNumber).subscribe(status => {
+    this.deleteConfirmation.confirmDelete().subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.service.delete(row.id).subscribe({
         next: () => {

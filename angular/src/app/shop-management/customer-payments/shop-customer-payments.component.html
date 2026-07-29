@@ -1,47 +1,50 @@
-<div class="cp-page">
-  <div class="page-heading">
-    <div>
-      <h3>
-        {{ '::CustomerPayments' | abpLocalization }}
-        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'A Customer Payment records money received from a customer and lets you match it against one or more completed Sales. Once posted, it reduces the pending balance on those sales.', ur: 'Customer Payment وہ ریکارڈ ہے جس میں آپ کسٹمر سے موصول رقم درج کرتے ہیں اور اسے مکمل ہونے والی Sales کے ساتھ ملاتے ہیں۔ Post کرنے کے بعد ان فروختوں کا بقایا رقم خود کم ہو جاتی ہے۔' }">
-          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
-        </button>
-      </h3>
-      <p>{{ '::CustomerPaymentsDescription' | abpLocalization }}</p>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::CustomerPayments" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchCustomerPayments'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Customer Payment records money received from a customer and lets you match it against one or more completed Sales. Once posted, it reduces the pending balance on those sales.', ur: 'Customer Payment وہ ریکارڈ ہے جس میں آپ کسٹمر سے موصول رقم درج کرتے ہیں اور اسے مکمل ہونے والی Sales کے ساتھ ملاتے ہیں۔ Post کرنے کے بعد ان فروختوں کا بقایا رقم خود کم ہو جاتی ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateCustomerPayment' | abpLocalization }}</button>
   </div>
-  <div class="card cp-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-3">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchCustomerPayments' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="customerFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
-          <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::PaymentType' | abpLocalization">
-          <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::PaymentStatus' | abpLocalization">
-          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateFrom" (change)="load(true)" [title]="'::PaymentDate' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateTo" (change)="load(true)" [title]="'::PaymentDate' | abpLocalization">
-      </div>
-      <div class="col-12 col-lg-1">
-        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
-      </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Customer' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="customerFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectCustomer' | abpLocalization">
+        <nz-option *ngFor="let x of customers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
     </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::PaymentType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::PaymentType' | abpLocalization">
+        <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::PaymentStatus' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::PaymentStatus' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="cp-page">
+  <div class="card cp-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -91,7 +94,9 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <ng-template #bilingualTooltip let-en="en" let-ur="ur">
   <div class="tooltip-lang-tabs">

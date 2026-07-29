@@ -33,7 +33,7 @@ export class ShopCustomerLedgerComponent implements OnInit {
   dateFrom: string | null = null;
   dateTo: string | null = null;
   referenceType: ShopCustomerLedgerReferenceType | '' = '';
-  filter = '';
+  filters: { filter?: string } = {};
 
   @ViewChild('statementRef') statementRef?: ElementRef<HTMLElement>;
 
@@ -114,7 +114,7 @@ export class ShopCustomerLedgerComponent implements OnInit {
         dateFrom: this.dateFrom || undefined,
         dateTo: this.dateTo || undefined,
         referenceType: this.referenceType === '' ? undefined : this.referenceType,
-        filter: this.filter || undefined,
+        filter: this.filters.filter || undefined,
       })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
@@ -127,7 +127,7 @@ export class ShopCustomerLedgerComponent implements OnInit {
     this.dateFrom = null;
     this.dateTo = null;
     this.referenceType = '';
-    this.filter = '';
+    this.filters = {};
     if (this.customerId) this.load();
   }
 

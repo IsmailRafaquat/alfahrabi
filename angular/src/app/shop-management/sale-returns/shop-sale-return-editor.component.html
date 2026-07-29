@@ -1,29 +1,34 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3>{{ (isEdit ? '::EditSaleReturn' : '::CreateSaleReturn') | abpLocalization }}</h3>
-        <p *ngIf="isEdit">{{ saleReturnNumber }}</p>
-      </span>
-    </div>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditSaleReturn' : '::CreateSaleReturn'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span *ngIf="isEdit" class="return-number-badge">{{ saleReturnNumber }}</span>
   </div>
 
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading && saleInfo as s">
-    <div class="return-form-card">
-      <h6 class="section-title">{{ '::Sale' | abpLocalization }}</h6>
+    <section class="form-section return-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-receipt"></i></span><h6>{{ '::Sale' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::SaleNumber' | abpLocalization }}</span><strong>{{ s.saleNumber }}</strong></div>
         <div class="col-6 col-md-4"><span class="field-label">{{ '::Customer' | abpLocalization }}</span><strong>{{ s.customerCode }} - {{ s.customerName }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::SaleDate' | abpLocalization }}</span><strong>{{ s.saleDate | date:'mediumDate' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
     <form [formGroup]="form" (ngSubmit)="save()">
-      <div class="return-form-card">
-        <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+      <section class="form-section return-form-card">
+        <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+        <div class="section-body">
         <div class="row g-3">
           <div class="col-12 col-md-6 col-xl-3">
             <label>{{ '::ReturnDate' | abpLocalization }} <b class="required">*</b></label>
@@ -62,10 +67,12 @@
             <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
           </div>
         </div>
-      </div>
+        </div>
+      </section>
 
-      <div class="return-form-card items-card">
-        <h6 class="section-title mb-0">{{ '::Product' | abpLocalization }}</h6>
+      <section class="form-section return-form-card items-card">
+        <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::Product' | abpLocalization }}</h6></div>
+        <div class="section-body">
         <small class="error d-block mb-2" *ngIf="(form.touched || submitting) && form.errors?.['requiresReturnItem']">{{ '::SaleReturnRequiresItems' | abpLocalization }}</small>
 
         <div class="table-responsive">
@@ -117,15 +124,19 @@
             </tbody>
           </table>
         </div>
-      </div>
+        </div>
+      </section>
 
-      <div class="return-form-card totals-card" *ngIf="canViewPrice">
+      <section class="form-section return-form-card totals-card" *ngIf="canViewPrice">
+        <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::Totals' | abpLocalization }}</h6></div>
+        <div class="section-body">
         <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ subTotal | number:'1.2-2' }}</strong></div>
         <div class="totals-row"><span>{{ '::DiscountAmount' | abpLocalization }}</span><strong>-{{ totalDiscount | number:'1.2-2' }}</strong></div>
         <div class="totals-row"><span>{{ '::TaxAmount' | abpLocalization }}</span><strong>{{ totalTax | number:'1.2-2' }}</strong></div>
         <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ form.value.otherCharges | number:'1.2-2' }}</strong></div>
         <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ grandTotal | number:'1.2-2' }}</strong></div>
-      </div>
+        </div>
+      </section>
 
       <div class="card-save">
         <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
@@ -136,4 +147,6 @@
       </div>
     </form>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

@@ -1,31 +1,33 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3 class="help-title">{{ (isEdit ? '::EditCustomerPayment' : '::CreateCustomerPayment') | abpLocalization }}
-          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Customer payment fields help</span></button>
-          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-            <div class="transaction-help-item"><strong dir="ltr">Customer</strong><span>جس کسٹمر سے رقم وصول ہوئی ہے اسے منتخب کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Payment Date</strong><span>جس دن رقم وصول کی گئی وہ تاریخ۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Payment Type</strong><span>یہ منتخب کریں کہ رقم کسی بل کے عوض ہے، ایڈوانس ہے یا اکاؤنٹ میں جمع ہے۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کا طریقہ، جیسے نقد، بینک یا چیک۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Amount</strong><span>کسٹمر سے وصول کی جانے والی کل رقم۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Reference Number</strong><span>بینک ٹرانزیکشن یا ادائیگی کا حوالہ نمبر۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Cheque Number / Bank Name</strong><span>چیک سے ادائیگی ہو تو چیک نمبر اور بینک کا نام لکھیں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Allocate Amount</strong><span>اس ادائیگی میں سے کسی خاص فروخت کے بل پر لگائی جانے والی رقم۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>ادائیگی سے متعلق ضروری اضافی معلومات لکھیں۔</span></div>
-          </div>
-        </h3>
-      </span>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditCustomerPayment' : '::CreateCustomerPayment'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Customer payment fields help</span></button>
+    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+      <div class="transaction-help-item"><strong dir="ltr">Customer</strong><span>جس کسٹمر سے رقم وصول ہوئی ہے اسے منتخب کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Payment Date</strong><span>جس دن رقم وصول کی گئی وہ تاریخ۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Payment Type</strong><span>یہ منتخب کریں کہ رقم کسی بل کے عوض ہے، ایڈوانس ہے یا اکاؤنٹ میں جمع ہے۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کا طریقہ، جیسے نقد، بینک یا چیک۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Amount</strong><span>کسٹمر سے وصول کی جانے والی کل رقم۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Reference Number</strong><span>بینک ٹرانزیکشن یا ادائیگی کا حوالہ نمبر۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Cheque Number / Bank Name</strong><span>چیک سے ادائیگی ہو تو چیک نمبر اور بینک کا نام لکھیں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Allocate Amount</strong><span>اس ادائیگی میں سے کسی خاص فروخت کے بل پر لگائی جانے والی رقم۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>ادائیگی سے متعلق ضروری اضافی معلومات لکھیں۔</span></div>
     </div>
   </div>
 
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-    <div class="cp-form-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section cp-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-12 col-md-6 col-xl-3">
           <label>{{ '::Customer' | abpLocalization }} <b class="required">*</b></label>
@@ -88,10 +90,12 @@
           <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
         </div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="cp-form-card allocations-card">
-      <h6 class="section-title mb-2">{{ '::OutstandingSales' | abpLocalization }}</h6>
+    <section class="form-section cp-form-card allocations-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-file-invoice-dollar"></i></span><h6>{{ '::OutstandingSales' | abpLocalization }}</h6></div>
+      <div class="section-body">
 
       <div *ngIf="!form.value.customerId" class="hint-box">{{ '::SelectCustomerToViewOutstandingSales' | abpLocalization }}</div>
       <div *ngIf="form.value.customerId && loadingSales" class="text-center py-3"><span class="spinner-border spinner-border-sm"></span></div>
@@ -142,7 +146,8 @@
           <span>{{ '::AllocatedAmount' | abpLocalization }}</span><strong>{{ totalAllocated | number:'1.2-2' }}</strong>
         </div>
       </ng-container>
-    </div>
+      </div>
+    </section>
 
     <div class="card-save">
       <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
@@ -152,4 +157,6 @@
       </button>
     </div>
   </form>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
