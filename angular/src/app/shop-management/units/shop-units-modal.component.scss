@@ -1,6 +1,8 @@
+:host ::ng-deep .modal-header { background: #eaf3fb; border-bottom-color: #d3e6f5; }
+:host ::ng-deep .modal-header .btn-close { position: relative; z-index: 1; }
 .unit-input { min-height: 30px; height: 30px; padding: .25rem .55rem; font-size: .75rem; }
 .option span { display: inline-flex; align-items: center; }
-.unit-modal-title { position: relative; display: inline-flex; align-items: center; gap: .45rem; margin: 0; }
+.unit-modal-title { position: relative; display: inline-flex; align-items: center; gap: .45rem; margin: 0; color: #173f68; }
 .unit-help-btn { display: inline-flex; align-items: center; justify-content: center; width: 27px; height: 27px; padding: 0; border: 1px solid #2c6da4; border-radius: 50%; background: #fff; color: #1d5f96; font-size: 1rem; box-shadow: 0 1px 3px rgba(20, 62, 96, .18); }
 .unit-help-btn:hover, .unit-help-btn:focus-visible { background: #1d5f96; color: #fff; outline: none; }
 .unit-fields-help { position: absolute; z-index: 1065; top: calc(100% + 12px); left: 0; width: min(360px, 78vw); max-height: min(315px, calc(100vh - 190px)); padding: 8px 12px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; border-radius: 5px; background: #303030; box-shadow: 0 8px 22px rgba(0, 0, 0, .25); color: #fff; font-size: 14px; font-weight: 400; line-height: 1.65; text-align: right; scrollbar-width: thin; scrollbar-color: #83bde9 #444; }
