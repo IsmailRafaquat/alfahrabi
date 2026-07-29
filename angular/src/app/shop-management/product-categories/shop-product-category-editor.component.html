@@ -14,7 +14,8 @@
     </div>
   </div>
 
-  <div topbarActions>
+  <div topbarActions class="d-flex align-items-center gap-2">
+    <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
     <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
   </div>
 
@@ -22,16 +23,20 @@
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
     <div formArrayName="categories">
-      <div *ngFor="let row of categories.controls; let i = index" [formGroupName]="i" class="category-form-card">
-        <div class="row-heading"><span class="row-number"><i [class]="isEdit ? 'fas fa-pen' : 'fas fa-plus'"></i></span><h5>{{ (isEdit ? '::EditProductCategory' : '::AddProductCategory') | abpLocalization }}</h5><button *ngIf="isEdit" type="button" class="btn btn-light btn-sm ms-auto" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button></div>
-        <div class="row g-3">
-          <div class="col-12 col-md-6 col-xl-4"><label>{{ '::CategoryName' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm" formControlName="name"><small *ngIf="row.get('name')?.touched && row.get('name')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small></div>
-          <div class="col-12 col-md-6 col-xl-4"><label>{{ '::CategoryCode' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm text-uppercase" formControlName="code"><small *ngIf="row.get('code')?.touched && row.get('code')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small></div>
-          <div class="col-12 col-md-6 col-xl-4"><label>{{ '::ParentCategory' | abpLocalization }}</label><nz-select class="w-100 category-nz-select" formControlName="parentCategoryId" nzShowSearch nzAllowClear nzSize="small" [nzPlaceHolder]="'::SelectParentCategory' | abpLocalization"><nz-option [nzValue]="null" [nzLabel]="'::RootCategory' | abpLocalization"></nz-option><nz-option *ngFor="let x of parentOptions(i)" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option></nz-select></div>
-          <div class="col-12 col-md-6 col-xl-4"><label>{{ '::DisplayOrder' | abpLocalization }} <b>*</b></label><input type="number" min="0" class="form-control form-control-sm" formControlName="displayOrder"></div>
-          <div class="col-12 col-xl-6"><label>{{ '::Description' | abpLocalization }}</label><textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea></div>
-          <div class="col-12 col-md-6 col-xl-2"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
-        </div>
+      <div *ngFor="let row of categories.controls; let i = index" [formGroupName]="i">
+        <section class="form-section section-category">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-tag"></i></span><h6>{{ '::CategoryDetails' | abpLocalization }}</h6></div>
+          <div class="section-body">
+            <div class="row g-3">
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::CategoryName' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm" formControlName="name"><small *ngIf="row.get('name')?.touched && row.get('name')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small></div>
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::CategoryCode' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm text-uppercase" formControlName="code"><small *ngIf="row.get('code')?.touched && row.get('code')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small></div>
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::ParentCategory' | abpLocalization }}</label><nz-select class="w-100 category-nz-select" formControlName="parentCategoryId" nzShowSearch nzAllowClear nzSize="small" [nzPlaceHolder]="'::SelectParentCategory' | abpLocalization"><nz-option [nzValue]="null" [nzLabel]="'::RootCategory' | abpLocalization"></nz-option><nz-option *ngFor="let x of parentOptions(i)" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option></nz-select></div>
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::DisplayOrder' | abpLocalization }} <b>*</b></label><input type="number" min="0" class="form-control form-control-sm" formControlName="displayOrder"></div>
+              <div class="col-12 col-xl-8"><label>{{ '::Description' | abpLocalization }}</label><textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea></div>
+              <div class="col-12 col-xl-4"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
+            </div>
+          </div>
+        </section>
         <div class="card-save"><button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting"><span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!submitting" [class]="isEdit ? 'fas fa-save me-2' : 'fas fa-plus me-2'"></i>{{ (isEdit ? '::UpdateCategory' : '::SaveCategory') | abpLocalization }}</button></div>
       </div>
     </div>
