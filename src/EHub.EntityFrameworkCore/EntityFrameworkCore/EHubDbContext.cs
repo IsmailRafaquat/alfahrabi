@@ -993,6 +993,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.SaleType });
             b.HasIndex(x => new { x.TenantId, x.Status, x.SaleDate });
+            b.HasIndex(x => new { x.TenantId, x.CustomerId, x.SaleDate });
             b.HasIndex(x => new { x.TenantId, x.SaleNumber }).IsUnique();
         });
 
@@ -1049,6 +1050,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.CustomerId });
             b.HasIndex(x => new { x.TenantId, x.PaymentDate });
             b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.CustomerId, x.PaymentDate });
             b.HasIndex(x => new { x.TenantId, x.PaymentNumber }).IsUnique();
         });
 
@@ -1176,6 +1178,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.ExpenseDate });
             b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.Status, x.ExpenseDate });
+            b.HasIndex(x => new { x.TenantId, x.ExpenseCategoryId, x.ExpenseDate });
             b.HasIndex(x => new { x.TenantId, x.PaymentMethod });
             b.HasIndex(x => new { x.TenantId, x.PaidTo });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
@@ -1243,6 +1246,7 @@ public class EHubDbContext :
 
             b.HasIndex(x => x.TenantId);
             b.HasIndex(x => new { x.TenantId, x.TransactionDate });
+            b.HasIndex(x => new { x.TenantId, x.CashRegisterId, x.TransactionDate });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
             // Includes Direction (beyond the minimal example in the spec) so that an opposite-direction
             // reversal transaction (created when a cash-affecting source is cancelled) can coexist with
@@ -1295,6 +1299,7 @@ public class EHubDbContext :
             b.HasIndex(x => x.TenantId);
             b.HasIndex(x => new { x.TenantId, x.BankAccountId });
             b.HasIndex(x => new { x.TenantId, x.TransactionDate });
+            b.HasIndex(x => new { x.TenantId, x.BankAccountId, x.TransactionDate });
             b.HasIndex(x => new { x.TenantId, x.TransactionType });
             b.HasIndex(x => new { x.TenantId, x.Direction });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
@@ -1426,6 +1431,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.ReceiptDate });
             b.HasIndex(x => new { x.TenantId, x.Status, x.ReceiptDate });
+            b.HasIndex(x => new { x.TenantId, x.SupplierId, x.ReceiptDate });
             b.HasIndex(x => new { x.TenantId, x.SupplierInvoiceNumber });
             b.HasIndex(x => new { x.TenantId, x.GoodsReceiptNumber }).IsUnique();
         });
@@ -1511,6 +1517,8 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.ProductId });
             b.HasIndex(x => new { x.TenantId, x.TransactionDate });
             b.HasIndex(x => new { x.TenantId, x.TransactionType });
+            b.HasIndex(x => new { x.TenantId, x.ProductId, x.TransactionDate });
+            b.HasIndex(x => new { x.TenantId, x.TransactionType, x.TransactionDate });
             b.HasIndex(x => new { x.TenantId, x.ReferenceType, x.ReferenceId });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
             b.HasIndex(x => new { x.TenantId, x.ProductBatchId });
@@ -1700,6 +1708,7 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.SupplierId });
             b.HasIndex(x => new { x.TenantId, x.PaymentDate });
             b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.SupplierId, x.PaymentDate });
             b.HasIndex(x => new { x.TenantId, x.PaymentNumber }).IsUnique();
         });
 

@@ -1084,6 +1084,8 @@ namespace EHub.Migrations
 
                     b.HasIndex("TenantId", "TransactionType");
 
+                    b.HasIndex("TenantId", "BankAccountId", "TransactionDate");
+
                     b.HasIndex("TenantId", "ReferenceType", "ReferenceId");
 
                     b.HasIndex("TenantId", "ReferenceType", "ReferenceId", "TransactionType", "IsReversal")
@@ -1526,6 +1528,8 @@ namespace EHub.Migrations
 
                     b.HasIndex("TenantId", "TransactionDate");
 
+                    b.HasIndex("TenantId", "CashRegisterId", "TransactionDate");
+
                     b.HasIndex("TenantId", "ReferenceType", "ReferenceId");
 
                     b.HasIndex("TenantId", "ReferenceType", "ReferenceId", "TransactionType", "Direction")
@@ -1662,6 +1666,8 @@ namespace EHub.Migrations
                         .IsUnique();
 
                     b.HasIndex("TenantId", "Status");
+
+                    b.HasIndex("TenantId", "CustomerId", "PaymentDate");
 
                     b.ToTable("ShopCustomerPayments", (string)null);
                 });
@@ -2102,6 +2108,8 @@ namespace EHub.Migrations
 
                     b.HasIndex("TenantId", "Status");
 
+                    b.HasIndex("TenantId", "ExpenseCategoryId", "ExpenseDate");
+
                     b.HasIndex("TenantId", "Status", "ExpenseDate");
 
                     b.ToTable("ShopExpenses", (string)null);
@@ -2262,6 +2270,8 @@ namespace EHub.Migrations
                     b.HasIndex("TenantId", "SupplierInvoiceNumber");
 
                     b.HasIndex("TenantId", "Status", "ReceiptDate");
+
+                    b.HasIndex("TenantId", "SupplierId", "ReceiptDate");
 
                     b.ToTable("ShopGoodsReceipts", (string)null);
                 });
@@ -3914,6 +3924,8 @@ namespace EHub.Migrations
 
                     b.HasIndex("TenantId", "Status");
 
+                    b.HasIndex("TenantId", "CustomerId", "SaleDate");
+
                     b.HasIndex("TenantId", "Status", "SaleDate");
 
                     b.ToTable("ShopSales", (string)null);
@@ -4858,11 +4870,15 @@ namespace EHub.Migrations
 
                     b.HasIndex("TenantId", "TransactionType");
 
+                    b.HasIndex("TenantId", "ProductId", "TransactionDate");
+
                     b.HasIndex("TenantId", "ReferenceType", "ReferenceId");
 
                     b.HasIndex("TenantId", "ReferenceType", "SourceItemId")
                         .IsUnique()
                         .HasFilter("[SourceItemId] IS NOT NULL");
+
+                    b.HasIndex("TenantId", "TransactionType", "TransactionDate");
 
                     b.ToTable("ShopStockTransactions", (string)null);
                 });
@@ -4995,6 +5011,8 @@ namespace EHub.Migrations
                     b.HasIndex("TenantId", "Status");
 
                     b.HasIndex("TenantId", "SupplierId");
+
+                    b.HasIndex("TenantId", "SupplierId", "PaymentDate");
 
                     b.ToTable("ShopSupplierPayments", (string)null);
                 });
@@ -8603,7 +8621,7 @@ namespace EHub.Migrations
 
                             b1.HasKey("StaffDocumentId");
 
-                            b1.ToTable("AppStaffDocuments", (string)null);
+                            b1.ToTable("AppStaffDocuments");
 
                             b1.WithOwner()
                                 .HasForeignKey("StaffDocumentId");
@@ -8658,7 +8676,7 @@ namespace EHub.Migrations
 
                             b1.HasKey("StudentDocumentId");
 
-                            b1.ToTable("AppStudentDocuments", (string)null);
+                            b1.ToTable("AppStudentDocuments");
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentDocumentId");

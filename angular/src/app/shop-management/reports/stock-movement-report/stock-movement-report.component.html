@@ -1,0 +1,87 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopStockMovementReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <app-report-export-menu *ngIf="canExport" [exporting]="exporting" (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::MovementType' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.transactionType" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+          <nz-option *ngFor="let o of transactionTypeOptions" [nzValue]="o.value" [nzLabel]="('::' + o.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::QuantityIn' | abpLocalization }} / {{ '::QuantityOut' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.quantityDirection">
+          <nz-option [nzValue]="ShopStockQuantityDirection.All" [nzLabel]="'::AllStatuses' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopStockQuantityDirection.StockIn" [nzLabel]="'::QuantityIn' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopStockQuantityDirection.StockOut" [nzLabel]="'::QuantityOut' | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopStockMovementReport" [dateRangeText]="input.dateFrom + ' - ' + input.dateTo"></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="summary-section">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="!loading">
+        <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+          <table class="table align-middle report-table">
+            <thead>
+              <tr>
+                <th>{{ '::TransactionDate' | abpLocalization }}</th>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::BatchNumber' | abpLocalization }}</th>
+                <th>{{ '::MovementType' | abpLocalization }}</th>
+                <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+                <th>{{ '::QuantityIn' | abpLocalization }}</th>
+                <th>{{ '::QuantityOut' | abpLocalization }}</th>
+                <th>{{ '::BalanceQuantity' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.items">
+                <td>{{ row.transactionDate | date: 'medium' }}</td>
+                <td><strong>{{ row.productName }}</strong></td>
+                <td>{{ row.batchNumber || '-' }}</td>
+                <td><app-report-status-badge [text]="typeLabel(row.transactionType) | abpLocalization" variant="info"></app-report-status-badge></td>
+                <td>{{ row.referenceNumber }}</td>
+                <td>{{ row.quantityIn | shopReportQuantity }}</td>
+                <td>{{ row.quantityOut | shopReportQuantity }}</td>
+                <td class="balance-cell">{{ row.productBalanceQuantity | shopReportQuantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <nz-pagination
+            class="p-3"
+            [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+            (nzPageIndexChange)="onPageChange($event)"
+          ></nz-pagination>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <app-report-empty-state></app-report-empty-state>
+      </ng-template>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

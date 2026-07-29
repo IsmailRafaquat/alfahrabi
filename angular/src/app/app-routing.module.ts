@@ -257,6 +257,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/product-batches/shop-product-batches.module').then(m => m.ShopProductBatchesModule),
   },
   {
+    path: 'shop-management/reports', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Reports' },
+    loadChildren: () => import('./shop-management/reports/shop-reports.module').then(m => m.ShopReportsModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),
@@ -293,7 +297,7 @@ const routes: Routes = [
   {
     path: 'components/topbar-layout',
     loadChildren: () =>
-      import('./components/topbar-layout/topbar-layout.module').then(m => m.TopbarLayoutModule),
+      import('./components/topbar-layout/topbar-layout-routing.module').then(m => m.TopbarLayoutRoutingModule),
   },
   { path: 'reports/report/salary-report', loadChildren: () => import('./reports/report/salary-report/salary-report.module').then(m => m.SalaryReportModule) },
   { path: 'reports/report/student-fee-report', loadChildren: () => import('./reports/report/student-fee-report/student-fee-report.module').then(m => m.StudentFeeReportModule) },

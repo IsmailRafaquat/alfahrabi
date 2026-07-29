@@ -183,6 +183,10 @@ function configureRoutes() {
       iconClass: 'fas fa-random', order: 3, layout: eLayoutType.application,
       requiredPolicy: 'ShopManagement.BankTransfers',
     },
+    {
+      path: '/shop-management/reports', name: '::ShopReports', parentName: '::ShopManagement', iconClass: 'fas fa-chart-pie',
+      order: 11, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Reports',
+    },
     // Home / Dashboard
     {
       path: '/',

@@ -1,0 +1,24 @@
+<div class="report-export-menu">
+  <div ngbDropdown class="d-inline-block">
+    <button type="button" class="btn btn-outline-secondary btn-sm" ngbDropdownToggle [disabled]="disabled || exporting">
+      <span *ngIf="exporting" class="spinner-border spinner-border-sm me-1"></span>
+      <i *ngIf="!exporting" class="fas fa-download me-1"></i>
+      <ng-container *ngIf="!exporting">{{ '::ExportExcel' | abpLocalization }}</ng-container>
+      <ng-container *ngIf="exporting">{{ '::GeneratingExport' | abpLocalization }}</ng-container>
+    </button>
+    <div ngbDropdownMenu>
+      <button ngbDropdownItem (click)="exportFormat.emit(ShopReportExportFormat.Excel)">
+        <i class="fas fa-file-excel me-2 text-success"></i>{{ '::ExportExcel' | abpLocalization }}
+      </button>
+      <button ngbDropdownItem (click)="exportFormat.emit(ShopReportExportFormat.Csv)">
+        <i class="fas fa-file-csv me-2 text-info"></i>{{ '::ExportCsv' | abpLocalization }}
+      </button>
+      <button ngbDropdownItem (click)="exportFormat.emit(ShopReportExportFormat.Pdf)">
+        <i class="fas fa-file-pdf me-2 text-danger"></i>{{ '::ExportPdf' | abpLocalization }}
+      </button>
+    </div>
+  </div>
+  <button *ngIf="showPrint" type="button" class="btn btn-outline-secondary btn-sm ms-2" [disabled]="disabled" (click)="onPrint()">
+    <i class="fas fa-print me-1"></i>{{ '::PrintReport' | abpLocalization }}
+  </button>
+</div>

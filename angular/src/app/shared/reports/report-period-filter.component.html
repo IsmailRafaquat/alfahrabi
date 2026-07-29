@@ -1,0 +1,14 @@
+<div class="report-period-filter">
+  <nz-select class="period-select" [ngModel]="period" (ngModelChange)="onPeriodChange($event)" [nzDisabled]="disabled">
+    <nz-option *ngFor="let x of periodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+  </nz-select>
+  <ng-container *ngIf="period === ShopReportPeriod.Custom">
+    <input type="date" class="form-control form-control-sm" [ngModel]="dateFrom"
+      (ngModelChange)="onDateFromChange($event)" [title]="'::ReportDateFrom' | abpLocalization" [disabled]="disabled">
+    <input type="date" class="form-control form-control-sm" [ngModel]="dateTo"
+      (ngModelChange)="onDateToChange($event)" [title]="'::ReportDateTo' | abpLocalization" [disabled]="disabled">
+    <button type="button" class="btn btn-primary btn-sm" [disabled]="!dateFrom || !dateTo || disabled" (click)="apply.emit()">
+      {{ '::ApplyReportFilters' | abpLocalization }}
+    </button>
+  </ng-container>
+</div>

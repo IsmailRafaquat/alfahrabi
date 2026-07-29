@@ -28,6 +28,29 @@ public static class EHubPermissions
         public const string ViewRecentTransactions = Default + ".ViewRecentTransactions";
     }
 
+    public static class ShopReports
+    {
+        public const string Default = ManagementMenus.Shop + ".Reports";
+        public const string Sales = Default + ".Sales";
+        public const string Purchases = Default + ".Purchases";
+        public const string Stock = Default + ".Stock";
+        public const string StockMovements = Default + ".StockMovements";
+        public const string BatchExpiry = Default + ".BatchExpiry";
+        public const string CustomerReceivables = Default + ".CustomerReceivables";
+        public const string CustomerTransactions = Default + ".CustomerTransactions";
+        public const string SupplierPayables = Default + ".SupplierPayables";
+        public const string SupplierTransactions = Default + ".SupplierTransactions";
+        public const string Expenses = Default + ".Expenses";
+        public const string Cash = Default + ".Cash";
+        public const string Bank = Default + ".Bank";
+        public const string TaxSummary = Default + ".TaxSummary";
+        public const string ProductPerformance = Default + ".ProductPerformance";
+        public const string ViewCost = Default + ".ViewCost";
+        public const string ViewProfitSensitiveData = Default + ".ViewProfitSensitiveData";
+        public const string Export = Default + ".Export";
+        public const string Print = Default + ".Print";
+    }
+
     public static class ShopProductCategories
     {
         public const string Default = ManagementMenus.Shop + ".ProductCategories";

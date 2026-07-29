@@ -1,0 +1,43 @@
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .85rem;
+  padding: 1rem 1.25rem;
+}
+
+.summary-card {
+  padding: .9rem 1.1rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  min-width: 0;
+
+  span {
+    display: block;
+    color: #8a9bad;
+    font-size: .68rem;
+    text-transform: uppercase;
+    margin-bottom: .25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  strong {
+    font-size: 1.05rem;
+    color: #173f68;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+}
+
+.summary-card--primary { background: #f8fafc; }
+.summary-card--info { background: #eef6fc; strong { color: #2369a3; } }
+.summary-card--success { background: #e9f7ef; strong { color: #198754; } }
+.summary-card--danger { background: #fdeced; strong { color: #c83e4d; } }
+.summary-card--warning { background: #fef3e2; strong { color: #b5670a; } }
+
+@media (max-width: 767.98px) {
+  .summary-cards { grid-template-columns: repeat(2, 1fr); padding: .75rem; }
+}

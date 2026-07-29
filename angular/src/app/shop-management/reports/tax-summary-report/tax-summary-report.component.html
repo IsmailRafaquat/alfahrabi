@@ -1,0 +1,28 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopTaxSummaryReport" [(filters)]="input" showSearch="false" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopTaxSummaryReport" [dateRangeText]="(result?.dateFrom || '') + ' - ' + (result?.dateTo || '')"></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <div class="summary-section" *ngIf="!loading && result">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

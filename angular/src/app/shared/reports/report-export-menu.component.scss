@@ -1,0 +1,31 @@
+.report-export-menu {
+  display: inline-flex;
+  align-items: center;
+
+  .btn {
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    border-color: #173f68;
+    color: #173f68;
+    background: #fff;
+
+    &:hover, &:focus, &:active, &.show {
+      background: #173f68 !important;
+      color: #fff !important;
+      border-color: #173f68 !important;
+      box-shadow: none !important;
+    }
+
+    &:disabled {
+      opacity: .6;
+    }
+  }
+}
+
+@media print {
+  .report-export-menu {
+    display: none !important;
+  }
+}

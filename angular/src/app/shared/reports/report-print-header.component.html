@@ -1,0 +1,9 @@
+<div class="report-print-header">
+  <h2>{{ shopName || ('::ShopManagement' | abpLocalization) }}</h2>
+  <p *ngIf="shopAddress">{{ shopAddress }}</p>
+  <p *ngIf="shopPhone">{{ shopPhone }}</p>
+  <h3>{{ reportTitleKey | abpLocalization }}</h3>
+  <p class="report-print-header__meta">{{ dateRangeText }}</p>
+  <p *ngIf="appliedFiltersText" class="report-print-header__meta">{{ '::ReportAppliedFilters' | abpLocalization }}: {{ appliedFiltersText }}</p>
+  <p class="report-print-header__meta">{{ '::ReportGeneratedDate' | abpLocalization }}: {{ generatedDate | date: 'medium' }}</p>
+</div>

@@ -1,0 +1,119 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopSalesReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <app-report-export-menu *ngIf="canExport" [exporting]="exporting" (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::Customer' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.customerId" nzAllowClear [nzPlaceHolder]="'::AllCustomers' | abpLocalization">
+          <nz-option *ngFor="let c of customers" [nzValue]="c.id" [nzLabel]="c.name || ''"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::PaymentStatus' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.paymentStatus" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+          <nz-option *ngFor="let o of paymentStatusOptions" [nzValue]="o.value" [nzLabel]="('::' + o.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::GroupBy' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.groupBy">
+          <nz-option [nzValue]="ShopSalesReportGroupBy.None" [nzLabel]="'::NoGrouping' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopSalesReportGroupBy.Day" [nzLabel]="'::SalesByDay' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopSalesReportGroupBy.Month" [nzLabel]="'::SalesByMonth' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopSalesReportGroupBy.Customer" [nzLabel]="'::SalesByCustomer' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopSalesReportGroupBy.Product" [nzLabel]="'::SalesByProduct' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopSalesReportGroupBy.Category" [nzLabel]="'::SalesByCategory' | abpLocalization"></nz-option>
+          <nz-option [nzValue]="ShopSalesReportGroupBy.PaymentMethod" [nzLabel]="'::SalesByPaymentMethod' | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header
+      reportTitleKey="::ShopSalesReport"
+      [dateRangeText]="input.dateFrom + ' - ' + input.dateTo"
+    ></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="summary-section">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="!loading">
+        <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+          <table class="table align-middle report-table">
+            <thead>
+              <tr>
+                <th>{{ '::InvoiceNumber' | abpLocalization }}</th>
+                <th>{{ '::TransactionDate' | abpLocalization }}</th>
+                <th>{{ '::Customer' | abpLocalization }}</th>
+                <th>{{ '::GrandTotal' | abpLocalization }}</th>
+                <th>{{ '::DiscountAmount' | abpLocalization }}</th>
+                <th>{{ '::TaxAmount' | abpLocalization }}</th>
+                <th>{{ '::NetSalesAmount' | abpLocalization }}</th>
+                <th>{{ '::PaidAmount' | abpLocalization }}</th>
+                <th>{{ '::PendingAmount' | abpLocalization }}</th>
+                <th>{{ '::PaymentStatus' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.items">
+                <td><strong>{{ row.invoiceNumber }}</strong></td>
+                <td>{{ row.saleDate | date: 'mediumDate' }}</td>
+                <td>{{ row.customerName }}</td>
+                <td>{{ row.grossAmount | shopReportCurrency }}</td>
+                <td>{{ row.discountAmount | shopReportCurrency }}</td>
+                <td>{{ row.taxAmount | shopReportCurrency }}</td>
+                <td class="balance-cell">{{ row.finalSalesAmount | shopReportCurrency }}</td>
+                <td>{{ row.paidAmount | shopReportCurrency }}</td>
+                <td>{{ row.pendingAmount | shopReportCurrency }}</td>
+                <td><app-report-status-badge [text]="paymentStatusLabel(row.paymentStatus) | abpLocalization" [variant]="paymentStatusVariant(row.paymentStatus)"></app-report-status-badge></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="report-groups" *ngIf="result.groups?.length">
+            <h5>{{ '::GroupBy' | abpLocalization }}</h5>
+            <table class="table table-sm report-table">
+              <thead><tr><th></th><th>{{ '::GrandTotal' | abpLocalization }}</th><th>{{ '::NetSalesAmount' | abpLocalization }}</th><th>{{ '::Quantity' | abpLocalization }}</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let g of result.groups">
+                  <td>{{ g.groupLabel }}</td>
+                  <td>{{ g.grossAmount | shopReportCurrency }}</td>
+                  <td>{{ g.finalSalesAmount | shopReportCurrency }}</td>
+                  <td>{{ g.totalQuantity | shopReportQuantity }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <nz-pagination
+            class="p-3"
+            [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+            (nzPageIndexChange)="onPageChange($event)"
+          ></nz-pagination>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <app-report-empty-state></app-report-empty-state>
+      </ng-template>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>
