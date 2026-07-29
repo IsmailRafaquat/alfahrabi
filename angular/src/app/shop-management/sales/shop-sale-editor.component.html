@@ -1,34 +1,36 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3 class="help-title">{{ (isEdit ? '::EditSale' : '::CreateSale') | abpLocalization }}
-          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Sale fields help</span></button>
-          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-            <div class="transaction-help-item"><strong dir="ltr">Customer</strong><span>وہ کسٹمر منتخب کریں جسے آپ سامان بیچ رہے ہیں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Sale Date</strong><span>جس دن یہ فروخت ہو رہی ہے وہ تاریخ۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Sale Type</strong><span>نقد (Cash) یا ادھار (Credit) میں سے منتخب کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Due Date</strong><span>ادھار فروخت کے لیے ادائیگی کی آخری تاریخ ضروری ہے۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Product</strong><span>کسٹمر کو بیچی جانے والی پروڈکٹ منتخب کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Quantity</strong><span>بیچی جانے والی مقدار درج کریں، جو دستیاب اسٹاک سے زیادہ نہیں ہو سکتی۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Sale Price</strong><span>ایک یونٹ کی فروخت قیمت درج کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>اگر رعایت یا ٹیکس ہو تو اس کی فیصد درج کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Paid Amount</strong><span>کسٹمر نے فوری طور پر کتنی رقم ادا کی۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>فروخت سے متعلق ضروری اضافی بات لکھیں۔</span></div>
-          </div>
-        </h3>
-        <p *ngIf="isEdit">{{ saleNumber }}</p>
-      </span>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditSale' : '::CreateSale'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span *ngIf="isEdit" class="sale-number-badge">{{ saleNumber }}</span>
+    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Sale fields help</span></button>
+    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+      <div class="transaction-help-item"><strong dir="ltr">Customer</strong><span>وہ کسٹمر منتخب کریں جسے آپ سامان بیچ رہے ہیں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Sale Date</strong><span>جس دن یہ فروخت ہو رہی ہے وہ تاریخ۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Sale Type</strong><span>نقد (Cash) یا ادھار (Credit) میں سے منتخب کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Due Date</strong><span>ادھار فروخت کے لیے ادائیگی کی آخری تاریخ ضروری ہے۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Product</strong><span>کسٹمر کو بیچی جانے والی پروڈکٹ منتخب کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Quantity</strong><span>بیچی جانے والی مقدار درج کریں، جو دستیاب اسٹاک سے زیادہ نہیں ہو سکتی۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Sale Price</strong><span>ایک یونٹ کی فروخت قیمت درج کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>اگر رعایت یا ٹیکس ہو تو اس کی فیصد درج کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Paid Amount</strong><span>کسٹمر نے فوری طور پر کتنی رقم ادا کی۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>فروخت سے متعلق ضروری اضافی بات لکھیں۔</span></div>
     </div>
   </div>
 
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-    <div class="sale-form-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section sale-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-12 col-md-6 col-xl-3">
           <label>{{ '::Customer' | abpLocalization }} <b class="required">*</b></label>
@@ -73,13 +75,15 @@
           <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
         </div>
       </div>
-    </div>
-
-    <div class="sale-form-card items-card">
-      <div class="items-header">
-        <h6 class="section-title mb-0">{{ '::Product' | abpLocalization }}</h6>
-        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()"><i class="fas fa-plus me-2"></i>{{ '::AddProduct' | abpLocalization }}</button>
       </div>
+    </section>
+
+    <section class="form-section sale-form-card items-card">
+      <div class="section-head items-header">
+        <span class="section-icon"><i class="fas fa-boxes"></i></span><h6 class="mb-0">{{ '::Product' | abpLocalization }}</h6>
+        <button type="button" class="btn btn-outline-primary btn-sm ms-auto" (click)="addItem()"><i class="fas fa-plus me-2"></i>{{ '::AddProduct' | abpLocalization }}</button>
+      </div>
+      <div class="section-body">
       <small class="error d-block mb-2" *ngIf="form.errors?.['duplicateProduct']">{{ '::SaleDuplicateProduct' | abpLocalization }}</small>
 
       <div class="table-responsive">
@@ -125,9 +129,12 @@
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="sale-form-card totals-card">
+    <section class="form-section sale-form-card totals-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::Totals' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="totals-row" *ngIf="canViewPrice"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ subTotal | number:'1.2-2' }}</strong></div>
       <div class="totals-row" *ngIf="canViewPrice"><span>{{ '::DiscountAmount' | abpLocalization }}</span><strong>-{{ totalDiscount | number:'1.2-2' }}</strong></div>
       <div class="totals-row" *ngIf="canViewPrice"><span>{{ '::TaxAmount' | abpLocalization }}</span><strong>{{ totalTax | number:'1.2-2' }}</strong></div>
@@ -144,7 +151,8 @@
           <input type="text" class="form-control form-control-sm" [value]="pendingAmount | number:'1.2-2'" disabled>
         </div>
       </div>
-    </div>
+      </div>
+    </section>
 
     <div class="card-save">
       <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
@@ -154,4 +162,6 @@
       </button>
     </div>
   </form>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

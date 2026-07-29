@@ -1,10 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { PermissionService } from '@abp/ng.core';
-import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { Confirmation, ToasterService } from '@abp/ng.theme.shared';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ShopSaleDto, ShopSaleService, ShopSaleStatus, ShopSaleType, shopSaleStatusOptions, shopSaleTypeOptions } from '../../proxy/shop-management/sales';
 import { ShopCustomerLookupDto, ShopCustomerService } from '../../proxy/shop-management/customers';
+import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
 
 @Component({ selector: 'app-shop-sales', standalone: false, templateUrl: './shop-sales.component.html', styleUrl: './shop-sales.component.scss' })
 export class ShopSalesComponent implements OnInit {
@@ -17,7 +18,7 @@ export class ShopSalesComponent implements OnInit {
   private readonly customerService = inject(ShopCustomerService);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
-  private readonly confirmation = inject(ConfirmationService);
+  private readonly confirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   readonly canCreate = this.permissions.getGrantedPolicy('ShopManagement.Sales.Create');
@@ -32,7 +33,7 @@ export class ShopSalesComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   customerFilter = '';
   statusFilter: ShopSaleStatus | '' = '';
   saleTypeFilter: ShopSaleType | '' = '';
@@ -51,7 +52,7 @@ export class ShopSalesComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         customerId: this.customerFilter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         saleType: this.saleTypeFilter === '' ? undefined : this.saleTypeFilter,
@@ -98,7 +99,7 @@ export class ShopSalesComponent implements OnInit {
   }
 
   remove(row: ShopSaleDto): void {
-    this.confirmation.warn('::ConfirmDeleteSale', row.saleNumber).subscribe(status => {
+    this.confirmation.confirmDelete().subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.service.delete(row.id).subscribe({
         next: () => {
