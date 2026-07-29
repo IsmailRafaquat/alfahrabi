@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { PermissionService } from '@abp/ng.core';
-import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
+import { Confirmation, ToasterService } from '@abp/ng.theme.shared';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ShopSupplierDto, ShopSupplierService } from '../../proxy/shop-management/suppliers';
+import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
 
 @Component({ selector: 'app-shop-suppliers', standalone: false, templateUrl: './shop-suppliers.component.html', styleUrl: './shop-suppliers.component.scss' })
 export class ShopSuppliersComponent implements OnInit {
@@ -11,7 +12,7 @@ export class ShopSuppliersComponent implements OnInit {
   private readonly service = inject(ShopSupplierService);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
-  private readonly confirmation = inject(ConfirmationService);
+  private readonly confirmation = inject(ConfirmationHelperService);
   private readonly toaster = inject(ToasterService);
 
   readonly canCreate = this.permissions.getGrantedPolicy('ShopManagement.Suppliers.Create');
@@ -25,7 +26,7 @@ export class ShopSuppliersComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   cityFilter = '';
   countryFilter = '';
   statusFilter = '';
@@ -41,7 +42,7 @@ export class ShopSuppliersComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         city: this.cityFilter || undefined,
         country: this.countryFilter || undefined,
         isActive: this.statusFilter === '' ? undefined : this.statusFilter === 'active',
@@ -65,7 +66,7 @@ export class ShopSuppliersComponent implements OnInit {
   }
 
   remove(row: ShopSupplierDto): void {
-    this.confirmation.warn('::ConfirmDeleteSupplier', row.name).subscribe(status => {
+    this.confirmation.confirmDelete().subscribe(status => {
       if (status !== Confirmation.Status.confirm) return;
       this.service.delete(row.id).subscribe({
         next: () => {
