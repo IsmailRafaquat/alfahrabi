@@ -1,28 +1,30 @@
-<div class="detail-page">
-  <div class="detail-header">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <span *ngIf="dto as d">
-        <h3>{{ d.saleReturnNumber }} <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span></h3>
-        <p>{{ d.customerCode }} - {{ d.customerName }}</p>
-      </span>
-    </div>
-    <div class="actions" *ngIf="dto as d">
-      <button class="btn btn-light btn-sm" (click)="viewSale()"><i class="fas fa-receipt me-2"></i>{{ '::ViewSale' | abpLocalization }}</button>
-      <button *ngIf="canViewCustomerLedger" class="btn btn-light btn-sm" (click)="viewCustomerLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewCustomerLedger' | abpLocalization }}</button>
-      <button *ngIf="canViewStockTransactions && d.status === ShopSaleReturnStatus.Completed" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>
-      <button *ngIf="canEdit && d.status === ShopSaleReturnStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditSaleReturn' | abpLocalization }}</button>
-      <button *ngIf="canDelete && d.status === ShopSaleReturnStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteSaleReturn' | abpLocalization }}</button>
-      <button *ngIf="canCancel && d.status === ShopSaleReturnStatus.Draft" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelSaleReturn' | abpLocalization }}</button>
-      <button *ngIf="canComplete && d.status === ShopSaleReturnStatus.Draft" class="btn btn-primary btn-sm" [disabled]="actionInProgress" (click)="complete()"><i class="fas fa-check me-2"></i>{{ '::CompleteSaleReturn' | abpLocalization }}</button>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::SaleReturn" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="dto as d">
+    <span class="sale-number-badge">{{ d.saleReturnNumber }}</span>
+    <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span>
   </div>
 
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button class="btn btn-light btn-sm" (click)="viewSale()"><i class="fas fa-receipt me-2"></i>{{ '::ViewSale' | abpLocalization }}</button>
+    <button *ngIf="canViewCustomerLedger" class="btn btn-light btn-sm" (click)="viewCustomerLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewCustomerLedger' | abpLocalization }}</button>
+    <button *ngIf="canViewStockTransactions && d.status === ShopSaleReturnStatus.Completed" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>
+    <button *ngIf="canEdit && d.status === ShopSaleReturnStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditSaleReturn' | abpLocalization }}</button>
+    <button *ngIf="canDelete && d.status === ShopSaleReturnStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteSaleReturn' | abpLocalization }}</button>
+    <button *ngIf="canCancel && d.status === ShopSaleReturnStatus.Draft" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelSaleReturn' | abpLocalization }}</button>
+    <button *ngIf="canComplete && d.status === ShopSaleReturnStatus.Draft" class="btn btn-primary btn-sm" [disabled]="actionInProgress" (click)="complete()"><i class="fas fa-check me-2"></i>{{ '::CompleteSaleReturn' | abpLocalization }}</button>
+  </div>
+
+  <div class="detail-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading && dto as d">
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ReturnDate' | abpLocalization }}</span><strong>{{ d.returnDate | date:'mediumDate' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::SaleNumber' | abpLocalization }}</span><strong>{{ d.saleNumber }}</strong></div>
@@ -33,10 +35,12 @@
         <div class="col-12" *ngIf="d.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ d.notes }}</p></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::CreationTime' | abpLocalization }}</span><strong>{{ d.creationTime | date:'medium' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::Product' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::Product' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -83,23 +87,30 @@
         <div class="totals-row" *ngIf="d.status === ShopSaleReturnStatus.Completed"><span>{{ '::RefundAmount' | abpLocalization }}</span><strong>{{ d.refundAmount | number:'1.2-2' }}</strong></div>
         <div class="totals-row" *ngIf="d.status === ShopSaleReturnStatus.Completed"><span>{{ '::CustomerCreditAmount' | abpLocalization }}</span><strong>{{ d.customerCreditAmount | number:'1.2-2' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="d.status === ShopSaleReturnStatus.Completed">
-      <h6 class="section-title">{{ '::CompleteSaleReturn' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopSaleReturnStatus.Completed">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-check-circle"></i></span><h6>{{ '::CompleteSaleReturn' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::CompletedDate' | abpLocalization }}</span><strong>{{ d.completedDate ? (d.completedDate | date:'medium') : '—' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="d.status === ShopSaleReturnStatus.Cancelled">
-      <h6 class="section-title">{{ '::CancellationReason' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopSaleReturnStatus.Cancelled">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-ban"></i></span><h6>{{ '::CancellationReason' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-12 col-md-6"><p class="notes-text">{{ d.cancellationReason }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::CancelSaleReturn' | abpLocalization }}</h5></ng-template>
