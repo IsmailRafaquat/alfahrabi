@@ -1,11 +1,6 @@
 :host { display: block; }
-.dashboard-page { padding: 1.25rem; max-width: 1700px; margin: auto; }
+.dashboard-page { padding: 1.25rem 1rem; }
 
-.dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .75rem; }
-.dashboard-header h3 { color: #173f68; margin: 0; font-size: 1.35rem; font-weight: 700; }
-.dashboard-header p { margin: .2rem 0 0; color: #718096; font-size: .8rem; }
-.filters { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-.period-select { min-width: 160px; }
 .form-control-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
 
 .cards-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
@@ -16,7 +11,7 @@
   transition: box-shadow .15s ease, transform .15s ease;
 }
 .card-info-btn {
-  position: absolute; top: .5rem; right: .5rem; border: 0; background: transparent; color: #9fb2c4;
+  position: absolute; top: .5rem; right: .9rem; border: 0; background: transparent; color: #9fb2c4;
   width: 22px; height: 22px; font-size: .78rem; padding: 0; cursor: help; line-height: 1; z-index: 1;
 }
 .card-info-btn:hover { color: #2369a3; }

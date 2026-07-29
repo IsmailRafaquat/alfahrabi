@@ -69,6 +69,12 @@
   margin: 0 auto;
 }
 
+.app-content.full-width {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+}
+
 @media (max-width: 991.98px) {
   .app-topbar {
     padding: 0.85em 1rem;

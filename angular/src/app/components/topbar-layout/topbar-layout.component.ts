@@ -14,6 +14,7 @@ export class TopbarLayoutComponent {
   @Input({ transform: booleanAttribute }) showFiltersToggle = false;
   @Input({ transform: booleanAttribute }) showApplyFilters = true;
   @Input({ transform: booleanAttribute }) showResetFilters = true;
+  @Input({ transform: booleanAttribute }) fullWidthContent = false;
 
   @Input() filtersTitleKey = '::Filters';
 

@@ -1,25 +1,37 @@
-<div class="dashboard-page">
-  <div class="dashboard-header">
-    <div>
-      <h3>{{ dto?.shopDisplayName || ('::ShopDashboard' | abpLocalization) }}</h3>
-      <p>{{ '::ShopDashboard' | abpLocalization }}</p>
-    </div>
-    <div class="filters">
-      <nz-select class="period-select" [(ngModel)]="period" (ngModelChange)="onPeriodChange()">
-        <nz-option *ngFor="let x of periodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-      </nz-select>
-      <ng-container *ngIf="period === ShopDashboardPeriod.Custom">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" [title]="'::DateFrom' | abpLocalization">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" [title]="'::DateTo' | abpLocalization">
-        <button class="btn btn-primary btn-sm" [disabled]="!dateFrom || !dateTo || loading" (click)="applyCustomRange()">{{ '::ApplyFilter' | abpLocalization }}</button>
-      </ng-container>
-      <button class="btn btn-light btn-sm" [disabled]="loading" (click)="load()">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-        <i *ngIf="!loading" class="fas fa-sync-alt me-2"></i>{{ '::RefreshDashboard' | abpLocalization }}
-      </button>
-    </div>
+<abp-page>
+<app-topbar-layout [titleKey]="dto?.shopDisplayName || '::ShopDashboard'" showSearch="false" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarActions class="d-flex align-items-center gap-2">
+    <button class="btn btn-light btn-sm" [disabled]="loading" (click)="load()">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+      <i *ngIf="!loading" class="fas fa-sync-alt me-2"></i>{{ '::RefreshDashboard' | abpLocalization }}
+    </button>
   </div>
 
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-12 col-md-2">
+      <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="period" (ngModelChange)="onPeriodChange()">
+        <nz-option *ngFor="let x of periodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <ng-container *ngIf="period === ShopDashboardPeriod.Custom">
+      <div class="col-12 col-md-2">
+        <label>{{ '::DateFrom' | abpLocalization }}</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom">
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::DateTo' | abpLocalization }}</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo">
+      </div>
+      <div class="col-12 col-md-auto d-flex align-items-end">
+        <button class="btn btn-primary btn-sm" [disabled]="!dateFrom || !dateTo || loading" (click)="applyCustomRange()">{{ '::ApplyFilter' | abpLocalization }}</button>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <div class="dashboard-page">
   <div *ngIf="loading && !dto" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <div *ngIf="error && !dto" class="empty-state page-empty"><i class="fas fa-exclamation-triangle"></i><span>{{ '::NoDashboardData' | abpLocalization }}</span></div>
@@ -349,7 +361,9 @@
       </div>
     </div>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <ng-template #bilingualTooltip let-en="en" let-ur="ur">
   <div class="tooltip-lang-tabs">
