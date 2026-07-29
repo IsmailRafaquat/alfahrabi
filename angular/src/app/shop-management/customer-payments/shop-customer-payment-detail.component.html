@@ -1,25 +1,27 @@
-<div class="detail-page">
-  <div class="detail-header">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <span *ngIf="dto as d">
-        <h3>{{ d.paymentNumber }} <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span></h3>
-        <p>{{ d.customerCode }} - {{ d.customerName }}</p>
-      </span>
-    </div>
-    <div class="actions" *ngIf="dto as d">
-      <button *ngIf="canEdit && d.status === ShopCustomerPaymentStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditCustomerPayment' | abpLocalization }}</button>
-      <button *ngIf="canDelete && d.status === ShopCustomerPaymentStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteCustomerPayment' | abpLocalization }}</button>
-      <button *ngIf="canPost && d.status === ShopCustomerPaymentStatus.Draft" class="btn btn-success btn-sm" [disabled]="actionInProgress" (click)="post()"><i class="fas fa-check me-2"></i>{{ '::PostCustomerPayment' | abpLocalization }}</button>
-      <button *ngIf="canCancel && d.status === ShopCustomerPaymentStatus.Posted" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelCustomerPayment' | abpLocalization }}</button>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::CustomerPayment" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="dto as d">
+    <span class="sale-number-badge">{{ d.paymentNumber }}</span>
+    <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span>
   </div>
 
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canEdit && d.status === ShopCustomerPaymentStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditCustomerPayment' | abpLocalization }}</button>
+    <button *ngIf="canDelete && d.status === ShopCustomerPaymentStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteCustomerPayment' | abpLocalization }}</button>
+    <button *ngIf="canPost && d.status === ShopCustomerPaymentStatus.Draft" class="btn btn-success btn-sm" [disabled]="actionInProgress" (click)="post()"><i class="fas fa-check me-2"></i>{{ '::PostCustomerPayment' | abpLocalization }}</button>
+    <button *ngIf="canCancel && d.status === ShopCustomerPaymentStatus.Posted" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelCustomerPayment' | abpLocalization }}</button>
+  </div>
+
+  <div class="detail-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading && dto as d">
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::PaymentDate' | abpLocalization }}</span><strong>{{ d.paymentDate | date:'mediumDate' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::PaymentType' | abpLocalization }}</span><strong>{{ typeLabel(d.paymentType) | abpLocalization }}</strong></div>
@@ -36,10 +38,12 @@
         <div class="totals-row"><span>{{ '::AllocatedAmount' | abpLocalization }}</span><strong>{{ d.allocatedAmount | number:'1.2-2' }}</strong></div>
         <div class="totals-row grand"><span>{{ '::UnallocatedAmount' | abpLocalization }}</span><strong>{{ d.unallocatedAmount | number:'1.2-2' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::Allocations' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-file-invoice-dollar"></i></span><h6>{{ '::Allocations' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="table-responsive" *ngIf="d.allocations?.length">
         <table class="table align-middle">
           <thead>
@@ -65,24 +69,31 @@
         </table>
       </div>
       <p *ngIf="!d.allocations?.length" class="notes-text">{{ '::NoOutstandingSalesFound' | abpLocalization }}</p>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="d.status === ShopCustomerPaymentStatus.Posted">
-      <h6 class="section-title">{{ '::CompletionInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopCustomerPaymentStatus.Posted">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-check-circle"></i></span><h6>{{ '::CompletionInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::PostedOn' | abpLocalization }}</span><strong>{{ d.postedDate ? (d.postedDate | date:'medium') : '—' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="d.status === ShopCustomerPaymentStatus.Cancelled">
-      <h6 class="section-title">{{ '::CancellationInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopCustomerPaymentStatus.Cancelled">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-ban"></i></span><h6>{{ '::CancellationInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::CancelledOn' | abpLocalization }}</span><strong>{{ d.cancelledDate ? (d.cancelledDate | date:'medium') : '—' }}</strong></div>
         <div class="col-12 col-md-6"><span class="field-label">{{ '::CancellationReason' | abpLocalization }}</span><p class="notes-text">{{ d.cancellationReason }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::CancelCustomerPayment' | abpLocalization }}</h5></ng-template>
