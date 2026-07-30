@@ -261,6 +261,10 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/reports/shop-reports.module').then(m => m.ShopReportsModule),
   },
   {
+    path: 'shop-management/ai-assistant', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.AiAssistant' },
+    loadChildren: () => import('./shop-management/ai-assistant/shop-ai-assistant.module').then(m => m.ShopAiAssistantModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),

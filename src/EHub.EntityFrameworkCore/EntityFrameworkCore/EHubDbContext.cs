@@ -22,6 +22,7 @@ using EHub.ShopManagement.ExpenseCategories;
 using EHub.ShopManagement.Expenses;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.BankAccounts;
+using EHub.ShopManagement.AiAssistant;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -131,6 +132,9 @@ public class EHubDbContext :
     public DbSet<ShopBankAccount> ShopBankAccounts { get; set; }
     public DbSet<ShopBankTransaction> ShopBankTransactions { get; set; }
     public DbSet<ShopBankTransfer> ShopBankTransfers { get; set; }
+    public DbSet<ShopAiConversation> ShopAiConversations { get; set; }
+    public DbSet<ShopAiMessage> ShopAiMessages { get; set; }
+    public DbSet<ShopAiActionAudit> ShopAiActionAudits { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1332,6 +1336,71 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.FromBankAccountId });
             b.HasIndex(x => new { x.TenantId, x.ToBankAccountId });
+        });
+
+        builder.Entity<ShopAiConversation>(b =>
+        {
+            b.ToTable("ShopAiConversations", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(ShopAiConsts.TitleMaxLength);
+            b.Property(x => x.DetectedLanguage).IsRequired().HasConversion<int>().HasDefaultValue(ShopAiLanguage.Unknown);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopAiConversationStatus.Active);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.UserId, x.LastMessageDate });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+        });
+
+        builder.Entity<ShopAiMessage>(b =>
+        {
+            b.ToTable("ShopAiMessages", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.ConversationId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            b.Property(x => x.Role).IsRequired().HasConversion<int>();
+            b.Property(x => x.MessageText).IsRequired().HasMaxLength(ShopAiConsts.MessageTextMaxLength);
+            b.Property(x => x.OriginalTranscription).HasMaxLength(ShopAiConsts.TranscriptionMaxLength);
+            b.Property(x => x.DetectedLanguage).IsRequired().HasConversion<int>().HasDefaultValue(ShopAiLanguage.Unknown);
+            b.Property(x => x.DetectedAction).HasConversion<int?>();
+            b.Property(x => x.ActionPayloadJson).HasMaxLength(ShopAiConsts.ActionPayloadJsonMaxLength);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopAiMessageStatus.Received);
+            b.Property(x => x.ErrorCode).HasMaxLength(ShopAiConsts.ErrorCodeMaxLength);
+            b.Property(x => x.ErrorMessage).HasMaxLength(ShopAiConsts.ErrorMessageMaxLength);
+            b.Property(x => x.ConfirmationTokenHash).HasMaxLength(ShopAiConsts.ConfirmationTokenHashMaxLength);
+            b.Property(x => x.ExecutionResultJson).HasMaxLength(ShopAiConsts.ExecutionResultJsonMaxLength);
+
+            b.HasOne<ShopAiConversation>().WithMany().HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.ConversationId, x.CreationTime });
+            b.HasIndex(x => new { x.TenantId, x.UserId, x.CreationTime });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.DetectedAction });
+        });
+
+        builder.Entity<ShopAiActionAudit>(b =>
+        {
+            b.ToTable("ShopAiActionAudits", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            b.Property(x => x.ConversationId).IsRequired();
+            b.Property(x => x.MessageId).IsRequired();
+            b.Property(x => x.ActionName).IsRequired().HasMaxLength(ShopAiConsts.ActionNameMaxLength);
+            b.Property(x => x.SanitizedPayloadJson).IsRequired().HasMaxLength(ShopAiConsts.SanitizedPayloadJsonMaxLength);
+            b.Property(x => x.ConfirmationRequired).IsRequired();
+            b.Property(x => x.ExecutionStatus).IsRequired().HasConversion<int>();
+            b.Property(x => x.ResultReferenceType).HasMaxLength(ShopAiConsts.ResultReferenceTypeMaxLength);
+            b.Property(x => x.ErrorCode).HasMaxLength(ShopAiConsts.ErrorCodeMaxLength);
+            b.Property(x => x.ErrorMessage).HasMaxLength(ShopAiConsts.ErrorMessageMaxLength);
+
+            b.HasOne<ShopAiConversation>().WithMany().HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopAiMessage>().WithMany().HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.UserId, x.CreationTime });
+            b.HasIndex(x => new { x.TenantId, x.ActionName, x.CreationTime });
+            b.HasIndex(x => new { x.TenantId, x.ExecutionStatus });
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

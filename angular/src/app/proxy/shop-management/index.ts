@@ -1,3 +1,4 @@
+import * as AiAssistant from './ai-assistant';
 import * as BankAccounts from './bank-accounts';
 import * as CashRegisters from './cash-registers';
 import * as CustomerLedger from './customer-ledger';
@@ -23,4 +24,4 @@ import * as SupplierLedger from './supplier-ledger';
 import * as SupplierPayments from './supplier-payments';
 import * as Suppliers from './suppliers';
 import * as Units from './units';
-export { BankAccounts, CashRegisters, CustomerLedger, CustomerPayments, Customers, Dashboard, ExpenseCategories, Expenses, GoodsReceipts, ProductBatches, ProductCategories, Products, PurchaseOrders, PurchaseReturns, Reports, SaleReturns, Sales, Settings, StockAdjustments, StockCounts, StockTransactions, SupplierLedger, SupplierPayments, Suppliers, Units };
+export { AiAssistant, BankAccounts, CashRegisters, CustomerLedger, CustomerPayments, Customers, Dashboard, ExpenseCategories, Expenses, GoodsReceipts, ProductBatches, ProductCategories, Products, PurchaseOrders, PurchaseReturns, Reports, SaleReturns, Sales, Settings, StockAdjustments, StockCounts, StockTransactions, SupplierLedger, SupplierPayments, Suppliers, Units };

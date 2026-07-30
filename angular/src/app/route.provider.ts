@@ -187,6 +187,10 @@ function configureRoutes() {
       path: '/shop-management/reports', name: '::ShopReports', parentName: '::ShopManagement', iconClass: 'fas fa-chart-pie',
       order: 11, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Reports',
     },
+    {
+      path: '/shop-management/ai-assistant', name: '::AiAssistant', parentName: '::ShopManagement', iconClass: 'fas fa-robot',
+      order: 12, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.AiAssistant',
+    },
     // Home / Dashboard
     {
       path: '/',

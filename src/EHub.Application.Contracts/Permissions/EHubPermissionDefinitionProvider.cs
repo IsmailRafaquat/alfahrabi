@@ -190,6 +190,23 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopBankTransfers.AddChild(EHubPermissions.ShopBankTransfers.ViewAmount, L("Permission:ShopBankTransfers.ViewAmount"));
 
 
+        var shopAiAssistant = shopManagement.AddChild(EHubPermissions.ShopAiAssistant.Default, L("Permission:ShopAiAssistant"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.Use, L("Permission:ShopAiAssistant.Use"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.UseVoice, L("Permission:ShopAiAssistant.UseVoice"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.ViewHistory, L("Permission:ShopAiAssistant.ViewHistory"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QuerySales, L("Permission:ShopAiAssistant.QuerySales"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryExpenses, L("Permission:ShopAiAssistant.QueryExpenses"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryStock, L("Permission:ShopAiAssistant.QueryStock"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryBalances, L("Permission:ShopAiAssistant.QueryBalances"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryDashboard, L("Permission:ShopAiAssistant.QueryDashboard"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateCustomer, L("Permission:ShopAiAssistant.CreateCustomer"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateSupplier, L("Permission:ShopAiAssistant.CreateSupplier"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateProductDraft, L("Permission:ShopAiAssistant.CreateProductDraft"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateExpenseDraft, L("Permission:ShopAiAssistant.CreateExpenseDraft"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreatePurchaseOrderDraft, L("Permission:ShopAiAssistant.CreatePurchaseOrderDraft"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateSaleDraft, L("Permission:ShopAiAssistant.CreateSaleDraft"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.ManageSettings, L("Permission:ShopAiAssistant.ManageSettings"));
+
         var dashboardPermission =
           myGroup.AddPermission(EHubPermissions.Dashboards.Dashboard, L("Permission:Dashboard"));
 

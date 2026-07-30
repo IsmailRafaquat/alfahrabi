@@ -12,4 +12,6 @@ import * as StudentAttendances from './student-attendances';
 import * as StudentDocuments from './student-documents';
 import * as Students from './students';
 import * as Subjects from './subjects';
-export { AttendanceStatuss, Dashboards, Expenses, FeeModule, FileAttachments, Reports, ShopManagement, StaffAttendances, StaffDocuments, Staffs, StudentAttendances, StudentDocuments, Students, Subjects };
+import * as System from './system';
+import * as Volo from './volo';
+export { AttendanceStatuss, Dashboards, Expenses, FeeModule, FileAttachments, Reports, ShopManagement, StaffAttendances, StaffDocuments, Staffs, StudentAttendances, StudentDocuments, Students, Subjects, System, Volo };

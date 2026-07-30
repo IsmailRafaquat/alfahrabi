@@ -70,7 +70,8 @@ public class EHubDomainSharedModule : AbpModule
             options.Languages.Add(new LanguageInfo("fi", "fi", "Suomi")); 
             options.Languages.Add(new LanguageInfo("sk", "sk", "Slovenčina")); 
             options.Languages.Add(new LanguageInfo("is", "is", "Íslenska")); 
-            options.Languages.Add(new LanguageInfo("zh-Hant", "zh-Hant", "繁體中文")); 
+            options.Languages.Add(new LanguageInfo("zh-Hant", "zh-Hant", "繁體中文"));
+            options.Languages.Add(new LanguageInfo("ur", "ur", "اردو"));
 
         });
         

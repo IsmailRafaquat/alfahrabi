@@ -6576,6 +6576,533 @@
             }
           }
         },
+        "EHub.ShopManagement.AiAssistant.ShopAiAssistantAppService": {
+          "controllerName": "ShopAiAssistant",
+          "controllerGroupName": "ShopAiAssistant",
+          "isRemoteService": true,
+          "isIntegrationService": false,
+          "apiVersion": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiAssistantAppService",
+          "interfaces": [
+            {
+              "type": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService",
+              "name": "IShopAiAssistantAppService",
+              "methods": [
+                {
+                  "name": "CreateConversationAsync",
+                  "parametersOnMethod": [],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto"
+                  }
+                },
+                {
+                  "name": "GetConversationsAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput",
+                      "typeSimple": "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.AiAssistant.ShopAiConversationListDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.AiAssistant.ShopAiConversationListDto>"
+                  }
+                },
+                {
+                  "name": "GetConversationAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto"
+                  }
+                },
+                {
+                  "name": "SendMessageAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto",
+                      "typeSimple": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto"
+                  }
+                },
+                {
+                  "name": "ConfirmActionAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto",
+                      "typeSimple": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto"
+                  }
+                },
+                {
+                  "name": "CancelActionAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto",
+                      "typeSimple": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "System.Void",
+                    "typeSimple": "System.Void"
+                  }
+                },
+                {
+                  "name": "DeleteConversationAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "id",
+                      "typeAsString": "System.Guid, System.Private.CoreLib",
+                      "type": "System.Guid",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "System.Void",
+                    "typeSimple": "System.Void"
+                  }
+                }
+              ]
+            }
+          ],
+          "actions": {
+            "CreateConversationAsync": {
+              "uniqueName": "CreateConversationAsync",
+              "name": "CreateConversationAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-assistant/conversation",
+              "supportedVersions": [],
+              "parametersOnMethod": [],
+              "parameters": [],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "GetConversationsAsyncByInput": {
+              "uniqueName": "GetConversationsAsyncByInput",
+              "name": "GetConversationsAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-ai-assistant/conversations",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "Filter",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "Sorting",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "SkipCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "MaxResultCount",
+                  "jsonName": null,
+                  "type": "System.Int32",
+                  "typeSimple": "number",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": "input"
+                }
+              ],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.AiAssistant.ShopAiConversationListDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.PagedResultDto<EHub.ShopManagement.AiAssistant.ShopAiConversationListDto>"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "GetConversationAsyncById": {
+              "uniqueName": "GetConversationAsyncById",
+              "name": "GetConversationAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-ai-assistant/{id}/conversation",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiConversationDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "SendMessageAsyncByInput": {
+              "uniqueName": "SendMessageAsyncByInput",
+              "name": "SendMessageAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-assistant/send-message",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "ConfirmActionAsyncByInput": {
+              "uniqueName": "ConfirmActionAsyncByInput",
+              "name": "ConfirmActionAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-assistant/confirm-action",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "CancelActionAsyncByInput": {
+              "uniqueName": "CancelActionAsyncByInput",
+              "name": "CancelActionAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-assistant/cancel-action",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.Void",
+                "typeSimple": "System.Void"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "DeleteConversationAsyncById": {
+              "uniqueName": "DeleteConversationAsyncById",
+              "name": "DeleteConversationAsync",
+              "httpMethod": "DELETE",
+              "url": "api/app/shop-ai-assistant/{id}/conversation",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "id",
+                  "typeAsString": "System.Guid, System.Private.CoreLib",
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "id",
+                  "name": "id",
+                  "jsonName": null,
+                  "type": "System.Guid",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": [],
+                  "bindingSourceId": "Path",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "System.Void",
+                "typeSimple": "System.Void"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            }
+          }
+        },
+        "EHub.ShopManagement.AiAssistant.ShopAiVoiceAppService": {
+          "controllerName": "ShopAiVoice",
+          "controllerGroupName": "ShopAiVoice",
+          "isRemoteService": true,
+          "isIntegrationService": false,
+          "apiVersion": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceAppService",
+          "interfaces": [
+            {
+              "type": "EHub.ShopManagement.AiAssistant.IShopAiVoiceAppService",
+              "name": "IShopAiVoiceAppService",
+              "methods": [
+                {
+                  "name": "TranscribeAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                      "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto"
+                  }
+                },
+                {
+                  "name": "SendVoiceMessageAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "input",
+                      "typeAsString": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto, EHub.Application.Contracts",
+                      "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto",
+                      "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto"
+                  }
+                }
+              ]
+            }
+          ],
+          "actions": {
+            "TranscribeAsyncByInput": {
+              "uniqueName": "TranscribeAsyncByInput",
+              "name": "TranscribeAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-voice/transcribe",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiVoiceAppService"
+            },
+            "SendVoiceMessageAsyncByInput": {
+              "uniqueName": "SendVoiceMessageAsyncByInput",
+              "name": "SendVoiceMessageAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-voice/send-voice-message",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "input",
+                  "jsonName": null,
+                  "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Body",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiResponseDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiVoiceAppService"
+            }
+          }
+        },
         "EHub.ShopManagement.BankAccounts.ShopBankAccountAppService": {
           "controllerName": "ShopBankAccount",
           "controllerGroupName": "ShopBankAccount",
@@ -36052,6 +36579,1230 @@
           "jsonName": null,
           "type": "System.Boolean",
           "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.CancelShopAiActionDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ConversationId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MessageId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ConfirmShopAiActionDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ConversationId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MessageId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ConfirmationToken",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.GetShopAiConversationsInput": {
+      "baseType": "Volo.Abp.Application.Dtos.PagedAndSortedResultRequestDto",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Filter",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.SendShopAiMessageDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ConversationId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Message",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiActionPreviewDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Action",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiActionType",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ActionDisplayNameKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsWriteAction",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "RequiresConfirmation",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Fields",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiPreviewFieldDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiPreviewFieldDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Warnings",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "NoteKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ConfirmationToken",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ConfirmationExpiryDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiActionType": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Unknown",
+        "GeneralHelp",
+        "MissingInformation",
+        "GetTodaySales",
+        "GetSalesSummary",
+        "GetTodayExpenses",
+        "GetCustomerBalance",
+        "GetSupplierBalance",
+        "GetProductStock",
+        "GetLowStockProducts",
+        "GetOutOfStockProducts",
+        "GetNearExpiryBatches",
+        "GetExpiredBatches",
+        "GetRecentSales",
+        "GetRecentPurchases",
+        "GetCashBalance",
+        "GetBankBalances",
+        "GetCustomerReceivables",
+        "GetSupplierPayables",
+        "GetDashboardSummary",
+        "CreateCustomer",
+        "CreateSupplier",
+        "CreateProductDraft",
+        "CreateExpenseDraft",
+        "CreatePurchaseOrderDraft",
+        "CreateSaleDraft"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiConversationDto": {
+      "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Title",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DetectedLanguage",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiLanguage",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiConversationStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "LastMessageDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CreationTime",
+          "jsonName": null,
+          "type": "System.DateTime",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Messages",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiMessageDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiMessageDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiConversationListDto": {
+      "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Title",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiConversationStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "LastMessageDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CreationTime",
+          "jsonName": null,
+          "type": "System.DateTime",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiConversationStatus": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Active",
+        "Archived"
+      ],
+      "enumValues": [
+        0,
+        1
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Success",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ResultMessage",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ResultData",
+          "jsonName": null,
+          "type": "System.Text.Json.JsonElement?",
+          "typeSimple": "System.Text.Json.JsonElement?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ResultReferenceType",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ResultReferenceId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ErrorCode",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ErrorMessage",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiLanguage": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Unknown",
+        "English",
+        "Urdu",
+        "RomanUrdu",
+        "Mixed"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiLookupChoiceDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Id",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DisplayText",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiLookupResolutionDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "FieldName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Query",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Choices",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiLookupChoiceDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiLookupChoiceDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiMessageDto": {
+      "baseType": "Volo.Abp.Application.Dtos.EntityDto<System.Guid>",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Role",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiMessageRole",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MessageText",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "OriginalTranscription",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DetectedLanguage",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiLanguage",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DetectedAction",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiActionType?",
+          "typeSimple": "enum?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiMessageStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ErrorCode",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ErrorMessage",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExecutedDate",
+          "jsonName": null,
+          "type": "System.DateTime?",
+          "typeSimple": "string?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CreationTime",
+          "jsonName": null,
+          "type": "System.DateTime",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Preview",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiActionPreviewDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiActionPreviewDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExecutionResult",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiMessageRole": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "User",
+        "Assistant",
+        "System",
+        "Tool"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiMessageStatus": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Received",
+        "Transcribed",
+        "Parsed",
+        "MissingInformation",
+        "AwaitingConfirmation",
+        "Executing",
+        "Executed",
+        "Failed",
+        "Rejected",
+        "Cancelled"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "genericArguments": null,
+      "properties": null
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiPreviewFieldDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "LabelKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Value",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsEmpty",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiResponseDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ConversationId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MessageId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Status",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiMessageStatus",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Action",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiActionType",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DetectedLanguage",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiLanguage",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AssistantMessage",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MissingFields",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Warnings",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Preview",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiActionPreviewDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiActionPreviewDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExecutionResult",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AmbiguousLookups",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiLookupResolutionDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiLookupResolutionDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ErrorCode",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ErrorMessage",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ConversationId",
+          "jsonName": null,
+          "type": "System.Guid",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AcceptedText",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": true,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "OriginalTranscription",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DetectedLanguage",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiLanguage?",
+          "typeSimple": "enum?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Text",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DetectedLanguage",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiLanguage",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "LanguageProbability",
+          "jsonName": null,
+          "type": "System.Double",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DurationSeconds",
+          "jsonName": null,
+          "type": "System.Double",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsLowConfidence",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Audio",
+          "jsonName": null,
+          "type": "Volo.Abp.Content.IRemoteStreamContent",
+          "typeSimple": "Volo.Abp.Content.IRemoteStreamContent",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "LanguageHint",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -69603,6 +71354,65 @@
           "regex": null
         }
       ]
+    },
+    "System.Text.Json.JsonElement": {
+      "baseType": "System.ValueType",
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ValueKind",
+          "jsonName": null,
+          "type": "System.Text.Json.JsonValueKind",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Item",
+          "jsonName": null,
+          "type": "System.Text.Json.JsonElement",
+          "typeSimple": "System.Text.Json.JsonElement",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "System.Text.Json.JsonValueKind": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "Undefined",
+        "Object",
+        "Array",
+        "String",
+        "Number",
+        "True",
+        "False",
+        "Null"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "genericArguments": null,
+      "properties": null
     },
     "Volo.Abp.Account.ChangePasswordInput": {
       "baseType": null,

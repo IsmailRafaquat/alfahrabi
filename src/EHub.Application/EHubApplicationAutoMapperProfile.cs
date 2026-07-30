@@ -9,6 +9,7 @@ using EHub.ShopManagement.GoodsReceipts;
 using EHub.ShopManagement.StockTransactions;
 using EHub.ShopManagement.SupplierPayments;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.AiAssistant;
 using EHub.ShopManagement.ExpenseCategories;
 using EHub.ShopManagement.CashRegisters;
 using EHub.Expenses.ExpenseCategories;
@@ -52,6 +53,7 @@ public class EHubApplicationAutoMapperProfile : Profile
             .ForMember(x => x.UnitAllowDecimal, opt => opt.MapFrom(src => src.Unit != null && src.Unit.AllowDecimal));
         CreateMap<ShopCustomer, ShopCustomerDto>();
         CreateMap<ShopCustomer, ShopCustomerLookupDto>();
+        CreateMap<ShopAiConversation, ShopAiConversationListDto>();
         CreateMap<ShopSupplier, ShopSupplierDto>();
         CreateMap<ShopSupplier, ShopSupplierLookupDto>()
             .ForMember(x => x.DisplayName, opt => opt.MapFrom(src => src.Code + " - " + src.Name));

@@ -298,6 +298,29 @@ public static class EHubPermissions
         public const string ViewAmount = Default + ".ViewAmount";
     }
 
+    public static class ShopAiAssistant
+    {
+        public const string Default = ManagementMenus.Shop + ".AiAssistant";
+        public const string Use = Default + ".Use";
+        public const string UseVoice = Default + ".UseVoice";
+        public const string ViewHistory = Default + ".ViewHistory";
+
+        public const string QuerySales = Default + ".QuerySales";
+        public const string QueryExpenses = Default + ".QueryExpenses";
+        public const string QueryStock = Default + ".QueryStock";
+        public const string QueryBalances = Default + ".QueryBalances";
+        public const string QueryDashboard = Default + ".QueryDashboard";
+
+        public const string CreateCustomer = Default + ".CreateCustomer";
+        public const string CreateSupplier = Default + ".CreateSupplier";
+        public const string CreateProductDraft = Default + ".CreateProductDraft";
+        public const string CreateExpenseDraft = Default + ".CreateExpenseDraft";
+        public const string CreatePurchaseOrderDraft = Default + ".CreatePurchaseOrderDraft";
+        public const string CreateSaleDraft = Default + ".CreateSaleDraft";
+
+        public const string ManageSettings = Default + ".ManageSettings";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";
