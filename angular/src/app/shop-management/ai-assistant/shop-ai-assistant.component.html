@@ -5,6 +5,19 @@
     <span class="ai-header-hint" nz-tooltip [nzTooltipTitle]="'::AiAssistant.HowThisWorksBody' | abpLocalization" nzTooltipPlacement="bottomRight">
       <i class="fas fa-info-circle"></i> {{ '::AiAssistant.HowThisWorks' | abpLocalization }}
     </span>
+    <button *ngIf="canGetProjectHelp" type="button" class="btn btn-light btn-sm ai-modules-btn" (click)="toggleModulesPanel()">
+      <i class="fas fa-book me-2"></i>{{ '::AiAssistant.BrowseModules' | abpLocalization }}
+    </button>
+  </div>
+
+  <div class="modules-panel" *ngIf="showModulesPanel">
+    <div class="modules-panel-title">{{ '::AiAssistant.BrowseModules' | abpLocalization }}</div>
+    <div class="modules-panel-grid">
+      <button type="button" class="module-chip" *ngFor="let m of modules" [class.module-chip-creatable]="m.supportsCreation" (click)="askAboutModule(m)">
+        {{ m.displayName }}
+        <i class="fas fa-plus-circle module-chip-icon" *ngIf="m.supportsCreation" [title]="'::AiAssistant.SupportsCreation' | abpLocalization"></i>
+      </button>
+    </div>
   </div>
 
   <div class="ai-layout">
@@ -42,12 +55,62 @@
           <div class="chat-bubble" [class.bubble-user]="msg.role === 'user'" [class.bubble-error]="msg.isError">
             <div class="bubble-text" *ngIf="msg.text">{{ msg.text }}</div>
 
-            <!-- Missing information -->
-            <div class="info-card missing-card" *ngIf="msg.status === ShopAiMessageStatus.MissingInformation && !msg.ambiguousLookups?.length">
+            <!-- Guided creation progress (multi-turn slot filling) -->
+            <div class="info-card guided-card" *ngIf="msg.guidedCreationProgress">
+              <div class="info-card-title"><i class="fas fa-list-check me-2"></i>{{ msg.guidedCreationProgress.moduleDisplayName }}</div>
+              <div class="guided-progress-bar">
+                <div class="guided-progress-fill" [style.width.%]="(msg.guidedCreationProgress.completedRequiredFieldCount / msg.guidedCreationProgress.requiredFieldCount) * 100"></div>
+              </div>
+              <div class="guided-progress-label">{{ msg.guidedCreationProgress.completedRequiredFieldCount }} / {{ msg.guidedCreationProgress.requiredFieldCount }} {{ '::AiAssistant.RequiredFieldsCollected' | abpLocalization }}</div>
+              <div class="guided-field-row" *ngFor="let f of msg.guidedCreationProgress.collectedFields" [class.guided-field-empty]="f.isEmpty">
+                <i class="fas" [class.fa-circle-check]="!f.isEmpty" [class.fa-circle]="f.isEmpty"></i>
+                <span class="field-label">{{ f.labelKey | abpLocalization }}</span>
+                <span class="field-value" *ngIf="!f.isEmpty">{{ f.value }}</span>
+              </div>
+            </div>
+
+            <!-- Missing information (not part of a guided creation) -->
+            <div class="info-card missing-card" *ngIf="msg.status === ShopAiMessageStatus.MissingInformation && !msg.ambiguousLookups?.length && !msg.guidedCreationProgress">
               <div class="info-card-title"><i class="fas fa-circle-question me-2"></i>{{ '::AiAssistant.MissingInformation' | abpLocalization }}</div>
               <ul class="missing-fields" *ngIf="msg.missingFields?.length">
                 <li *ngFor="let f of msg.missingFields">{{ f }}</li>
               </ul>
+            </div>
+
+            <!-- Module explanation / field list -->
+            <div class="info-card module-card" *ngIf="msg.module">
+              <div class="info-card-title"><i class="fas fa-cube me-2"></i>{{ msg.module.displayName }}</div>
+              <div class="module-description">{{ msg.module.description }}</div>
+
+              <div class="module-fields-block" *ngIf="msg.module.requiredFields?.length">
+                <div class="module-fields-title">{{ '::AiAssistant.RequiredFields' | abpLocalization }}</div>
+                <div class="module-field-row" *ngFor="let f of msg.module.requiredFields">
+                  <span class="field-label">{{ f.displayName }}</span>
+                  <span class="field-hint" *ngIf="f.exampleValue">{{ '::AiAssistant.ExampleValue' | abpLocalization }}: {{ f.exampleValue }}</span>
+                </div>
+              </div>
+
+              <div class="module-fields-block" *ngIf="msg.module.optionalFields?.length">
+                <div class="module-fields-title">{{ '::AiAssistant.OptionalFields' | abpLocalization }}</div>
+                <div class="module-field-row" *ngFor="let f of msg.module.optionalFields">
+                  <span class="field-label">{{ f.displayName }}</span>
+                </div>
+              </div>
+
+              <ul class="module-business-rules" *ngIf="msg.module.businessRules?.length">
+                <li *ngFor="let rule of msg.module.businessRules">{{ rule }}</li>
+              </ul>
+
+              <button type="button" class="btn btn-primary btn-sm module-start-btn" *ngIf="msg.module.supportsCreation" (click)="startCreating(msg.module)">
+                <i class="fas fa-plus me-2"></i>{{ '::AiAssistant.StartCreating' | abpLocalization }}
+              </button>
+            </div>
+
+            <!-- Single field explanation -->
+            <div class="info-card field-card" *ngIf="msg.responseType === ShopAiResponseType.FieldExplanation && msg.fields?.length">
+              <div class="info-card-title"><i class="fas fa-circle-info me-2"></i>{{ msg.fields[0].displayName }}</div>
+              <div class="field-hint" *ngIf="msg.fields[0].exampleValue">{{ '::AiAssistant.ExampleValue' | abpLocalization }}: {{ msg.fields[0].exampleValue }}</div>
+              <div class="field-hint" *ngIf="msg.fields[0].allowedValues?.length">{{ '::AiAssistant.AllowedValues' | abpLocalization }}: {{ msg.fields[0].allowedValues.join(', ') }}</div>
             </div>
 
             <!-- Ambiguous match -->

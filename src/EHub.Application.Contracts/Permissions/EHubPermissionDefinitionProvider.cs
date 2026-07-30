@@ -199,12 +199,22 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryStock, L("Permission:ShopAiAssistant.QueryStock"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryBalances, L("Permission:ShopAiAssistant.QueryBalances"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.QueryDashboard, L("Permission:ShopAiAssistant.QueryDashboard"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.ProjectHelp, L("Permission:ShopAiAssistant.ProjectHelp"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.ViewModuleFields, L("Permission:ShopAiAssistant.ViewModuleFields"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.GuidedCreation, L("Permission:ShopAiAssistant.GuidedCreation"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateCustomer, L("Permission:ShopAiAssistant.CreateCustomer"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateSupplier, L("Permission:ShopAiAssistant.CreateSupplier"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateProductDraft, L("Permission:ShopAiAssistant.CreateProductDraft"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateExpenseDraft, L("Permission:ShopAiAssistant.CreateExpenseDraft"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreatePurchaseOrderDraft, L("Permission:ShopAiAssistant.CreatePurchaseOrderDraft"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateSaleDraft, L("Permission:ShopAiAssistant.CreateSaleDraft"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateProductCategory, L("Permission:ShopAiAssistant.CreateProductCategory"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateUnit, L("Permission:ShopAiAssistant.CreateUnit"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateProduct, L("Permission:ShopAiAssistant.CreateProduct"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateExpenseCategory, L("Permission:ShopAiAssistant.CreateExpenseCategory"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateBankAccount, L("Permission:ShopAiAssistant.CreateBankAccount"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreateStockAdjustmentDraft, L("Permission:ShopAiAssistant.CreateStockAdjustmentDraft"));
+        shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreatePhysicalStockCountDraft, L("Permission:ShopAiAssistant.CreatePhysicalStockCountDraft"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.ManageSettings, L("Permission:ShopAiAssistant.ManageSettings"));
 
         var dashboardPermission =

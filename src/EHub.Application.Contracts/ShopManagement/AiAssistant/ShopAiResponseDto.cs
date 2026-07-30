@@ -32,4 +32,33 @@ public class ShopAiResponseDto
 
     public string? ErrorCode { get; set; }
     public string? ErrorMessage { get; set; }
+
+    // --- Guided creation / project knowledge additions (additive, existing fields unchanged) ---
+
+    /// <summary>Coarse-grained hint for the frontend on how to render this turn (module explanation, field list, field explanation, or one of the original kinds implied by Status).</summary>
+    public ShopAiResponseType ResponseType { get; set; } = ShopAiResponseType.TextAnswer;
+
+    public string? ModuleKey { get; set; }
+
+    /// <summary>Populated when ResponseType == ModuleExplanation.</summary>
+    public ShopAiModuleExplanationDto? Module { get; set; }
+
+    /// <summary>Populated when ResponseType == FieldList or FieldExplanation.</summary>
+    public List<ShopAiFieldDescriptionDto> Fields { get; set; } = new();
+
+    /// <summary>
+    /// Progress while a guided (multi-turn) creation is in flight - null once the action reaches
+    /// AwaitingConfirmation (at which point Preview above already has the full field list).
+    /// </summary>
+    public ShopAiGuidedCreationProgressDto? GuidedCreationProgress { get; set; }
+}
+
+public class ShopAiGuidedCreationProgressDto
+{
+    public string ModuleKey { get; set; } = string.Empty;
+    public string ModuleDisplayName { get; set; } = string.Empty;
+    public List<ShopAiPreviewFieldDto> CollectedFields { get; set; } = new();
+    public List<string> MissingRequiredFields { get; set; } = new();
+    public int RequiredFieldCount { get; set; }
+    public int CompletedRequiredFieldCount { get; set; }
 }

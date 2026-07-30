@@ -13,6 +13,19 @@ public class ShopAiParsedCommand
 {
     public ShopAiActionType Action { get; set; }
 
+    /// <summary>What the user actually wants to do - GeneralHelp/ExplainModule/ListModuleFields/
+    /// ExplainField/StartRecordCreation/ReadBusinessData/etc. Action above stays meaningful only for
+    /// ReadBusinessData (one of the Get* actions) and StartRecordCreation (one of the Create*
+    /// actions); for the knowledge-only intents Action is Unknown and ModuleKey/FieldKey carry the
+    /// real information.</summary>
+    public ShopAiIntentType Intent { get; set; } = ShopAiIntentType.Unknown;
+
+    /// <summary>Set when Intent is ExplainModule/ListModuleFields/ExplainField/StartRecordCreation - must match a key or alias registered in IShopAiModuleMetadataProvider, never invented.</summary>
+    public string? ModuleKey { get; set; }
+
+    /// <summary>Set when Intent is ExplainField - must match a FieldKey registered on the resolved module.</summary>
+    public string? FieldKey { get; set; }
+
     public ShopAiLanguage Language { get; set; }
 
     public bool RequiresConfirmation { get; set; }

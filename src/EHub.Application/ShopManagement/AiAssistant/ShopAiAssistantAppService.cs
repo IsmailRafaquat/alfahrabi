@@ -25,11 +25,15 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
     private readonly IRepository<ShopAiConversation, Guid> _conversationRepository;
     private readonly IRepository<ShopAiMessage, Guid> _messageRepository;
     private readonly IRepository<ShopAiActionAudit, Guid> _auditRepository;
+    private readonly IRepository<ShopAiPendingAction, Guid> _pendingActionRepository;
     private readonly ShopAiConversationManager _conversationManager;
     private readonly ShopAiMessageManager _messageManager;
     private readonly ShopAiActionAuditManager _auditManager;
+    private readonly ShopAiPendingActionManager _pendingActionManager;
     private readonly IShopAiCommandParser _commandParser;
     private readonly IShopAiActionHandlerRegistry _handlerRegistry;
+    private readonly IShopAiModuleMetadataProvider _moduleMetadataProvider;
+    private readonly IShopAiSlotFillingService _slotFillingService;
     private readonly IShopAiConfirmationService _confirmationService;
     private readonly IShopAiRateLimiter _rateLimiter;
     private readonly IStringLocalizer<EHubResource> _localizer;
@@ -38,11 +42,15 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         IRepository<ShopAiConversation, Guid> conversationRepository,
         IRepository<ShopAiMessage, Guid> messageRepository,
         IRepository<ShopAiActionAudit, Guid> auditRepository,
+        IRepository<ShopAiPendingAction, Guid> pendingActionRepository,
         ShopAiConversationManager conversationManager,
         ShopAiMessageManager messageManager,
         ShopAiActionAuditManager auditManager,
+        ShopAiPendingActionManager pendingActionManager,
         IShopAiCommandParser commandParser,
         IShopAiActionHandlerRegistry handlerRegistry,
+        IShopAiModuleMetadataProvider moduleMetadataProvider,
+        IShopAiSlotFillingService slotFillingService,
         IShopAiConfirmationService confirmationService,
         IShopAiRateLimiter rateLimiter,
         IStringLocalizer<EHubResource> localizer)
@@ -50,11 +58,15 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         _conversationRepository = conversationRepository;
         _messageRepository = messageRepository;
         _auditRepository = auditRepository;
+        _pendingActionRepository = pendingActionRepository;
         _conversationManager = conversationManager;
         _messageManager = messageManager;
         _auditManager = auditManager;
+        _pendingActionManager = pendingActionManager;
         _commandParser = commandParser;
         _handlerRegistry = handlerRegistry;
+        _moduleMetadataProvider = moduleMetadataProvider;
+        _slotFillingService = slotFillingService;
         _confirmationService = confirmationService;
         _rateLimiter = rateLimiter;
         _localizer = localizer;
@@ -112,9 +124,10 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
 
     /// <summary>
     /// Shared by SendMessageAsync (typed text) and ShopAiVoiceAppService (accepted/edited
-    /// transcription) - both end up as an ordinary user message that goes through the same
-    /// parse -> validate -> preview-or-execute pipeline. Internal: only ShopAiVoiceAppService, in
-    /// the same assembly, is meant to call this directly.
+    /// transcription) - both end up as an ordinary user message. If the conversation has an active
+    /// (not yet complete) guided creation in progress, this message is treated as the next answer
+    /// in that flow and never goes through intent classification at all; otherwise it goes through
+    /// the full parse -> intent routing pipeline.
     /// </summary>
     internal async Task<ShopAiResponseDto> SendUserTextAsync(Guid conversationId, string rawText, string? originalTranscription)
     {
@@ -136,7 +149,10 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             _conversationManager.SetTitle(conversation, text.Length > 60 ? text.Substring(0, 60) : text);
         }
 
-        var response = await ProcessUserTextAsync(conversation, userId, text);
+        var activePendingAction = await FindActivePendingActionAsync(conversation.Id, tenantId, userId);
+        var response = activePendingAction != null
+            ? await ContinuePendingActionAsync(conversation, userId, activePendingAction, text)
+            : await ProcessUserTextAsync(conversation, userId, text);
 
         _conversationManager.TouchLastMessage(conversation, Clock.Now, response.DetectedLanguage);
         await _conversationRepository.UpdateAsync(conversation, autoSave: true);
@@ -185,9 +201,9 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
 
         // "Recheck permissions. Revalidate business data." - re-run the exact same PrepareAsync
-        // path used at parse time, against the stored parameters, before ever touching ExecuteAsync.
-        // If anything about the request or the surrounding data changed since preview, this throws
-        // and the action never executes.
+        // path used at parse/collection time, against the stored parameters, before ever touching
+        // ExecuteAsync. If anything about the request or the surrounding data changed since
+        // preview, this throws and the action never executes.
         var reconstructed = new ShopAiParsedCommand
         {
             Action = message.DetectedAction.Value,
@@ -241,6 +257,24 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
         await _messageRepository.UpdateAsync(message, autoSave: true);
 
+        // A guided (multi-turn) creation that reached ReadyForConfirmation is only ever "active" up
+        // to this point - once its confirmation message is actually confirmed, close the pending
+        // action row out too, or FindActivePendingActionAsync would keep treating the conversation
+        // as "still collecting" for the next message the user sends.
+        var pendingActionToClose = await FindActivePendingActionAsync(conversation.Id, tenantId, userId);
+        if (pendingActionToClose != null)
+        {
+            if (result.Success)
+            {
+                _pendingActionManager.MarkExecuted(pendingActionToClose);
+            }
+            else
+            {
+                _pendingActionManager.MarkFailed(pendingActionToClose);
+            }
+            await _pendingActionRepository.UpdateAsync(pendingActionToClose, autoSave: true);
+        }
+
         var audit = _auditManager.Record(
             userId, conversation.Id, message.Id, message.DetectedAction.Value.ToString(), message.ActionPayloadJson ?? "{}",
             confirmationRequired: true, confirmedByUserId: userId, confirmationDate: now,
@@ -271,13 +305,29 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         var conversation = await FindConversationAsync(input.ConversationId, tenantId, userId);
         var message = await FindMessageAsync(input.MessageId, conversation, tenantId, userId);
 
-        if (message.Status != ShopAiMessageStatus.AwaitingConfirmation)
+        if (message.Status == ShopAiMessageStatus.AwaitingConfirmation)
+        {
+            _messageManager.MarkCancelled(message);
+            await _messageRepository.UpdateAsync(message, autoSave: true);
+        }
+        else if (message.Status != ShopAiMessageStatus.MissingInformation)
         {
             throw new BusinessException("ShopManagement:AiMessageNotAwaitingConfirmation");
         }
 
-        _messageManager.MarkCancelled(message);
-        await _messageRepository.UpdateAsync(message, autoSave: true);
+        // A guided creation still in progress (or sitting at ReadyForConfirmation) is tracked
+        // separately from the message - only one can ever be active per conversation, so cancel it
+        // too whenever the user cancels its confirmation/collection turn, so the next free-text
+        // message starts fresh instead of being swallowed as "the next answer". Note the pending
+        // action's SourceMessageId is the turn that STARTED collection, not necessarily this
+        // message, so ownership is established by conversation scope (already validated above),
+        // not by comparing message ids.
+        var activePendingAction = await FindActivePendingActionAsync(conversation.Id, tenantId, userId);
+        if (activePendingAction != null)
+        {
+            _pendingActionManager.MarkCancelled(activePendingAction);
+            await _pendingActionRepository.UpdateAsync(activePendingAction, autoSave: true);
+        }
 
         var audit = _auditManager.Record(
             userId, conversation.Id, message.Id, message.DetectedAction?.ToString() ?? "Unknown", message.ActionPayloadJson ?? "{}",
@@ -298,8 +348,29 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         await _conversationRepository.DeleteAsync(conversation, autoSave: true);
     }
 
+    [Authorize(EHubPermissions.ShopAiAssistant.ProjectHelp)]
+    public Task<ListResultDto<ShopAiModuleListDto>> GetSupportedModulesAsync()
+    {
+        var items = _moduleMetadataProvider.GetModules()
+            .Select(m => new ShopAiModuleListDto { ModuleKey = m.ModuleKey, DisplayName = m.DisplayName, Description = m.Description, SupportsCreation = m.SupportsCreation })
+            .OrderBy(m => m.DisplayName)
+            .ToList();
+        return Task.FromResult(new ListResultDto<ShopAiModuleListDto>(items));
+    }
+
+    [Authorize(EHubPermissions.ShopAiAssistant.ProjectHelp)]
+    public Task<ShopAiModuleExplanationDto> GetModuleHelpAsync(string moduleKey)
+    {
+        if (!_moduleMetadataProvider.TryGetModule(moduleKey, out var module) || module == null)
+        {
+            throw new BusinessException("ShopManagement:AiModuleNotFound");
+        }
+
+        return Task.FromResult(BuildModuleExplanation(module));
+    }
+
     // ------------------------------------------------------------------
-    // Internal orchestration
+    // Internal orchestration - fresh message (no guided creation in progress)
     // ------------------------------------------------------------------
 
     internal async Task<ShopAiResponseDto> ProcessUserTextAsync(ShopAiConversation conversation, Guid userId, string text)
@@ -324,6 +395,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 MessageId = assistantMessage.Id,
                 Status = ShopAiMessageStatus.Failed,
                 Action = ShopAiActionType.Unknown,
+                ResponseType = ShopAiResponseType.Error,
                 // AssistantMessage/ErrorMessage must be resolved server-side: this DTO is a plain
                 // 200-OK response, not a thrown exception, so ABP's automatic exception-message
                 // localization never touches it - unlike errors from Confirm/CancelActionAsync,
@@ -348,32 +420,58 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 MessageId = assistantMessage.Id,
                 Status = ShopAiMessageStatus.MissingInformation,
                 Action = ShopAiActionType.MissingInformation,
+                ResponseType = ShopAiResponseType.MissingInformation,
                 DetectedLanguage = command.Language,
-                AssistantMessage = command.UserFriendlyMessage,
+                // Ollama returns this both for "known action, missing a required field" and for
+                // "request doesn't match any supported action/module at all" - it doesn't always
+                // populate userFriendlyMessage for the latter case, so the bubble must never rely
+                // on that alone.
+                AssistantMessage = command.UserFriendlyMessage ?? _localizer["ShopManagement:AiMissingInformation"].Value,
                 MissingFields = command.MissingFields,
                 Warnings = command.Warnings,
             };
         }
 
-        if (command.Action == ShopAiActionType.GeneralHelp || command.Action == ShopAiActionType.Unknown)
+        switch (command.Intent)
         {
-            _messageManager.MarkParsed(assistantMessage, command.Action, payloadJson, command.Language);
-            var helpResult = new ShopAiExecutionResultDto { Success = true, ResultMessage = command.UserFriendlyMessage ?? "I can help with shop questions and a few supported actions - try asking about today's sales or adding a customer." };
-            _messageManager.MarkExecuted(assistantMessage, JsonSerializer.Serialize(helpResult), Clock.Now);
-            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+            case ShopAiIntentType.ExplainModule:
+            case ShopAiIntentType.ListModuleFields:
+            case ShopAiIntentType.ExplainBusinessRule:
+                return await BuildModuleKnowledgeResponseAsync(conversation, assistantMessage, command, payloadJson);
 
-            return new ShopAiResponseDto
-            {
-                ConversationId = conversation.Id,
-                MessageId = assistantMessage.Id,
-                Status = ShopAiMessageStatus.Executed,
-                Action = command.Action,
-                DetectedLanguage = command.Language,
-                AssistantMessage = helpResult.ResultMessage,
-                ExecutionResult = helpResult,
-            };
+            case ShopAiIntentType.ExplainField:
+                return await BuildFieldExplanationResponseAsync(conversation, assistantMessage, command, payloadJson);
+
+            case ShopAiIntentType.StartRecordCreation:
+                return await StartGuidedCreationInternalAsync(conversation, userId, assistantMessage, command, payloadJson);
+
+            case ShopAiIntentType.ReadBusinessData:
+                return await ProcessReadActionAsync(conversation, userId, tenantId, assistantMessage, command, payloadJson);
+
+            default:
+                // GeneralHelp / Unknown / ContinueRecordCreation-with-nothing-active / etc.
+                _messageManager.MarkParsed(assistantMessage, command.Action, payloadJson, command.Language);
+                var helpResult = new ShopAiExecutionResultDto { Success = true, ResultMessage = command.UserFriendlyMessage ?? "I can help with shop questions and a few supported actions - try asking about today's sales, adding a customer, or adding a unit." };
+                _messageManager.MarkExecuted(assistantMessage, JsonSerializer.Serialize(helpResult), Clock.Now);
+                await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+
+                return new ShopAiResponseDto
+                {
+                    ConversationId = conversation.Id,
+                    MessageId = assistantMessage.Id,
+                    Status = ShopAiMessageStatus.Executed,
+                    Action = command.Action,
+                    ResponseType = ShopAiResponseType.TextAnswer,
+                    DetectedLanguage = command.Language,
+                    AssistantMessage = helpResult.ResultMessage,
+                    ExecutionResult = helpResult,
+                };
         }
+    }
 
+    /// <summary>The pre-existing read-only path (GetTodaySales, etc.) - unchanged behavior, just reached via Intent == ReadBusinessData instead of being the default branch.</summary>
+    private async Task<ShopAiResponseDto> ProcessReadActionAsync(ShopAiConversation conversation, Guid userId, Guid tenantId, ShopAiMessage assistantMessage, ShopAiParsedCommand command, string payloadJson)
+    {
         if (!_handlerRegistry.TryGetHandler(command.Action, out var handler) || handler == null)
         {
             _messageManager.MarkFailed(assistantMessage, "AiActionNotSupported", "ShopManagement:AiActionNotSupported");
@@ -385,6 +483,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 MessageId = assistantMessage.Id,
                 Status = ShopAiMessageStatus.Failed,
                 Action = command.Action,
+                ResponseType = ShopAiResponseType.Error,
                 AssistantMessage = _localizer["ShopManagement:AiActionNotSupported"],
                 ErrorCode = "AiActionNotSupported",
                 ErrorMessage = _localizer["ShopManagement:AiActionNotSupported"],
@@ -400,13 +499,13 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         {
             _messageManager.MarkMissingInformation(assistantMessage, payloadJson, command.Language);
             await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
-
             return new ShopAiResponseDto
             {
                 ConversationId = conversation.Id,
                 MessageId = assistantMessage.Id,
                 Status = ShopAiMessageStatus.MissingInformation,
                 Action = command.Action,
+                ResponseType = ShopAiResponseType.MissingInformation,
                 DetectedLanguage = command.Language,
                 AssistantMessage = ex.UserFriendlyMessage ?? command.UserFriendlyMessage ?? _localizer["ShopManagement:AiMissingInformation"].Value,
                 MissingFields = ex.MissingFields,
@@ -417,13 +516,13 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         {
             _messageManager.MarkMissingInformation(assistantMessage, payloadJson, command.Language);
             await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
-
             return new ShopAiResponseDto
             {
                 ConversationId = conversation.Id,
                 MessageId = assistantMessage.Id,
                 Status = ShopAiMessageStatus.MissingInformation,
                 Action = command.Action,
+                ResponseType = ShopAiResponseType.LookupChoices,
                 DetectedLanguage = command.Language,
                 AssistantMessage = command.UserFriendlyMessage ?? _localizer["ShopManagement:AiLookupAmbiguous"].Value,
                 AmbiguousLookups = ex.AmbiguousLookups,
@@ -431,15 +530,15 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
         catch (BusinessException ex)
         {
-            _messageManager.MarkFailed(assistantMessage, ex.Code, ex.Code);
+            _messageManager.MarkFailed(assistantMessage, ex.Code, ex.Code ?? "ShopManagement:AiServiceUnavailable");
             await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
-
             return new ShopAiResponseDto
             {
                 ConversationId = conversation.Id,
                 MessageId = assistantMessage.Id,
                 Status = ShopAiMessageStatus.Failed,
                 Action = command.Action,
+                ResponseType = ShopAiResponseType.Error,
                 AssistantMessage = ex.Code != null ? _localizer[ex.Code].Value : _localizer["ShopManagement:AiServiceUnavailable"].Value,
                 ErrorCode = ex.Code,
                 ErrorMessage = ex.Code,
@@ -450,24 +549,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
 
         if (handler.IsWriteAction)
         {
-            var token = _confirmationService.Issue(tenantId, userId, conversation.Id, assistantMessage.Id, command.Action, payloadJson);
-            _messageManager.SetAwaitingConfirmation(assistantMessage, token.TokenHash, token.ExpiryDate);
-            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
-
-            preview.ConfirmationToken = token.Token;
-            preview.ConfirmationExpiryDate = token.ExpiryDate;
-
-            return new ShopAiResponseDto
-            {
-                ConversationId = conversation.Id,
-                MessageId = assistantMessage.Id,
-                Status = ShopAiMessageStatus.AwaitingConfirmation,
-                Action = command.Action,
-                DetectedLanguage = command.Language,
-                AssistantMessage = command.UserFriendlyMessage ?? _localizer["AiAssistant.ActionPreview"].Value,
-                Warnings = command.Warnings,
-                Preview = preview,
-            };
+            return await IssueConfirmationAsync(conversation, userId, assistantMessage, command, payloadJson, preview);
         }
 
         // Read action - executes immediately, no confirmation involved.
@@ -529,12 +611,382 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             MessageId = assistantMessage.Id,
             Status = executionResult.Success ? ShopAiMessageStatus.Executed : ShopAiMessageStatus.Failed,
             Action = command.Action,
+            ResponseType = executionResult.Success ? ShopAiResponseType.ExecutionResult : ShopAiResponseType.Error,
             DetectedLanguage = command.Language,
             AssistantMessage = executionResult.ResultMessage ?? command.UserFriendlyMessage ?? localizedErrorMessage ?? _localizer["ShopManagement:AiServiceUnavailable"].Value,
             Warnings = command.Warnings,
             ExecutionResult = executionResult,
             ErrorCode = executionResult.Success ? null : executionResult.ErrorCode,
             ErrorMessage = localizedErrorMessage,
+        };
+    }
+
+    // ------------------------------------------------------------------
+    // Project knowledge (ExplainModule / ListModuleFields / ExplainField / ExplainBusinessRule)
+    // ------------------------------------------------------------------
+
+    private async Task<ShopAiResponseDto> BuildModuleKnowledgeResponseAsync(ShopAiConversation conversation, ShopAiMessage assistantMessage, ShopAiParsedCommand command, string payloadJson)
+    {
+        if (string.IsNullOrWhiteSpace(command.ModuleKey) || !_moduleMetadataProvider.TryGetModule(command.ModuleKey, out var module) || module == null)
+        {
+            return await RespondModuleNotFoundAsync(conversation, assistantMessage, command, payloadJson);
+        }
+
+        await CheckModuleReadPermissionAsync(module);
+
+        var explanation = BuildModuleExplanation(module);
+        var text = FormatModuleExplanationText(explanation);
+
+        _messageManager.MarkParsed(assistantMessage, ShopAiActionType.Unknown, payloadJson, command.Language);
+        _messageManager.MarkExecuted(assistantMessage, JsonSerializer.Serialize(new ShopAiExecutionResultDto { Success = true, ResultMessage = text }), Clock.Now);
+        await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+
+        return new ShopAiResponseDto
+        {
+            ConversationId = conversation.Id,
+            MessageId = assistantMessage.Id,
+            Status = ShopAiMessageStatus.Executed,
+            Action = ShopAiActionType.Unknown,
+            ResponseType = command.Intent == ShopAiIntentType.ListModuleFields ? ShopAiResponseType.FieldList : ShopAiResponseType.ModuleExplanation,
+            DetectedLanguage = command.Language,
+            ModuleKey = module.ModuleKey,
+            AssistantMessage = text,
+            Module = explanation,
+            Fields = explanation.RequiredFields.Concat(explanation.OptionalFields).ToList(),
+        };
+    }
+
+    private async Task<ShopAiResponseDto> BuildFieldExplanationResponseAsync(ShopAiConversation conversation, ShopAiMessage assistantMessage, ShopAiParsedCommand command, string payloadJson)
+    {
+        if (string.IsNullOrWhiteSpace(command.ModuleKey) || !_moduleMetadataProvider.TryGetModule(command.ModuleKey, out var module) || module == null)
+        {
+            return await RespondModuleNotFoundAsync(conversation, assistantMessage, command, payloadJson);
+        }
+
+        await CheckModuleReadPermissionAsync(module);
+
+        var field = string.IsNullOrWhiteSpace(command.FieldKey)
+            ? null
+            : module.Fields.FirstOrDefault(f => string.Equals(f.FieldKey, command.FieldKey, StringComparison.OrdinalIgnoreCase)
+                                                 || f.Aliases.Any(a => string.Equals(a, command.FieldKey, StringComparison.OrdinalIgnoreCase)));
+
+        if (field == null)
+        {
+            _messageManager.MarkFailed(assistantMessage, "AiFieldNotFound", "ShopManagement:AiFieldNotFound");
+            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+            return new ShopAiResponseDto
+            {
+                ConversationId = conversation.Id,
+                MessageId = assistantMessage.Id,
+                Status = ShopAiMessageStatus.Failed,
+                ResponseType = ShopAiResponseType.Error,
+                ModuleKey = module.ModuleKey,
+                DetectedLanguage = command.Language,
+                AssistantMessage = _localizer["ShopManagement:AiFieldNotFound"],
+                ErrorCode = "AiFieldNotFound",
+                ErrorMessage = _localizer["ShopManagement:AiFieldNotFound"],
+            };
+        }
+
+        var dto = ToFieldDto(field);
+        var text = FormatFieldExplanationText(module, field);
+
+        _messageManager.MarkParsed(assistantMessage, ShopAiActionType.Unknown, payloadJson, command.Language);
+        _messageManager.MarkExecuted(assistantMessage, JsonSerializer.Serialize(new ShopAiExecutionResultDto { Success = true, ResultMessage = text }), Clock.Now);
+        await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+
+        return new ShopAiResponseDto
+        {
+            ConversationId = conversation.Id,
+            MessageId = assistantMessage.Id,
+            Status = ShopAiMessageStatus.Executed,
+            ResponseType = ShopAiResponseType.FieldExplanation,
+            ModuleKey = module.ModuleKey,
+            DetectedLanguage = command.Language,
+            AssistantMessage = text,
+            Fields = new List<ShopAiFieldDescriptionDto> { dto },
+        };
+    }
+
+    private async Task<ShopAiResponseDto> RespondModuleNotFoundAsync(ShopAiConversation conversation, ShopAiMessage assistantMessage, ShopAiParsedCommand command, string payloadJson)
+    {
+        _messageManager.MarkFailed(assistantMessage, "AiModuleNotFound", "ShopManagement:AiModuleNotFound");
+        await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+        return new ShopAiResponseDto
+        {
+            ConversationId = conversation.Id,
+            MessageId = assistantMessage.Id,
+            Status = ShopAiMessageStatus.Failed,
+            ResponseType = ShopAiResponseType.Error,
+            DetectedLanguage = command.Language,
+            AssistantMessage = command.UserFriendlyMessage ?? _localizer["ShopManagement:AiModuleNotFound"].Value,
+            ErrorCode = "AiModuleNotFound",
+            ErrorMessage = _localizer["ShopManagement:AiModuleNotFound"],
+        };
+    }
+
+    private async Task CheckModuleReadPermissionAsync(ShopAiModuleMetadata module)
+    {
+        if (!await AuthorizationService.IsGrantedAsync(EHubPermissions.ShopAiAssistant.ProjectHelp))
+        {
+            throw new AbpAuthorizationException("ShopManagement:AiPermissionDenied");
+        }
+    }
+
+    private ShopAiModuleExplanationDto BuildModuleExplanation(ShopAiModuleMetadata module) => new()
+    {
+        ModuleKey = module.ModuleKey,
+        DisplayName = module.DisplayName,
+        Description = module.Description,
+        SupportsCreation = module.SupportsCreation,
+        CreatesDraftOnly = module.CreatesDraftOnly,
+        RequiredFields = module.Fields.Where(f => f.IsRequired && !f.IsSystemGenerated).Select(ToFieldDto).ToList(),
+        OptionalFields = module.Fields.Where(f => !f.IsRequired && !f.IsSystemGenerated && !f.IsCalculated).Select(ToFieldDto).ToList(),
+        SystemGeneratedFields = module.Fields.Where(f => f.IsSystemGenerated || f.IsCalculated).Select(ToFieldDto).ToList(),
+        BusinessRules = module.BusinessRules,
+        RelatedModules = module.RelatedModules,
+    };
+
+    private static ShopAiFieldDescriptionDto ToFieldDto(ShopAiFieldMetadata field) => new()
+    {
+        FieldKey = field.FieldKey,
+        DisplayName = field.DisplayName,
+        Description = field.Description,
+        DataType = field.DataType,
+        IsRequired = field.IsRequired,
+        IsLookup = field.IsLookup,
+        IsSystemGenerated = field.IsSystemGenerated,
+        ExampleValue = field.ExampleValue,
+        AllowedValues = field.AllowedValues,
+    };
+
+    private static string FormatModuleExplanationText(ShopAiModuleExplanationDto module)
+    {
+        var lines = new List<string> { module.Description, string.Empty, "Required fields:" };
+        lines.AddRange(module.RequiredFields.Select(f => $"- {f.DisplayName}"));
+        if (module.OptionalFields.Count > 0)
+        {
+            lines.Add(string.Empty);
+            lines.Add("Optional fields:");
+            lines.AddRange(module.OptionalFields.Select(f => $"- {f.DisplayName}"));
+        }
+        if (module.SupportsCreation)
+        {
+            lines.Add(string.Empty);
+            lines.Add(module.CreatesDraftOnly
+                ? "The AI Assistant can create this as a Draft only - it will not post/finalize it."
+                : "The AI Assistant can create this for you after you confirm the details.");
+        }
+        else
+        {
+            lines.Add(string.Empty);
+            lines.Add("The AI Assistant can explain this module but cannot create this record yet - please use the normal screen.");
+        }
+        return string.Join("\n", lines);
+    }
+
+    private static string FormatFieldExplanationText(ShopAiModuleMetadata module, ShopAiFieldMetadata field)
+    {
+        var requiredText = field.IsRequired ? "Required" : "Optional";
+        var example = string.IsNullOrWhiteSpace(field.ExampleValue) ? string.Empty : $" Example: {field.ExampleValue}.";
+        var allowed = field.AllowedValues.Count > 0 ? $" Allowed values: {string.Join(", ", field.AllowedValues)}." : string.Empty;
+        return $"{field.DisplayName} ({module.DisplayName}) - {requiredText}. {field.Description}{example}{allowed}";
+    }
+
+    // ------------------------------------------------------------------
+    // Guided creation (StartRecordCreation / continuation)
+    // ------------------------------------------------------------------
+
+    private async Task<ShopAiResponseDto> StartGuidedCreationInternalAsync(ShopAiConversation conversation, Guid userId, ShopAiMessage assistantMessage, ShopAiParsedCommand command, string payloadJson)
+    {
+        if (string.IsNullOrWhiteSpace(command.ModuleKey) || !_moduleMetadataProvider.TryGetModule(command.ModuleKey, out var module) || module == null || !module.SupportsCreation)
+        {
+            return await RespondModuleNotFoundAsync(conversation, assistantMessage, command, payloadJson);
+        }
+
+        if (!_handlerRegistry.TryGetHandler(module.CreateAction, out _))
+        {
+            // Metadata says creation is supported in principle, but no handler is wired up for it
+            // yet in this deployment - explain the module instead of silently failing.
+            var explainInstead = new ShopAiParsedCommand
+            {
+                Action = command.Action,
+                Intent = ShopAiIntentType.ExplainModule,
+                ModuleKey = command.ModuleKey,
+                FieldKey = command.FieldKey,
+                Language = command.Language,
+                RequiresConfirmation = command.RequiresConfirmation,
+                Confidence = command.Confidence,
+                UserFriendlyMessage = command.UserFriendlyMessage,
+                Parameters = command.Parameters,
+                MissingFields = command.MissingFields,
+                Warnings = command.Warnings,
+            };
+            return await BuildModuleKnowledgeResponseAsync(conversation, assistantMessage, explainInstead, payloadJson);
+        }
+
+        await CheckModuleReadPermissionAsync(module);
+        if (!await AuthorizationService.IsGrantedAsync(EHubPermissions.ShopAiAssistant.GuidedCreation))
+        {
+            throw new AbpAuthorizationException("ShopManagement:AiPermissionDenied");
+        }
+
+        var result = await _slotFillingService.StartAsync(conversation, userId, assistantMessage.Id, module, command);
+        return await HandleSlotFillingResultAsync(conversation, userId, assistantMessage, module, command.Language, result);
+    }
+
+    private async Task<ShopAiResponseDto> ContinuePendingActionAsync(ShopAiConversation conversation, Guid userId, ShopAiPendingAction pendingAction, string text)
+    {
+        var module = _moduleMetadataProvider.GetModule(pendingAction.ModuleKey);
+
+        var assistantMessage = _messageManager.Create(conversation, userId, ShopAiMessageRole.Assistant, "…", originalTranscription: null, ShopAiLanguage.Unknown);
+        await _messageRepository.InsertAsync(assistantMessage, autoSave: true);
+
+        var result = await _slotFillingService.ContinueAsync(pendingAction, text);
+
+        if (result.IsExpired)
+        {
+            _messageManager.MarkFailed(assistantMessage, "AiPendingActionNotFound", "ShopManagement:AiPendingActionNotFound");
+            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+            return new ShopAiResponseDto
+            {
+                ConversationId = conversation.Id,
+                MessageId = assistantMessage.Id,
+                Status = ShopAiMessageStatus.Failed,
+                ResponseType = ShopAiResponseType.Error,
+                ModuleKey = module.ModuleKey,
+                AssistantMessage = _localizer["ShopManagement:AiPendingActionNotFound"],
+                ErrorCode = "AiPendingActionNotFound",
+                ErrorMessage = _localizer["ShopManagement:AiPendingActionNotFound"],
+            };
+        }
+
+        return await HandleSlotFillingResultAsync(conversation, userId, assistantMessage, module, ShopAiLanguage.Unknown, result);
+    }
+
+    private async Task<ShopAiResponseDto> HandleSlotFillingResultAsync(ShopAiConversation conversation, Guid userId, ShopAiMessage assistantMessage, ShopAiModuleMetadata module, ShopAiLanguage language, ShopAiSlotFillingResult result)
+    {
+        if (!result.IsComplete)
+        {
+            var progress = new ShopAiGuidedCreationProgressDto
+            {
+                ModuleKey = module.ModuleKey,
+                ModuleDisplayName = module.DisplayName,
+                CollectedFields = result.CollectedFields,
+                MissingRequiredFields = result.MissingRequiredFields,
+                RequiredFieldCount = result.RequiredFieldCount,
+                CompletedRequiredFieldCount = result.CompletedRequiredFieldCount,
+            };
+
+            var missingJson = JsonSerializer.Serialize(result.MissingRequiredFields);
+            _messageManager.MarkMissingInformation(assistantMessage, missingJson, language);
+            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+
+            return new ShopAiResponseDto
+            {
+                ConversationId = conversation.Id,
+                MessageId = assistantMessage.Id,
+                Status = ShopAiMessageStatus.MissingInformation,
+                Action = module.CreateAction,
+                ResponseType = ShopAiResponseType.MissingInformation,
+                ModuleKey = module.ModuleKey,
+                DetectedLanguage = language,
+                AssistantMessage = result.NextQuestion ?? _localizer["ShopManagement:AiMissingInformation"].Value,
+                MissingFields = result.MissingRequiredFields,
+                GuidedCreationProgress = progress,
+            };
+        }
+
+        // Complete - hand off to the exact same handler.PrepareAsync -> confirmation-token ->
+        // AwaitingConfirmation pipeline a one-shot write uses, via the shared helper below.
+        var command = result.CompletedCommand!;
+        var payloadJson = ShopAiPayloadSerializer.SerializeParameters(command.Parameters);
+
+        if (!_handlerRegistry.TryGetHandler(module.CreateAction, out var handler) || handler == null)
+        {
+            _messageManager.MarkFailed(assistantMessage, "AiActionNotSupported", "ShopManagement:AiActionNotSupported");
+            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+            return new ShopAiResponseDto
+            {
+                ConversationId = conversation.Id,
+                MessageId = assistantMessage.Id,
+                Status = ShopAiMessageStatus.Failed,
+                ResponseType = ShopAiResponseType.Error,
+                ModuleKey = module.ModuleKey,
+                AssistantMessage = _localizer["ShopManagement:AiActionNotSupported"],
+                ErrorCode = "AiActionNotSupported",
+                ErrorMessage = _localizer["ShopManagement:AiActionNotSupported"],
+            };
+        }
+
+        ShopAiActionPreviewDto preview;
+        try
+        {
+            preview = await handler.PrepareAsync(command);
+        }
+        catch (ShopAiMissingInformationException ex)
+        {
+            _messageManager.MarkMissingInformation(assistantMessage, payloadJson, language);
+            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+            return new ShopAiResponseDto
+            {
+                ConversationId = conversation.Id,
+                MessageId = assistantMessage.Id,
+                Status = ShopAiMessageStatus.MissingInformation,
+                Action = module.CreateAction,
+                ResponseType = ShopAiResponseType.MissingInformation,
+                ModuleKey = module.ModuleKey,
+                DetectedLanguage = language,
+                AssistantMessage = ex.UserFriendlyMessage ?? _localizer["ShopManagement:AiMissingInformation"].Value,
+                MissingFields = ex.MissingFields,
+            };
+        }
+        catch (BusinessException ex)
+        {
+            _messageManager.MarkFailed(assistantMessage, ex.Code, ex.Code ?? "ShopManagement:AiServiceUnavailable");
+            await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+            return new ShopAiResponseDto
+            {
+                ConversationId = conversation.Id,
+                MessageId = assistantMessage.Id,
+                Status = ShopAiMessageStatus.Failed,
+                Action = module.CreateAction,
+                ResponseType = ShopAiResponseType.Error,
+                ModuleKey = module.ModuleKey,
+                AssistantMessage = ex.Code != null ? _localizer[ex.Code].Value : _localizer["ShopManagement:AiServiceUnavailable"].Value,
+                ErrorCode = ex.Code,
+                ErrorMessage = ex.Code,
+            };
+        }
+
+        _messageManager.MarkParsed(assistantMessage, module.CreateAction, payloadJson, language);
+        var response = await IssueConfirmationAsync(conversation, userId, assistantMessage, command, payloadJson, preview);
+        response.ModuleKey = module.ModuleKey;
+        return response;
+    }
+
+    /// <summary>Shared by the legacy read/write handler path and the guided-creation path - both end a successful PrepareAsync the same way.</summary>
+    private async Task<ShopAiResponseDto> IssueConfirmationAsync(ShopAiConversation conversation, Guid userId, ShopAiMessage assistantMessage, ShopAiParsedCommand command, string payloadJson, ShopAiActionPreviewDto preview)
+    {
+        var tenantId = conversation.TenantId!.Value;
+        var token = _confirmationService.Issue(tenantId, userId, conversation.Id, assistantMessage.Id, command.Action, payloadJson);
+        _messageManager.SetAwaitingConfirmation(assistantMessage, token.TokenHash, token.ExpiryDate);
+        await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
+
+        preview.ConfirmationToken = token.Token;
+        preview.ConfirmationExpiryDate = token.ExpiryDate;
+
+        return new ShopAiResponseDto
+        {
+            ConversationId = conversation.Id,
+            MessageId = assistantMessage.Id,
+            Status = ShopAiMessageStatus.AwaitingConfirmation,
+            Action = command.Action,
+            ResponseType = ShopAiResponseType.ActionPreview,
+            DetectedLanguage = command.Language,
+            AssistantMessage = command.UserFriendlyMessage ?? _localizer["AiAssistant.ActionPreview"].Value,
+            Warnings = command.Warnings,
+            Preview = preview,
         };
     }
 
@@ -558,6 +1010,16 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             ?? throw new BusinessException("ShopManagement:AiMessageNotFound");
         _messageManager.ValidateOwnership(message, tenantId, userId, conversation.Id);
         return message;
+    }
+
+    /// <summary>"Only one active pending action per conversation by default" - CollectingInformation/ResolvingLookups/ReadyForConfirmation all count as active.</summary>
+    private async Task<ShopAiPendingAction?> FindActivePendingActionAsync(Guid conversationId, Guid tenantId, Guid userId)
+    {
+        var query = await _pendingActionRepository.GetQueryableAsync();
+        var activeStatuses = new[] { ShopAiPendingActionStatus.CollectingInformation, ShopAiPendingActionStatus.ResolvingLookups, ShopAiPendingActionStatus.ReadyForConfirmation };
+        return await AsyncExecuter.FirstOrDefaultAsync(
+            query.Where(x => x.TenantId == tenantId && x.UserId == userId && x.ConversationId == conversationId && activeStatuses.Contains(x.Status))
+                .OrderByDescending(x => x.CreationTime));
     }
 
     private static string SanitizeInput(string text) => HtmlTagRegex.Replace(text, string.Empty).Trim();

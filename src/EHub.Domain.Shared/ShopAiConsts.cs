@@ -16,4 +16,9 @@ public static class ShopAiConsts
     public const int SanitizedPayloadJsonMaxLength = 8000;
     public const int ExecutionStatusMaxLength = 32;
     public const int ResultReferenceTypeMaxLength = 64;
+
+    public const int ModuleKeyMaxLength = 64;
+    public const int CollectedValuesJsonMaxLength = 8000;
+    public const int MissingFieldsJsonMaxLength = 2000;
+    public const int LookupResolutionsJsonMaxLength = 4000;
 }

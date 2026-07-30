@@ -8,11 +8,16 @@ import {
   ShopAiAssistantService,
   ShopAiConversationListDto,
   ShopAiExecutionResultDto,
+  ShopAiFieldDescriptionDto,
+  ShopAiGuidedCreationProgressDto,
   ShopAiLanguage,
   ShopAiLookupResolutionDto,
   ShopAiMessageRole,
   ShopAiMessageStatus,
+  ShopAiModuleExplanationDto,
+  ShopAiModuleListDto,
   ShopAiResponseDto,
+  ShopAiResponseType,
   ShopAiVoiceService,
 } from '../../proxy/shop-management/ai-assistant';
 import { ConfirmationHelperService } from '../../shared/services/confirmation-helper.service';
@@ -30,6 +35,11 @@ interface ChatDisplayMessage {
   ambiguousLookups?: ShopAiLookupResolutionDto[];
   confirmBusy?: boolean;
   isError?: boolean;
+  responseType?: ShopAiResponseType;
+  moduleKey?: string;
+  module?: ShopAiModuleExplanationDto;
+  fields?: ShopAiFieldDescriptionDto[];
+  guidedCreationProgress?: ShopAiGuidedCreationProgressDto;
 }
 
 @Component({
@@ -47,7 +57,12 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
   private readonly deleteConfirmation = inject(ConfirmationHelperService);
 
   readonly ShopAiMessageStatus = ShopAiMessageStatus;
+  readonly ShopAiResponseType = ShopAiResponseType;
   readonly canUseVoice = this.permissions.getGrantedPolicy('ShopManagement.AiAssistant.UseVoice');
+  readonly canGetProjectHelp = this.permissions.getGrantedPolicy('ShopManagement.AiAssistant.ProjectHelp');
+
+  modules: ShopAiModuleListDto[] = [];
+  showModulesPanel = false;
 
   @ViewChild('messagesEnd') messagesEnd?: ElementRef<HTMLDivElement>;
 
@@ -202,8 +217,52 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
       missingFields: response.missingFields,
       ambiguousLookups: response.ambiguousLookups,
       isError: response.status === ShopAiMessageStatus.Failed,
+      responseType: response.responseType,
+      moduleKey: response.moduleKey,
+      module: response.module,
+      fields: response.fields,
+      guidedCreationProgress: response.guidedCreationProgress,
     });
     this.scrollToBottom();
+  }
+
+  // ------------------------------------------------------------------
+  // Project knowledge / guided creation
+  // ------------------------------------------------------------------
+
+  toggleModulesPanel(): void {
+    this.showModulesPanel = !this.showModulesPanel;
+    if (this.showModulesPanel && !this.modules.length) {
+      this.assistantService.getSupportedModules().subscribe({
+        next: result => (this.modules = result.items || []),
+        error: e => this.showError(e),
+      });
+    }
+  }
+
+  askAboutModule(module: ShopAiModuleListDto): void {
+    this.showModulesPanel = false;
+    this.sendComposedText(`Tell me about ${module.displayName}`);
+  }
+
+  startCreating(module: ShopAiModuleExplanationDto): void {
+    this.sendComposedText(`I want to add a new ${module.displayName}`);
+  }
+
+  private sendComposedText(text: string): void {
+    if (this.sending) return;
+    if (!this.activeConversationId) {
+      this.assistantService.createConversation().subscribe({
+        next: conv => {
+          this.conversations = [{ id: conv.id, title: conv.title, status: conv.status, lastMessageDate: conv.lastMessageDate, creationTime: conv.creationTime }, ...this.conversations];
+          this.activeConversationId = conv.id;
+          this.sendToConversation(text);
+        },
+        error: e => this.showError(e),
+      });
+      return;
+    }
+    this.sendToConversation(text);
   }
 
   confirmAction(msg: ChatDisplayMessage): void {

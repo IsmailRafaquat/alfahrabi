@@ -27,6 +27,13 @@ export enum ShopAiActionType {
   CreateExpenseDraft = 203,
   CreatePurchaseOrderDraft = 204,
   CreateSaleDraft = 205,
+  CreateProductCategory = 210,
+  CreateUnit = 211,
+  CreateProduct = 212,
+  CreateExpenseCategory = 213,
+  CreateBankAccount = 214,
+  CreateStockAdjustmentDraft = 215,
+  CreatePhysicalStockCountDraft = 216,
 }
 
 export const shopAiActionTypeOptions = mapEnumToOptions(ShopAiActionType);

@@ -34,5 +34,15 @@ public enum ShopAiActionType
     CreateProductDraft = 202,
     CreateExpenseDraft = 203,
     CreatePurchaseOrderDraft = 204,
-    CreateSaleDraft = 205
+    CreateSaleDraft = 205,
+
+    // Guided-creation additions (module metadata + slot-filling). ProductDraft/ExpenseDraft/
+    // PurchaseOrderDraft/SaleDraft above stay as-is; these are the newly approved modules.
+    CreateProductCategory = 210,
+    CreateUnit = 211,
+    CreateProduct = 212,
+    CreateExpenseCategory = 213,
+    CreateBankAccount = 214,
+    CreateStockAdjustmentDraft = 215,
+    CreatePhysicalStockCountDraft = 216
 }

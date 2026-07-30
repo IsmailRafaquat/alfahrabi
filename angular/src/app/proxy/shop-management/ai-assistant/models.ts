@@ -4,6 +4,7 @@ import type { ShopAiLanguage } from './shop-ai-language.enum';
 import type { ShopAiConversationStatus } from './shop-ai-conversation-status.enum';
 import type { ShopAiMessageRole } from './shop-ai-message-role.enum';
 import type { ShopAiMessageStatus } from './shop-ai-message-status.enum';
+import type { ShopAiResponseType } from './shop-ai-response-type.enum';
 import type { IRemoteStreamContent } from '../../volo/abp/content/models';
 
 export interface CancelShopAiActionDto {
@@ -64,6 +65,27 @@ export interface ShopAiExecutionResultDto {
   errorMessage?: string;
 }
 
+export interface ShopAiFieldDescriptionDto {
+  fieldKey?: string;
+  displayName?: string;
+  description?: string;
+  dataType?: string;
+  isRequired: boolean;
+  isLookup: boolean;
+  isSystemGenerated: boolean;
+  exampleValue?: string;
+  allowedValues: string[];
+}
+
+export interface ShopAiGuidedCreationProgressDto {
+  moduleKey?: string;
+  moduleDisplayName?: string;
+  collectedFields: ShopAiPreviewFieldDto[];
+  missingRequiredFields: string[];
+  requiredFieldCount: number;
+  completedRequiredFieldCount: number;
+}
+
 export interface ShopAiLookupChoiceDto {
   id?: string;
   displayText?: string;
@@ -90,6 +112,26 @@ export interface ShopAiMessageDto extends EntityDto<string> {
   executionResult: ShopAiExecutionResultDto;
 }
 
+export interface ShopAiModuleExplanationDto {
+  moduleKey?: string;
+  displayName?: string;
+  description?: string;
+  supportsCreation: boolean;
+  createsDraftOnly: boolean;
+  requiredFields: ShopAiFieldDescriptionDto[];
+  optionalFields: ShopAiFieldDescriptionDto[];
+  systemGeneratedFields: ShopAiFieldDescriptionDto[];
+  businessRules: string[];
+  relatedModules: string[];
+}
+
+export interface ShopAiModuleListDto {
+  moduleKey?: string;
+  displayName?: string;
+  description?: string;
+  supportsCreation: boolean;
+}
+
 export interface ShopAiPreviewFieldDto {
   labelKey?: string;
   value?: string;
@@ -110,6 +152,11 @@ export interface ShopAiResponseDto {
   ambiguousLookups: ShopAiLookupResolutionDto[];
   errorCode?: string;
   errorMessage?: string;
+  responseType?: ShopAiResponseType;
+  moduleKey?: string;
+  module: ShopAiModuleExplanationDto;
+  fields: ShopAiFieldDescriptionDto[];
+  guidedCreationProgress: ShopAiGuidedCreationProgressDto;
 }
 
 export interface ShopAiVoiceMessageDto {

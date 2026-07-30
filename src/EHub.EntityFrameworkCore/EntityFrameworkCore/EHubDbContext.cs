@@ -135,6 +135,7 @@ public class EHubDbContext :
     public DbSet<ShopAiConversation> ShopAiConversations { get; set; }
     public DbSet<ShopAiMessage> ShopAiMessages { get; set; }
     public DbSet<ShopAiActionAudit> ShopAiActionAudits { get; set; }
+    public DbSet<ShopAiPendingAction> ShopAiPendingActions { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1401,6 +1402,31 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.UserId, x.CreationTime });
             b.HasIndex(x => new { x.TenantId, x.ActionName, x.CreationTime });
             b.HasIndex(x => new { x.TenantId, x.ExecutionStatus });
+        });
+
+        builder.Entity<ShopAiPendingAction>(b =>
+        {
+            b.ToTable("ShopAiPendingActions", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            b.Property(x => x.ConversationId).IsRequired();
+            b.Property(x => x.SourceMessageId).IsRequired();
+            b.Property(x => x.ActionType).IsRequired().HasConversion<int>();
+            b.Property(x => x.ModuleKey).IsRequired().HasMaxLength(ShopAiConsts.ModuleKeyMaxLength);
+            b.Property(x => x.CollectedValuesJson).IsRequired().HasMaxLength(ShopAiConsts.CollectedValuesJsonMaxLength);
+            b.Property(x => x.MissingFieldsJson).IsRequired().HasMaxLength(ShopAiConsts.MissingFieldsJsonMaxLength);
+            b.Property(x => x.LookupResolutionsJson).IsRequired().HasMaxLength(ShopAiConsts.LookupResolutionsJsonMaxLength);
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopAiPendingActionStatus.CollectingInformation);
+            b.Property(x => x.ExpiryDate).IsRequired();
+            b.Property(x => x.ConfirmationTokenHash).HasMaxLength(ShopAiConsts.ConfirmationTokenHashMaxLength);
+
+            b.HasOne<ShopAiConversation>().WithMany().HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<ShopAiMessage>().WithMany().HasForeignKey(x => x.SourceMessageId).OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.UserId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.ConversationId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.ExpiryDate });
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

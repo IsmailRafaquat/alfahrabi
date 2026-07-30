@@ -6697,6 +6697,31 @@
                     "type": "System.Void",
                     "typeSimple": "System.Void"
                   }
+                },
+                {
+                  "name": "GetSupportedModulesAsync",
+                  "parametersOnMethod": [],
+                  "returnValue": {
+                    "type": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.AiAssistant.ShopAiModuleListDto>",
+                    "typeSimple": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.AiAssistant.ShopAiModuleListDto>"
+                  }
+                },
+                {
+                  "name": "GetModuleHelpAsync",
+                  "parametersOnMethod": [
+                    {
+                      "name": "moduleKey",
+                      "typeAsString": "System.String, System.Private.CoreLib",
+                      "type": "System.String",
+                      "typeSimple": "string",
+                      "isOptional": false,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnValue": {
+                    "type": "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto",
+                    "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto"
+                  }
                 }
               ]
             }
@@ -6971,6 +6996,58 @@
               "returnValue": {
                 "type": "System.Void",
                 "typeSimple": "System.Void"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "GetSupportedModulesAsync": {
+              "uniqueName": "GetSupportedModulesAsync",
+              "name": "GetSupportedModulesAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-ai-assistant/supported-modules",
+              "supportedVersions": [],
+              "parametersOnMethod": [],
+              "parameters": [],
+              "returnValue": {
+                "type": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.AiAssistant.ShopAiModuleListDto>",
+                "typeSimple": "Volo.Abp.Application.Dtos.ListResultDto<EHub.ShopManagement.AiAssistant.ShopAiModuleListDto>"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
+            },
+            "GetModuleHelpAsyncByModuleKey": {
+              "uniqueName": "GetModuleHelpAsyncByModuleKey",
+              "name": "GetModuleHelpAsync",
+              "httpMethod": "GET",
+              "url": "api/app/shop-ai-assistant/module-help",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "moduleKey",
+                  "typeAsString": "System.String, System.Private.CoreLib",
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "moduleKey",
+                  "name": "moduleKey",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "ModelBinding",
+                  "descriptorName": ""
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto"
               },
               "allowAnonymous": false,
               "implementFrom": "EHub.ShopManagement.AiAssistant.IShopAiAssistantAppService"
@@ -36866,7 +36943,14 @@
         "CreateProductDraft",
         "CreateExpenseDraft",
         "CreatePurchaseOrderDraft",
-        "CreateSaleDraft"
+        "CreateSaleDraft",
+        "CreateProductCategory",
+        "CreateUnit",
+        "CreateProduct",
+        "CreateExpenseCategory",
+        "CreateBankAccount",
+        "CreateStockAdjustmentDraft",
+        "CreatePhysicalStockCountDraft"
       ],
       "enumValues": [
         0,
@@ -36894,7 +36978,14 @@
         202,
         203,
         204,
-        205
+        205,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216
       ],
       "genericArguments": null,
       "properties": null
@@ -37135,6 +37226,204 @@
           "jsonName": null,
           "type": "System.String",
           "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "FieldKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DisplayName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Description",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DataType",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsRequired",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsLookup",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "IsSystemGenerated",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ExampleValue",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "AllowedValues",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiGuidedCreationProgressDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ModuleKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ModuleDisplayName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CollectedFields",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiPreviewFieldDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiPreviewFieldDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "MissingRequiredFields",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "RequiredFieldCount",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CompletedRequiredFieldCount",
+          "jsonName": null,
+          "type": "System.Int32",
+          "typeSimple": "number",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -37443,6 +37732,192 @@
       "genericArguments": null,
       "properties": null
     },
+    "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ModuleKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DisplayName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Description",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "SupportsCreation",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "CreatesDraftOnly",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "RequiredFields",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "OptionalFields",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "SystemGeneratedFields",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "BusinessRules",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "RelatedModules",
+          "jsonName": null,
+          "type": "[System.String]",
+          "typeSimple": "[string]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiModuleListDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "ModuleKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DisplayName",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Description",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "SupportsCreation",
+          "jsonName": null,
+          "type": "System.Boolean",
+          "typeSimple": "boolean",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
     "EHub.ShopManagement.AiAssistant.ShopAiPreviewFieldDto": {
       "baseType": null,
       "isEnum": false,
@@ -37650,8 +38125,96 @@
           "minimum": null,
           "maximum": null,
           "regex": null
+        },
+        {
+          "name": "ResponseType",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiResponseType",
+          "typeSimple": "enum",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "ModuleKey",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Module",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiModuleExplanationDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Fields",
+          "jsonName": null,
+          "type": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "typeSimple": "[EHub.ShopManagement.AiAssistant.ShopAiFieldDescriptionDto]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "GuidedCreationProgress",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiGuidedCreationProgressDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiGuidedCreationProgressDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
         }
       ]
+    },
+    "EHub.ShopManagement.AiAssistant.ShopAiResponseType": {
+      "baseType": "System.Enum",
+      "isEnum": true,
+      "enumNames": [
+        "TextAnswer",
+        "ModuleExplanation",
+        "FieldList",
+        "FieldExplanation",
+        "MissingInformation",
+        "LookupChoices",
+        "ActionPreview",
+        "ExecutionResult",
+        "Error"
+      ],
+      "enumValues": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "genericArguments": null,
+      "properties": null
     },
     "EHub.ShopManagement.AiAssistant.ShopAiVoiceMessageDto": {
       "baseType": null,

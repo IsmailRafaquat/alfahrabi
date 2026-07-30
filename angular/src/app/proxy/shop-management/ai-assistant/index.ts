@@ -5,4 +5,5 @@ export * from './shop-ai-conversation-status.enum';
 export * from './shop-ai-language.enum';
 export * from './shop-ai-message-role.enum';
 export * from './shop-ai-message-status.enum';
+export * from './shop-ai-response-type.enum';
 export * from './shop-ai-voice.service';

@@ -1,6 +1,6 @@
-import type { CancelShopAiActionDto, ConfirmShopAiActionDto, GetShopAiConversationsInput, SendShopAiMessageDto, ShopAiConversationDto, ShopAiConversationListDto, ShopAiExecutionResultDto, ShopAiResponseDto } from './models';
+import type { CancelShopAiActionDto, ConfirmShopAiActionDto, GetShopAiConversationsInput, SendShopAiMessageDto, ShopAiConversationDto, ShopAiConversationListDto, ShopAiExecutionResultDto, ShopAiModuleExplanationDto, ShopAiModuleListDto, ShopAiResponseDto } from './models';
 import { RestService, Rest } from '@abp/ng.core';
-import type { PagedResultDto } from '@abp/ng.core';
+import type { ListResultDto, PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -57,6 +57,23 @@ export class ShopAiAssistantService {
       method: 'GET',
       url: '/api/app/shop-ai-assistant/conversations',
       params: { filter: input.filter, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getModuleHelp = (moduleKey: string, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, ShopAiModuleExplanationDto>({
+      method: 'GET',
+      url: '/api/app/shop-ai-assistant/module-help',
+      params: { moduleKey },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getSupportedModules = (config?: Partial<Rest.Config>) =>
+    this.restService.request<any, ListResultDto<ShopAiModuleListDto>>({
+      method: 'GET',
+      url: '/api/app/shop-ai-assistant/supported-modules',
     },
     { apiName: this.apiName,...config });
   

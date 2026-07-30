@@ -311,12 +311,23 @@ public static class EHubPermissions
         public const string QueryBalances = Default + ".QueryBalances";
         public const string QueryDashboard = Default + ".QueryDashboard";
 
+        public const string ProjectHelp = Default + ".ProjectHelp";
+        public const string ViewModuleFields = Default + ".ViewModuleFields";
+        public const string GuidedCreation = Default + ".GuidedCreation";
+
         public const string CreateCustomer = Default + ".CreateCustomer";
         public const string CreateSupplier = Default + ".CreateSupplier";
         public const string CreateProductDraft = Default + ".CreateProductDraft";
         public const string CreateExpenseDraft = Default + ".CreateExpenseDraft";
         public const string CreatePurchaseOrderDraft = Default + ".CreatePurchaseOrderDraft";
         public const string CreateSaleDraft = Default + ".CreateSaleDraft";
+        public const string CreateProductCategory = Default + ".CreateProductCategory";
+        public const string CreateUnit = Default + ".CreateUnit";
+        public const string CreateProduct = Default + ".CreateProduct";
+        public const string CreateExpenseCategory = Default + ".CreateExpenseCategory";
+        public const string CreateBankAccount = Default + ".CreateBankAccount";
+        public const string CreateStockAdjustmentDraft = Default + ".CreateStockAdjustmentDraft";
+        public const string CreatePhysicalStockCountDraft = Default + ".CreatePhysicalStockCountDraft";
 
         public const string ManageSettings = Default + ".ManageSettings";
     }
