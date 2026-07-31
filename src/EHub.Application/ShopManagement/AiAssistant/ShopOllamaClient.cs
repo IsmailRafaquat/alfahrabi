@@ -48,6 +48,13 @@ public class ShopOllamaClient : IShopOllamaClient, ITransientDependency
             // easily blowing through RequestTimeoutSeconds on CPU inference. Keeping it warm for
             // 30 minutes means only the FIRST message after a long gap pays that cost.
             KeepAlive = "30m",
+            // qwen3 is a "thinking" model - by default it silently generates a long internal
+            // reasoning trace before ever producing the JSON answer, which on CPU-only inference
+            // was observed taking 20+ minutes for a single structured-command request. Every call
+            // through this client only ever needs the final JSON, never the reasoning trace, so
+            // thinking is disabled outright rather than tuned - this is the single biggest lever
+            // for making the assistant usable on modest hardware.
+            Think = false,
         };
 
         using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(Math.Max(1, options.RequestTimeoutSeconds)));
@@ -126,6 +133,9 @@ internal class OllamaChatRequest
 
     [JsonPropertyName("keep_alive")]
     public string? KeepAlive { get; set; }
+
+    [JsonPropertyName("think")]
+    public bool? Think { get; set; }
 }
 
 internal class OllamaChatMessage

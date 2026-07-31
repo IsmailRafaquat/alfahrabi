@@ -18,6 +18,7 @@ public class ShopAiValidatedAction
     public Guid ConversationId { get; set; }
     public Guid MessageId { get; set; }
     public ShopAiActionType Action { get; set; }
+    public ShopAiLanguage Language { get; set; }
 
     /// <summary>The validated, resolved payload (IDs already substituted for names) - handler-specific shape.</summary>
     public JsonElement PayloadJson { get; set; }

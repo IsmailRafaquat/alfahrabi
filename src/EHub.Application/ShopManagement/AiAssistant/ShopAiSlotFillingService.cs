@@ -20,20 +20,20 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
     private readonly IRepository<ShopAiPendingAction, Guid> _pendingActionRepository;
     private readonly ShopAiPendingActionManager _pendingActionManager;
     private readonly IShopAiModuleMetadataProvider _moduleMetadataProvider;
-    private readonly IShopOllamaClient _ollamaClient;
+    private readonly IShopAiFieldExtractionService _fieldExtractionService;
     private readonly IClock _clock;
 
     public ShopAiSlotFillingService(
         IRepository<ShopAiPendingAction, Guid> pendingActionRepository,
         ShopAiPendingActionManager pendingActionManager,
         IShopAiModuleMetadataProvider moduleMetadataProvider,
-        IShopOllamaClient ollamaClient,
+        IShopAiFieldExtractionService fieldExtractionService,
         IClock clock)
     {
         _pendingActionRepository = pendingActionRepository;
         _pendingActionManager = pendingActionManager;
         _moduleMetadataProvider = moduleMetadataProvider;
-        _ollamaClient = ollamaClient;
+        _fieldExtractionService = fieldExtractionService;
         _clock = clock;
     }
 
@@ -43,11 +43,17 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         var collected = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
         MergeProvidedValues(module, collected, command.Parameters);
 
-        var result = Evaluate(module, collected);
+        var result = Evaluate(module, collected, command.Language);
         if (result.IsComplete)
         {
             return result;
         }
+
+        // First turn only: prefix the per-field question with the full required-fields list, so
+        // the user knows up front what the module needs, without repeating that list on every
+        // subsequent turn (ContinueAsync's Evaluate() call below never adds this prefix).
+        var requiredNames = module.Fields.Where(f => f.IsRequired && !f.IsSystemGenerated && !f.IsCalculated).Select(f => f.DisplayName).ToList();
+        result.NextQuestion = ShopAiPhrases.RequiredFieldsIntro(command.Language, module.DisplayName, requiredNames) + "\n\n" + result.NextQuestion;
 
         var pendingAction = _pendingActionManager.Create(userId, conversation.Id, sourceMessageId, module.CreateAction, module.ModuleKey, _clock.Now.Add(CollectingExpiry));
         _pendingActionManager.UpdateCollectedState(pendingAction, SerializeValues(collected), JsonSerializer.Serialize(result.MissingRequiredFields), "[]", _clock.Now.Add(CollectingExpiry));
@@ -57,7 +63,7 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         return result;
     }
 
-    public async Task<ShopAiSlotFillingResult> ContinueAsync(ShopAiPendingAction pendingAction, string userMessage, CancellationToken cancellationToken = default)
+    public async Task<ShopAiSlotFillingResult> ContinueAsync(ShopAiPendingAction pendingAction, string userMessage, ShopAiLanguage language, CancellationToken cancellationToken = default)
     {
         var module = _moduleMetadataProvider.GetModule(pendingAction.ModuleKey);
 
@@ -75,7 +81,7 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         }
 
         var collected = DeserializeValues(pendingAction.CollectedValuesJson);
-        var missingBefore = Evaluate(module, collected).MissingRequiredFields;
+        var missingBefore = Evaluate(module, collected, language).MissingRequiredFields;
 
         // Only required fields are ever asked about one at a time (see Evaluate() below), so
         // "skip" never legitimately applies here - this loop only extracts values for fields the
@@ -84,11 +90,11 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         if (!string.IsNullOrWhiteSpace(trimmed) && missingBefore.Count > 0)
         {
             var targetFields = module.Fields.Where(f => missingBefore.Contains(f.FieldKey, StringComparer.OrdinalIgnoreCase)).ToList();
-            var extracted = await ExtractFieldValuesAsync(module, targetFields, trimmed, cancellationToken);
+            var extracted = await _fieldExtractionService.ExtractAsync(module, targetFields, trimmed, cancellationToken);
             MergeProvidedValues(module, collected, extracted);
         }
 
-        var evaluated = Evaluate(module, collected);
+        var evaluated = Evaluate(module, collected, language);
         if (evaluated.IsComplete)
         {
             _pendingActionManager.MarkReadyForConfirmation(pendingAction, _clock.Now.Add(ReadyForConfirmationHoldover));
@@ -116,11 +122,23 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
             if (value.ValueKind == JsonValueKind.Null || value.ValueKind == JsonValueKind.Undefined) continue;
             if (value.ValueKind == JsonValueKind.String && string.IsNullOrWhiteSpace(value.GetString())) continue;
 
+            if (field.DataType == "Boolean")
+            {
+                // Ollama is instructed to emit real JSON true/false, but a small local model
+                // sometimes returns the word instead ("haan", "No") - coerce here so every
+                // downstream consumer (handler DTOs, the preview, CollectedValuesJson) only ever
+                // sees a real boolean, never a string it has to re-interpret itself.
+                var parsed = ShopAiBooleanParser.TryParse(value);
+                if (parsed == null) continue; // Unrecognized boolean phrase - treat as not provided rather than storing garbage.
+                collected[field.FieldKey] = ShopAiBooleanParser.ToJsonElement(parsed.Value);
+                continue;
+            }
+
             collected[field.FieldKey] = value;
         }
     }
 
-    private static ShopAiSlotFillingResult Evaluate(ShopAiModuleMetadata module, Dictionary<string, JsonElement> collected)
+    private static ShopAiSlotFillingResult Evaluate(ShopAiModuleMetadata module, Dictionary<string, JsonElement> collected, ShopAiLanguage language)
     {
         var requiredFields = module.Fields.Where(f => f.IsRequired && !f.IsSystemGenerated && !f.IsCalculated).ToList();
         var missing = requiredFields.Where(f => !collected.ContainsKey(f.FieldKey)).Select(f => f.FieldKey).ToList();
@@ -148,7 +166,7 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         if (missing.Count > 0)
         {
             var nextField = requiredFields.First(f => f.FieldKey == missing[0]);
-            result.NextQuestion = BuildQuestion(nextField);
+            result.NextQuestion = ShopAiPhrases.AskField(language, nextField);
         }
         else
         {
@@ -164,20 +182,6 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         }
 
         return result;
-    }
-
-    private static string BuildQuestion(ShopAiFieldMetadata field)
-    {
-        var example = string.IsNullOrWhiteSpace(field.ExampleValue) ? string.Empty : $" (e.g. {field.ExampleValue})";
-        if (field.AllowedValues.Count > 0)
-        {
-            return $"{field.DisplayName}?{example} Options: {string.Join(", ", field.AllowedValues)}";
-        }
-        if (field.DataType == "Boolean")
-        {
-            return $"{field.DisplayName}? (yes/no){example}";
-        }
-        return $"Please provide {field.DisplayName}{example}.";
     }
 
     private static string DisplayValue(JsonElement value) => value.ValueKind switch
@@ -203,65 +207,4 @@ public class ShopAiSlotFillingService : IShopAiSlotFillingService, ITransientDep
         }
     }
 
-    // ------------------------------------------------------------------
-    // Focused per-turn extraction - deliberately NOT the big command-parsing prompt. Scoping the
-    // system prompt to only the still-missing fields keeps each continuation turn as fast as this
-    // hardware allows and reduces the model's chances of inventing values for fields nobody asked
-    // about yet.
-    // ------------------------------------------------------------------
-
-    private async Task<Dictionary<string, JsonElement>> ExtractFieldValuesAsync(ShopAiModuleMetadata module, List<ShopAiFieldMetadata> targetFields, string userMessage, CancellationToken cancellationToken)
-    {
-        var systemPrompt = BuildExtractionPrompt(module, targetFields);
-        var chatResult = await _ollamaClient.ChatAsync(systemPrompt, userMessage, cancellationToken);
-        if (!chatResult.Success || string.IsNullOrWhiteSpace(chatResult.Content))
-        {
-            return new Dictionary<string, JsonElement>();
-        }
-
-        var jsonText = ExtractJsonObject(chatResult.Content);
-        if (jsonText == null) return new Dictionary<string, JsonElement>();
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                   ?? new Dictionary<string, JsonElement>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, JsonElement>();
-        }
-    }
-
-    private static string BuildExtractionPrompt(ShopAiModuleMetadata module, List<ShopAiFieldMetadata> targetFields)
-    {
-        var fieldDescriptions = string.Join("\n", targetFields.Select(f =>
-        {
-            var type = f.AllowedValues.Count > 0 ? $"one of [{string.Join(", ", f.AllowedValues)}]" : f.DataType;
-            return $"- \"{f.FieldKey}\": {type} - {f.DisplayName}: {f.Description}";
-        }));
-
-        return $$"""
-You are extracting field values for a "{{module.DisplayName}}" record in a Shop Management system, from a short user reply in English, Urdu, or Roman Urdu.
-
-Extract ONLY these fields, using these exact JSON keys:
-{{fieldDescriptions}}
-
-Rules:
-- Only include a field if the user's message actually states a value for it.
-- Never invent a value. If the message does not mention a field, omit that key entirely.
-- Boolean fields must be a real JSON true/false (interpret yes/haan/ha as true, no/nahi as false).
-- Numeric fields must be a real JSON number, not a string.
-- Do not include any field not listed above.
-
-Respond with ONLY a single JSON object of the extracted fields - no markdown, no explanation, no reasoning trace. If nothing can be extracted, respond with {}.
-""";
-    }
-
-    private static string? ExtractJsonObject(string content)
-    {
-        var start = content.IndexOf('{');
-        var end = content.LastIndexOf('}');
-        return start < 0 || end < start ? null : content.Substring(start, end - start + 1);
-    }
 }

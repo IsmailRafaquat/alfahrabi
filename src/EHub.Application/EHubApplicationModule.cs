@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using EHub.ShopManagement.AiAssistant;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
@@ -39,6 +41,20 @@ public class EHubApplicationModule : AbpModule
         Configure<ShopAiSpeechOptions>(configuration.GetSection("ShopAiSpeech"));
 
         ConfigureShopAiHttpClients(context);
+    }
+
+    // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.
+    // Checked at OnApplicationInitialization (after ALL modules' ConfigureServices AND ABP's
+    // conventional assembly-scan registration have completed) so this is the most authoritative
+    // point to confirm whether IShopAiActionHandler implementations actually made it into the
+    // container, independent of anything ShopAiActionHandlerRegistry itself does.
+    public override void OnApplicationInitialization(Volo.Abp.ApplicationInitializationContext context)
+    {
+        var handlers = context.ServiceProvider.GetServices<IShopAiActionHandler>().ToList();
+        var logger = context.ServiceProvider.GetRequiredService<ILogger<EHubApplicationModule>>();
+        logger.LogInformation(
+            "STARTUP CHECK: resolved {Count} IShopAiActionHandler via OnApplicationInitialization: {Types}",
+            handlers.Count, string.Join(",", handlers.Select(h => h.GetType().FullName)));
     }
 
     /// <summary>

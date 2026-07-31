@@ -27,6 +27,7 @@ public interface IShopAiSlotFillingService
     Task<ShopAiSlotFillingResult> ContinueAsync(
         ShopAiPendingAction pendingAction,
         string userMessage,
+        ShopAiLanguage language,
         CancellationToken cancellationToken = default);
 }
 

@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EHub.Permissions;
 using EHub.ShopManagement.Units;
-using Volo.Abp;
 using Volo.Abp.DependencyInjection;
 
 namespace EHub.ShopManagement.AiAssistant.Handlers;
@@ -41,10 +40,17 @@ public class CreateUnitAiHandler : IShopAiActionHandler, ITransientDependency
         var payload = ShopAiPayloadSerializer.Deserialize<CreateUnitAiCommand>(command.Parameters) ?? new CreateUnitAiCommand();
         var name = payload.Name?.Trim();
         var shortName = payload.ShortName?.Trim();
+        var isActive = payload.IsActive ?? true; // Matches CreateUpdateShopUnitDto's own default.
 
+        // By the time a command reaches here it went through ShopAiSlotFillingService's
+        // MergeProvidedValues, which already coerced Yes/No/haan/nahi-style boolean phrases into
+        // real JSON booleans - AllowDecimal being null at this point genuinely means "not provided
+        // yet", not "provided but unparseable".
         var missingFields = new List<string>();
         if (string.IsNullOrWhiteSpace(name)) missingFields.Add("name");
+        else if (name!.Length > ShopUnitConsts.NameMaxLength) missingFields.Add("name");
         if (string.IsNullOrWhiteSpace(shortName)) missingFields.Add("shortName");
+        else if (shortName!.Length > ShopUnitConsts.ShortNameMaxLength) missingFields.Add("shortName");
         if (payload.AllowDecimal == null) missingFields.Add("allowDecimal");
         if (missingFields.Count > 0)
         {
@@ -62,6 +68,7 @@ public class CreateUnitAiHandler : IShopAiActionHandler, ITransientDependency
                 new() { LabelKey = "::Name", Value = name, IsEmpty = false },
                 new() { LabelKey = "::ShortName", Value = shortName, IsEmpty = false },
                 new() { LabelKey = "::AllowDecimalQuantity", Value = (payload.AllowDecimal == true) ? "Yes" : "No", IsEmpty = false },
+                new() { LabelKey = "::Active", Value = isActive ? "Yes" : "No", IsEmpty = false },
             },
         };
     }
@@ -82,25 +89,23 @@ public class CreateUnitAiHandler : IShopAiActionHandler, ITransientDependency
             Name = name,
             ShortName = shortName,
             AllowDecimal = payload.AllowDecimal.Value,
-            IsActive = true,
+            IsActive = payload.IsActive ?? true,
         };
 
-        try
+        // Duplicate-name/short-name and any other business rule violation is thrown by
+        // ShopUnitManager as a BusinessException carrying WithData("Name", ...) - deliberately NOT
+        // caught here so it propagates to ShopAiAssistantAppService.ConfirmActionAsync, the one
+        // place with access to IStringLocalizer to substitute that data into the localized message
+        // (e.g. "A unit named 'Ai' already exists.") before it ever reaches the user.
+        var created = await _unitAppService.CreateAsync(dto);
+        return new ShopAiExecutionResultDto
         {
-            var created = await _unitAppService.CreateAsync(dto);
-            return new ShopAiExecutionResultDto
-            {
-                Success = true,
-                ResultMessage = $"Unit '{created.Name}' ({created.ShortName}) was created.",
-                ResultReferenceType = "ShopUnit",
-                ResultReferenceId = created.Id,
-                ResultData = JsonSerializer.SerializeToElement(new { unitId = created.Id, name = created.Name, shortName = created.ShortName }),
-            };
-        }
-        catch (BusinessException ex)
-        {
-            return new ShopAiExecutionResultDto { Success = false, ErrorCode = ex.Code, ErrorMessage = ex.Code };
-        }
+            Success = true,
+            ResultMessage = ShopAiPhrases.RecordCreatedSuccess(action.Language, "Unit", created.Name),
+            ResultReferenceType = "ShopUnit",
+            ResultReferenceId = created.Id,
+            ResultData = JsonSerializer.SerializeToElement(new { unitId = created.Id, name = created.Name, shortName = created.ShortName }),
+        };
     }
 }
 
@@ -109,4 +114,5 @@ public class CreateUnitAiCommand
     public string? Name { get; set; }
     public string? ShortName { get; set; }
     public bool? AllowDecimal { get; set; }
+    public bool? IsActive { get; set; }
 }

@@ -9,6 +9,7 @@ using EHub.Localization;
 using EHub.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -228,6 +229,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 ConversationId = conversation.Id,
                 MessageId = message.Id,
                 Action = message.DetectedAction.Value,
+                Language = message.DetectedLanguage,
                 PayloadJson = JsonSerializer.SerializeToElement(reconstructed.Parameters),
             };
 
@@ -243,7 +245,10 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
         catch (BusinessException ex)
         {
-            result = new ShopAiExecutionResultDto { Success = false, ErrorCode = ex.Code, ErrorMessage = ex.Code };
+            // ex.Data carries substitution values (e.g. WithData("Name", "Ai")) that a raw ex.Code
+            // string would lose - ShopAiExceptionFormatter resolves the localized template AND
+            // substitutes them here, this is the one place that context is still available.
+            result = new ShopAiExecutionResultDto { Success = false, ErrorCode = ex.Code, ErrorMessage = ShopAiExceptionFormatter.Format(_localizer, ex) };
         }
 
         var now = Clock.Now;
@@ -366,7 +371,9 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             throw new BusinessException("ShopManagement:AiModuleNotFound");
         }
 
-        return Task.FromResult(BuildModuleExplanation(module));
+        // Direct REST call outside a chat conversation - there is no detected message language to
+        // key off, so this always returns the English/default text (GetDescription's fallback).
+        return Task.FromResult(BuildModuleExplanation(module, ShopAiLanguage.Unknown));
     }
 
     // ------------------------------------------------------------------
@@ -530,6 +537,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
         catch (BusinessException ex)
         {
+            var formatted = ShopAiExceptionFormatter.Format(_localizer, ex);
             _messageManager.MarkFailed(assistantMessage, ex.Code, ex.Code ?? "ShopManagement:AiServiceUnavailable");
             await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
             return new ShopAiResponseDto
@@ -539,9 +547,9 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 Status = ShopAiMessageStatus.Failed,
                 Action = command.Action,
                 ResponseType = ShopAiResponseType.Error,
-                AssistantMessage = ex.Code != null ? _localizer[ex.Code].Value : _localizer["ShopManagement:AiServiceUnavailable"].Value,
+                AssistantMessage = formatted,
                 ErrorCode = ex.Code,
-                ErrorMessage = ex.Code,
+                ErrorMessage = formatted,
             };
         }
 
@@ -563,6 +571,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             ConversationId = conversation.Id,
             MessageId = assistantMessage.Id,
             Action = command.Action,
+            Language = command.Language,
             PayloadJson = JsonSerializer.SerializeToElement(command.Parameters),
         };
 
@@ -573,8 +582,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
         catch (BusinessException ex)
         {
-            var errorKey = ex.Code ?? "ShopManagement:AiServiceUnavailable";
-            executionResult = new ShopAiExecutionResultDto { Success = false, ErrorCode = ex.Code, ErrorMessage = errorKey };
+            executionResult = new ShopAiExecutionResultDto { Success = false, ErrorCode = ex.Code, ErrorMessage = ShopAiExceptionFormatter.Format(_localizer, ex) };
         }
 
         var now = Clock.Now;
@@ -596,11 +604,11 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             errorCode: executionResult.ErrorCode, errorMessage: executionResult.ErrorMessage);
         await _auditRepository.InsertAsync(readAudit, autoSave: true);
 
-        // executionResult.ErrorMessage may be a plain English sentence a handler wrote directly
-        // (e.g. GetTodaySalesAiHandler) or a "Module:Code" localization key bubbled up from a
-        // thrown BusinessException (e.g. CreateCustomerAiHandler / the underlying domain manager).
-        // _localizer[...] on a string it doesn't recognize as a key just returns that same string
-        // back, so it is always safe to run both kinds through it.
+        // executionResult.ErrorMessage may already be a fully-formatted, data-substituted string
+        // (from ShopAiExceptionFormatter above) or a plain resource key from a handler that returns
+        // ErrorMessage = "Some:Key" directly (e.g. GetTodaySalesAiHandler's own failure paths).
+        // _localizer[...] on text it doesn't recognize as a key just returns that same text back,
+        // so it is always safe to run both kinds through it.
         var localizedErrorMessage = executionResult.Success || executionResult.ErrorMessage == null
             ? null
             : _localizer[executionResult.ErrorMessage].Value;
@@ -634,8 +642,13 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
 
         await CheckModuleReadPermissionAsync(module);
 
-        var explanation = BuildModuleExplanation(module);
-        var text = FormatModuleExplanationText(explanation);
+        // AssistantMessage is deliberately a SHORT lead-in only - the full field-by-field detail
+        // lives exclusively in the structured Module/Fields DTOs below. Earlier this method dumped
+        // the entire explanation into AssistantMessage too, so the chat bubble's plain text and the
+        // module card rendered the exact same content twice; that duplication is the root cause
+        // this fixes (see the frontend's now-mutually-exclusive card rendering for the other half).
+        var explanation = BuildModuleExplanation(module, command.Language);
+        var text = ShopAiPhrases.ModuleShortIntro(command.Language, module.DisplayName);
 
         _messageManager.MarkParsed(assistantMessage, ShopAiActionType.Unknown, payloadJson, command.Language);
         _messageManager.MarkExecuted(assistantMessage, JsonSerializer.Serialize(new ShopAiExecutionResultDto { Success = true, ResultMessage = text }), Clock.Now);
@@ -688,8 +701,8 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             };
         }
 
-        var dto = ToFieldDto(field);
-        var text = FormatFieldExplanationText(module, field);
+        var dto = ToFieldDto(field, command.Language);
+        var text = ShopAiPhrases.FieldShortIntro(command.Language, field.DisplayName);
 
         _messageManager.MarkParsed(assistantMessage, ShopAiActionType.Unknown, payloadJson, command.Language);
         _messageManager.MarkExecuted(assistantMessage, JsonSerializer.Serialize(new ShopAiExecutionResultDto { Success = true, ResultMessage = text }), Clock.Now);
@@ -733,25 +746,25 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
     }
 
-    private ShopAiModuleExplanationDto BuildModuleExplanation(ShopAiModuleMetadata module) => new()
+    private ShopAiModuleExplanationDto BuildModuleExplanation(ShopAiModuleMetadata module, ShopAiLanguage language) => new()
     {
         ModuleKey = module.ModuleKey,
         DisplayName = module.DisplayName,
-        Description = module.Description,
+        Description = module.GetDescription(language),
         SupportsCreation = module.SupportsCreation,
         CreatesDraftOnly = module.CreatesDraftOnly,
-        RequiredFields = module.Fields.Where(f => f.IsRequired && !f.IsSystemGenerated).Select(ToFieldDto).ToList(),
-        OptionalFields = module.Fields.Where(f => !f.IsRequired && !f.IsSystemGenerated && !f.IsCalculated).Select(ToFieldDto).ToList(),
-        SystemGeneratedFields = module.Fields.Where(f => f.IsSystemGenerated || f.IsCalculated).Select(ToFieldDto).ToList(),
+        RequiredFields = module.Fields.Where(f => f.IsRequired && !f.IsSystemGenerated).Select(f => ToFieldDto(f, language)).ToList(),
+        OptionalFields = module.Fields.Where(f => !f.IsRequired && !f.IsSystemGenerated && !f.IsCalculated).Select(f => ToFieldDto(f, language)).ToList(),
+        SystemGeneratedFields = module.Fields.Where(f => f.IsSystemGenerated || f.IsCalculated).Select(f => ToFieldDto(f, language)).ToList(),
         BusinessRules = module.BusinessRules,
         RelatedModules = module.RelatedModules,
     };
 
-    private static ShopAiFieldDescriptionDto ToFieldDto(ShopAiFieldMetadata field) => new()
+    private static ShopAiFieldDescriptionDto ToFieldDto(ShopAiFieldMetadata field, ShopAiLanguage language) => new()
     {
         FieldKey = field.FieldKey,
         DisplayName = field.DisplayName,
-        Description = field.Description,
+        Description = field.GetDescription(language),
         DataType = field.DataType,
         IsRequired = field.IsRequired,
         IsLookup = field.IsLookup,
@@ -759,39 +772,6 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         ExampleValue = field.ExampleValue,
         AllowedValues = field.AllowedValues,
     };
-
-    private static string FormatModuleExplanationText(ShopAiModuleExplanationDto module)
-    {
-        var lines = new List<string> { module.Description, string.Empty, "Required fields:" };
-        lines.AddRange(module.RequiredFields.Select(f => $"- {f.DisplayName}"));
-        if (module.OptionalFields.Count > 0)
-        {
-            lines.Add(string.Empty);
-            lines.Add("Optional fields:");
-            lines.AddRange(module.OptionalFields.Select(f => $"- {f.DisplayName}"));
-        }
-        if (module.SupportsCreation)
-        {
-            lines.Add(string.Empty);
-            lines.Add(module.CreatesDraftOnly
-                ? "The AI Assistant can create this as a Draft only - it will not post/finalize it."
-                : "The AI Assistant can create this for you after you confirm the details.");
-        }
-        else
-        {
-            lines.Add(string.Empty);
-            lines.Add("The AI Assistant can explain this module but cannot create this record yet - please use the normal screen.");
-        }
-        return string.Join("\n", lines);
-    }
-
-    private static string FormatFieldExplanationText(ShopAiModuleMetadata module, ShopAiFieldMetadata field)
-    {
-        var requiredText = field.IsRequired ? "Required" : "Optional";
-        var example = string.IsNullOrWhiteSpace(field.ExampleValue) ? string.Empty : $" Example: {field.ExampleValue}.";
-        var allowed = field.AllowedValues.Count > 0 ? $" Allowed values: {string.Join(", ", field.AllowedValues)}." : string.Empty;
-        return $"{field.DisplayName} ({module.DisplayName}) - {requiredText}. {field.Description}{example}{allowed}";
-    }
 
     // ------------------------------------------------------------------
     // Guided creation (StartRecordCreation / continuation)
@@ -806,6 +786,8 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
 
         if (!_handlerRegistry.TryGetHandler(module.CreateAction, out _))
         {
+            // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.
+            Logger.LogWarning("StartGuidedCreationInternalAsync: no handler registered for {CreateAction} (module {ModuleKey}) - falling back to ExplainModule", module.CreateAction, module.ModuleKey);
             // Metadata says creation is supported in principle, but no handler is wired up for it
             // yet in this deployment - explain the module instead of silently failing.
             var explainInstead = new ShopAiParsedCommand
@@ -838,11 +820,16 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
     private async Task<ShopAiResponseDto> ContinuePendingActionAsync(ShopAiConversation conversation, Guid userId, ShopAiPendingAction pendingAction, string text)
     {
         var module = _moduleMetadataProvider.GetModule(pendingAction.ModuleKey);
+        // Continuation turns skip full command parsing for speed (see ShopAiSlotFillingService),
+        // so there is no fresh per-turn language detection - fall back to the conversation's last
+        // detected language (kept current by TouchLastMessage on every turn) so the next question
+        // still comes back in the language the user has been using.
+        var language = conversation.DetectedLanguage;
 
         var assistantMessage = _messageManager.Create(conversation, userId, ShopAiMessageRole.Assistant, "…", originalTranscription: null, ShopAiLanguage.Unknown);
         await _messageRepository.InsertAsync(assistantMessage, autoSave: true);
 
-        var result = await _slotFillingService.ContinueAsync(pendingAction, text);
+        var result = await _slotFillingService.ContinueAsync(pendingAction, text, language);
 
         if (result.IsExpired)
         {
@@ -855,13 +842,14 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 Status = ShopAiMessageStatus.Failed,
                 ResponseType = ShopAiResponseType.Error,
                 ModuleKey = module.ModuleKey,
+                DetectedLanguage = language,
                 AssistantMessage = _localizer["ShopManagement:AiPendingActionNotFound"],
                 ErrorCode = "AiPendingActionNotFound",
                 ErrorMessage = _localizer["ShopManagement:AiPendingActionNotFound"],
             };
         }
 
-        return await HandleSlotFillingResultAsync(conversation, userId, assistantMessage, module, ShopAiLanguage.Unknown, result);
+        return await HandleSlotFillingResultAsync(conversation, userId, assistantMessage, module, language, result);
     }
 
     private async Task<ShopAiResponseDto> HandleSlotFillingResultAsync(ShopAiConversation conversation, Guid userId, ShopAiMessage assistantMessage, ShopAiModuleMetadata module, ShopAiLanguage language, ShopAiSlotFillingResult result)
@@ -943,6 +931,7 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
         }
         catch (BusinessException ex)
         {
+            var formatted = ShopAiExceptionFormatter.Format(_localizer, ex);
             _messageManager.MarkFailed(assistantMessage, ex.Code, ex.Code ?? "ShopManagement:AiServiceUnavailable");
             await _messageRepository.UpdateAsync(assistantMessage, autoSave: true);
             return new ShopAiResponseDto
@@ -953,9 +942,9 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
                 Action = module.CreateAction,
                 ResponseType = ShopAiResponseType.Error,
                 ModuleKey = module.ModuleKey,
-                AssistantMessage = ex.Code != null ? _localizer[ex.Code].Value : _localizer["ShopManagement:AiServiceUnavailable"].Value,
+                AssistantMessage = formatted,
                 ErrorCode = ex.Code,
-                ErrorMessage = ex.Code,
+                ErrorMessage = formatted,
             };
         }
 

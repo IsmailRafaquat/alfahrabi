@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHub.Permissions;
+using EHub.ShopManagement.Units;
 using Volo.Abp.DependencyInjection;
 
 namespace EHub.ShopManagement.AiAssistant;
@@ -56,6 +57,32 @@ public class ShopAiModuleMetadataProvider : IShopAiModuleMetadataProvider, ISing
         return _byAlias.TryGetValue(moduleNameOrAlias.Trim(), out metadata);
     }
 
+    public bool TryFindModuleInText(string text, out ShopAiModuleMetadata? metadata)
+    {
+        metadata = null;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        ShopAiModuleMetadata? best = null;
+        var bestLength = 0;
+        foreach (var module in _modules)
+        {
+            foreach (var candidate in new[] { module.ModuleKey, module.DisplayName }.Concat(module.Aliases))
+            {
+                // Skip very short tokens (e.g. "po") - they match too much unrelated text to be a
+                // reliable signal on their own.
+                if (string.IsNullOrWhiteSpace(candidate) || candidate.Length < 3) continue;
+                if (candidate.Length > bestLength && text.Contains(candidate, StringComparison.OrdinalIgnoreCase))
+                {
+                    best = module;
+                    bestLength = candidate.Length;
+                }
+            }
+        }
+
+        metadata = best;
+        return best != null;
+    }
+
     // ------------------------------------------------------------------
     // Field helpers
     // ------------------------------------------------------------------
@@ -64,11 +91,18 @@ public class ShopAiModuleMetadataProvider : IShopAiModuleMetadataProvider, ISing
         string key, string display, string description, string dataType, bool required,
         string? example = null, bool isLookup = false, string? lookupModule = null,
         bool isSystemGenerated = false, bool isCalculated = false, decimal? min = null, decimal? max = null,
-        int? maxLength = null, List<string>? allowedValues = null, List<string>? aliases = null) => new()
+        int? maxLength = null, List<string>? allowedValues = null, List<string>? aliases = null,
+        string? descriptionUrdu = null, string? descriptionRomanUrdu = null,
+        string? askPromptEnglish = null, string? askPromptUrdu = null, string? askPromptRomanUrdu = null) => new()
     {
         FieldKey = key,
         DisplayName = display,
         Description = description,
+        DescriptionUrdu = descriptionUrdu,
+        DescriptionRomanUrdu = descriptionRomanUrdu,
+        AskPromptEnglish = askPromptEnglish,
+        AskPromptUrdu = askPromptUrdu,
+        AskPromptRomanUrdu = askPromptRomanUrdu,
         DataType = dataType,
         IsRequired = required,
         IsLookup = isLookup,
@@ -123,12 +157,16 @@ public class ShopAiModuleMetadataProvider : IShopAiModuleMetadataProvider, ISing
             RelatedModules = new() { "product" },
         });
 
-        // Mirrors CreateUpdateShopUnitDto exactly - no Description field exists on this DTO.
+        // Mirrors CreateUpdateShopUnitDto exactly - no Description field exists on this DTO. Max
+        // lengths (64/16) come from ShopUnitConsts, the same constants ShopUnitManager validates
+        // against - kept in sync deliberately rather than duplicated as magic numbers.
         modules.Add(new ShopAiModuleMetadata
         {
             ModuleKey = "unit",
             DisplayName = "Unit",
-            Description = "A Unit defines how a product's quantity is measured, such as Piece, Meter, Kilogram, Liter, Box, or Pack.",
+            Description = "A Unit defines how a product quantity is measured, such as Piece, Meter, Kilogram, Liter, Box, or Pack.",
+            DescriptionUrdu = "یونٹ اس بات کی وضاحت کرتا ہے کہ کسی پروڈکٹ کی مقدار کس پیمانے میں ریکارڈ کی جائے گی، جیسے عدد، میٹر، کلوگرام، لیٹر، ڈبہ یا پیک۔",
+            DescriptionRomanUrdu = "Unit yeh define karti hai ke product ki quantity kis measurement mein record hogi, jaise Piece, Meter, Kilogram, Liter, Box ya Pack.",
             CreateAction = ShopAiActionType.CreateUnit,
             RequiredPermission = EHubPermissions.ShopAiAssistant.CreateUnit,
             ExistingCreatePermission = EHubPermissions.ShopUnits.Create,
@@ -137,10 +175,30 @@ public class ShopAiModuleMetadataProvider : IShopAiModuleMetadataProvider, ISing
             Aliases = new() { "unit", "units", "measurement unit", "shop unit", "اکائی", "پیمائش", "unit add", "unit banana" },
             Fields = new()
             {
-                Field("name", "Name", "The unit's full name.", "String", true, "Piece", maxLength: 100),
-                Field("shortName", "Short Name", "A short abbreviation shown throughout the app.", "String", true, "Pc", maxLength: 20),
-                Field("allowDecimal", "Allow Decimal Quantity", "Whether products in this unit can be sold/stocked in fractional amounts (e.g. 1.5).", "Boolean", true, "No"),
-                Field("isActive", "Active", "Whether the unit is selectable for new products. Defaults to yes.", "Boolean", false, "Yes"),
+                Field("name", "Name", "The unit's full name.", "String", true, "Piece", maxLength: ShopUnitConsts.NameMaxLength,
+                    descriptionUrdu: "یونٹ کا مکمل نام، جیسے عدد، کلوگرام یا میٹر۔",
+                    descriptionRomanUrdu: "Unit ka complete naam, jaise Piece, Kilogram ya Meter.",
+                    askPromptEnglish: "What should the Unit's Name be? (e.g. Piece)",
+                    askPromptUrdu: "یونٹ کا نام بتائیں۔",
+                    askPromptRomanUrdu: "Unit Name bata dein."),
+                Field("shortName", "Short Name", "A short abbreviation shown throughout the app.", "String", true, "Pc", maxLength: ShopUnitConsts.ShortNameMaxLength,
+                    descriptionUrdu: "انوائس اور فہرستوں میں دکھایا جانے والا مختصر نام۔",
+                    descriptionRomanUrdu: "Invoice aur grids mein show hone wala short naam.",
+                    askPromptEnglish: "What should the Short Name be? (e.g. Pc)",
+                    askPromptUrdu: "مختصر نام بتائیں۔",
+                    askPromptRomanUrdu: "Short Name bata dein."),
+                Field("allowDecimal", "Allow Decimal Quantity", "Whether products in this unit can be sold/stocked in fractional amounts (e.g. 1.5).", "Boolean", true, "No",
+                    descriptionUrdu: "اگر ہاں ہو تو 1.5، 2.25 جیسی مقدار قابلِ قبول ہوگی۔ اگر نہیں ہو تو صرف 1، 2، 3 جیسی مکمل مقدار قابلِ قبول ہوگی۔",
+                    descriptionRomanUrdu: "Agar Yes ho to 1.5, 2.25 jaisi quantity allowed hogi. Agar No ho to sirf 1, 2, 3 jaisi whole quantity allowed hogi. Misalen: Piece -> No, Box -> No, Kilogram -> Yes, Meter -> Yes, Liter -> Yes.",
+                    askPromptEnglish: "Should decimal quantity be allowed? (Yes/No)",
+                    askPromptUrdu: "کیا اعشاریہ مقدار کی اجازت ہو؟ (ہاں/نہیں)",
+                    askPromptRomanUrdu: "Kya decimal quantity allow karni hai? (Yes/No)"),
+                Field("isActive", "Active", "Whether the unit is selectable for new products. Defaults to yes.", "Boolean", false, "Yes",
+                    descriptionUrdu: "فعال یونٹ نئے پراڈکٹس میں منتخب کی جا سکتی ہے۔ غیر فعال یونٹ نئے پراڈکٹس میں منتخب نہیں ہونی چاہیے۔",
+                    descriptionRomanUrdu: "Active Unit products mein select ki ja sakti hai. Inactive Unit new products mein select nahi honi chahiye.",
+                    askPromptEnglish: "Should the Unit be Active? (Yes/No) Default: Yes",
+                    askPromptUrdu: "کیا یونٹ فعال رکھنی ہے؟ (ہاں/نہیں) ڈیفالٹ: ہاں",
+                    askPromptRomanUrdu: "Kya Unit Active rakhni hai? (Yes/No) Default: Yes"),
             },
             BusinessRules = new()
             {

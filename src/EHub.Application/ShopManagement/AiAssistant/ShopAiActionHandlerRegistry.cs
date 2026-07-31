@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Volo.Abp.DependencyInjection;
 
 namespace EHub.ShopManagement.AiAssistant;
@@ -10,6 +11,9 @@ public interface IShopAiActionHandlerRegistry
 
     /// <summary>Action names Ollama is allowed to return - used to build the system prompt allowlist and to reject anything else.</summary>
     IReadOnlyCollection<string> GetAllowedActionNames();
+
+    /// <summary>The subset of GetAllowedActionNames() that are read-only (IsWriteAction == false) - the only actions the command parser's prompt should ever offer under intent ReadBusinessData. Writes always go through intent StartRecordCreation + moduleKey instead, so a single action name is never ambiguous between the two intents.</summary>
+    IReadOnlyCollection<string> GetReadActionNames();
 }
 
 /// <summary>
@@ -22,9 +26,11 @@ public class ShopAiActionHandlerRegistry : IShopAiActionHandlerRegistry, ITransi
 {
     private readonly Dictionary<ShopAiActionType, IShopAiActionHandler> _handlers;
 
-    public ShopAiActionHandlerRegistry(IEnumerable<IShopAiActionHandler> handlers)
+    public ShopAiActionHandlerRegistry(IEnumerable<IShopAiActionHandler> handlers, ILogger<ShopAiActionHandlerRegistry> logger)
     {
         _handlers = handlers.ToDictionary(h => h.ActionType);
+        // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.
+        logger.LogInformation("ShopAiActionHandlerRegistry resolved {Count} handlers: {ActionTypes}", _handlers.Count, string.Join(",", _handlers.Keys));
     }
 
     public bool TryGetHandler(ShopAiActionType action, out IShopAiActionHandler? handler) =>
@@ -32,4 +38,7 @@ public class ShopAiActionHandlerRegistry : IShopAiActionHandlerRegistry, ITransi
 
     public IReadOnlyCollection<string> GetAllowedActionNames() =>
         _handlers.Keys.Select(k => k.ToString()).ToList();
+
+    public IReadOnlyCollection<string> GetReadActionNames() =>
+        _handlers.Values.Where(h => !h.IsWriteAction).Select(h => h.ActionType.ToString()).ToList();
 }

@@ -42,6 +42,9 @@ interface ChatDisplayMessage {
   guidedCreationProgress?: ShopAiGuidedCreationProgressDto;
 }
 
+/** Exactly one of these renders per assistant bubble - see ShopAiAssistantComponent.cardKind(). */
+type AiCardKind = 'guided' | 'preview' | 'module' | 'field' | 'ambiguous' | 'missing' | 'result' | 'none';
+
 @Component({
   selector: 'app-shop-ai-assistant',
   standalone: false,
@@ -206,6 +209,13 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
   }
 
   private appendAssistantResponse(response: ShopAiResponseDto): void {
+    // Each server turn produces exactly one assistant message - if this exact messageId is
+    // already in the list (e.g. a retried/duplicated HTTP response, or a subscription firing
+    // more than once), skip it instead of rendering the same reply twice.
+    if (response.messageId && this.messages.some(x => x.id === response.messageId)) {
+      return;
+    }
+
     this.messages.push({
       id: response.messageId,
       role: 'assistant',
@@ -224,6 +234,22 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
       guidedCreationProgress: response.guidedCreationProgress,
     });
     this.scrollToBottom();
+  }
+
+  /**
+   * The single source of truth for which structured card (if any) a bubble renders - the template
+   * switches on this instead of stacking several independent *ngIf blocks, which is what let the
+   * same content render twice (e.g. a full module explanation as both plain text and a card).
+   */
+  cardKind(msg: ChatDisplayMessage): AiCardKind {
+    if (msg.guidedCreationProgress) return 'guided';
+    if (msg.status === ShopAiMessageStatus.AwaitingConfirmation && msg.preview) return 'preview';
+    if (msg.responseType === ShopAiResponseType.ModuleExplanation || msg.responseType === ShopAiResponseType.FieldList) return 'module';
+    if (msg.responseType === ShopAiResponseType.FieldExplanation && msg.fields?.length) return 'field';
+    if (msg.ambiguousLookups?.length) return 'ambiguous';
+    if (msg.status === ShopAiMessageStatus.MissingInformation) return 'missing';
+    if (msg.executionResult) return 'result';
+    return 'none';
   }
 
   // ------------------------------------------------------------------

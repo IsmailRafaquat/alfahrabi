@@ -14,6 +14,10 @@ public class ShopAiModuleMetadata
     public string DisplayName { get; set; } = default!;
     public string Description { get; set; } = default!;
 
+    /// <summary>Optional Urdu-script / Roman Urdu translations of Description. Null means "not translated yet" - callers fall back to Description (English) via GetDescription.</summary>
+    public string? DescriptionUrdu { get; set; }
+    public string? DescriptionRomanUrdu { get; set; }
+
     public ShopAiActionType CreateAction { get; set; }
     public string RequiredPermission { get; set; } = default!;
     public string ExistingCreatePermission { get; set; } = default!;
@@ -26,6 +30,13 @@ public class ShopAiModuleMetadata
     public List<ShopAiFieldMetadata> Fields { get; set; } = new();
     public List<string> BusinessRules { get; set; } = new();
     public List<string> RelatedModules { get; set; } = new();
+
+    public string GetDescription(ShopAiLanguage language) => language switch
+    {
+        ShopAiLanguage.Urdu when !string.IsNullOrWhiteSpace(DescriptionUrdu) => DescriptionUrdu!,
+        ShopAiLanguage.RomanUrdu when !string.IsNullOrWhiteSpace(DescriptionRomanUrdu) => DescriptionRomanUrdu!,
+        _ => Description,
+    };
 }
 
 public class ShopAiFieldMetadata
@@ -34,6 +45,15 @@ public class ShopAiFieldMetadata
     public string DisplayName { get; set; } = default!;
     public string Description { get; set; } = default!;
     public string DataType { get; set; } = default!;
+
+    /// <summary>Optional Urdu-script / Roman Urdu translations of Description. Null means "not translated yet" - callers fall back to Description (English) via GetDescription.</summary>
+    public string? DescriptionUrdu { get; set; }
+    public string? DescriptionRomanUrdu { get; set; }
+
+    /// <summary>Optional full override for the slot-filling "please provide this field" question, per language. Null means "use the generic auto-built question" (see ShopAiPhrases).</summary>
+    public string? AskPromptEnglish { get; set; }
+    public string? AskPromptUrdu { get; set; }
+    public string? AskPromptRomanUrdu { get; set; }
 
     public bool IsRequired { get; set; }
     public bool IsLookup { get; set; }
@@ -48,4 +68,18 @@ public class ShopAiFieldMetadata
     public int? MaximumLength { get; set; }
     public List<string> AllowedValues { get; set; } = new();
     public List<string> Aliases { get; set; } = new();
+
+    public string GetDescription(ShopAiLanguage language) => language switch
+    {
+        ShopAiLanguage.Urdu when !string.IsNullOrWhiteSpace(DescriptionUrdu) => DescriptionUrdu!,
+        ShopAiLanguage.RomanUrdu when !string.IsNullOrWhiteSpace(DescriptionRomanUrdu) => DescriptionRomanUrdu!,
+        _ => Description,
+    };
+
+    public string? GetAskPrompt(ShopAiLanguage language) => language switch
+    {
+        ShopAiLanguage.Urdu => AskPromptUrdu ?? AskPromptEnglish,
+        ShopAiLanguage.RomanUrdu => AskPromptRomanUrdu ?? AskPromptEnglish,
+        _ => AskPromptEnglish,
+    };
 }

@@ -55,108 +55,115 @@
           <div class="chat-bubble" [class.bubble-user]="msg.role === 'user'" [class.bubble-error]="msg.isError">
             <div class="bubble-text" *ngIf="msg.text">{{ msg.text }}</div>
 
-            <!-- Guided creation progress (multi-turn slot filling) -->
-            <div class="info-card guided-card" *ngIf="msg.guidedCreationProgress">
-              <div class="info-card-title"><i class="fas fa-list-check me-2"></i>{{ msg.guidedCreationProgress.moduleDisplayName }}</div>
-              <div class="guided-progress-bar">
-                <div class="guided-progress-fill" [style.width.%]="(msg.guidedCreationProgress.completedRequiredFieldCount / msg.guidedCreationProgress.requiredFieldCount) * 100"></div>
-              </div>
-              <div class="guided-progress-label">{{ msg.guidedCreationProgress.completedRequiredFieldCount }} / {{ msg.guidedCreationProgress.requiredFieldCount }} {{ '::AiAssistant.RequiredFieldsCollected' | abpLocalization }}</div>
-              <div class="guided-field-row" *ngFor="let f of msg.guidedCreationProgress.collectedFields" [class.guided-field-empty]="f.isEmpty">
-                <i class="fas" [class.fa-circle-check]="!f.isEmpty" [class.fa-circle]="f.isEmpty"></i>
-                <span class="field-label">{{ f.labelKey | abpLocalization }}</span>
-                <span class="field-value" *ngIf="!f.isEmpty">{{ f.value }}</span>
-              </div>
-            </div>
+            <!-- Exactly one card renders per bubble - cardKind() is the single place that decides
+                 which, so a short lead-in in msg.text is never followed by a card repeating the
+                 same content in a different shape. -->
+            <ng-container [ngSwitch]="cardKind(msg)">
 
-            <!-- Missing information (not part of a guided creation) -->
-            <div class="info-card missing-card" *ngIf="msg.status === ShopAiMessageStatus.MissingInformation && !msg.ambiguousLookups?.length && !msg.guidedCreationProgress">
-              <div class="info-card-title"><i class="fas fa-circle-question me-2"></i>{{ '::AiAssistant.MissingInformation' | abpLocalization }}</div>
-              <ul class="missing-fields" *ngIf="msg.missingFields?.length">
-                <li *ngFor="let f of msg.missingFields">{{ f }}</li>
-              </ul>
-            </div>
-
-            <!-- Module explanation / field list -->
-            <div class="info-card module-card" *ngIf="msg.module">
-              <div class="info-card-title"><i class="fas fa-cube me-2"></i>{{ msg.module.displayName }}</div>
-              <div class="module-description">{{ msg.module.description }}</div>
-
-              <div class="module-fields-block" *ngIf="msg.module.requiredFields?.length">
-                <div class="module-fields-title">{{ '::AiAssistant.RequiredFields' | abpLocalization }}</div>
-                <div class="module-field-row" *ngFor="let f of msg.module.requiredFields">
-                  <span class="field-label">{{ f.displayName }}</span>
-                  <span class="field-hint" *ngIf="f.exampleValue">{{ '::AiAssistant.ExampleValue' | abpLocalization }}: {{ f.exampleValue }}</span>
+              <!-- Guided creation progress (multi-turn slot filling) -->
+              <div class="info-card guided-card" *ngSwitchCase="'guided'">
+                <div class="info-card-title"><i class="fas fa-list-check me-2"></i>{{ msg.guidedCreationProgress!.moduleDisplayName }}</div>
+                <div class="guided-progress-bar">
+                  <div class="guided-progress-fill" [style.width.%]="(msg.guidedCreationProgress!.completedRequiredFieldCount / msg.guidedCreationProgress!.requiredFieldCount) * 100"></div>
+                </div>
+                <div class="guided-progress-label">{{ msg.guidedCreationProgress!.completedRequiredFieldCount }} / {{ msg.guidedCreationProgress!.requiredFieldCount }} {{ '::AiAssistant.RequiredFieldsCollected' | abpLocalization }}</div>
+                <div class="guided-field-row" *ngFor="let f of msg.guidedCreationProgress!.collectedFields" [class.guided-field-empty]="f.isEmpty">
+                  <i class="fas" [class.fa-circle-check]="!f.isEmpty" [class.fa-circle]="f.isEmpty"></i>
+                  <span class="field-label">{{ f.labelKey | abpLocalization }}</span>
+                  <span class="field-value" *ngIf="!f.isEmpty">{{ f.value }}</span>
                 </div>
               </div>
 
-              <div class="module-fields-block" *ngIf="msg.module.optionalFields?.length">
-                <div class="module-fields-title">{{ '::AiAssistant.OptionalFields' | abpLocalization }}</div>
-                <div class="module-field-row" *ngFor="let f of msg.module.optionalFields">
-                  <span class="field-label">{{ f.displayName }}</span>
+              <!-- Action preview / confirmation card -->
+              <div class="info-card preview-card" *ngSwitchCase="'preview'">
+                <div class="info-card-title">{{ msg.preview!.actionDisplayNameKey | abpLocalization }}</div>
+
+                <div class="preview-field" *ngFor="let field of msg.preview!.fields">
+                  <span class="field-label">{{ field.labelKey | abpLocalization }}</span>
+                  <span class="field-value" [class.field-empty]="field.isEmpty">{{ field.isEmpty ? ('::AiAssistant.NotProvided' | abpLocalization) : field.value }}</span>
+                </div>
+
+                <div class="preview-warnings" *ngIf="msg.preview!.warnings?.length">
+                  <div class="preview-warning" *ngFor="let w of msg.preview!.warnings"><i class="fas fa-triangle-exclamation me-2"></i>{{ w }}</div>
+                </div>
+
+                <div class="preview-note" *ngIf="msg.preview!.noteKey">{{ msg.preview!.noteKey | abpLocalization }}</div>
+
+                <div class="preview-actions">
+                  <button type="button" class="btn btn-primary btn-sm" [disabled]="msg.confirmBusy" (click)="confirmAction(msg)">
+                    <span *ngIf="msg.confirmBusy" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ '::AiAssistant.ConfirmAndCreate' | abpLocalization }}
+                  </button>
+                  <button type="button" class="btn btn-light btn-sm" [disabled]="msg.confirmBusy" (click)="cancelActionOnMessage(msg)">
+                    {{ '::AiAssistant.Cancel' | abpLocalization }}
+                  </button>
                 </div>
               </div>
 
-              <ul class="module-business-rules" *ngIf="msg.module.businessRules?.length">
-                <li *ngFor="let rule of msg.module.businessRules">{{ rule }}</li>
-              </ul>
+              <!-- Module explanation / field list -->
+              <div class="info-card module-card" *ngSwitchCase="'module'">
+                <div class="info-card-title"><i class="fas fa-cube me-2"></i>{{ msg.module!.displayName }}</div>
+                <div class="module-description">{{ msg.module!.description }}</div>
 
-              <button type="button" class="btn btn-primary btn-sm module-start-btn" *ngIf="msg.module.supportsCreation" (click)="startCreating(msg.module)">
-                <i class="fas fa-plus me-2"></i>{{ '::AiAssistant.StartCreating' | abpLocalization }}
-              </button>
-            </div>
+                <div class="module-fields-block" *ngIf="msg.module!.requiredFields?.length">
+                  <div class="module-fields-title">{{ '::AiAssistant.RequiredFields' | abpLocalization }}</div>
+                  <div class="module-field-row" *ngFor="let f of msg.module!.requiredFields">
+                    <span class="field-label">{{ f.displayName }}</span>
+                    <span class="field-hint" *ngIf="f.exampleValue">{{ '::AiAssistant.ExampleValue' | abpLocalization }}: {{ f.exampleValue }}</span>
+                  </div>
+                </div>
 
-            <!-- Single field explanation -->
-            <div class="info-card field-card" *ngIf="msg.responseType === ShopAiResponseType.FieldExplanation && msg.fields?.length">
-              <div class="info-card-title"><i class="fas fa-circle-info me-2"></i>{{ msg.fields[0].displayName }}</div>
-              <div class="field-hint" *ngIf="msg.fields[0].exampleValue">{{ '::AiAssistant.ExampleValue' | abpLocalization }}: {{ msg.fields[0].exampleValue }}</div>
-              <div class="field-hint" *ngIf="msg.fields[0].allowedValues?.length">{{ '::AiAssistant.AllowedValues' | abpLocalization }}: {{ msg.fields[0].allowedValues.join(', ') }}</div>
-            </div>
+                <div class="module-fields-block" *ngIf="msg.module!.optionalFields?.length">
+                  <div class="module-fields-title">{{ '::AiAssistant.OptionalFields' | abpLocalization }}</div>
+                  <div class="module-field-row" *ngFor="let f of msg.module!.optionalFields">
+                    <span class="field-label">{{ f.displayName }}</span>
+                  </div>
+                </div>
 
-            <!-- Ambiguous match -->
-            <div class="info-card ambiguous-card" *ngIf="msg.ambiguousLookups?.length">
-              <div class="info-card-title"><i class="fas fa-list-check me-2"></i>{{ '::AiAssistant.AmbiguousMatch' | abpLocalization }}</div>
-              <div *ngFor="let lookup of msg.ambiguousLookups" class="lookup-block">
-                <div class="lookup-query">"{{ lookup.query }}" - {{ '::AiAssistant.SelectOne' | abpLocalization }}</div>
-                <div class="lookup-choice" *ngFor="let choice of lookup.choices">{{ choice.displayText }}</div>
-              </div>
-            </div>
+                <ul class="module-business-rules" *ngIf="msg.module!.businessRules?.length">
+                  <li *ngFor="let rule of msg.module!.businessRules">{{ rule }}</li>
+                </ul>
 
-            <!-- Action preview / confirmation card -->
-            <div class="info-card preview-card" *ngIf="msg.preview">
-              <div class="info-card-title">{{ msg.preview.actionDisplayNameKey | abpLocalization }}</div>
-
-              <div class="preview-field" *ngFor="let field of msg.preview.fields">
-                <span class="field-label">{{ field.labelKey | abpLocalization }}</span>
-                <span class="field-value" [class.field-empty]="field.isEmpty">{{ field.isEmpty ? ('::AiAssistant.NotProvided' | abpLocalization) : field.value }}</span>
-              </div>
-
-              <div class="preview-warnings" *ngIf="msg.preview.warnings?.length">
-                <div class="preview-warning" *ngFor="let w of msg.preview.warnings"><i class="fas fa-triangle-exclamation me-2"></i>{{ w }}</div>
-              </div>
-
-              <div class="preview-note" *ngIf="msg.preview.noteKey">{{ msg.preview.noteKey | abpLocalization }}</div>
-
-              <div class="preview-actions" *ngIf="msg.status === ShopAiMessageStatus.AwaitingConfirmation">
-                <button type="button" class="btn btn-primary btn-sm" [disabled]="msg.confirmBusy" (click)="confirmAction(msg)">
-                  <span *ngIf="msg.confirmBusy" class="spinner-border spinner-border-sm me-2"></span>
-                  {{ '::AiAssistant.ConfirmAndCreate' | abpLocalization }}
-                </button>
-                <button type="button" class="btn btn-light btn-sm" [disabled]="msg.confirmBusy" (click)="cancelActionOnMessage(msg)">
-                  {{ '::AiAssistant.Cancel' | abpLocalization }}
+                <button type="button" class="btn btn-primary btn-sm module-start-btn" *ngIf="msg.module!.supportsCreation" (click)="startCreating(msg.module!)">
+                  <i class="fas fa-plus me-2"></i>{{ '::AiAssistant.StartCreating' | abpLocalization }}
                 </button>
               </div>
-            </div>
 
-            <!-- Execution result -->
-            <div class="info-card result-card" [class.result-card-error]="msg.executionResult && !msg.executionResult.success" *ngIf="msg.executionResult">
-              <div class="info-card-title">
-                <i class="fas" [class.fa-circle-check]="msg.executionResult.success" [class.fa-circle-xmark]="!msg.executionResult.success"></i>
-                {{ (msg.executionResult.success ? '::AiAssistant.ActionExecuted' : '::AiAssistant.ActionFailed') | abpLocalization }}
+              <!-- Single field explanation -->
+              <div class="info-card field-card" *ngSwitchCase="'field'">
+                <div class="info-card-title"><i class="fas fa-circle-info me-2"></i>{{ msg.fields![0].displayName }}</div>
+                <div class="field-hint" *ngIf="msg.fields![0].exampleValue">{{ '::AiAssistant.ExampleValue' | abpLocalization }}: {{ msg.fields![0].exampleValue }}</div>
+                <div class="field-hint" *ngIf="msg.fields![0].allowedValues?.length">{{ '::AiAssistant.AllowedValues' | abpLocalization }}: {{ msg.fields![0].allowedValues.join(', ') }}</div>
               </div>
-              <div class="result-message" *ngIf="msg.executionResult.resultMessage">{{ msg.executionResult.resultMessage }}</div>
-              <div class="result-message" *ngIf="!msg.executionResult.success && msg.executionResult.errorMessage">{{ msg.executionResult.errorMessage | abpLocalization }}</div>
-            </div>
+
+              <!-- Ambiguous match -->
+              <div class="info-card ambiguous-card" *ngSwitchCase="'ambiguous'">
+                <div class="info-card-title"><i class="fas fa-list-check me-2"></i>{{ '::AiAssistant.AmbiguousMatch' | abpLocalization }}</div>
+                <div *ngFor="let lookup of msg.ambiguousLookups" class="lookup-block">
+                  <div class="lookup-query">"{{ lookup.query }}" - {{ '::AiAssistant.SelectOne' | abpLocalization }}</div>
+                  <div class="lookup-choice" *ngFor="let choice of lookup.choices">{{ choice.displayText }}</div>
+                </div>
+              </div>
+
+              <!-- Missing information (not part of a guided creation) -->
+              <div class="info-card missing-card" *ngSwitchCase="'missing'">
+                <div class="info-card-title"><i class="fas fa-circle-question me-2"></i>{{ '::AiAssistant.MissingInformation' | abpLocalization }}</div>
+                <ul class="missing-fields" *ngIf="msg.missingFields?.length">
+                  <li *ngFor="let f of msg.missingFields">{{ f }}</li>
+                </ul>
+              </div>
+
+              <!-- Execution result -->
+              <div class="info-card result-card" [class.result-card-error]="!msg.executionResult!.success" *ngSwitchCase="'result'">
+                <div class="info-card-title">
+                  <i class="fas" [class.fa-circle-check]="msg.executionResult!.success" [class.fa-circle-xmark]="!msg.executionResult!.success"></i>
+                  {{ (msg.executionResult!.success ? '::AiAssistant.ActionExecuted' : '::AiAssistant.ActionFailed') | abpLocalization }}
+                </div>
+                <div class="result-message" *ngIf="msg.executionResult!.resultMessage">{{ msg.executionResult!.resultMessage }}</div>
+                <div class="result-message" *ngIf="!msg.executionResult!.success && msg.executionResult!.errorMessage">{{ msg.executionResult!.errorMessage | abpLocalization }}</div>
+              </div>
+
+            </ng-container>
 
             <div class="cancelled-hint" *ngIf="msg.status === ShopAiMessageStatus.Cancelled">{{ '::AiAssistant.Cancel' | abpLocalization }}</div>
           </div>
