@@ -1,50 +1,57 @@
-<div class="stock-counts-page">
-  <div class="page-heading">
-    <div>
-      <h3>
-        {{ '::StockCounts' | abpLocalization }}
-        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'A Physical Stock Count compares your recorded system stock against the actual counted stock. Draft and In Progress counts do not change stock. Posting a completed count automatically creates and posts a Stock Adjustment for every difference found.', ur: 'Physical Stock Count سسٹم میں موجود اسٹاک کا اصل گنتی سے موازنہ کرتا ہے۔ Draft اور In Progress حالت میں اسٹاک تبدیل نہیں ہوتا۔ مکمل شدہ گنتی کو Post کرنے پر ہر فرق کے لیے خودکار Stock Adjustment بن کر پوسٹ ہو جاتا ہے۔' }">
-          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
-        </button>
-      </h3>
-      <p>{{ '::StockCountsDescription' | abpLocalization }}</p>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::StockCounts" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchStockCounts'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Physical Stock Count compares your recorded system stock against the actual counted stock. Draft and In Progress counts do not change stock. Posting a completed count automatically creates and posts a Stock Adjustment for every difference found.', ur: 'Physical Stock Count سسٹم میں موجود اسٹاک کا اصل گنتی سے موازنہ کرتا ہے۔ Draft اور In Progress حالت میں اسٹاک تبدیل نہیں ہوتا۔ مکمل شدہ گنتی کو Post کرنے پر ہر فرق کے لیے خودکار Stock Adjustment بن کر پوسٹ ہو جاتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateStockCount' | abpLocalization }}</button>
   </div>
-  <div class="card stock-counts-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-3">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchStockCounts' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllCategories' | abpLocalization">
-          <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
-          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <nz-select class="w-100" [(ngModel)]="scopeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllScopes' | abpLocalization">
-          <nz-option *ngFor="let x of scopeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="hasDifferencesFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::HasDifferences' | abpLocalization">
-          <nz-option [nzValue]="true" [nzLabel]="'::Yes' | abpLocalization"></nz-option>
-          <nz-option [nzValue]="false" [nzLabel]="'::No' | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="countDateFrom" (change)="load(true)" [title]="'::DateFrom' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="countDateTo" (change)="load(true)" [title]="'::DateTo' | abpLocalization">
-      </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Category' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllCategories' | abpLocalization">
+        <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
+      </nz-select>
     </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::CountScope' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="scopeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllScopes' | abpLocalization">
+        <nz-option *ngFor="let x of scopeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::HasDifferences' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="hasDifferencesFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::HasDifferences' | abpLocalization">
+        <nz-option [nzValue]="true" [nzLabel]="'::Yes' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="false" [nzLabel]="'::No' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="countDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="countDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="stock-counts-page">
+  <div class="card stock-counts-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -97,7 +104,9 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <ng-template #bilingualTooltip let-en="en" let-ur="ur">
   <div class="tooltip-lang-tabs">

@@ -1,12 +1,9 @@
 :host { display: block; }
-.counting-page { padding: 1.25rem; max-width: 1400px; margin: auto; }
-.counting-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .75rem; }
-.counting-header > div:first-child { display: flex; align-items: center; gap: .75rem; }
-.counting-header h3 { font-size: 1.2rem; color: #173f68; margin: 0; font-weight: 700; display: flex; align-items: center; gap: .6rem; }
-.counting-header p { font-size: .8rem; color: #7a8da0; margin: .2rem 0 0; }
-.back-btn { width: 35px; height: 35px; border: 0; border-radius: 8px; color: #286b9f; background: #eaf3fa; flex: none; }
+.counting-page { padding: 1.25rem 1rem; }
+[topbarPills] { display: inline-flex !important; align-items: center; gap: .5rem; }
+.count-number-badge { padding: .25rem .6rem; border-radius: 999px; background: #eaf3fb; color: #2369a3; font-size: .72rem; font-weight: 700; }
 .status-badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; background: #fff6e0; color: #b8860b; }
-.progress-chip { background: #eef6fc; color: #2369a3; border-radius: 999px; padding: .4rem .9rem; font-size: .82rem; }
+.progress-chip { background: #eef6fc; color: #2369a3; border-radius: 999px; padding: .25rem .7rem; font-size: .74rem; }
 
 .start-card { background: #fff; border: 1px solid #e1eaf2; border-radius: 11px; padding: 2rem; text-align: center; box-shadow: 0 3px 14px rgba(22,61,99,.05); }
 .start-card p { color: #435b73; margin-bottom: 1rem; }
@@ -14,7 +11,6 @@
 .counting-toolbar { display: flex; align-items: center; gap: 1rem; margin-bottom: .85rem; flex-wrap: wrap; }
 .search-box { position: relative; i { position: absolute; left: .7rem; top: .58rem; color: #8da1b5; font-size: .75rem; } input { padding-left: 2rem; width: 260px; } }
 .toggle-label { display: flex; align-items: center; gap: .4rem; font-size: .82rem; color: #435b73; margin: 0; }
-.ms-auto { margin-left: auto; }
 
 .counting-table { min-width: 900px; background: #fff; }
 .counting-table th { background: #f8fafc; color: #62788e; font-size: .68rem; text-transform: uppercase; padding: .6rem; }
@@ -32,6 +28,5 @@
 
 @media(max-width:767.98px) {
   .counting-page { padding: .65rem; }
-  .counting-header { flex-direction: column; align-items: flex-start; }
   .search-box input { width: 100%; }
 }

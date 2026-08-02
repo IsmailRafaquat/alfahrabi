@@ -49,7 +49,7 @@ export class ShopStockAdjustmentsComponent implements OnInit {
 
   tooltipLang: 'en' | 'ur' = 'en';
 
-  search = '';
+  filters: { filter?: string } = {};
   statusFilter: ShopStockAdjustmentStatus | '' = '';
   reasonFilter: ShopStockAdjustmentReason | '' = '';
   typeFilter: ShopStockAdjustmentType | '' = '';
@@ -71,7 +71,7 @@ export class ShopStockAdjustmentsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         reason: this.reasonFilter === '' ? undefined : this.reasonFilter,
         adjustmentType: this.typeFilter === '' ? undefined : this.typeFilter,

@@ -1,6 +1,6 @@
 :host { display: block; }
-.stock-counts-page { padding: 1.25rem; max-width: 1700px; margin: auto; }
-.page-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; h3 { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; color: #173f68; margin: 0; font-size: 1.35rem; font-weight: 700; } p { margin: .2rem 0 0; color: #718096; font-size: .8rem; } }
+.stock-counts-page { padding: 1.25rem 1rem; }
+label:not(.option) { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: #8a9bad; margin-bottom: .25rem; display: block; }
 .workflow-info-btn { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid #d7e6f2; background: #eef6fc; color: #2369a3; font-size: .68rem; font-weight: 700; padding: .3rem .65rem; border-radius: 999px; cursor: help; }
 .workflow-info-btn:hover { background: #e2f0fa; }
 .tooltip-lang-tabs { display: flex; gap: .35rem; margin-bottom: .55rem; border-bottom: 1px solid rgba(255,255,255,.18); padding-bottom: .5rem; }
@@ -29,4 +29,4 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
 .changed-warning { background: #fff0f1; color: #c83e4d; border-radius: 8px; padding: .65rem .8rem; font-size: .8rem; margin-bottom: .75rem; }
 .changed-products { margin-top: .3rem; font-weight: 600; }
 .confirm-text { font-size: .85rem; color: #435b73; margin: 0; }
-@media(max-width:767.98px){.stock-counts-page{padding:.65rem}.page-heading{align-items:flex-start;gap:.75rem;h3{font-size:1.1rem}p{display:none}}.filters{padding:.75rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}}
+@media(max-width:767.98px){.stock-counts-page{padding:.65rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}}

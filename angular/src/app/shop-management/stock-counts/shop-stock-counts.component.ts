@@ -49,7 +49,7 @@ export class ShopStockCountsComponent implements OnInit {
 
   tooltipLang: 'en' | 'ur' = 'en';
 
-  search = '';
+  filters: { filter?: string } = {};
   statusFilter: ShopStockCountStatus | '' = '';
   scopeFilter: ShopStockCountScope | '' = '';
   categoryFilter = '';
@@ -76,7 +76,7 @@ export class ShopStockCountsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         scope: this.scopeFilter === '' ? undefined : this.scopeFilter,
         productCategoryId: this.categoryFilter || undefined,

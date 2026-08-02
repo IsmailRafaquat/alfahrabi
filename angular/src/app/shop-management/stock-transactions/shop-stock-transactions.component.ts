@@ -24,7 +24,7 @@ export class ShopStockTransactionsComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   productFilter = '';
   typeFilter: ShopStockTransactionType | '' = '';
   dateFrom: string | null = null;
@@ -35,7 +35,7 @@ export class ShopStockTransactionsComponent implements OnInit {
   ngOnInit(): void {
     this.productService.getLookup().subscribe(result => (this.products = result.items || []));
     const referenceNumber = this.route.snapshot.queryParamMap.get('referenceNumber');
-    if (referenceNumber) this.search = referenceNumber;
+    if (referenceNumber) this.filters.filter = referenceNumber;
     this.load();
   }
 
@@ -44,7 +44,7 @@ export class ShopStockTransactionsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         productId: this.productFilter || undefined,
         transactionType: this.typeFilter === '' ? undefined : this.typeFilter,
         dateFrom: this.dateFrom || undefined,

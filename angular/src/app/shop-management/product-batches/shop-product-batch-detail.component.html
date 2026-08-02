@@ -1,25 +1,28 @@
-<div class="detail-page">
-  <div class="detail-header">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <span *ngIf="dto as d">
-        <h3>{{ d.batchNumber }} <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span></h3>
-        <p>{{ d.productCode }} - {{ d.productName }}</p>
-      </span>
-    </div>
-    <div class="actions" *ngIf="dto as d">
-      <button *ngIf="canEditMetadata && !d.isBlocked" class="btn btn-light btn-sm" (click)="openEdit()"><i class="fas fa-pen me-2"></i>{{ '::EditShopProductBatch' | abpLocalization }}</button>
-      <button *ngIf="canBlock && !d.isBlocked" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="openBlock()"><i class="fas fa-ban me-2"></i>{{ '::BlockBatch' | abpLocalization }}</button>
-      <button *ngIf="canUnblock && d.isBlocked" class="btn btn-outline-success btn-sm" [disabled]="actionInProgress" (click)="unblock()"><i class="fas fa-check me-2"></i>{{ '::UnblockBatch' | abpLocalization }}</button>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::ProductBatch" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="dto as d">
+    <span class="batch-number-badge">{{ d.batchNumber }}</span>
+    <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span>
   </div>
 
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canEditMetadata && !d.isBlocked" class="btn btn-light btn-sm" (click)="openEdit()"><i class="fas fa-pen me-2"></i>{{ '::EditShopProductBatch' | abpLocalization }}</button>
+    <button *ngIf="canBlock && !d.isBlocked" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="openBlock()"><i class="fas fa-ban me-2"></i>{{ '::BlockBatch' | abpLocalization }}</button>
+    <button *ngIf="canUnblock && d.isBlocked" class="btn btn-outline-success btn-sm" [disabled]="actionInProgress" (click)="unblock()"><i class="fas fa-check me-2"></i>{{ '::UnblockBatch' | abpLocalization }}</button>
+  </div>
+
+  <div class="detail-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading && dto as d">
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::Product' | abpLocalization }}</span><strong>{{ d.productCode }} - {{ d.productName }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ManufacturingDate' | abpLocalization }}</span><strong>{{ d.manufacturingDate ? (d.manufacturingDate | date:'mediumDate') : '—' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ExpiryDate' | abpLocalization }}</span><strong>{{ d.expiryDate ? (d.expiryDate | date:'mediumDate') : '—' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::DaysToExpiry' | abpLocalization }}</span><strong>{{ d.daysToExpiry ?? '—' }}</strong></div>
@@ -31,10 +34,12 @@
         <div class="col-12" *ngIf="d.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ d.notes }}</p></div>
         <div class="col-12" *ngIf="d.isBlocked"><span class="field-label">{{ '::BlockReason' | abpLocalization }}</span><p class="notes-text">{{ d.blockReason }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BatchBalance' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-balance-scale"></i></span><h6>{{ '::BatchBalance' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ReceivedQuantity' | abpLocalization }}</span><strong>{{ d.receivedQuantity | number:'1.0-4' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::IssuedQuantity' | abpLocalization }}</span><strong>{{ d.issuedQuantity | number:'1.0-4' }}</strong></div>
@@ -42,13 +47,15 @@
         <div class="col-6 col-md-3"><span class="field-label">{{ '::AvailableQuantity' | abpLocalization }}</span><strong>{{ d.availableQuantity | number:'1.0-4' }}</strong></div>
         <div class="col-6 col-md-3" *ngIf="canViewCost"><span class="field-label">{{ '::UnitCost' | abpLocalization }}</span><strong>{{ d.unitCost != null ? (d.unitCost | number:'1.2-2') : '—' }}</strong></div>
       </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="d-flex justify-content-between align-items-center">
-        <h6 class="section-title mb-0">{{ '::BatchTransactions' | abpLocalization }}</h6>
-        <button *ngIf="canViewTransactions && !transactionsLoaded" class="btn btn-light btn-sm" [disabled]="transactionsLoading" (click)="loadTransactions()">{{ '::BatchTransactions' | abpLocalization }}</button>
       </div>
+    </section>
+
+    <section class="form-section detail-card">
+      <div class="section-head">
+        <span class="section-icon"><i class="fas fa-exchange-alt"></i></span><h6 class="mb-0">{{ '::BatchTransactions' | abpLocalization }}</h6>
+        <button *ngIf="canViewTransactions && !transactionsLoaded" class="btn btn-light btn-sm ms-auto" [disabled]="transactionsLoading" (click)="loadTransactions()">{{ '::BatchTransactions' | abpLocalization }}</button>
+      </div>
+      <div class="section-body">
       <div *ngIf="transactionsLoading" class="text-center py-3"><span class="spinner-border spinner-border-sm"></span></div>
       <div class="table-responsive" *ngIf="transactionsLoaded && !transactionsLoading">
         <table class="table table-sm align-middle">
@@ -77,9 +84,12 @@
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="editModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::EditShopProductBatch' | abpLocalization }}</h5></ng-template>

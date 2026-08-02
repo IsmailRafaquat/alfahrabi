@@ -1,33 +1,35 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3 class="help-title">{{ (isEdit ? '::EditStockAdjustment' : '::CreateStockAdjustment') | abpLocalization }}
-          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock adjustment fields help</span></button>
-          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-            <div class="transaction-help-item"><strong dir="ltr">Adjustment Date</strong><span>جس دن یہ اسٹاک ایڈجسٹمنٹ کی جا رہی ہے وہ تاریخ۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Adjustment Reason</strong><span>ایڈجسٹمنٹ کی وجہ منتخب کریں، مثلاً نقصان، گمشدگی، چوری یا گنتی میں فرق۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Reason Details</strong><span>وجہ سے متعلق اضافی تفصیل، اگر ضروری ہو۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Product</strong><span>وہ پروڈکٹ منتخب کریں جس کا اسٹاک درست کرنا ہے۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">System Quantity</strong><span>سسٹم میں موجودہ ریکارڈ شدہ اسٹاک مقدار۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Adjustment Type</strong><span>Increase منتخب کریں اگر اسٹاک بڑھانا ہے، یا Decrease اگر کم کرنا ہے۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Adjustment Quantity</strong><span>جتنی مقدار بڑھانی یا کم کرنی ہے وہ درج کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Final Stock</strong><span>ایڈجسٹمنٹ کے بعد متوقع حتمی اسٹاک، خودکار طور پر شمار ہوتا ہے۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Batch Number / Expiry Date</strong><span>اگر پروڈکٹ بیچ یا ایکسپائری ٹریک کرتا ہے تو یہ درج کرنا ضروری ہے۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Post</strong><span>Draft کو Post کرنے پر ہی اصل پروڈکٹ اسٹاک تبدیل ہوتا ہے، اس سے پہلے کوئی تبدیلی نہیں آتی۔</span></div>
-          </div>
-        </h3>
-        <p *ngIf="isEdit">{{ adjustmentNumber }}</p>
-      </span>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditStockAdjustment' : '::CreateStockAdjustment'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span *ngIf="isEdit" class="adjustment-number-badge">{{ adjustmentNumber }}</span>
+    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock adjustment fields help</span></button>
+    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+      <div class="transaction-help-item"><strong dir="ltr">Adjustment Date</strong><span>جس دن یہ اسٹاک ایڈجسٹمنٹ کی جا رہی ہے وہ تاریخ۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Adjustment Reason</strong><span>ایڈجسٹمنٹ کی وجہ منتخب کریں، مثلاً نقصان، گمشدگی، چوری یا گنتی میں فرق۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Reason Details</strong><span>وجہ سے متعلق اضافی تفصیل، اگر ضروری ہو۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Product</strong><span>وہ پروڈکٹ منتخب کریں جس کا اسٹاک درست کرنا ہے۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">System Quantity</strong><span>سسٹم میں موجودہ ریکارڈ شدہ اسٹاک مقدار۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Adjustment Type</strong><span>Increase منتخب کریں اگر اسٹاک بڑھانا ہے، یا Decrease اگر کم کرنا ہے۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Adjustment Quantity</strong><span>جتنی مقدار بڑھانی یا کم کرنی ہے وہ درج کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Final Stock</strong><span>ایڈجسٹمنٹ کے بعد متوقع حتمی اسٹاک، خودکار طور پر شمار ہوتا ہے۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Batch Number / Expiry Date</strong><span>اگر پروڈکٹ بیچ یا ایکسپائری ٹریک کرتا ہے تو یہ درج کرنا ضروری ہے۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Post</strong><span>Draft کو Post کرنے پر ہی اصل پروڈکٹ اسٹاک تبدیل ہوتا ہے، اس سے پہلے کوئی تبدیلی نہیں آتی۔</span></div>
     </div>
   </div>
 
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-    <div class="adjustment-form-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section adjustment-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-12 col-md-6 col-xl-3">
           <label>{{ '::AdjustmentDate' | abpLocalization }} <b class="required">*</b></label>
@@ -49,13 +51,15 @@
           <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
         </div>
       </div>
-    </div>
-
-    <div class="adjustment-form-card items-card">
-      <div class="items-header">
-        <h6 class="section-title mb-0">{{ '::Product' | abpLocalization }}</h6>
-        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()"><i class="fas fa-plus me-2"></i>{{ '::AddAdjustmentItem' | abpLocalization }}</button>
       </div>
+    </section>
+
+    <section class="form-section adjustment-form-card items-card">
+      <div class="section-head items-header">
+        <span class="section-icon"><i class="fas fa-boxes"></i></span><h6 class="mb-0">{{ '::Product' | abpLocalization }}</h6>
+        <button type="button" class="btn btn-outline-primary btn-sm ms-auto" (click)="addItem()"><i class="fas fa-plus me-2"></i>{{ '::AddAdjustmentItem' | abpLocalization }}</button>
+      </div>
+      <div class="section-body">
       <small class="error d-block mb-2" *ngIf="form.errors?.['duplicateProduct']">{{ '::StockAdjustmentDuplicateProduct' | abpLocalization }}</small>
 
       <div class="table-responsive">
@@ -129,7 +133,8 @@
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
 
     <div class="card-save">
       <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
@@ -139,4 +144,6 @@
       </button>
     </div>
   </form>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

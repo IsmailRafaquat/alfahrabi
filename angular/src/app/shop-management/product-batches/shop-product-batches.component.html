@@ -1,51 +1,53 @@
-<div class="product-batches-page">
-  <div class="page-heading">
-    <div>
-      <h3>{{ '::ProductBatches' | abpLocalization }}</h3>
-      <p>{{ '::ProductBatchesDescription' | abpLocalization }}</p>
+<abp-page>
+<app-topbar-layout titleKey="::ProductBatches" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchProductBatches'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Product' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="productFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Product' | abpLocalization">
+        <nz-option *ngFor="let x of products" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
     </div>
-  </div>
-  <div class="card product-batches-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-3">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchProductBatches' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="productFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Product' | abpLocalization">
-          <nz-option *ngFor="let x of products" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="supplierFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Supplier' | abpLocalization">
-          <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::BatchStatus' | abpLocalization">
-          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="expiryFrom" (change)="load(true)" [title]="'::DateFrom' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="expiryTo" (change)="load(true)" [title]="'::DateTo' | abpLocalization">
-      </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Supplier' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="supplierFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Supplier' | abpLocalization">
+        <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
+      </nz-select>
     </div>
-    <div class="filters row g-2 second-row">
-      <div class="col-auto form-check">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::BatchStatus' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::BatchStatus' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expiryFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expiryTo" (change)="load(true)">
+    </div>
+    <div class="col-12 d-flex flex-wrap gap-3 mt-1">
+      <div class="form-check">
         <input type="checkbox" class="form-check-input" id="nearExpiryOnly" [(ngModel)]="nearExpiryOnly" (ngModelChange)="load(true)">
         <label class="form-check-label" for="nearExpiryOnly">{{ '::NearExpiry' | abpLocalization }}</label>
       </div>
-      <div class="col-auto form-check" *ngIf="canViewExpired">
+      <div class="form-check" *ngIf="canViewExpired">
         <input type="checkbox" class="form-check-input" id="expiredOnly" [(ngModel)]="expiredOnly" (ngModelChange)="load(true)">
         <label class="form-check-label" for="expiredOnly">{{ '::Expired' | abpLocalization }}</label>
       </div>
-      <div class="col-auto form-check">
+      <div class="form-check">
         <input type="checkbox" class="form-check-input" id="hasAvailableStock" [(ngModel)]="hasAvailableStock" (ngModelChange)="load(true)">
         <label class="form-check-label" for="hasAvailableStock">{{ '::AvailableBatches' | abpLocalization }}</label>
       </div>
     </div>
+  </ng-container>
+
+  <div class="product-batches-page">
+  <div class="card product-batches-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -97,4 +99,6 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
