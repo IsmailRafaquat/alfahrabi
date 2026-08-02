@@ -25,7 +25,7 @@ export class ShopBankAccountsComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   bankNameFilter = '';
   statusFilter: boolean | null = null;
   defaultFilter: boolean | null = null;
@@ -39,7 +39,7 @@ export class ShopBankAccountsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         bankName: this.bankNameFilter || undefined,
         isActive: this.statusFilter ?? undefined,
         isDefault: this.defaultFilter ?? undefined,

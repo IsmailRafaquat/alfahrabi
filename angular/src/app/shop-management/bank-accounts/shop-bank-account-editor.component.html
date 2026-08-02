@@ -1,61 +1,72 @@
-<div class="editor-page">
-  <div class="page-heading">
-    <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-    <h3>{{ (isEdit ? '::EditBankAccount' : '::CreateBankAccount') | abpLocalization }}</h3>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditBankAccount' : '::CreateBankAccount'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
   </div>
 
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
-  <form *ngIf="!loading" [formGroup]="form" class="card editor-card">
-    <div class="row g-3">
-      <div class="col-12 col-md-4">
-        <label>{{ '::BankAccountCode' | abpLocalization }} <b class="required">*</b></label>
-        <input class="form-control form-control-sm" formControlName="code">
-        <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+  <form *ngIf="!loading" [formGroup]="form">
+    <section class="form-section editor-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label>{{ '::BankAccountCode' | abpLocalization }} <b class="required">*</b></label>
+          <input class="form-control form-control-sm" formControlName="code">
+          <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::AccountName' | abpLocalization }} <b class="required">*</b></label>
+          <input class="form-control form-control-sm" formControlName="accountName">
+          <small class="error" *ngIf="form.controls.accountName.touched && form.controls.accountName.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::BankName' | abpLocalization }} <b class="required">*</b></label>
+          <input class="form-control form-control-sm" formControlName="bankName">
+          <small class="error" *ngIf="form.controls.bankName.touched && form.controls.bankName.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::AccountNumber' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="accountNumber">
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::IBAN' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="iban">
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::BranchName' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="branchName">
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::OpeningBalance' | abpLocalization }} <b class="required">*</b></label>
+          <input type="number" step="0.01" min="0" class="form-control form-control-sm" formControlName="openingBalance">
+        </div>
+        <div class="col-6 col-md-4 d-flex align-items-center">
+          <label class="option w-100"><span>{{ '::DefaultBankAccount' | abpLocalization }}</span><input type="checkbox" class="form-check-input" formControlName="isDefault"></label>
+        </div>
+        <div class="col-6 col-md-4 d-flex align-items-center">
+          <label class="option w-100"><span>{{ '::Active' | abpLocalization }}</span><input type="checkbox" class="form-check-input" formControlName="isActive"></label>
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
       </div>
-      <div class="col-12 col-md-4">
-        <label>{{ '::AccountName' | abpLocalization }} <b class="required">*</b></label>
-        <input class="form-control form-control-sm" formControlName="accountName">
-        <small class="error" *ngIf="form.controls.accountName.touched && form.controls.accountName.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
       </div>
-      <div class="col-12 col-md-4">
-        <label>{{ '::BankName' | abpLocalization }} <b class="required">*</b></label>
-        <input class="form-control form-control-sm" formControlName="bankName">
-        <small class="error" *ngIf="form.controls.bankName.touched && form.controls.bankName.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
-      </div>
-      <div class="col-12 col-md-4">
-        <label>{{ '::AccountNumber' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="accountNumber">
-      </div>
-      <div class="col-12 col-md-4">
-        <label>{{ '::IBAN' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="iban">
-      </div>
-      <div class="col-12 col-md-4">
-        <label>{{ '::BranchName' | abpLocalization }}</label>
-        <input class="form-control form-control-sm" formControlName="branchName">
-      </div>
-      <div class="col-12 col-md-4">
-        <label>{{ '::OpeningBalance' | abpLocalization }} <b class="required">*</b></label>
-        <input type="number" step="0.01" min="0" class="form-control form-control-sm" formControlName="openingBalance">
-      </div>
-      <div class="col-6 col-md-4 d-flex align-items-center">
-        <label class="option w-100"><span>{{ '::DefaultBankAccount' | abpLocalization }}</span><input type="checkbox" class="form-check-input" formControlName="isDefault"></label>
-      </div>
-      <div class="col-6 col-md-4 d-flex align-items-center">
-        <label class="option w-100"><span>{{ '::Active' | abpLocalization }}</span><input type="checkbox" class="form-check-input" formControlName="isActive"></label>
-      </div>
-      <div class="col-12">
-        <label>{{ '::Notes' | abpLocalization }}</label>
-        <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
-      </div>
-    </div>
+    </section>
 
-    <div class="editor-actions">
+    <div class="card-save">
       <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
       <button type="button" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting" (click)="save()">
-        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>{{ '::Save' | abpLocalization }}
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
       </button>
     </div>
   </form>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

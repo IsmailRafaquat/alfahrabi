@@ -37,7 +37,7 @@ export class ShopBankTransactionsComponent implements OnInit {
   pageSize = 20;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   accountFilter = '';
   typeFilter: ShopBankTransactionType | '' = '';
   directionFilter: ShopBankDirection | '' = '';
@@ -71,7 +71,7 @@ export class ShopBankTransactionsComponent implements OnInit {
     this.loading = true;
     this.transactionService
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         bankAccountId: this.accountFilter || undefined,
         transactionType: this.typeFilter === '' ? undefined : this.typeFilter,
         direction: this.directionFilter === '' ? undefined : this.directionFilter,

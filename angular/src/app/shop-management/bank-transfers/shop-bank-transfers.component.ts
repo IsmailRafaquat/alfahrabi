@@ -41,7 +41,7 @@ export class ShopBankTransfersComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   typeFilter: ShopBankTransferType | '' = '';
   statusFilter: ShopBankTransferStatus | '' = '';
   fromAccountFilter = '';
@@ -59,7 +59,7 @@ export class ShopBankTransfersComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         transferType: this.typeFilter === '' ? undefined : this.typeFilter,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         fromBankAccountId: this.fromAccountFilter || undefined,

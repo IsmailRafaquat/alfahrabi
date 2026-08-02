@@ -1,13 +1,29 @@
 :host { display: block; }
-.editor-page { padding: 1.25rem; max-width: 900px; margin: auto; }
-.page-heading { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; h3 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #173f68; } }
-.back-btn { width: 35px; height: 35px; border: 0; border-radius: 8px; color: #286b9f; background: #eaf3fa; flex: none; }
-.editor-card { border: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(20, 55, 90, .07); padding: 1.25rem; }
+.editor-page { padding: 1.25rem 1rem; }
+
+.form-section.editor-card {
+  margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px;
+  background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); overflow: hidden; padding: 0;
+}
+.section-head {
+  display: flex; align-items: center; gap: .6rem; padding: .75rem 1.1rem;
+  background: #eaf3fb; border-bottom: 1px solid #d3e6f5;
+}
+.section-head h6 { margin: 0; font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #173f68; }
+.section-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; font-size: .82rem; flex: none; background: #fff; color: #2369a3; }
+.section-body { padding: 1.1rem 1.25rem; }
+
 label { display: block; margin-bottom: .25rem; color: #345c80; font-size: .74rem; font-weight: 600; }
 .required { color: #dc3545; }
-.form-control-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
+.form-control-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; border-radius: 6px; }
 small.error { display: block; margin-top: .2rem; color: #dc3545; font-size: .68rem; }
 .option { display: flex; justify-content: space-between; align-items: center; padding: .55rem .65rem; border: 1px solid #e0e8f0; border-radius: 7px; margin-bottom: 0; }
-.editor-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #edf2f6; }
 
-@media(max-width:767.98px){.editor-page{padding:.65rem}.editor-card{padding:.85rem}}
+.card-save { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .5rem; padding-top: .9rem; }
+.card-save .btn { min-width: 120px; }
+
+@media(max-width:767.98px) {
+  .editor-page { padding: .65rem; }
+  .section-body { padding: .8rem; }
+  .card-save .btn { flex: 1; }
+}

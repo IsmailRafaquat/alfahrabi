@@ -1,25 +1,27 @@
-<div class="detail-page">
-  <div class="detail-header">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <span *ngIf="account">
-        <h3>{{ account.code }} - {{ account.accountName }} <span class="status-badge" [class.inactive]="!account.isActive">{{ (account.isActive ? '::Active' : '::Inactive') | abpLocalization }}</span></h3>
-        <p>{{ account.bankName }}</p>
-      </span>
-    </div>
-    <div class="actions" *ngIf="account">
-      <button *ngIf="canManualMovement" class="btn btn-outline-success btn-sm" (click)="openMovementModal(ShopBankDirection.In)"><i class="fas fa-plus-circle me-2"></i>{{ '::ManualDeposit' | abpLocalization }}</button>
-      <button *ngIf="canManualMovement" class="btn btn-outline-danger btn-sm" (click)="openMovementModal(ShopBankDirection.Out)"><i class="fas fa-minus-circle me-2"></i>{{ '::ManualWithdrawal' | abpLocalization }}</button>
-      <button *ngIf="canCreateTransfer" class="btn btn-outline-primary btn-sm" (click)="createTransfer()"><i class="fas fa-exchange-alt me-2"></i>{{ '::CreateTransfer' | abpLocalization }}</button>
-      <button *ngIf="canEdit" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditBankAccount' | abpLocalization }}</button>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::BankAccount" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="account">
+    <span class="account-number-badge">{{ account.code }} - {{ account.accountName }}</span>
+    <span class="status-badge" [class.inactive]="!account.isActive">{{ (account.isActive ? '::Active' : '::Inactive') | abpLocalization }}</span>
   </div>
 
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="account">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canManualMovement" class="btn btn-outline-success btn-sm" (click)="openMovementModal(ShopBankDirection.In)"><i class="fas fa-plus-circle me-2"></i>{{ '::ManualDeposit' | abpLocalization }}</button>
+    <button *ngIf="canManualMovement" class="btn btn-outline-danger btn-sm" (click)="openMovementModal(ShopBankDirection.Out)"><i class="fas fa-minus-circle me-2"></i>{{ '::ManualWithdrawal' | abpLocalization }}</button>
+    <button *ngIf="canCreateTransfer" class="btn btn-outline-primary btn-sm" (click)="createTransfer()"><i class="fas fa-exchange-alt me-2"></i>{{ '::CreateTransfer' | abpLocalization }}</button>
+    <button *ngIf="canEdit" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditBankAccount' | abpLocalization }}</button>
+  </div>
+
+  <div class="detail-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading && account">
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::AccountNumber' | abpLocalization }}</span><strong>{{ account.accountNumber || '—' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::IBAN' | abpLocalization }}</span><strong>{{ account.iban || '—' }}</strong></div>
@@ -27,10 +29,12 @@
         <div class="col-6 col-md-3"><span class="field-label">{{ '::DefaultBankAccount' | abpLocalization }}</span><strong>{{ account.isDefault ? ('::Active' | abpLocalization) : '—' }}</strong></div>
         <div class="col-12" *ngIf="account.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ account.notes }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="canViewBalance && summary">
-      <h6 class="section-title">{{ '::BankTransactionsDescription' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="canViewBalance && summary">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::BankTransactionsDescription' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="summary-cards">
         <div class="summary-card"><span>{{ '::OpeningBalance' | abpLocalization }}</span><strong>{{ summary.openingBalance != null ? (summary.openingBalance | number:'1.2-2') : '—' }}</strong></div>
         <div class="summary-card"><span>{{ '::MoneyIn' | abpLocalization }}</span><strong>{{ summary.totalMoneyIn != null ? (summary.totalMoneyIn | number:'1.2-2') : '—' }}</strong></div>
@@ -47,13 +51,15 @@
         <div class="summary-card"><span>{{ '::BankTransfersIn' | abpLocalization }}</span><strong>{{ summary.bankTransfersIn != null ? (summary.bankTransfersIn | number:'1.2-2') : '—' }}</strong></div>
         <div class="summary-card"><span>{{ '::BankTransfersOut' | abpLocalization }}</span><strong>{{ summary.bankTransfersOut != null ? (summary.bankTransfersOut | number:'1.2-2') : '—' }}</strong></div>
       </div>
-    </div>
-
-    <div class="detail-card">
-      <div class="section-title-row">
-        <h6 class="section-title">{{ '::RecentTransactions' | abpLocalization }}</h6>
-        <button class="btn btn-link btn-sm" (click)="viewAllTransactions()">{{ '::ViewAllTransactions' | abpLocalization }}</button>
       </div>
+    </section>
+
+    <section class="form-section detail-card">
+      <div class="section-head">
+        <span class="section-icon"><i class="fas fa-exchange-alt"></i></span><h6 class="mb-0">{{ '::RecentTransactions' | abpLocalization }}</h6>
+        <button class="btn btn-link btn-sm ms-auto" (click)="viewAllTransactions()">{{ '::ViewAllTransactions' | abpLocalization }}</button>
+      </div>
+      <div class="section-body">
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -81,9 +87,12 @@
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="movementModalOpen" [busy]="submitting">
   <ng-template #abpHeader>

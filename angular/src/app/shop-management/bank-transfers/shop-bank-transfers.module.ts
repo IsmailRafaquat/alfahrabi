@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PageModule } from '@abp/ng.components/page';
 import { SharedModule } from '../../shared/shared.module';
+import { TopbarLayoutModule } from '../../components/topbar-layout/topbar-layout.module';
 import { ShopBankTransfersComponent } from './shop-bank-transfers.component';
 import { ShopBankTransferEditorComponent } from './shop-bank-transfer-editor.component';
 import { ShopBankTransferDetailComponent } from './shop-bank-transfer-detail.component';
@@ -9,6 +11,6 @@ import { ShopBankTransfersRoutingModule } from './shop-bank-transfers-routing.mo
 
 @NgModule({
   declarations: [ShopBankTransfersComponent, ShopBankTransferEditorComponent, ShopBankTransferDetailComponent],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule, ShopBankTransfersRoutingModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule, PageModule, TopbarLayoutModule, ShopBankTransfersRoutingModule],
 })
 export class ShopBankTransfersModule {}

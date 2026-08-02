@@ -1,45 +1,48 @@
-<div class="sp-page">
-  <div class="page-heading">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <h3 class="d-inline-block ms-2">{{ '::BankTransactions' | abpLocalization }}</h3>
-    </div>
-    <div class="actions" *ngIf="canManualMovement">
+<abp-page>
+<app-topbar-layout titleKey="::BankTransactions" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchBankTransactions'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <ng-container *ngIf="canManualMovement">
       <button class="btn btn-outline-success btn-sm" [disabled]="!accountFilter" (click)="openMovementModal(ShopBankDirection.In)"><i class="fas fa-plus-circle me-2"></i>{{ '::ManualDeposit' | abpLocalization }}</button>
       <button class="btn btn-outline-danger btn-sm" [disabled]="!accountFilter" (click)="openMovementModal(ShopBankDirection.Out)"><i class="fas fa-minus-circle me-2"></i>{{ '::ManualWithdrawal' | abpLocalization }}</button>
-    </div>
+    </ng-container>
   </div>
-  <div class="card sp-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-2">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchBankTransactions' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="accountFilter" (ngModelChange)="load(true)" nzAllowClear nzShowSearch [nzPlaceHolder]="'::AllBankAccounts' | abpLocalization">
-          <nz-option *ngFor="let a of accounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::TransactionType' | abpLocalization">
-          <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="directionFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::Direction' | abpLocalization">
-          <nz-option [nzValue]="ShopBankDirection.In" [nzLabel]="'::DirectionIn' | abpLocalization"></nz-option>
-          <nz-option [nzValue]="ShopBankDirection.Out" [nzLabel]="'::DirectionOut' | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)" [title]="'::TransactionDate' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)" [title]="'::TransactionDate' | abpLocalization">
-      </div>
-      <div class="col-12 col-lg-2">
-        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
-      </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::BankAccount' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="accountFilter" (ngModelChange)="load(true)" nzAllowClear nzShowSearch [nzPlaceHolder]="'::AllBankAccounts' | abpLocalization">
+        <nz-option *ngFor="let a of accounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+      </nz-select>
     </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::TransactionType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::TransactionType' | abpLocalization">
+        <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Direction' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="directionFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::Direction' | abpLocalization">
+        <nz-option [nzValue]="ShopBankDirection.In" [nzLabel]="'::DirectionIn' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="ShopBankDirection.Out" [nzLabel]="'::DirectionOut' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="sp-page">
+  <div class="card sp-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -85,7 +88,9 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="movementModalOpen" [busy]="submitting">
   <ng-template #abpHeader>

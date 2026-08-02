@@ -1,34 +1,34 @@
-<div class="sp-page">
-  <div class="page-heading">
-    <div>
-      <h3>{{ '::BankAccounts' | abpLocalization }}</h3>
-      <p>{{ '::BankAccountsDescription' | abpLocalization }}</p>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::BankAccounts" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchBankAccounts'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarActions>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateBankAccount' | abpLocalization }}</button>
   </div>
-  <div class="card sp-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-4">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchBankAccounts' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <input class="form-control form-control-sm" [(ngModel)]="bankNameFilter" (keyup.enter)="load(true)" [placeholder]="'::AllBankNames' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
-          <nz-option [nzValue]="true" [nzLabel]="'::Active' | abpLocalization"></nz-option>
-          <nz-option [nzValue]="false" [nzLabel]="'::Inactive' | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="defaultFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::DefaultBankAccount' | abpLocalization">
-          <nz-option [nzValue]="true" [nzLabel]="'::DefaultBankAccount' | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-12 col-lg-2">
-        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
-      </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::BankName' | abpLocalization }}</label>
+      <input class="form-control form-control-sm" [(ngModel)]="bankNameFilter" (keyup.enter)="load(true)" [placeholder]="'::AllBankNames' | abpLocalization">
     </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option [nzValue]="true" [nzLabel]="'::Active' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="false" [nzLabel]="'::Inactive' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DefaultBankAccount' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="defaultFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::DefaultBankAccount' | abpLocalization">
+        <nz-option [nzValue]="true" [nzLabel]="'::DefaultBankAccount' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+  </ng-container>
+
+  <div class="sp-page">
+  <div class="card sp-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -77,4 +77,6 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
