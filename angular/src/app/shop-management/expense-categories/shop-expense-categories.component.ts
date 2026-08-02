@@ -27,7 +27,7 @@ export class ShopExpenseCategoriesComponent implements OnInit {
   modalOpen = false;
   selected?: ShopExpenseCategoryDto;
 
-  search = '';
+  filters: { filter?: string } = {};
   statusFilter: boolean | null = null;
 
   tooltipLang: 'en' | 'ur' = 'en';
@@ -49,7 +49,7 @@ export class ShopExpenseCategoriesComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         isActive: this.statusFilter ?? undefined,
         sorting: 'name asc',
         skipCount: this.page * this.pageSize,

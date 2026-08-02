@@ -46,7 +46,7 @@ export class ShopExpensesComponent implements OnInit {
   loading = false;
   actionInProgress = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   categoryFilter = '';
   statusFilter: ShopExpenseStatus | '' = '';
   paymentMethodFilter: ShopExpensePaymentMethod | '' = '';
@@ -69,7 +69,7 @@ export class ShopExpensesComponent implements OnInit {
     this.loading = true;
 
     const input = {
-      filter: this.search || undefined,
+      filter: this.filters.filter || undefined,
       expenseCategoryId: this.categoryFilter || undefined,
       status: this.statusFilter === '' ? undefined : this.statusFilter,
       paymentMethod: this.paymentMethodFilter === '' ? undefined : this.paymentMethodFilter,

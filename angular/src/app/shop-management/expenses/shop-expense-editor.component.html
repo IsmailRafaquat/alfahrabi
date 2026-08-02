@@ -1,32 +1,34 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3 class="help-title">{{ (isEdit ? '::EditExpense' : '::CreateExpense') | abpLocalization }}
-          <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Expense fields help</span></button>
-          <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
-            <div class="editor-help-item"><strong dir="ltr">Expense Category</strong><span>وہ کیٹیگری منتخب کریں جس میں یہ خرچہ آتا ہے، جیسے کرایہ یا بجلی۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Expense Date</strong><span>جس دن یہ خرچہ ہوا وہ تاریخ۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Amount</strong><span>خرچ کی گئی کل رقم، صفر سے زیادہ ہونی چاہیے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ یا چیک۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Paid To</strong><span>وہ شخص یا ادارہ جسے رقم ادا کی گئی، اختیاری ہے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Reference Number</strong><span>بل یا رسید کا حوالہ نمبر، اختیاری ہے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Cheque Number</strong><span>اگر ادائیگی چیک سے کی گئی ہو تو چیک نمبر لازمی ہے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Bank Name</strong><span>بینک ٹرانسفر یا چیک کی صورت میں بینک کا نام لازمی ہے۔</span></div>
-            <div class="editor-help-item"><strong dir="ltr">Description / Notes</strong><span>خرچے سے متعلق ضروری اضافی تفصیل یا نوٹس لکھیں۔</span></div>
-          </div>
-        </h3>
-        <p *ngIf="isEdit">{{ expenseNumber }}</p>
-      </span>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditExpense' : '::CreateExpense'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span *ngIf="isEdit" class="expense-number-badge">{{ expenseNumber }}</span>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Expense fields help</span></button>
+    <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
+      <div class="editor-help-item"><strong dir="ltr">Expense Category</strong><span>وہ کیٹیگری منتخب کریں جس میں یہ خرچہ آتا ہے، جیسے کرایہ یا بجلی۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Expense Date</strong><span>جس دن یہ خرچہ ہوا وہ تاریخ۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Amount</strong><span>خرچ کی گئی کل رقم، صفر سے زیادہ ہونی چاہیے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ یا چیک۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Paid To</strong><span>وہ شخص یا ادارہ جسے رقم ادا کی گئی، اختیاری ہے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Reference Number</strong><span>بل یا رسید کا حوالہ نمبر، اختیاری ہے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Cheque Number</strong><span>اگر ادائیگی چیک سے کی گئی ہو تو چیک نمبر لازمی ہے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Bank Name</strong><span>بینک ٹرانسفر یا چیک کی صورت میں بینک کا نام لازمی ہے۔</span></div>
+      <div class="editor-help-item"><strong dir="ltr">Description / Notes</strong><span>خرچے سے متعلق ضروری اضافی تفصیل یا نوٹس لکھیں۔</span></div>
     </div>
   </div>
 
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-    <div class="expense-form-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section expense-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-12 col-md-6 col-xl-4">
           <label>{{ '::ExpenseCategory' | abpLocalization }} <b class="required">*</b></label>
@@ -85,7 +87,8 @@
           <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
         </div>
       </div>
-    </div>
+      </div>
+    </section>
 
     <div class="card-save">
       <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
@@ -95,4 +98,6 @@
       </button>
     </div>
   </form>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

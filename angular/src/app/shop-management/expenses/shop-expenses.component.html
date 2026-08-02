@@ -1,18 +1,49 @@
-<div class="expenses-page">
-  <div class="page-heading">
-    <div>
-      <h3>
-        {{ '::Expenses' | abpLocalization }}
-        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'An Expense records money your shop spent, like rent or a utility bill. Save it as a draft first, then post it to include it in expense totals. Only posted expenses count towards totals — drafts and cancelled expenses are excluded.', ur: 'Expense اس رقم کا ریکارڈ ہے جو آپ کی دکان نے خرچ کی، جیسے کرایہ یا بجلی کا بل۔ پہلے اسے ڈرافٹ کے طور پر محفوظ کریں، پھر post کرنے پر یہ اخراجات کے کل حساب میں شامل ہو جائے گی۔ صرف posted expenses ہی کل حساب میں شمار ہوتی ہیں — draft اور cancelled expenses شامل نہیں ہوتیں۔' }">
-          <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
-        </button>
-      </h3>
-      <p>{{ '::ExpensesDescription' | abpLocalization }}</p>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::Expenses" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchExpenses'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'An Expense records money your shop spent, like rent or a utility bill. Save it as a draft first, then post it to include it in expense totals. Only posted expenses count towards totals — drafts and cancelled expenses are excluded.', ur: 'Expense اس رقم کا ریکارڈ ہے جو آپ کی دکان نے خرچ کی، جیسے کرایہ یا بجلی کا بل۔ پہلے اسے ڈرافٹ کے طور پر محفوظ کریں، پھر post کرنے پر یہ اخراجات کے کل حساب میں شامل ہو جائے گی۔ صرف posted expenses ہی کل حساب میں شمار ہوتی ہیں — draft اور cancelled expenses شامل نہیں ہوتیں۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateExpense' | abpLocalization }}</button>
   </div>
 
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::ExpenseCategory' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllExpenseCategories' | abpLocalization">
+        <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::PaymentMethod' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="paymentMethodFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllPaymentMethods' | abpLocalization">
+        <nz-option *ngFor="let x of paymentMethodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expenseDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expenseDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="expenses-page">
   <div class="summary-cards" *ngIf="canViewAmount && summary">
     <div class="summary-card"><span>{{ '::TotalPostedExpenses' | abpLocalization }}</span><strong>{{ summary.totalPostedExpenses | number:'1.2-2' }}</strong></div>
     <div class="summary-card"><span>{{ '::TotalDraftExpenses' | abpLocalization }}</span><strong>{{ summary.totalDraftExpenses | number:'1.2-2' }}</strong></div>
@@ -20,35 +51,6 @@
   </div>
 
   <div class="card expenses-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-3">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchExpenses' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllExpenseCategories' | abpLocalization">
-          <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
-          <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <nz-select class="w-100" [(ngModel)]="paymentMethodFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllPaymentMethods' | abpLocalization">
-          <nz-option *ngFor="let x of paymentMethodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="expenseDateFrom" (change)="load(true)" [title]="'::DateFrom' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-1">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="expenseDateTo" (change)="load(true)" [title]="'::DateTo' | abpLocalization">
-      </div>
-      <div class="col-12 col-lg-1">
-        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
-      </div>
-    </div>
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -99,7 +101,9 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::CancelExpense' | abpLocalization }}</h5></ng-template>
