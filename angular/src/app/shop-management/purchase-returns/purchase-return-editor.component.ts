@@ -8,7 +8,7 @@ import { PurchaseReturnService } from './purchase-return.service';
 @Component({ selector: 'app-purchase-return-editor', standalone: false, templateUrl: './purchase-return-editor.component.html', styleUrls: ['./purchase-return-editor.component.scss'] })
 export class PurchaseReturnEditorComponent implements OnInit {
   private fb = inject(FormBuilder); private s = inject(PurchaseReturnService); private route = inject(ActivatedRoute); private router = inject(Router); private toast = inject(ToasterService); private permissions = inject(PermissionService);
-  id?: string; receiptId?: string; receipt: any; loading = true; submitting = false; readonlyMode = false;
+  id?: string; receiptId?: string; receipt: any; loading = true; submitting = false; readonlyMode = false; helpOpen = false;
   canCost = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.ViewCost');
   form = this.fb.group({ returnDate: [new Date().toISOString().slice(0, 10), Validators.required], reason: [0, Validators.required], reasonDetails: [''], otherCharges: [0, [Validators.required, Validators.min(0)]], notes: [''], items: this.fb.array<any>([]) });
   get items() { return this.form.controls.items as FormArray; }

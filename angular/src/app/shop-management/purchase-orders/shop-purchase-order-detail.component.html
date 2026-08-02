@@ -1,39 +1,43 @@
-<div class="detail-page">
-  <div class="detail-header">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <span *ngIf="dto">
-        <h3>{{ dto.purchaseOrderNumber }} <span class="status-badge" [ngClass]="statusClass(dto.status)">{{ statusLabel(dto.status) | abpLocalization }}</span></h3>
-        <p>{{ dto.supplierCode }} - {{ dto.supplierName }}</p>
-      </span>
-    </div>
-    <div class="actions" *ngIf="dto">
-      <button *ngIf="canEdit && dto.status === ShopPurchaseOrderStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditPurchaseOrder' | abpLocalization }}</button>
-      <button *ngIf="canDelete && dto.status === ShopPurchaseOrderStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeletePurchaseOrder' | abpLocalization }}</button>
-      <button *ngIf="canSubmit && dto.status === ShopPurchaseOrderStatus.Draft" class="btn btn-primary btn-sm" [disabled]="actionInProgress" (click)="submit()"><i class="fas fa-paper-plane me-2"></i>{{ '::SubmitPurchaseOrder' | abpLocalization }}</button>
-      <button *ngIf="canApprove && dto.status === ShopPurchaseOrderStatus.PendingApproval" class="btn btn-success btn-sm" [disabled]="actionInProgress" (click)="approve()"><i class="fas fa-check me-2"></i>{{ '::ApprovePurchaseOrder' | abpLocalization }}</button>
-      <button *ngIf="canReceiveGoods && (dto.status === ShopPurchaseOrderStatus.Approved || dto.status === ShopPurchaseOrderStatus.PartiallyReceived)" class="btn btn-primary btn-sm" (click)="receiveGoods()"><i class="fas fa-dolly me-2"></i>{{ '::ReceiveGoods' | abpLocalization }}</button>
-      <button *ngIf="canReject && dto.status === ShopPurchaseOrderStatus.PendingApproval" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="openReject()"><i class="fas fa-times me-2"></i>{{ '::RejectPurchaseOrder' | abpLocalization }}</button>
-      <button *ngIf="canCancel && (dto.status === ShopPurchaseOrderStatus.Draft || dto.status === ShopPurchaseOrderStatus.PendingApproval || dto.status === ShopPurchaseOrderStatus.Approved)" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelPurchaseOrder' | abpLocalization }}</button>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::PurchaseOrder" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="dto as d">
+    <span class="po-number-badge">{{ d.purchaseOrderNumber }}</span>
+    <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span>
   </div>
 
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canEdit && d.status === ShopPurchaseOrderStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditPurchaseOrder' | abpLocalization }}</button>
+    <button *ngIf="canDelete && d.status === ShopPurchaseOrderStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeletePurchaseOrder' | abpLocalization }}</button>
+    <button *ngIf="canSubmit && d.status === ShopPurchaseOrderStatus.Draft" class="btn btn-primary btn-sm" [disabled]="actionInProgress" (click)="submit()"><i class="fas fa-paper-plane me-2"></i>{{ '::SubmitPurchaseOrder' | abpLocalization }}</button>
+    <button *ngIf="canApprove && d.status === ShopPurchaseOrderStatus.PendingApproval" class="btn btn-success btn-sm" [disabled]="actionInProgress" (click)="approve()"><i class="fas fa-check me-2"></i>{{ '::ApprovePurchaseOrder' | abpLocalization }}</button>
+    <button *ngIf="canReceiveGoods && (d.status === ShopPurchaseOrderStatus.Approved || d.status === ShopPurchaseOrderStatus.PartiallyReceived)" class="btn btn-primary btn-sm" (click)="receiveGoods()"><i class="fas fa-dolly me-2"></i>{{ '::ReceiveGoods' | abpLocalization }}</button>
+    <button *ngIf="canReject && d.status === ShopPurchaseOrderStatus.PendingApproval" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="openReject()"><i class="fas fa-times me-2"></i>{{ '::RejectPurchaseOrder' | abpLocalization }}</button>
+    <button *ngIf="canCancel && (d.status === ShopPurchaseOrderStatus.Draft || d.status === ShopPurchaseOrderStatus.PendingApproval || d.status === ShopPurchaseOrderStatus.Approved)" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelPurchaseOrder' | abpLocalization }}</button>
+  </div>
+
+  <div class="detail-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
-  <ng-container *ngIf="!loading && dto">
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+  <ng-container *ngIf="!loading && dto as d">
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::OrderDate' | abpLocalization }}</span><strong>{{ dto.orderDate | date:'mediumDate' }}</strong></div>
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::ExpectedDeliveryDate' | abpLocalization }}</span><strong>{{ dto.expectedDeliveryDate ? (dto.expectedDeliveryDate | date:'mediumDate') : '—' }}</strong></div>
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::SupplierReference' | abpLocalization }}</span><strong>{{ dto.supplierReference || '—' }}</strong></div>
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::CreationTime' | abpLocalization }}</span><strong>{{ dto.creationTime | date:'medium' }}</strong></div>
-        <div class="col-12" *ngIf="dto.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ dto.notes }}</p></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::OrderDate' | abpLocalization }}</span><strong>{{ d.orderDate | date:'mediumDate' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::ExpectedDeliveryDate' | abpLocalization }}</span><strong>{{ d.expectedDeliveryDate ? (d.expectedDeliveryDate | date:'mediumDate') : '—' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::SupplierReference' | abpLocalization }}</span><strong>{{ d.supplierReference || '—' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::CreationTime' | abpLocalization }}</span><strong>{{ d.creationTime | date:'medium' }}</strong></div>
+        <div class="col-12" *ngIf="d.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ d.notes }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::Product' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::Product' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -47,7 +51,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of dto.items">
+            <tr *ngFor="let item of d.items">
               <td><strong>{{ item.productName }}</strong><br><span class="code-chip">{{ item.productCode }}</span></td>
               <td>{{ item.orderedQuantity | number:'1.0-4' }} {{ item.unitShortName }}</td>
               <td *ngIf="canViewCost">{{ item.unitPurchasePrice != null ? (item.unitPurchasePrice | number:'1.2-2') : '—' }}</td>
@@ -60,39 +64,48 @@
       </div>
 
       <div class="totals-card" *ngIf="canViewCost">
-        <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ dto.subTotal | number:'1.2-2' }}</strong></div>
-        <div class="totals-row"><span>{{ '::DiscountAmount' | abpLocalization }}</span><strong>-{{ dto.discountAmount | number:'1.2-2' }}</strong></div>
-        <div class="totals-row"><span>{{ '::TaxAmount' | abpLocalization }}</span><strong>{{ dto.taxAmount | number:'1.2-2' }}</strong></div>
-        <div class="totals-row"><span>{{ '::ShippingCharges' | abpLocalization }}</span><strong>{{ dto.shippingCharges | number:'1.2-2' }}</strong></div>
-        <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ dto.otherCharges | number:'1.2-2' }}</strong></div>
-        <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ dto.grandTotal | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ d.subTotal | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::DiscountAmount' | abpLocalization }}</span><strong>-{{ d.discountAmount | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::TaxAmount' | abpLocalization }}</span><strong>{{ d.taxAmount | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::ShippingCharges' | abpLocalization }}</span><strong>{{ d.shippingCharges | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ d.otherCharges | number:'1.2-2' }}</strong></div>
+        <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ d.grandTotal | number:'1.2-2' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="dto.status === ShopPurchaseOrderStatus.Approved || dto.approvedByUserId">
-      <h6 class="section-title">{{ '::ApprovalInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopPurchaseOrderStatus.Approved || d.approvedByUserId">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-check-circle"></i></span><h6>{{ '::ApprovalInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::ApprovedOn' | abpLocalization }}</span><strong>{{ dto.approvedDate ? (dto.approvedDate | date:'medium') : '—' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::ApprovedOn' | abpLocalization }}</span><strong>{{ d.approvedDate ? (d.approvedDate | date:'medium') : '—' }}</strong></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="dto.status === ShopPurchaseOrderStatus.Rejected">
-      <h6 class="section-title">{{ '::RejectionInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopPurchaseOrderStatus.Rejected">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-times-circle"></i></span><h6>{{ '::RejectionInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::RejectedOn' | abpLocalization }}</span><strong>{{ dto.rejectedDate ? (dto.rejectedDate | date:'medium') : '—' }}</strong></div>
-        <div class="col-12 col-md-6"><span class="field-label">{{ '::RejectionReason' | abpLocalization }}</span><p class="notes-text">{{ dto.rejectionReason }}</p></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::RejectedOn' | abpLocalization }}</span><strong>{{ d.rejectedDate ? (d.rejectedDate | date:'medium') : '—' }}</strong></div>
+        <div class="col-12 col-md-6"><span class="field-label">{{ '::RejectionReason' | abpLocalization }}</span><p class="notes-text">{{ d.rejectionReason }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card" *ngIf="dto.status === ShopPurchaseOrderStatus.Cancelled">
-      <h6 class="section-title">{{ '::CancellationInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card" *ngIf="d.status === ShopPurchaseOrderStatus.Cancelled">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-ban"></i></span><h6>{{ '::CancellationInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
-        <div class="col-6 col-md-3"><span class="field-label">{{ '::CancelledOn' | abpLocalization }}</span><strong>{{ dto.cancelledDate ? (dto.cancelledDate | date:'medium') : '—' }}</strong></div>
-        <div class="col-12 col-md-6"><span class="field-label">{{ '::CancellationReason' | abpLocalization }}</span><p class="notes-text">{{ dto.cancellationReason }}</p></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::CancelledOn' | abpLocalization }}</span><strong>{{ d.cancelledDate ? (d.cancelledDate | date:'medium') : '—' }}</strong></div>
+        <div class="col-12 col-md-6"><span class="field-label">{{ '::CancellationReason' | abpLocalization }}</span><p class="notes-text">{{ d.cancellationReason }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="rejectModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::RejectPurchaseOrder' | abpLocalization }}</h5></ng-template>

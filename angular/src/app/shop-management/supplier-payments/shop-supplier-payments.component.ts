@@ -42,7 +42,7 @@ export class ShopSupplierPaymentsComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   supplierFilter = '';
   statusFilter: ShopSupplierPaymentStatus | '' = '';
   typeFilter: ShopSupplierPaymentType | '' = '';
@@ -61,7 +61,7 @@ export class ShopSupplierPaymentsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         supplierId: this.supplierFilter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         paymentType: this.typeFilter === '' ? undefined : this.typeFilter,

@@ -38,7 +38,7 @@ export class ShopGoodsReceiptsComponent implements OnInit {
   pageSize = 10;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   supplierFilter = '';
   statusFilter: ShopGoodsReceiptStatus | '' = '';
   receiptDateFrom: string | null = null;
@@ -56,7 +56,7 @@ export class ShopGoodsReceiptsComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         supplierId: this.supplierFilter || undefined,
         status: this.statusFilter === '' ? undefined : this.statusFilter,
         receiptDateFrom: this.receiptDateFrom || undefined,

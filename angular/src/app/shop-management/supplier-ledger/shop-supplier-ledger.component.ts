@@ -33,7 +33,7 @@ export class ShopSupplierLedgerComponent implements OnInit {
   dateFrom: string | null = null;
   dateTo: string | null = null;
   referenceType: ShopSupplierLedgerReferenceType | '' = '';
-  filter = '';
+  filters: { filter?: string } = {};
 
   @ViewChild('statementRef') statementRef?: ElementRef<HTMLElement>;
 
@@ -108,7 +108,7 @@ export class ShopSupplierLedgerComponent implements OnInit {
         dateFrom: this.dateFrom || undefined,
         dateTo: this.dateTo || undefined,
         referenceType: this.referenceType === '' ? undefined : this.referenceType,
-        filter: this.filter || undefined,
+        filter: this.filters.filter || undefined,
       })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
@@ -121,7 +121,7 @@ export class ShopSupplierLedgerComponent implements OnInit {
     this.dateFrom = null;
     this.dateTo = null;
     this.referenceType = '';
-    this.filter = '';
+    this.filters = {};
     if (this.supplierId) this.load();
   }
 

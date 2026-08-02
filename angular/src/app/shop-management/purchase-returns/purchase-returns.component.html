@@ -1,35 +1,101 @@
-<div class="return-page">
-  <div class="heading"><div><h3>Purchase Returns
-    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip" [nzTooltipTitleContext]="{ en: 'Purchase Returns record goods sent back to a supplier from a completed Goods Receipt. Completing a draft return reduces stock and updates the supplier balance.', ur: 'Purchase Return اس سامان کا ریکارڈ ہے جو مکمل شدہ Goods Receipt میں سے سپلائر کو واپس کیا جاتا ہے۔ Draft return مکمل کرنے پر اسٹاک اور سپلائر کا حساب خود بخود درست ہو جاتا ہے۔' }"><i class="fas fa-info-circle"></i> How this works</button>
-  </h3><p>Manage goods returned to suppliers.</p></div></div>
-  <div class="card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-7"><div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="filter" (keyup.enter)="load(true)" placeholder="Search by return number, receipt, or supplier"></div></div>
-      <div class="col-12 col-sm-7 col-lg-3"><nz-select class="w-100" [(ngModel)]="status" nzAllowClear nzPlaceHolder="All Statuses" (ngModelChange)="load(true)"><nz-option [nzValue]="0" nzLabel="Draft"></nz-option><nz-option [nzValue]="1" nzLabel="Completed"></nz-option><nz-option [nzValue]="2" nzLabel="Cancelled"></nz-option></nz-select></div>
-      <div class="col-12 col-sm-5 col-lg-2"><button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)"><i class="fas fa-filter me-2"></i>Filter</button></div>
-    </div>
-    <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Return Number</th><th>Goods Receipt</th><th>Supplier</th><th>Return Date</th><th>Reason</th><th>Grand Total</th><th>Status</th><th>Completed Date</th><th class="text-end">Actions</th></tr></thead><tbody>
-      <tr *ngFor="let x of items"><td><strong>{{x.purchaseReturnNumber}}</strong></td><td>{{x.goodsReceiptNumber}}</td><td>{{x.supplierName}}</td><td>{{x.returnDate|date:'mediumDate'}}</td><td>{{reasonName(x.reason)}}</td><td>{{x.grandTotal==null?'—':(x.grandTotal|number:'1.2-2')}}</td><td><span class="badge" [class.completed]="x.status===1" [class.cancelled]="x.status===2">{{statusName(x.status)}}</span></td><td>{{x.completedDate?(x.completedDate|date:'mediumDate'):'—'}}</td><td class="text-end actions">
-        <button class="icon" (click)="view(x)" nz-tooltip nzTooltipTitle="View purchase return" nzTooltipPlacement="top" aria-label="View purchase return"><i class="fas fa-eye"></i></button><button *ngIf="x.status===0&&canEdit" class="icon" (click)="edit(x)" nz-tooltip nzTooltipTitle="Edit purchase return" nzTooltipPlacement="top" aria-label="Edit purchase return"><i class="fas fa-pen"></i></button><button *ngIf="x.status===0&&canComplete" class="icon good" (click)="complete(x)" nz-tooltip nzTooltipTitle="Complete purchase return" nzTooltipPlacement="top" aria-label="Complete purchase return"><i class="fas fa-check"></i></button><button *ngIf="x.status===0&&canCancel" class="icon warn" (click)="cancel(x)" nz-tooltip nzTooltipTitle="Cancel purchase return" nzTooltipPlacement="top" aria-label="Cancel purchase return"><i class="fas fa-ban"></i></button><button *ngIf="x.status===0&&canDelete" class="icon danger" (click)="remove(x)" nz-tooltip nzTooltipTitle="Delete purchase return" nzTooltipPlacement="top" aria-label="Delete purchase return"><i class="fas fa-trash"></i></button>
-      </td></tr><tr *ngIf="!loading&&!items.length"><td colspan="9" class="text-center py-5 text-muted">No purchase returns found.</td></tr>
-    </tbody></table></div>
+<abp-page>
+<app-topbar-layout titleKey="::PurchaseReturns" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchPurchaseReturns'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'Purchase Returns record goods sent back to a supplier from a completed Goods Receipt. Completing a draft return reduces stock and updates the supplier balance.', ur: 'Purchase Return اس سامان کا ریکارڈ ہے جو مکمل شدہ Goods Receipt میں سے سپلائر کو واپس کیا جاتا ہے۔ Draft return مکمل کرنے پر اسٹاک اور سپلائر کا حساب خود بخود درست ہو جاتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
   </div>
-</div>
-<ng-template #bilingualTooltip let-en="en" let-ur="ur"><div class="tooltip-lang-tabs"><button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button><button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button></div><div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div></ng-template>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="status" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization" (ngModelChange)="load(true)">
+        <nz-option [nzValue]="0" nzLabel="Draft"></nz-option>
+        <nz-option [nzValue]="1" nzLabel="Completed"></nz-option>
+        <nz-option [nzValue]="2" nzLabel="Cancelled"></nz-option>
+      </nz-select>
+    </div>
+  </ng-container>
+
+  <div class="return-page">
+  <div class="card return-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::ReturnNumber' | abpLocalization }}</th>
+            <th>{{ '::GoodsReceiptNumber' | abpLocalization }}</th>
+            <th>{{ '::Supplier' | abpLocalization }}</th>
+            <th>{{ '::ReturnDate' | abpLocalization }}</th>
+            <th>{{ '::Reason' | abpLocalization }}</th>
+            <th>{{ '::GrandTotal' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::CompletedDate' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let x of items">
+            <td><a class="return-link" (click)="view(x)">{{ x.purchaseReturnNumber }}</a></td>
+            <td>{{ x.goodsReceiptNumber }}</td>
+            <td>{{ x.supplierName }}</td>
+            <td>{{ x.returnDate | date:'mediumDate' }}</td>
+            <td>{{ reasonName(x.reason) }}</td>
+            <td>{{ x.grandTotal == null ? '—' : (x.grandTotal | number:'1.2-2') }}</td>
+            <td><span class="status-badge" [class.completed]="x.status === 1" [class.cancelled]="x.status === 2">{{ statusName(x.status) }}</span></td>
+            <td>{{ x.completedDate ? (x.completedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(x)" [title]="'::PurchaseReturn' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="x.status === 0 && canEdit" class="icon-btn" (click)="edit(x)" [title]="'::EditPurchaseReturn' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="x.status === 0 && canComplete" class="icon-btn good" (click)="complete(x)" [title]="'::CompletePurchaseReturn' | abpLocalization"><i class="fas fa-check"></i></button>
+              <button *ngIf="x.status === 0 && canCancel" class="icon-btn warn" (click)="cancel(x)" [title]="'::CancelPurchaseReturn' | abpLocalization"><i class="fas fa-ban"></i></button>
+              <button *ngIf="x.status === 0 && canDelete" class="icon-btn danger" (click)="remove(x)" [title]="'::DeletePurchaseReturn' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td colspan="9" class="empty-state"><i class="fas fa-undo-alt"></i><span>{{ '::NoPurchaseReturnsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="cancelSubmitting">
-  <ng-template #abpHeader><h5>Cancel Purchase Return</h5></ng-template>
+  <ng-template #abpHeader><h5>{{ '::CancelPurchaseReturn' | abpLocalization }}</h5></ng-template>
   <ng-template #abpBody>
     <form [formGroup]="cancelForm">
       <div class="mb-3">
-        <label>Cancellation Reason <b>*</b></label>
+        <label>{{ '::CancellationReason' | abpLocalization }} <b>*</b></label>
         <textarea rows="3" class="form-control" formControlName="cancellationReason"></textarea>
-        <small class="text-danger" *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">This field is required.</small>
+        <small class="text-danger" *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
       </div>
     </form>
   </ng-template>
   <ng-template #abpFooter>
-    <button class="btn btn-light btn-sm" abpClose>Cancel</button>
-    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || cancelSubmitting" (click)="confirmCancel()">Cancel Purchase Return</button>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || cancelSubmitting" (click)="confirmCancel()">{{ '::CancelPurchaseReturn' | abpLocalization }}</button>
   </ng-template>
 </abp-modal>

@@ -1,42 +1,48 @@
-<div class="editor-page">
-  <div class="editor-header">
-    <div>
-      <button class="back-btn" (click)="cancel()"><i class="fas fa-arrow-left"></i></button>
-      <span>
-        <h3 class="help-title">{{ (isEdit ? '::EditGoodsReceipt' : '::CreateGoodsReceipt') | abpLocalization }}
-          <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Goods receipt fields help</span></button>
-          <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-            <div class="transaction-help-item"><strong dir="ltr">Receipt Date</strong><span>جس دن سامان وصول ہوا وہ تاریخ درج کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Supplier Invoice Number</strong><span>سپلائر کے بل پر لکھا ہوا انوائس نمبر۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Shipping / Other Charges</strong><span>سامان لانے اور دوسرے اضافی خرچ کی رقم۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Included</strong><span>جو پروڈکٹ واقعی وصول ہوئی ہے اسے منتخب رکھیں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Received Quantity</strong><span>اصل میں وصول ہونے والی پروڈکٹ کی مقدار۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Bonus Quantity</strong><span>سپلائر سے مفت ملنے والی اضافی مقدار۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Purchase / Sale Price</strong><span>وصول شدہ مال کی خریداری اور فروخت قیمت۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Batch Number</strong><span>اگر پروڈکٹ بیچ کے حساب سے ہے تو بیچ نمبر لکھیں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Manufacturing / Expiry Date</strong><span>سامان بننے اور ختم ہونے کی تاریخ درج کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>رعایت اور ٹیکس کی فیصد درج کریں۔</span></div>
-            <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>سامان کی وصولی سے متعلق ضروری بات لکھیں۔</span></div>
-          </div>
-        </h3>
-        <p>{{ purchaseOrderNumber }}</p>
-      </span>
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditGoodsReceipt' : '::CreateGoodsReceipt'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span class="gr-number-badge">{{ purchaseOrderNumber }}</span>
+    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Goods receipt fields help</span></button>
+    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
+      <div class="transaction-help-item"><strong dir="ltr">Receipt Date</strong><span>جس دن سامان وصول ہوا وہ تاریخ درج کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Supplier Invoice Number</strong><span>سپلائر کے بل پر لکھا ہوا انوائس نمبر۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Shipping / Other Charges</strong><span>سامان لانے اور دوسرے اضافی خرچ کی رقم۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Included</strong><span>جو پروڈکٹ واقعی وصول ہوئی ہے اسے منتخب رکھیں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Received Quantity</strong><span>اصل میں وصول ہونے والی پروڈکٹ کی مقدار۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Bonus Quantity</strong><span>سپلائر سے مفت ملنے والی اضافی مقدار۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Purchase / Sale Price</strong><span>وصول شدہ مال کی خریداری اور فروخت قیمت۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Batch Number</strong><span>اگر پروڈکٹ بیچ کے حساب سے ہے تو بیچ نمبر لکھیں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Manufacturing / Expiry Date</strong><span>سامان بننے اور ختم ہونے کی تاریخ درج کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>رعایت اور ٹیکس کی فیصد درج کریں۔</span></div>
+      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>سامان کی وصولی سے متعلق ضروری بات لکھیں۔</span></div>
     </div>
   </div>
 
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-    <div class="gr-form-card">
-      <h6 class="section-title">{{ '::PurchaseOrderDetails' | abpLocalization }}</h6>
+    <section class="form-section gr-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-file-invoice"></i></span><h6>{{ '::PurchaseOrderDetails' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::PurchaseOrderNumber' | abpLocalization }}</span><strong>{{ purchaseOrderNumber }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::Supplier' | abpLocalization }}</span><strong>{{ supplierCode }} - {{ supplierName }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::OrderDate' | abpLocalization }}</span><strong>{{ orderDate ? (orderDate | date:'mediumDate') : '—' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::ExpectedDeliveryDate' | abpLocalization }}</span><strong>{{ expectedDeliveryDate ? (expectedDeliveryDate | date:'mediumDate') : '—' }}</strong></div>
       </div>
+      </div>
+    </section>
 
-      <h6 class="section-title">{{ '::ReceivingInformation' | abpLocalization }}</h6>
+    <section class="form-section gr-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-dolly"></i></span><h6>{{ '::ReceivingInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-12 col-md-6 col-xl-3">
           <label>{{ '::ReceiptDate' | abpLocalization }} <b class="required">*</b></label>
@@ -60,10 +66,12 @@
           <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
         </div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="gr-form-card items-card">
-      <h6 class="section-title mb-2">{{ '::Product' | abpLocalization }}</h6>
+    <section class="form-section gr-form-card items-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::Product' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <small class="error d-block mb-2" *ngIf="form.errors?.['noItemsIncluded']">{{ '::GoodsReceiptRequiresItems' | abpLocalization }}</small>
 
       <div class="table-responsive">
@@ -127,14 +135,18 @@
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="gr-form-card totals-card" *ngIf="canViewCost">
+    <section class="form-section gr-form-card totals-card" *ngIf="canViewCost">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::Totals' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ subTotal | number:'1.2-2' }}</strong></div>
       <div class="totals-row"><span>{{ '::ShippingCharges' | abpLocalization }}</span><strong>{{ form.value.shippingCharges | number:'1.2-2' }}</strong></div>
       <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ form.value.otherCharges | number:'1.2-2' }}</strong></div>
       <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ grandTotal | number:'1.2-2' }}</strong></div>
-    </div>
+      </div>
+    </section>
 
     <div class="card-save">
       <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
@@ -144,4 +156,6 @@
       </button>
     </div>
   </form>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

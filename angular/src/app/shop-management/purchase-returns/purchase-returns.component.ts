@@ -13,14 +13,16 @@ import { PurchaseReturn, PurchaseReturnService } from './purchase-return.service
 })
 export class PurchaseReturnsComponent implements OnInit {
   private s = inject(PurchaseReturnService); private router = inject(Router); private permissions = inject(PermissionService); private confirm = inject(ConfirmationService); private toast = inject(ToasterService); private fb = inject(FormBuilder);
-  items: PurchaseReturn[] = []; totalCount = 0; page = 0; pageSize = 10; loading = false; filter = ''; status: any = null; tooltipLang: 'en' | 'ur' = 'en'; Math = Math;
+  items: PurchaseReturn[] = []; totalCount = 0; page = 0; pageSize = 10; loading = false; filters: { filter?: string } = {}; status: any = null; tooltipLang: 'en' | 'ur' = 'en'; Math = Math;
   canCreate = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Create'); canEdit = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Edit'); canDelete = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Delete'); canComplete = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Complete'); canCancel = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Cancel');
 
   cancelModalOpen = false; cancelTarget?: PurchaseReturn; cancelSubmitting = false;
   cancelForm = this.fb.group({ cancellationReason: ['', [Validators.required, Validators.maxLength(500)]] });
 
   ngOnInit() { this.load(); }
-  load(reset = false) { if (reset) this.page = 0; this.loading = true; this.s.getList({ filter: this.filter || undefined, status: this.status, skipCount: this.page * this.pageSize, maxResultCount: this.pageSize }).subscribe({ next: r => { this.items = r.items || []; this.totalCount = r.totalCount; this.loading = false; }, error: () => this.loading = false }); }
+  load(reset = false) { if (reset) this.page = 0; this.loading = true; this.s.getList({ filter: this.filters.filter || undefined, status: this.status, skipCount: this.page * this.pageSize, maxResultCount: this.pageSize }).subscribe({ next: r => { this.items = r.items || []; this.totalCount = r.totalCount; this.loading = false; }, error: () => this.loading = false }); }
+  previousPage() { if (this.page > 0) { this.page--; this.load(); } }
+  nextPage() { if ((this.page + 1) * this.pageSize < this.totalCount) { this.page++; this.load(); } }
   edit(x: PurchaseReturn) { this.router.navigate(['/shop-management/purchase-returns', x.id, 'edit']); }
   view(x: PurchaseReturn) { this.router.navigate(['/shop-management/purchase-returns', x.id]); }
   remove(x: PurchaseReturn) { this.confirm.warn('::ConfirmDeletePurchaseReturn', x.purchaseReturnNumber).subscribe(v => { if (v === Confirmation.Status.confirm) this.s.delete(x.id).subscribe(() => this.load()); }); }
