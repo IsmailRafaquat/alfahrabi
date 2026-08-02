@@ -332,6 +332,37 @@ public static class EHubPermissions
         public const string ManageSettings = Default + ".ManageSettings";
     }
 
+    public static class ShopMcp
+    {
+        public const string Default = ManagementMenus.Shop + ".Mcp";
+        public const string Use = Default + ".Use";
+        public const string ReadTools = Default + ".ReadTools";
+        public const string WriteTools = Default + ".WriteTools";
+
+        public const string GetModuleHelp = Default + ".GetModuleHelp";
+        public const string GetUnitFields = Default + ".GetUnitFields";
+        public const string GetProductStock = Default + ".GetProductStock";
+        public const string GetCustomerBalance = Default + ".GetCustomerBalance";
+        public const string GetSupplierBalance = Default + ".GetSupplierBalance";
+        public const string GetTodaySales = Default + ".GetTodaySales";
+        public const string GetDashboardSummary = Default + ".GetDashboardSummary";
+
+        public const string PrepareCreateUnit = Default + ".PrepareCreateUnit";
+        public const string ConfirmCreateUnit = Default + ".ConfirmCreateUnit";
+        public const string PrepareCreateCustomer = Default + ".PrepareCreateCustomer";
+        public const string ConfirmCreateCustomer = Default + ".ConfirmCreateCustomer";
+        public const string PrepareCreateSupplier = Default + ".PrepareCreateSupplier";
+        public const string ConfirmCreateSupplier = Default + ".ConfirmCreateSupplier";
+        public const string PrepareCreateProduct = Default + ".PrepareCreateProduct";
+        public const string ConfirmCreateProduct = Default + ".ConfirmCreateProduct";
+        public const string PrepareCreateExpenseDraft = Default + ".PrepareCreateExpenseDraft";
+        public const string ConfirmCreateExpenseDraft = Default + ".ConfirmCreateExpenseDraft";
+        public const string PrepareCreateSaleDraft = Default + ".PrepareCreateSaleDraft";
+        public const string ConfirmCreateSaleDraft = Default + ".ConfirmCreateSaleDraft";
+        public const string PrepareCreatePurchaseOrderDraft = Default + ".PrepareCreatePurchaseOrderDraft";
+        public const string ConfirmCreatePurchaseOrderDraft = Default + ".ConfirmCreatePurchaseOrderDraft";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

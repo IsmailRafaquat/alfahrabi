@@ -7180,6 +7180,66 @@
             }
           }
         },
+        "EHub.ShopManagement.AiAssistant.ShopAiVoiceController": {
+          "controllerName": "ShopAiVoice",
+          "controllerGroupName": null,
+          "isRemoteService": false,
+          "isIntegrationService": false,
+          "apiVersion": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceController",
+          "interfaces": [],
+          "actions": {
+            "TranscribeAsyncByInput": {
+              "uniqueName": "TranscribeAsyncByInput",
+              "name": "TranscribeAsync",
+              "httpMethod": "POST",
+              "url": "api/app/shop-ai-voice/transcribe",
+              "supportedVersions": [],
+              "parametersOnMethod": [
+                {
+                  "name": "input",
+                  "typeAsString": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto, EHub.Application.Contracts",
+                  "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                  "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceUploadDto",
+                  "isOptional": false,
+                  "defaultValue": null
+                }
+              ],
+              "parameters": [
+                {
+                  "nameOnMethod": "input",
+                  "name": "Audio",
+                  "jsonName": null,
+                  "type": "Volo.Abp.Content.IRemoteStreamContent",
+                  "typeSimple": "Volo.Abp.Content.IRemoteStreamContent",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "FormFile",
+                  "descriptorName": "input"
+                },
+                {
+                  "nameOnMethod": "input",
+                  "name": "LanguageHint",
+                  "jsonName": null,
+                  "type": "System.String",
+                  "typeSimple": "string",
+                  "isOptional": false,
+                  "defaultValue": null,
+                  "constraintTypes": null,
+                  "bindingSourceId": "Form",
+                  "descriptorName": "input"
+                }
+              ],
+              "returnValue": {
+                "type": "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto",
+                "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiVoiceTranscriptionDto"
+              },
+              "allowAnonymous": false,
+              "implementFrom": "EHub.ShopManagement.AiAssistant.ShopAiVoiceController"
+            }
+          }
+        },
         "EHub.ShopManagement.BankAccounts.ShopBankAccountAppService": {
           "controllerName": "ShopBankAccount",
           "controllerGroupName": "ShopBankAccount",

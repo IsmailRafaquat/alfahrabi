@@ -5,6 +5,9 @@ public enum ShopAiRateLimitCategory
     Text,
     Voice,
     Confirmation,
+    McpRead,
+    McpPrepare,
+    McpConfirm,
 }
 
 /// <summary>

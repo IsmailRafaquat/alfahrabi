@@ -3,7 +3,10 @@
     "allow": [
       "Bash(dotnet tool *)",
       "Bash(python3 -c \"import json; json.load\\(open\\('src/EHub.Domain.Shared/Localization/EHub/en.json', encoding='utf-8'\\)\\); print\\('valid json'\\)\")",
-      "Bash(node test_ollama3.js system_prompt.txt user_message.txt)"
+      "Bash(node test_ollama3.js system_prompt.txt user_message.txt)",
+      "Bash(dotnet restore *)",
+      "Bash(rm -rf \"c:/Users/X1/Documents/GitHub/alfahrabi/src/EHub.McpServer/obj\" \"c:/Users/X1/Documents/GitHub/alfahrabi/src/EHub.McpServer/bin\")",
+      "Bash(dotnet list *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\X1\\Documents\\GitHub\\alfahrabi\\src\\EHub.Domain"

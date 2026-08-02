@@ -24,4 +24,8 @@ public class ShopAiOptions
     public int TextCommandsPerMinute { get; set; } = 20;
     public int VoiceCommandsPerMinute { get; set; } = 5;
     public int ConfirmationAttemptsPerMinute { get; set; } = 10;
+
+    public int McpReadToolsPerMinute { get; set; } = 60;
+    public int McpPrepareToolsPerMinute { get; set; } = 20;
+    public int McpConfirmToolsPerMinute { get; set; } = 10;
 }

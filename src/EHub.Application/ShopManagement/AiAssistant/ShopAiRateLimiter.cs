@@ -24,6 +24,9 @@ public class ShopAiRateLimiter : IShopAiRateLimiter, ISingletonDependency
             ShopAiRateLimitCategory.Text => _options.Value.TextCommandsPerMinute,
             ShopAiRateLimitCategory.Voice => _options.Value.VoiceCommandsPerMinute,
             ShopAiRateLimitCategory.Confirmation => _options.Value.ConfirmationAttemptsPerMinute,
+            ShopAiRateLimitCategory.McpRead => _options.Value.McpReadToolsPerMinute,
+            ShopAiRateLimitCategory.McpPrepare => _options.Value.McpPrepareToolsPerMinute,
+            ShopAiRateLimitCategory.McpConfirm => _options.Value.McpConfirmToolsPerMinute,
             _ => 0,
         };
         if (limit <= 0) return true;

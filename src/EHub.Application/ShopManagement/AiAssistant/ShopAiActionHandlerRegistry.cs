@@ -28,7 +28,9 @@ public class ShopAiActionHandlerRegistry : IShopAiActionHandlerRegistry, ITransi
 
     public ShopAiActionHandlerRegistry(IEnumerable<IShopAiActionHandler> handlers, ILogger<ShopAiActionHandlerRegistry> logger)
     {
-        _handlers = handlers.ToDictionary(h => h.ActionType);
+        // GroupBy+First rather than ToDictionary: tolerates the same ActionType being registered
+        // more than once (e.g. both conventionally and explicitly) instead of throwing.
+        _handlers = handlers.GroupBy(h => h.ActionType).ToDictionary(g => g.Key, g => g.First());
         // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.
         logger.LogInformation("ShopAiActionHandlerRegistry resolved {Count} handlers: {ActionTypes}", _handlers.Count, string.Join(",", _handlers.Keys));
     }

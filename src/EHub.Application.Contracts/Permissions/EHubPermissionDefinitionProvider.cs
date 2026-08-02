@@ -217,6 +217,32 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.CreatePhysicalStockCountDraft, L("Permission:ShopAiAssistant.CreatePhysicalStockCountDraft"));
         shopAiAssistant.AddChild(EHubPermissions.ShopAiAssistant.ManageSettings, L("Permission:ShopAiAssistant.ManageSettings"));
 
+        var shopMcp = shopManagement.AddChild(EHubPermissions.ShopMcp.Default, L("Permission:ShopMcp"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.Use, L("Permission:ShopMcp.Use"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ReadTools, L("Permission:ShopMcp.ReadTools"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.WriteTools, L("Permission:ShopMcp.WriteTools"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetModuleHelp, L("Permission:ShopMcp.GetModuleHelp"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetUnitFields, L("Permission:ShopMcp.GetUnitFields"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetProductStock, L("Permission:ShopMcp.GetProductStock"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetCustomerBalance, L("Permission:ShopMcp.GetCustomerBalance"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetSupplierBalance, L("Permission:ShopMcp.GetSupplierBalance"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetTodaySales, L("Permission:ShopMcp.GetTodaySales"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.GetDashboardSummary, L("Permission:ShopMcp.GetDashboardSummary"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreateUnit, L("Permission:ShopMcp.PrepareCreateUnit"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreateUnit, L("Permission:ShopMcp.ConfirmCreateUnit"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreateCustomer, L("Permission:ShopMcp.PrepareCreateCustomer"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreateCustomer, L("Permission:ShopMcp.ConfirmCreateCustomer"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreateSupplier, L("Permission:ShopMcp.PrepareCreateSupplier"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreateSupplier, L("Permission:ShopMcp.ConfirmCreateSupplier"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreateProduct, L("Permission:ShopMcp.PrepareCreateProduct"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreateProduct, L("Permission:ShopMcp.ConfirmCreateProduct"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreateExpenseDraft, L("Permission:ShopMcp.PrepareCreateExpenseDraft"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreateExpenseDraft, L("Permission:ShopMcp.ConfirmCreateExpenseDraft"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreateSaleDraft, L("Permission:ShopMcp.PrepareCreateSaleDraft"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreateSaleDraft, L("Permission:ShopMcp.ConfirmCreateSaleDraft"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.PrepareCreatePurchaseOrderDraft, L("Permission:ShopMcp.PrepareCreatePurchaseOrderDraft"));
+        shopMcp.AddChild(EHubPermissions.ShopMcp.ConfirmCreatePurchaseOrderDraft, L("Permission:ShopMcp.ConfirmCreatePurchaseOrderDraft"));
+
         var dashboardPermission =
           myGroup.AddPermission(EHubPermissions.Dashboards.Dashboard, L("Permission:Dashboard"));
 

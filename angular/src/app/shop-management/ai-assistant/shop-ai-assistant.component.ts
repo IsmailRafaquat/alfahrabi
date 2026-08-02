@@ -343,7 +343,7 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
 
     this.recordingCancelled = false;
     this.audioChunks = [];
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+    const mimeType = this.getSupportedAudioMimeType();
     this.mediaRecorder = mimeType ? new MediaRecorder(this.mediaStream, { mimeType }) : new MediaRecorder(this.mediaStream);
     this.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) this.audioChunks.push(e.data); };
     this.mediaRecorder.onstop = () => this.onRecordingStopped();
@@ -366,22 +366,54 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
     this.stopRecording();
   }
 
+  private getSupportedAudioMimeType(): string {
+    const supportedTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg'];
+    return supportedTypes.find(type => MediaRecorder.isTypeSupported(type)) || '';
+  }
+
+  private getAudioExtension(mimeType: string): string {
+    if (mimeType.includes('webm')) return 'webm';
+    if (mimeType.includes('wav')) return 'wav';
+    if (mimeType.includes('mpeg') || mimeType.includes('mp3')) return 'mp3';
+    if (mimeType.includes('ogg')) return 'ogg';
+    if (mimeType.includes('mp4') || mimeType.includes('m4a')) return 'm4a';
+    return 'webm';
+  }
+
   private onRecordingStopped(): void {
     this.stopMediaStream();
     if (this.recordingCancelled || this.audioChunks.length === 0) return;
 
-    const blob = new Blob(this.audioChunks, { type: this.mediaRecorder?.mimeType || 'audio/webm' });
+    // Guards against onstop somehow firing twice for the same recording (e.g. a future change
+    // wiring a second stop path) - without this, two transcribe calls could add two assistant
+    // messages for what the user experienced as a single recording.
+    if (this.transcribing) return;
+
+    const recordedMimeType = this.mediaRecorder?.mimeType || 'audio/webm';
+    const blob = new Blob(this.audioChunks, { type: recordedMimeType });
+    const fileName = `voice-${Date.now()}.${this.getAudioExtension(recordedMimeType)}`;
+
     this.transcribing = true;
-    this.voiceUploadService.transcribe(blob, 'recording.webm').subscribe({
-      next: result => {
-        this.transcribing = false;
-        this.pendingTranscription = { text: result.text, isLowConfidence: result.isLowConfidence, detectedLanguage: result.detectedLanguage };
-      },
-      error: e => {
-        this.transcribing = false;
-        this.showError(e);
-      },
-    });
+    this.voiceUploadService
+      .transcribe(blob, fileName)
+      .pipe(finalize(() => (this.transcribing = false)))
+      .subscribe({
+        next: result => {
+          this.pendingTranscription = { text: result.text, isLowConfidence: result.isLowConfidence, detectedLanguage: result.detectedLanguage };
+        },
+        error: e => this.showVoiceError(e),
+      });
+  }
+
+  private showVoiceError(e: any): void {
+    const status = e?.status;
+    if (status === 415) {
+      this.toaster.error('::AiAssistant.VoiceUploadRejected');
+    } else if (status === 0 || status === 503) {
+      this.toaster.error('::AiAssistant.SpeechServiceUnavailable');
+    } else {
+      this.toaster.error('::AiAssistant.VoiceFormatUnsupported');
+    }
   }
 
   private stopMediaStream(): void {

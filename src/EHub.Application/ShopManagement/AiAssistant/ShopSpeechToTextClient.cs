@@ -39,8 +39,15 @@ public class ShopSpeechToTextClient : IShopSpeechToTextClient, ITransientDepende
         {
             using var form = new MultipartFormDataContent();
             using var streamContent = new StreamContent(audioStream);
-            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(
-                string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType);
+            // MediaTypeHeaderValue's constructor is stricter than what real browsers send - e.g.
+            // MediaRecorder's own mimeType "audio/webm;codecs=opus" (no space after the semicolon)
+            // throws FormatException here. Strip any parameters and keep just the base type/subtype;
+            // the Python service only needs a syntactically valid Content-Type at all, and
+            // faster-whisper/ffmpeg detect the real container format from the audio bytes regardless
+            // of what this header says.
+            var rawContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType;
+            var baseMediaType = rawContentType.Split(';')[0].Trim();
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(baseMediaType);
 
             // A random, server-chosen file name only - the browser's original file name is never forwarded.
             form.Add(streamContent, "audio", fileName);

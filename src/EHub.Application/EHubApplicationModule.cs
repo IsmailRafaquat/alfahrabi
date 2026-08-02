@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using EHub.ShopManagement.AiAssistant;
+using EHub.ShopManagement.AiAssistant.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,8 +40,21 @@ public class EHubApplicationModule : AbpModule
         var configuration = context.Services.GetConfiguration();
         Configure<ShopAiOptions>(configuration.GetSection("ShopAi"));
         Configure<ShopAiSpeechOptions>(configuration.GetSection("ShopAiSpeech"));
+        Configure<ShopMcpOptions>(configuration.GetSection("ShopMcp"));
 
         ConfigureShopAiHttpClients(context);
+
+        // ABP's conventional registrar (ITransientDependency scan) was not picking these three up
+        // for reasons not yet root-caused - GetTodaySalesAiHandler, CreateCustomerAiHandler, and
+        // CreateUnitAiHandler all showed 0 resolutions via IEnumerable<IShopAiActionHandler> even
+        // at OnApplicationInitialization, despite identical declarations to sibling classes in the
+        // same assembly that DO get registered conventionally. Explicit registration here is a
+        // known-correct fix regardless of the underlying cause; ShopAiActionHandlerRegistry also
+        // now de-duplicates by ActionType so this is safe even if the convention scan starts
+        // registering these too after some future ABP/tooling update.
+        context.Services.AddTransient<IShopAiActionHandler, GetTodaySalesAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, CreateCustomerAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, CreateUnitAiHandler>();
     }
 
     // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.
