@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PageModule } from '@abp/ng.components/page';
 import { SharedModule } from '../../shared/shared.module';
+import { TopbarLayoutModule } from '../../components/topbar-layout/topbar-layout.module';
 import { ShopCashRegisterComponent } from './shop-cash-register.component';
 import { ShopCashTransactionsComponent } from './shop-cash-transactions.component';
 import { ShopCashClosingsComponent } from './shop-cash-closings.component';
@@ -15,6 +17,6 @@ import { ShopCashRegisterRoutingModule } from './shop-cash-register-routing.modu
     ShopCashClosingsComponent,
     ShopCashClosingDetailComponent,
   ],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule, ShopCashRegisterRoutingModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule, PageModule, TopbarLayoutModule, ShopCashRegisterRoutingModule],
 })
 export class ShopCashRegisterModule {}

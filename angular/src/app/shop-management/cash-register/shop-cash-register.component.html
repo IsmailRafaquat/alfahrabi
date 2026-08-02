@@ -1,16 +1,14 @@
-<div class="register-page">
-  <div class="page-heading">
-    <div>
-      <h3>{{ '::CashRegister' | abpLocalization }}</h3>
-      <p>{{ '::CashManagementDescription' | abpLocalization }}</p>
-    </div>
-    <div class="heading-actions">
-      <button class="btn btn-outline-primary btn-sm" (click)="viewTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::CashTransactions' | abpLocalization }}</button>
-      <button class="btn btn-outline-primary btn-sm" (click)="viewClosings()"><i class="fas fa-book me-2"></i>{{ '::DailyClosings' | abpLocalization }}</button>
-      <button *ngIf="canManageRegisters" class="btn btn-light btn-sm" (click)="manageRegisters()"><i class="fas fa-cog me-2"></i>{{ '::CashRegisters' | abpLocalization }}</button>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::CashRegister" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2">
+    <button class="btn btn-outline-primary btn-sm" (click)="viewTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::CashTransactions' | abpLocalization }}</button>
+    <button class="btn btn-outline-primary btn-sm" (click)="viewClosings()"><i class="fas fa-book me-2"></i>{{ '::DailyClosings' | abpLocalization }}</button>
+    <button *ngIf="canManageRegisters" class="btn btn-light btn-sm" (click)="manageRegisters()"><i class="fas fa-cog me-2"></i>{{ '::CashRegisters' | abpLocalization }}</button>
   </div>
 
+  <div class="register-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading">
@@ -78,7 +76,9 @@
       </ng-container>
     </div>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="movementModalOpen" [busy]="submitting">
   <ng-template #abpHeader>

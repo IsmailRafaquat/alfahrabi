@@ -27,7 +27,7 @@ export class ShopCashRegistersComponent implements OnInit {
   modalOpen = false;
   selected?: ShopCashRegisterDto;
 
-  search = '';
+  filters: { filter?: string } = {};
   statusFilter: boolean | null = null;
 
   readonly form = this.fb.group({
@@ -47,7 +47,7 @@ export class ShopCashRegistersComponent implements OnInit {
     this.loading = true;
     this.service
       .getList({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         isActive: this.statusFilter ?? undefined,
         sorting: 'name asc',
         skipCount: this.page * this.pageSize,

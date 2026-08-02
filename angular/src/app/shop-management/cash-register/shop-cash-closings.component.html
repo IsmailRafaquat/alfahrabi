@@ -1,27 +1,30 @@
-<div class="sp-page">
-  <div class="page-heading">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <h3 class="d-inline-block ms-2">{{ '::DailyClosings' | abpLocalization }}</h3>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::DailyClosings" showSearch="false" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
   </div>
-  <div class="card sp-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-3">
-        <nz-select class="w-100" [(ngModel)]="registerFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllCashRegisters' | abpLocalization">
-          <nz-option *ngFor="let r of registers" [nzValue]="r.id" [nzLabel]="r.code + ' - ' + r.name"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-6 col-lg-2">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)" [title]="'::BusinessDate' | abpLocalization">
-      </div>
-      <div class="col-6 col-lg-2">
-        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)" [title]="'::BusinessDate' | abpLocalization">
-      </div>
-      <div class="col-12 col-lg-2">
-        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
-      </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::CashRegister' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="registerFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllCashRegisters' | abpLocalization">
+        <nz-option *ngFor="let r of registers" [nzValue]="r.id" [nzLabel]="r.code + ' - ' + r.name"></nz-option>
+      </nz-select>
     </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="sp-page">
+  <div class="card sp-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -64,4 +67,6 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>

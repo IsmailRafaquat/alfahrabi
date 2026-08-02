@@ -1,27 +1,29 @@
-<div class="detail-page screen-only">
-  <div class="detail-header">
-    <div>
-      <button class="back-btn" (click)="back()"><i class="fas fa-arrow-left"></i></button>
-      <span *ngIf="closing">
-        <h3>{{ closing.cashRegisterCode }} - {{ closing.cashRegisterName }} <span class="status-badge" [ngClass]="statusClass(closing.status)">{{ statusLabel(closing.status) | abpLocalization }}</span></h3>
-        <p>{{ closing.businessDate | date:'fullDate' }}</p>
-      </span>
-    </div>
-    <div class="actions" *ngIf="closing">
-      <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" nz-tooltip [nzTooltipTitle]="'::PrintClosing' | abpLocalization" nzTooltipPlacement="top" (click)="print()">
-        <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
-      </button>
-      <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" nz-tooltip [nzTooltipTitle]="'::ShareOnWhatsApp' | abpLocalization" nzTooltipPlacement="top" (click)="shareOnWhatsApp()">
-        <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
-      </button>
-    </div>
+<abp-page class="screen-only">
+<app-topbar-layout titleKey="::DailyClosings" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="closing">
+    <span class="closing-number-badge">{{ closing.cashRegisterCode }} - {{ closing.cashRegisterName }}</span>
+    <span class="status-badge" [ngClass]="statusClass(closing.status)">{{ statusLabel(closing.status) | abpLocalization }}</span>
   </div>
 
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="closing">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" nz-tooltip [nzTooltipTitle]="'::PrintClosing' | abpLocalization" nzTooltipPlacement="top" (click)="print()">
+      <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
+    </button>
+    <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" nz-tooltip [nzTooltipTitle]="'::ShareOnWhatsApp' | abpLocalization" nzTooltipPlacement="top" (click)="shareOnWhatsApp()">
+      <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
+    </button>
+  </div>
+
+  <div class="detail-page">
   <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
 
   <ng-container *ngIf="!loading && closing">
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::BasicInformation' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="row g-3">
         <div class="col-6 col-md-3"><span class="field-label">{{ '::BusinessDate' | abpLocalization }}</span><strong>{{ closing.businessDate | date:'mediumDate' }}</strong></div>
         <div class="col-6 col-md-3"><span class="field-label">{{ '::OpenedBy' | abpLocalization }}</span><strong>{{ closing.openedDate | date:'medium' }}</strong></div>
@@ -29,10 +31,12 @@
         <div class="col-12" *ngIf="closing.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ closing.notes }}</p></div>
         <div class="col-12" *ngIf="closing.status === ShopCashClosingStatus.Cancelled && closing.cancellationReason"><span class="field-label">{{ '::CancellationReason' | abpLocalization }}</span><p class="notes-text">{{ closing.cancellationReason }}</p></div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::CashManagementDescription' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::CashManagementDescription' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="summary-grid">
         <div class="summary-row"><span>{{ '::OpeningCash' | abpLocalization }}</span><strong>{{ closing.openingCash != null ? (closing.openingCash | number:'1.2-2') : '—' }}</strong></div>
         <div class="summary-row"><span>{{ '::CashSales' | abpLocalization }}</span><strong>{{ closing.cashSales != null ? (closing.cashSales | number:'1.2-2') : '—' }}</strong></div>
@@ -54,10 +58,12 @@
           </strong>
         </div>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="detail-card">
-      <h6 class="section-title">{{ '::CashTransactions' | abpLocalization }}</h6>
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-exchange-alt"></i></span><h6>{{ '::CashTransactions' | abpLocalization }}</h6></div>
+      <div class="section-body">
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -85,9 +91,12 @@
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </section>
   </ng-container>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <div #printRef class="closing-print print-only" [class.capturing]="capturing" *ngIf="closing">
   <div class="statement-header">

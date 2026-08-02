@@ -29,7 +29,7 @@ export class ShopCashTransactionsComponent implements OnInit {
   pageSize = 20;
   loading = false;
 
-  search = '';
+  filters: { filter?: string } = {};
   registerFilter = '';
   typeFilter: ShopCashTransactionType | '' = '';
   directionFilter: ShopCashDirection | '' = '';
@@ -46,7 +46,7 @@ export class ShopCashTransactionsComponent implements OnInit {
     this.loading = true;
     this.service
       .getTransactions({
-        filter: this.search || undefined,
+        filter: this.filters.filter || undefined,
         cashRegisterId: this.registerFilter || undefined,
         transactionType: this.typeFilter === '' ? undefined : this.typeFilter,
         direction: this.directionFilter === '' ? undefined : this.directionFilter,

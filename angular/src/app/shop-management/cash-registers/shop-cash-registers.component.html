@@ -1,26 +1,24 @@
-<div class="categories-page">
-  <div class="page-heading">
-    <div>
-      <h3>{{ '::CashRegisters' | abpLocalization }}</h3>
-      <p>{{ '::CashRegistersDescription' | abpLocalization }}</p>
-    </div>
+<abp-page>
+<app-topbar-layout titleKey="::CashRegisters" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchCashRegisters'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarActions>
     <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateCashRegister' | abpLocalization }}</button>
   </div>
-  <div class="card categories-card">
-    <div class="filters row g-2">
-      <div class="col-12 col-lg-6">
-        <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" (keyup.enter)="load(true)" [placeholder]="'::SearchCashRegisters' | abpLocalization"></div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
-          <nz-option [nzValue]="true" [nzLabel]="'::Active' | abpLocalization"></nz-option>
-          <nz-option [nzValue]="false" [nzLabel]="'::Inactive' | abpLocalization"></nz-option>
-        </nz-select>
-      </div>
-      <div class="col-12 col-lg-3">
-        <button class="btn btn-outline-primary btn-sm w-100" (click)="load(true)">{{ '::Button:Filter' | abpLocalization }}</button>
-      </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option [nzValue]="true" [nzLabel]="'::Active' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="false" [nzLabel]="'::Inactive' | abpLocalization"></nz-option>
+      </nz-select>
     </div>
+  </ng-container>
+
+  <div class="categories-page">
+  <div class="card categories-card">
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -60,7 +58,9 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-topbar-layout>
+</abp-page>
 
 <abp-modal [(visible)]="modalOpen" [busy]="submitting">
   <ng-template #abpHeader>
