@@ -86,6 +86,12 @@
 
 .result-card { background: #e9f7ef; border-color: #cdeedb; }
 .result-card-error { background: #fdeced; border-color: #f6c9ce; }
+
+.data-list-card { background: #fff; max-width: 100%; }
+.data-list-table { font-size: .76rem; margin-bottom: 0; }
+.data-list-table th { color: #62788e; font-weight: 700; text-transform: uppercase; font-size: .66rem; white-space: nowrap; }
+.data-list-table td { color: #345c80; white-space: nowrap; }
+.data-list-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
 .result-message { font-size: .82rem; }
 .cancelled-hint { margin-top: .4rem; font-size: .74rem; color: #8a9bad; font-style: italic; }
 

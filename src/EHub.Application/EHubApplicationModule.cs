@@ -55,6 +55,21 @@ public class EHubApplicationModule : AbpModule
         context.Services.AddTransient<IShopAiActionHandler, GetTodaySalesAiHandler>();
         context.Services.AddTransient<IShopAiActionHandler, CreateCustomerAiHandler>();
         context.Services.AddTransient<IShopAiActionHandler, CreateUnitAiHandler>();
+
+        // Same defensive explicit registration as the three handlers above - registered here rather
+        // than relying solely on the conventional ITransientDependency scan.
+        context.Services.AddTransient<IShopAiActionHandler, GetUnitsAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetProductCategoriesAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetProductsAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetCustomersAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetSuppliersAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetExpenseCategoriesAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetBankAccountsAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetSalesAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetPurchaseOrdersAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetExpensesAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetStockAdjustmentsAiHandler>();
+        context.Services.AddTransient<IShopAiActionHandler, GetPhysicalStockCountsAiHandler>();
     }
 
     // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.

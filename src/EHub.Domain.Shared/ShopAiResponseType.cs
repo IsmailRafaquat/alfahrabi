@@ -10,5 +10,8 @@ public enum ShopAiResponseType
     LookupChoices = 5,
     ActionPreview = 6,
     ExecutionResult = 7,
-    Error = 8
+    Error = 8,
+
+    /// <summary>A read action that returned a list of existing records (see ShopAiDataListDto) - rendered as a data-list card, never the module-help card.</summary>
+    DataList = 9
 }

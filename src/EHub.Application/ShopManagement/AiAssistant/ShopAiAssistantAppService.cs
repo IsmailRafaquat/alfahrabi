@@ -613,17 +613,24 @@ public class ShopAiAssistantAppService : ApplicationService, IShopAiAssistantApp
             ? null
             : _localizer[executionResult.ErrorMessage].Value;
 
+        var responseType = !executionResult.Success
+            ? ShopAiResponseType.Error
+            : executionResult.DataList != null
+                ? ShopAiResponseType.DataList
+                : ShopAiResponseType.ExecutionResult;
+
         return new ShopAiResponseDto
         {
             ConversationId = conversation.Id,
             MessageId = assistantMessage.Id,
             Status = executionResult.Success ? ShopAiMessageStatus.Executed : ShopAiMessageStatus.Failed,
             Action = command.Action,
-            ResponseType = executionResult.Success ? ShopAiResponseType.ExecutionResult : ShopAiResponseType.Error,
+            ResponseType = responseType,
             DetectedLanguage = command.Language,
             AssistantMessage = executionResult.ResultMessage ?? command.UserFriendlyMessage ?? localizedErrorMessage ?? _localizer["ShopManagement:AiServiceUnavailable"].Value,
             Warnings = command.Warnings,
             ExecutionResult = executionResult,
+            DataList = executionResult.DataList,
             ErrorCode = executionResult.Success ? null : executionResult.ErrorCode,
             ErrorMessage = localizedErrorMessage,
         };

@@ -17,6 +17,9 @@ public class ShopAiExecutionResultDto
 
     public JsonElement? ResultData { get; set; }
 
+    /// <summary>Populated by list/count read actions (GetUnits, GetProducts, etc.) instead of/alongside ResultData - drives ShopAiResponseType.DataList.</summary>
+    public ShopAiDataListDto? DataList { get; set; }
+
     /// <summary>e.g. "ShopCustomer" - set only for write actions that created something.</summary>
     public string? ResultReferenceType { get; set; }
     public Guid? ResultReferenceId { get; set; }

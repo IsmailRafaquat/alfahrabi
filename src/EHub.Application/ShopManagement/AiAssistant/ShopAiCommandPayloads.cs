@@ -91,3 +91,89 @@ public class SalesSummaryQueryAiCommand
     /// <summary>Free-text period hint from the model, e.g. "today", "this week" - re-validated against ShopDashboardPeriod, never trusted as-is.</summary>
     public string? Period { get; set; }
 }
+
+// ------------------------------------------------------------------
+// Read-only "list/count existing records" commands (GetUnits, GetProducts, etc.) - each maps
+// directly onto the matching existing AppService's GetListAsync input. IncludeInactive defaults to
+// true (show everything) per the ReadBusinessData / GetUnits acceptance spec; MaxResultCount is
+// clamped 1-500 by the handler, never trusted as-is from the model.
+// ------------------------------------------------------------------
+
+public class GetUnitsAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetProductCategoriesAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetProductsAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetCustomersAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetSuppliersAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetExpenseCategoriesAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetBankAccountsAiCommand
+{
+    public string? Filter { get; set; }
+    public bool IncludeInactive { get; set; } = true;
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetSalesAiCommand
+{
+    public string? Filter { get; set; }
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetPurchaseOrdersAiCommand
+{
+    public string? Filter { get; set; }
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetExpensesAiCommand
+{
+    public string? Filter { get; set; }
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetStockAdjustmentsAiCommand
+{
+    public string? Filter { get; set; }
+    public int MaxResultCount { get; set; } = 100;
+}
+
+public class GetPhysicalStockCountsAiCommand
+{
+    public string? Filter { get; set; }
+    public int MaxResultCount { get; set; } = 100;
+}

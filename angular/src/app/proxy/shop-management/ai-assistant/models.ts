@@ -55,10 +55,17 @@ export interface ShopAiConversationListDto extends EntityDto<string> {
   creationTime?: string;
 }
 
+export interface ShopAiDataListDto {
+  title?: string;
+  totalCount: number;
+  rows: Record<string, any>[];
+}
+
 export interface ShopAiExecutionResultDto {
   success: boolean;
   resultMessage?: string;
   resultData?: any;
+  dataList?: ShopAiDataListDto;
   resultReferenceType?: string;
   resultReferenceId?: string;
   errorCode?: string;
@@ -149,6 +156,7 @@ export interface ShopAiResponseDto {
   warnings: string[];
   preview: ShopAiActionPreviewDto;
   executionResult: ShopAiExecutionResultDto;
+  dataList?: ShopAiDataListDto;
   ambiguousLookups: ShopAiLookupResolutionDto[];
   errorCode?: string;
   errorMessage?: string;

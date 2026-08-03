@@ -38425,6 +38425,18 @@
         "GetCustomerReceivables",
         "GetSupplierPayables",
         "GetDashboardSummary",
+        "GetUnits",
+        "GetProductCategories",
+        "GetProducts",
+        "GetCustomers",
+        "GetSuppliers",
+        "GetExpenseCategories",
+        "GetBankAccounts",
+        "GetSales",
+        "GetPurchaseOrders",
+        "GetExpenses",
+        "GetStockAdjustments",
+        "GetPhysicalStockCounts",
         "CreateCustomer",
         "CreateSupplier",
         "CreateProductDraft",
@@ -38460,6 +38472,18 @@
         114,
         115,
         116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
         200,
         201,
         202,
@@ -38629,6 +38653,51 @@
       "genericArguments": null,
       "properties": null
     },
+    "EHub.ShopManagement.AiAssistant.ShopAiDataListDto": {
+      "baseType": null,
+      "isEnum": false,
+      "enumNames": null,
+      "enumValues": null,
+      "genericArguments": null,
+      "properties": [
+        {
+          "name": "Title",
+          "jsonName": null,
+          "type": "System.String",
+          "typeSimple": "string",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "TotalCount",
+          "jsonName": null,
+          "type": "System.Int64",
+          "typeSimple": "number",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "Rows",
+          "jsonName": null,
+          "type": "[{System.String:System.Object}]",
+          "typeSimple": "[{string:object}]",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        }
+      ]
+    },
     "EHub.ShopManagement.AiAssistant.ShopAiExecutionResultDto": {
       "baseType": null,
       "isEnum": false,
@@ -38665,6 +38734,18 @@
           "jsonName": null,
           "type": "System.Text.Json.JsonElement?",
           "typeSimple": "System.Text.Json.JsonElement?",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
+          "name": "DataList",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiDataListDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiDataListDto",
           "isRequired": false,
           "minLength": null,
           "maxLength": null,
@@ -39578,6 +39659,18 @@
           "regex": null
         },
         {
+          "name": "DataList",
+          "jsonName": null,
+          "type": "EHub.ShopManagement.AiAssistant.ShopAiDataListDto",
+          "typeSimple": "EHub.ShopManagement.AiAssistant.ShopAiDataListDto",
+          "isRequired": false,
+          "minLength": null,
+          "maxLength": null,
+          "minimum": null,
+          "maximum": null,
+          "regex": null
+        },
+        {
           "name": "AmbiguousLookups",
           "jsonName": null,
           "type": "[EHub.ShopManagement.AiAssistant.ShopAiLookupResolutionDto]",
@@ -39687,7 +39780,8 @@
         "LookupChoices",
         "ActionPreview",
         "ExecutionResult",
-        "Error"
+        "Error",
+        "DataList"
       ],
       "enumValues": [
         0,
@@ -39698,7 +39792,8 @@
         5,
         6,
         7,
-        8
+        8,
+        9
       ],
       "genericArguments": null,
       "properties": null

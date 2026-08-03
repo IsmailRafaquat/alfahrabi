@@ -129,6 +129,32 @@
                 </button>
               </div>
 
+              <!-- Existing-records list/count result - never the module-help card, never a Create button -->
+              <div class="info-card data-list-card" *ngSwitchCase="'dataList'">
+                <div class="info-card-title"><i class="fas fa-table me-2"></i>{{ msg.dataList!.title }}: {{ msg.dataList!.totalCount }}</div>
+
+                <div class="table-responsive" *ngIf="msg.dataList!.rows.length">
+                  <table class="table table-sm data-list-table">
+                    <thead>
+                      <tr>
+                        <th *ngFor="let col of dataListColumns(msg)">{{ columnLabel(col) }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of msg.dataList!.rows">
+                        <td *ngFor="let col of dataListColumns(msg)">{{ formatCell(row[col]) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="data-list-actions" *ngIf="canOpenDataList(msg)">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="openDataList(msg)">
+                    {{ '::AiAssistant.OpenFull' | abpLocalization }} {{ msg.dataList!.title }}
+                  </button>
+                </div>
+              </div>
+
               <!-- Single field explanation -->
               <div class="info-card field-card" *ngSwitchCase="'field'">
                 <div class="info-card-title"><i class="fas fa-circle-info me-2"></i>{{ msg.fields![0].displayName }}</div>

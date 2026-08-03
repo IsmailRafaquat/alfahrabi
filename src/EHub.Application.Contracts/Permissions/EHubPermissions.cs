@@ -337,6 +337,23 @@ public static class EHubPermissions
         public const string QueryBalances = Default + ".QueryBalances";
         public const string QueryDashboard = Default + ".QueryDashboard";
 
+        // Read-only "list/count existing records" actions (GetUnits, GetProducts, etc.) - QueryMasterData
+        // and QueryTransactionalData are broad category gates, each paired with a per-module permission
+        // below. QuerySales/QueryExpenses/QueryStock above are reused for GetSales/GetExpenses/GetProducts
+        // rather than duplicated.
+        public const string QueryMasterData = Default + ".QueryMasterData";
+        public const string QueryTransactionalData = Default + ".QueryTransactionalData";
+        public const string QueryUnits = Default + ".QueryUnits";
+        public const string QueryProductCategories = Default + ".QueryProductCategories";
+        public const string QueryProducts = Default + ".QueryProducts";
+        public const string QueryCustomers = Default + ".QueryCustomers";
+        public const string QuerySuppliers = Default + ".QuerySuppliers";
+        public const string QueryExpenseCategories = Default + ".QueryExpenseCategories";
+        public const string QueryBankAccounts = Default + ".QueryBankAccounts";
+        public const string QueryPurchaseOrders = Default + ".QueryPurchaseOrders";
+        public const string QueryStockAdjustments = Default + ".QueryStockAdjustments";
+        public const string QueryPhysicalStockCounts = Default + ".QueryPhysicalStockCounts";
+
         public const string ProjectHelp = Default + ".ProjectHelp";
         public const string ViewModuleFields = Default + ".ViewModuleFields";
         public const string GuidedCreation = Default + ".GuidedCreation";
@@ -372,6 +389,19 @@ public static class EHubPermissions
         public const string GetSupplierBalance = Default + ".GetSupplierBalance";
         public const string GetTodaySales = Default + ".GetTodaySales";
         public const string GetDashboardSummary = Default + ".GetDashboardSummary";
+
+        public const string GetUnits = Default + ".GetUnits";
+        public const string GetProductCategories = Default + ".GetProductCategories";
+        public const string GetProducts = Default + ".GetProducts";
+        public const string GetCustomers = Default + ".GetCustomers";
+        public const string GetSuppliers = Default + ".GetSuppliers";
+        public const string GetExpenseCategories = Default + ".GetExpenseCategories";
+        public const string GetBankAccounts = Default + ".GetBankAccounts";
+        public const string GetSales = Default + ".GetSales";
+        public const string GetPurchaseOrders = Default + ".GetPurchaseOrders";
+        public const string GetExpenses = Default + ".GetExpenses";
+        public const string GetStockAdjustments = Default + ".GetStockAdjustments";
+        public const string GetPhysicalStockCounts = Default + ".GetPhysicalStockCounts";
 
         public const string PrepareCreateUnit = Default + ".PrepareCreateUnit";
         public const string ConfirmCreateUnit = Default + ".ConfirmCreateUnit";

@@ -29,6 +29,23 @@ public enum ShopAiActionType
     GetSupplierPayables = 115,
     GetDashboardSummary = 116,
 
+    // Read-only "list/count existing records" actions - distinct from ExplainModule/ListModuleFields
+    // (which describe a module's metadata) and from the Create* write actions below. See
+    // ShopAiReadDataVerbDetector for the deterministic intent-priority override that routes list/
+    // count/search phrases here even when the model itself misclassifies them.
+    GetUnits = 117,
+    GetProductCategories = 118,
+    GetProducts = 119,
+    GetCustomers = 120,
+    GetSuppliers = 121,
+    GetExpenseCategories = 122,
+    GetBankAccounts = 123,
+    GetSales = 124,
+    GetPurchaseOrders = 125,
+    GetExpenses = 126,
+    GetStockAdjustments = 127,
+    GetPhysicalStockCounts = 128,
+
     CreateCustomer = 200,
     CreateSupplier = 201,
     CreateProductDraft = 202,

@@ -28,6 +28,9 @@ public class ShopAiResponseDto
     /// <summary>Populated when a read action (or a just-confirmed write action) has already executed.</summary>
     public ShopAiExecutionResultDto? ExecutionResult { get; set; }
 
+    /// <summary>Populated when ResponseType == DataList - the frontend renders this as a data-list/table card, never the module-help card.</summary>
+    public ShopAiDataListDto? DataList { get; set; }
+
     public List<ShopAiLookupResolutionDto> AmbiguousLookups { get; set; } = new();
 
     public string? ErrorCode { get; set; }

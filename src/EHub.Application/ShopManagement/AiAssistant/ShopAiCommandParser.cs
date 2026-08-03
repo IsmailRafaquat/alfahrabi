@@ -210,6 +210,33 @@ public class ShopAiCommandParser : IShopAiCommandParser, ITransientDependency
             }
         }
 
+        // Deterministic intent-priority safety net #2: ReadBusinessData must win over the weaker
+        // ExplainModule/ListModuleFields/GeneralHelp/Unknown intents whenever the raw message
+        // contains an explicit list/count/search phrase (see ShopAiReadDataVerbDetector) AND a
+        // module with a registered read (list) action can be identified. Runs after the
+        // creation-verb override, so IsOverridableIntent only returns true here when
+        // StartRecordCreation did NOT already claim the intent above - StartRecordCreation always
+        // outranks ReadBusinessData, matching the required intent priority order.
+        var hasReadDataVerb = ShopAiReadDataVerbDetector.ContainsReadDataVerb(userMessage);
+        var stillOverridable = IsOverridableIntent(command.Intent);
+        _logger.LogInformation(
+            "ShopAiCommandParser read-data check: hasReadDataVerb={HasReadDataVerb} stillOverridable={StillOverridable}",
+            hasReadDataVerb, stillOverridable);
+
+        if (hasReadDataVerb && stillOverridable)
+        {
+            var resolvedReadAction = ResolveReadAction(command.ModuleKey, userMessage);
+            _logger.LogInformation("ShopAiCommandParser read-data override resolution: resolvedAction={ResolvedAction}", resolvedReadAction?.ToString() ?? "(none)");
+
+            if (resolvedReadAction.HasValue)
+            {
+                command.Intent = ShopAiIntentType.ReadBusinessData;
+                command.Action = resolvedReadAction.Value;
+                command.RequiresConfirmation = false;
+                command.Warnings.Remove("LowConfidence");
+            }
+        }
+
         _logger.LogInformation(
             "ShopAiCommandParser final: intent={Intent} moduleKey={ModuleKey} action={Action} paramCount={ParamCount}",
             command.Intent, command.ModuleKey, command.Action, command.Parameters.Count);
@@ -232,6 +259,47 @@ public class ShopAiCommandParser : IShopAiCommandParser, ITransientDependency
         return _moduleMetadataProvider.TryFindModuleInText(userMessage, out var byText) && byText != null && byText.SupportsCreation
             ? byText
             : null;
+    }
+
+    /// <summary>
+    /// Maps a resolved ShopAiModuleMetadata.ModuleKey to the registered read (list) action for that
+    /// module. Includes both a module's "draft" creation key (e.g. "saledraft") and any separate
+    /// explanation-only key that shares the same real-world module (e.g. "sales") so either one
+    /// resolving through IShopAiModuleMetadataProvider still reaches the right list action.
+    /// </summary>
+    private static readonly System.Collections.Generic.Dictionary<string, ShopAiActionType> ReadActionByModuleKey =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["unit"] = ShopAiActionType.GetUnits,
+            ["productcategory"] = ShopAiActionType.GetProductCategories,
+            ["product"] = ShopAiActionType.GetProducts,
+            ["customer"] = ShopAiActionType.GetCustomers,
+            ["supplier"] = ShopAiActionType.GetSuppliers,
+            ["expensecategory"] = ShopAiActionType.GetExpenseCategories,
+            ["bankaccount"] = ShopAiActionType.GetBankAccounts,
+            ["sales"] = ShopAiActionType.GetSales,
+            ["saledraft"] = ShopAiActionType.GetSales,
+            ["purchaseorderdraft"] = ShopAiActionType.GetPurchaseOrders,
+            ["expenses"] = ShopAiActionType.GetExpenses,
+            ["expensedraft"] = ShopAiActionType.GetExpenses,
+            ["stockadjustmentdraft"] = ShopAiActionType.GetStockAdjustments,
+            ["physicalstockcountdraft"] = ShopAiActionType.GetPhysicalStockCounts,
+        };
+
+    private ShopAiActionType? ResolveReadAction(string? moduleKeyFromOllama, string userMessage)
+    {
+        if (!string.IsNullOrWhiteSpace(moduleKeyFromOllama) && ReadActionByModuleKey.TryGetValue(moduleKeyFromOllama, out var byKey))
+        {
+            return byKey;
+        }
+
+        if (_moduleMetadataProvider.TryFindModuleInText(userMessage, out var byText) && byText != null
+            && ReadActionByModuleKey.TryGetValue(byText.ModuleKey, out var byTextAction))
+        {
+            return byTextAction;
+        }
+
+        return null;
     }
 
     private static string BuildSystemPrompt(IReadOnlyCollection<string> readActionNames, IReadOnlyList<ShopAiModuleMetadata> modules)
@@ -260,12 +328,19 @@ Modules (exact moduleKey only, never invent one):
 Priority when a message could match more than one intent: StartRecordCreation always outranks ListModuleFields, ExplainModule, and GeneralHelp. A message that names a module AND contains a creation instruction is StartRecordCreation even if it also states field values one per line, or asks something that would otherwise sound like a field-list question.
 
 - StartRecordCreation: user wants to create/add a record in a [creation supported] module - with no data yet, or with every value already in the message, or with values written as separate short lines (e.g. "Name X.\nShort Name Y.\nActive yes."). Always set moduleKey. Put every value the user actually stated into parameters using the module's field keys - never invent one they didn't mention. Trigger phrases include (not exhaustive): add, create, make, insert, "add new", "new entry", save, "add karo", "bana do", "banao", "entry karo", "naya record banao", "system mein add karo", شامل کریں, نیا ریکارڈ بنائیں, اندراج کریں, محفوظ کریں.
-- ListModuleFields: user asks what fields are needed to create something - WITHOUT also instructing you to create one now.
-- ExplainModule: user asks what a module does/how it works - WITHOUT a creation instruction.
+- ReadBusinessData: user wants to see, count, or search EXISTING records already saved in the system - not what a module is, not what fields it needs, not to create one. Trigger phrases include (not exhaustive): "show all", "list all", "how many ... are there", "how many ... in my system", "show existing", "get", "display all", "show active", "show inactive", "search", sab ... dikhao, ... ki list dikhao, mein kitni/kitne ... hain, tamam ... show karo, existing ... dikhao, ... record dikhao, تمام, کی فہرست, کتنے, کتنی, موجودہ, دکھائیں, فعال, غیر فعال. Only for these exact action names: {{actionList}}. Set "action" to that exact name. Never a Create* action here - those are always StartRecordCreation instead.
+- ListModuleFields: user asks what fields are needed to create something (module metadata) - WITHOUT also instructing you to create one now and WITHOUT asking to see/count/search existing records.
+- ExplainModule: user asks what a module does/how it works (module metadata) - WITHOUT a creation instruction and WITHOUT asking to see/count/search existing records.
 - ExplainField: user asks about one specific field (set fieldKey).
-- ReadBusinessData: only for these exact action names: {{actionList}}. Set "action" to that exact name. Never a Create* action here - those are always StartRecordCreation instead.
 - GeneralHelp: greetings or anything else.
 - Creation requested for a module NOT marked [creation supported]: use ExplainModule instead, never StartRecordCreation.
+
+Distinguish carefully between asking about a module (its purpose/fields) and asking for existing data from that module - these are different intents even when they name the same module:
+- "Tell me about Unit" -> ExplainModule (module metadata, no records involved).
+- "What fields are required for Unit?" -> ListModuleFields (module metadata, no records involved).
+- "Create a Unit named Piece" -> StartRecordCreation (writes a new record).
+- "How many Units are in my system? Show all Units." -> ReadBusinessData, action GetUnits (reads existing records).
+Never return ExplainModule or ListModuleFields when the user is asking to see, count, or search existing database records. Never return StartRecordCreation when the user is only asking to list or count existing records.
 
 Boolean fields: match each value to the SPECIFIC field it describes by meaning, even if another boolean field is mentioned nearby. True words: true, yes, y, haan, han, ha, ji, active, enable, enabled, allow, allowed. False words: false, no, n, nahi, nahin, inactive, disable, disabled, "not allowed", "allow nahi". Always output a real JSON true/false, never the word.
 

@@ -10,6 +10,7 @@ export enum ShopAiResponseType {
   ActionPreview = 6,
   ExecutionResult = 7,
   Error = 8,
+  DataList = 9,
 }
 
 export const shopAiResponseTypeOptions = mapEnumToOptions(ShopAiResponseType);

@@ -1,12 +1,14 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ToasterService } from '@abp/ng.theme.shared';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import {
   ShopAiActionPreviewDto,
   ShopAiActionType,
   ShopAiAssistantService,
   ShopAiConversationListDto,
+  ShopAiDataListDto,
   ShopAiExecutionResultDto,
   ShopAiFieldDescriptionDto,
   ShopAiGuidedCreationProgressDto,
@@ -31,6 +33,7 @@ interface ChatDisplayMessage {
   action?: ShopAiActionType;
   preview?: ShopAiActionPreviewDto;
   executionResult?: ShopAiExecutionResultDto;
+  dataList?: ShopAiDataListDto;
   missingFields?: string[];
   ambiguousLookups?: ShopAiLookupResolutionDto[];
   confirmBusy?: boolean;
@@ -43,7 +46,23 @@ interface ChatDisplayMessage {
 }
 
 /** Exactly one of these renders per assistant bubble - see ShopAiAssistantComponent.cardKind(). */
-type AiCardKind = 'guided' | 'preview' | 'module' | 'field' | 'ambiguous' | 'missing' | 'result' | 'none';
+type AiCardKind = 'guided' | 'preview' | 'module' | 'field' | 'ambiguous' | 'missing' | 'dataList' | 'result' | 'none';
+
+/** Maps a list-read action to where "Open <Module>" should navigate and which permission gates that button. */
+const DATA_LIST_OPEN_ROUTES: Partial<Record<ShopAiActionType, { path: string; policy: string }>> = {
+  [ShopAiActionType.GetUnits]: { path: '/shop-management/units', policy: 'ShopManagement.Units' },
+  [ShopAiActionType.GetProductCategories]: { path: '/shop-management/product-categories', policy: 'ShopManagement.ProductCategories' },
+  [ShopAiActionType.GetProducts]: { path: '/shop-management/products', policy: 'ShopManagement.Products' },
+  [ShopAiActionType.GetCustomers]: { path: '/shop-management/customers', policy: 'ShopManagement.Customers' },
+  [ShopAiActionType.GetSuppliers]: { path: '/shop-management/suppliers', policy: 'ShopManagement.Suppliers' },
+  [ShopAiActionType.GetExpenseCategories]: { path: '/shop-management/expense-categories', policy: 'ShopManagement.ExpenseCategories' },
+  [ShopAiActionType.GetBankAccounts]: { path: '/shop-management/bank-accounts', policy: 'ShopManagement.BankAccounts' },
+  [ShopAiActionType.GetSales]: { path: '/shop-management/sales', policy: 'ShopManagement.Sales' },
+  [ShopAiActionType.GetPurchaseOrders]: { path: '/shop-management/purchase-orders', policy: 'ShopManagement.PurchaseOrders' },
+  [ShopAiActionType.GetExpenses]: { path: '/shop-management/expenses', policy: 'ShopManagement.Expenses' },
+  [ShopAiActionType.GetStockAdjustments]: { path: '/shop-management/stock-adjustments', policy: 'ShopManagement.StockAdjustments' },
+  [ShopAiActionType.GetPhysicalStockCounts]: { path: '/shop-management/stock-counts', policy: 'ShopManagement.StockCounts' },
+};
 
 @Component({
   selector: 'app-shop-ai-assistant',
@@ -58,6 +77,7 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
   private readonly permissions = inject(PermissionService);
   private readonly toaster = inject(ToasterService);
   private readonly deleteConfirmation = inject(ConfirmationHelperService);
+  private readonly router = inject(Router);
 
   readonly ShopAiMessageStatus = ShopAiMessageStatus;
   readonly ShopAiResponseType = ShopAiResponseType;
@@ -224,6 +244,7 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
       action: response.action,
       preview: response.preview,
       executionResult: response.executionResult,
+      dataList: response.dataList,
       missingFields: response.missingFields,
       ambiguousLookups: response.ambiguousLookups,
       isError: response.status === ShopAiMessageStatus.Failed,
@@ -244,12 +265,49 @@ export class ShopAiAssistantComponent implements OnInit, OnDestroy {
   cardKind(msg: ChatDisplayMessage): AiCardKind {
     if (msg.guidedCreationProgress) return 'guided';
     if (msg.status === ShopAiMessageStatus.AwaitingConfirmation && msg.preview) return 'preview';
+    // Checked before 'module' - a list/count read action must never fall through to the
+    // module-help card even though both can technically carry a moduleKey.
+    if (msg.responseType === ShopAiResponseType.DataList && msg.dataList) return 'dataList';
     if (msg.responseType === ShopAiResponseType.ModuleExplanation || msg.responseType === ShopAiResponseType.FieldList) return 'module';
     if (msg.responseType === ShopAiResponseType.FieldExplanation && msg.fields?.length) return 'field';
     if (msg.ambiguousLookups?.length) return 'ambiguous';
     if (msg.status === ShopAiMessageStatus.MissingInformation) return 'missing';
     if (msg.executionResult) return 'result';
     return 'none';
+  }
+
+  // ------------------------------------------------------------------
+  // Data list (existing-records) card
+  // ------------------------------------------------------------------
+
+  dataListColumns(msg: ChatDisplayMessage): string[] {
+    const firstRow = msg.dataList?.rows?.[0];
+    // "id" is carried in each row for potential future use (e.g. row navigation) but is never a
+    // useful column for a user to see - every row shape includes it, so filtering it here keeps
+    // every list (Units, Products, Customers, ...) free of the raw internal Guid.
+    return firstRow ? Object.keys(firstRow).filter(key => key !== 'id') : [];
+  }
+
+  columnLabel(key: string): string {
+    // camelCase -> "Camel Case"
+    const spaced = key.replace(/([A-Z])/g, ' $1').trim();
+    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+  }
+
+  formatCell(value: unknown): string {
+    if (value === null || value === undefined) return '-';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    return String(value);
+  }
+
+  canOpenDataList(msg: ChatDisplayMessage): boolean {
+    const route = msg.action != null ? DATA_LIST_OPEN_ROUTES[msg.action] : undefined;
+    return !!route && this.permissions.getGrantedPolicy(route.policy);
+  }
+
+  openDataList(msg: ChatDisplayMessage): void {
+    const route = msg.action != null ? DATA_LIST_OPEN_ROUTES[msg.action] : undefined;
+    if (route) this.router.navigateByUrl(route.path);
   }
 
   // ------------------------------------------------------------------
