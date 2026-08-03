@@ -155,6 +155,12 @@ const routes: Routes = [
     loadChildren: () => import('./shop-management/settings/shop-settings.module').then(m => m.ShopSettingsModule),
   },
   {
+    path: 'shop-management/notifications',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.Notifications.View' },
+    loadChildren: () => import('./shop-management/notifications/shop-notifications.module').then(m => m.ShopNotificationsModule),
+  },
+  {
     path: 'shop-management/product-categories',
     canActivate: [permissionGuard],
     data: { requiredPolicy: 'ShopManagement.ProductCategories' },

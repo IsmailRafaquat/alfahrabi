@@ -9,6 +9,7 @@ export enum ShopReportPeriod {
   LastMonth = 5,
   ThisYear = 6,
   Custom = 7,
+  ThisQuarter = 8,
 }
 
 export const shopReportPeriodOptions = mapEnumToOptions(ShopReportPeriod);

@@ -23,6 +23,7 @@ using EHub.ShopManagement.Expenses;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.AiAssistant;
+using EHub.ShopManagement.Notifications;
 using EHub.FeeModule;
 using EHub.FeeModule.FeeHeads;
 using EHub.FeeModule.FeeStructureItems;
@@ -136,6 +137,9 @@ public class EHubDbContext :
     public DbSet<ShopAiMessage> ShopAiMessages { get; set; }
     public DbSet<ShopAiActionAudit> ShopAiActionAudits { get; set; }
     public DbSet<ShopAiPendingAction> ShopAiPendingActions { get; set; }
+    public DbSet<ShopNotification> ShopNotifications { get; set; }
+    public DbSet<ShopNotificationUserState> ShopNotificationUserStates { get; set; }
+    public DbSet<ShopNotificationSettings> ShopNotificationSettingsList { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -1427,6 +1431,59 @@ public class EHubDbContext :
             b.HasIndex(x => new { x.TenantId, x.UserId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.ConversationId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.ExpiryDate });
+        });
+
+        builder.Entity<ShopNotification>(b =>
+        {
+            b.ToTable("ShopNotifications", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.UserId);
+            b.Property(x => x.Type).IsRequired().HasConversion<int>();
+            b.Property(x => x.Severity).IsRequired().HasConversion<int>();
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopNotificationStatus.Unread);
+            b.Property(x => x.Title).IsRequired().HasMaxLength(ShopNotificationConsts.TitleMaxLength);
+            b.Property(x => x.Message).IsRequired().HasMaxLength(ShopNotificationConsts.MessageMaxLength);
+            b.Property(x => x.ReferenceType).HasMaxLength(ShopNotificationConsts.ReferenceTypeMaxLength);
+            b.Property(x => x.ReferenceNumber).HasMaxLength(ShopNotificationConsts.ReferenceNumberMaxLength);
+            b.Property(x => x.NavigationUrl).HasMaxLength(ShopNotificationConsts.NavigationUrlMaxLength);
+            b.Property(x => x.ActionLabel).HasMaxLength(ShopNotificationConsts.ActionLabelMaxLength);
+            b.Property(x => x.SourceKey).IsRequired().HasMaxLength(ShopNotificationConsts.SourceKeyMaxLength);
+            b.Property(x => x.SourceDataJson).HasMaxLength(ShopNotificationConsts.SourceDataJsonMaxLength);
+            b.Property(x => x.TriggeredDate).IsRequired();
+
+            b.HasIndex(x => x.TenantId);
+            // At most one *active* (non-Resolved) notification per condition; unlimited Resolved history rows may share the same SourceKey.
+            b.HasIndex(x => new { x.TenantId, x.SourceKey }).IsUnique().HasFilter("[Status] <> 3");
+            b.HasIndex(x => new { x.TenantId, x.UserId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.Type, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.Severity, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.TriggeredDate });
+            b.HasIndex(x => new { x.TenantId, x.ExpiresDate });
+        });
+
+        builder.Entity<ShopNotificationUserState>(b =>
+        {
+            b.ToTable("ShopNotificationUserStates", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.NotificationId).IsRequired();
+            b.Property(x => x.UserId).IsRequired();
+            b.Property(x => x.Status).IsRequired().HasConversion<int>().HasDefaultValue(ShopNotificationStatus.Unread);
+
+            b.HasOne<ShopNotification>().WithMany().HasForeignKey(x => x.NotificationId).OnDelete(DeleteBehavior.Cascade);
+
+            b.HasIndex(x => x.TenantId);
+            b.HasIndex(x => new { x.TenantId, x.UserId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.NotificationId, x.UserId }).IsUnique();
+        });
+
+        builder.Entity<ShopNotificationSettings>(b =>
+        {
+            b.ToTable("ShopNotificationSettingsList", EHubConsts.DbSchema); b.ConfigureByConvention(); b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.Property(x => x.BankLowBalanceThreshold).HasPrecision(18, 2).HasDefaultValue(0);
+            b.Property(x => x.ProfitLossWarningThreshold).HasPrecision(5, 2).HasDefaultValue(0);
+
+            b.HasIndex(x => x.TenantId).IsUnique();
         });
 
         builder.Entity<ShopPurchaseOrder>(b =>

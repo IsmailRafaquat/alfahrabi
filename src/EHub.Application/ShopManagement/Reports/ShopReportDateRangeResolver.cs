@@ -49,6 +49,11 @@ public class ShopReportDateRangeResolver : IShopReportDateRangeResolver, ITransi
                 from = new DateTime(today.Year, 1, 1);
                 to = today;
                 break;
+            case ShopReportPeriod.ThisQuarter:
+                var quarterStartMonth = ((today.Month - 1) / 3) * 3 + 1;
+                from = new DateTime(today.Year, quarterStartMonth, 1);
+                to = today;
+                break;
             case ShopReportPeriod.Custom:
                 if (!dateFrom.HasValue || !dateTo.HasValue)
                     throw new BusinessException("ShopManagement:ReportDateRangeRequired");

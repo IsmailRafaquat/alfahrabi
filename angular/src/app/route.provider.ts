@@ -188,8 +188,16 @@ function configureRoutes() {
       order: 11, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Reports',
     },
     {
+      path: '/shop-management/reports/profit-loss', name: '::ProfitLoss', parentName: '::ShopManagement', iconClass: 'fas fa-balance-scale',
+      order: 12, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.ProfitLoss.View',
+    },
+    {
+      path: '/shop-management/notifications', name: '::ShopNotifications', parentName: '::ShopManagement', iconClass: 'fas fa-bell',
+      order: 13, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.Notifications.View',
+    },
+    {
       path: '/shop-management/ai-assistant', name: '::AiAssistant', parentName: '::ShopManagement', iconClass: 'fas fa-robot',
-      order: 12, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.AiAssistant',
+      order: 14, layout: eLayoutType.application, requiredPolicy: 'ShopManagement.AiAssistant',
     },
     // Home / Dashboard
     {

@@ -51,6 +51,32 @@ public static class EHubPermissions
         public const string Print = Default + ".Print";
     }
 
+    public static class ShopProfitLoss
+    {
+        public const string Default = ManagementMenus.Shop + ".ProfitLoss";
+        public const string View = Default + ".View";
+        public const string ViewRevenue = Default + ".ViewRevenue";
+        public const string ViewCost = Default + ".ViewCost";
+        public const string ViewExpenses = Default + ".ViewExpenses";
+        public const string ViewMargins = Default + ".ViewMargins";
+        public const string ViewProductContribution = Default + ".ViewProductContribution";
+        public const string Export = Default + ".Export";
+        public const string Print = Default + ".Print";
+    }
+
+    public static class ShopNotifications
+    {
+        public const string Default = ManagementMenus.Shop + ".Notifications";
+        public const string View = Default + ".View";
+        public const string MarkRead = Default + ".MarkRead";
+        public const string Dismiss = Default + ".Dismiss";
+        public const string Delete = Default + ".Delete";
+        public const string ManageSettings = Default + ".ManageSettings";
+        public const string GenerateNow = Default + ".GenerateNow";
+        public const string ViewFinancialAlerts = Default + ".ViewFinancialAlerts";
+        public const string ViewProfitLossAlerts = Default + ".ViewProfitLossAlerts";
+    }
+
     public static class ShopProductCategories
     {
         public const string Default = ManagementMenus.Shop + ".ProductCategories";

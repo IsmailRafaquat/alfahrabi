@@ -23,6 +23,8 @@ import en from '@angular/common/locales/en';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
+import { NotificationBellModule } from './shared/notification-bell/notification-bell.module';
+import { NOTIFICATION_BELL_PROVIDER } from './shared/notification-bell/notification-bell.provider';
 
 registerLocaleData(en);
 
@@ -37,9 +39,11 @@ registerLocaleData(en);
     ThemeLeptonXModule.forRoot(),
     SideMenuLayoutModule.forRoot(),
     FormsModule,
+    NotificationBellModule,
   ],
   providers: [
     APP_ROUTE_PROVIDER,
+    NOTIFICATION_BELL_PROVIDER,
     provideAbpCore(
       withOptions({
         environment,

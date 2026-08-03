@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EHub.ShopManagement.Notifications;
+using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -14,6 +16,7 @@ public class ShopCashRegisterManager : DomainService
     private readonly IRepository<ShopCashRegister, Guid> _registerRepository;
     private readonly IRepository<ShopCashRegisterTransaction, Guid> _transactionRepository;
     private readonly IRepository<ShopCashClosing, Guid> _closingRepository;
+    private readonly IShopNotificationEvaluator _notificationEvaluator;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -21,12 +24,14 @@ public class ShopCashRegisterManager : DomainService
         IRepository<ShopCashRegister, Guid> registerRepository,
         IRepository<ShopCashRegisterTransaction, Guid> transactionRepository,
         IRepository<ShopCashClosing, Guid> closingRepository,
+        IShopNotificationEvaluator notificationEvaluator,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
         _registerRepository = registerRepository;
         _transactionRepository = transactionRepository;
         _closingRepository = closingRepository;
+        _notificationEvaluator = notificationEvaluator;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -129,6 +134,15 @@ public class ShopCashRegisterManager : DomainService
             summary.CashSales, summary.CustomerCashPayments, summary.SupplierCashPayments, summary.CashExpenses,
             summary.CustomerRefunds, summary.ManualCashIn, summary.ManualCashOut, summary.ExpectedClosingCash,
             actualClosingCash, notes, _currentUser.GetId(), Clock.Now);
+
+        try
+        {
+            await _notificationEvaluator.EvaluateCashClosingAsync(tenantId, closing);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Cash difference notification check failed for closing {ClosingId}", closing.Id);
+        }
 
         return closing;
     }

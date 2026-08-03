@@ -41,6 +41,26 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         shopReports.AddChild(EHubPermissions.ShopReports.ViewProfitSensitiveData, L("Permission:ShopReports.ViewProfitSensitiveData"));
         shopReports.AddChild(EHubPermissions.ShopReports.Export, L("Permission:ShopReports.Export"));
         shopReports.AddChild(EHubPermissions.ShopReports.Print, L("Permission:ShopReports.Print"));
+        var shopProfitLoss = shopManagement.AddChild(EHubPermissions.ShopProfitLoss.Default, L("Permission:ShopProfitLoss"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.View, L("Permission:ShopProfitLoss.View"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.ViewRevenue, L("Permission:ShopProfitLoss.ViewRevenue"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.ViewCost, L("Permission:ShopProfitLoss.ViewCost"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.ViewExpenses, L("Permission:ShopProfitLoss.ViewExpenses"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.ViewMargins, L("Permission:ShopProfitLoss.ViewMargins"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.ViewProductContribution, L("Permission:ShopProfitLoss.ViewProductContribution"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.Export, L("Permission:ShopProfitLoss.Export"));
+        shopProfitLoss.AddChild(EHubPermissions.ShopProfitLoss.Print, L("Permission:ShopProfitLoss.Print"));
+
+        var shopNotifications = shopManagement.AddChild(EHubPermissions.ShopNotifications.Default, L("Permission:ShopNotifications"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.View, L("Permission:ShopNotifications.View"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.MarkRead, L("Permission:ShopNotifications.MarkRead"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.Dismiss, L("Permission:ShopNotifications.Dismiss"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.Delete, L("Permission:ShopNotifications.Delete"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.ManageSettings, L("Permission:ShopNotifications.ManageSettings"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.GenerateNow, L("Permission:ShopNotifications.GenerateNow"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.ViewFinancialAlerts, L("Permission:ShopNotifications.ViewFinancialAlerts"));
+        shopNotifications.AddChild(EHubPermissions.ShopNotifications.ViewProfitLossAlerts, L("Permission:ShopNotifications.ViewProfitLossAlerts"));
+
         var productCategories = shopManagement.AddChild(EHubPermissions.ShopProductCategories.Default, L("Permission:ShopProductCategories"));
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Create, L("Permission:ShopProductCategories.Create"));
         productCategories.AddChild(EHubPermissions.ShopProductCategories.Edit, L("Permission:ShopProductCategories.Edit"));

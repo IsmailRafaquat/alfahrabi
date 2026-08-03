@@ -1,0 +1,119 @@
+:host {
+  all: inherit;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.bell-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.bell-button {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  padding: .4rem .6rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.bell-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #c83e4d;
+  color: #fff;
+  font-size: .62rem;
+  line-height: 1;
+  padding: .2rem .35rem;
+  border-radius: 999px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.bell-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+}
+
+.bell-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  max-width: 90vw;
+  background: #fff;
+  color: #212529;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  z-index: 1050;
+  overflow: hidden;
+}
+
+.bell-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.bell-dropdown-body {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.bell-loading, .bell-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #8a9bad;
+}
+
+.bell-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  padding: .65rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f3f5;
+
+  &:hover { background: #f8fafc; }
+  &.unread { background: #f4f9ff; }
+
+  i { margin-top: .2rem; }
+}
+
+.bell-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.bell-item-title {
+  font-size: .85rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bell-item-time {
+  font-size: .72rem;
+  color: #8a9bad;
+}
+
+.bell-dropdown-footer {
+  text-align: center;
+  padding: .4rem;
+  border-top: 1px solid #eee;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bell-dropdown { background: #1f2530; color: #e9ecef; }
+  .bell-dropdown-header, .bell-item, .bell-dropdown-footer { border-color: #2c3440; }
+  .bell-item:hover { background: #262d3a; }
+  .bell-item.unread { background: #202838; }
+}

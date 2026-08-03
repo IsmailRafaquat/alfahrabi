@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.GoodsReceipts;
+using EHub.ShopManagement.Notifications;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.Suppliers;
+using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -26,6 +28,7 @@ public class ShopSupplierPaymentManager : DomainService
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ShopBankAccountManager _bankAccountManager;
+    private readonly IShopNotificationEvaluator _notificationEvaluator;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -36,6 +39,7 @@ public class ShopSupplierPaymentManager : DomainService
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
         ShopBankAccountManager bankAccountManager,
+        IShopNotificationEvaluator notificationEvaluator,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -45,6 +49,7 @@ public class ShopSupplierPaymentManager : DomainService
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
         _bankAccountManager = bankAccountManager;
+        _notificationEvaluator = notificationEvaluator;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -118,6 +123,15 @@ public class ShopSupplierPaymentManager : DomainService
             await _bankAccountManager.RecordTransactionAsync(
                 tenantId, payment.BankAccountId.Value, ShopBankTransactionType.SupplierPayment, ShopBankDirection.Out, payment.Amount,
                 ShopBankReferenceType.SupplierPayment, payment.Id, payment.PaymentNumber, $"Supplier payment - {payment.PaymentNumber}", payment.PaymentDate);
+        }
+
+        try
+        {
+            await _notificationEvaluator.ResolveSupplierOverdueAsync(tenantId, payment.SupplierId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Supplier overdue notification re-check failed for supplier {SupplierId}", payment.SupplierId);
         }
     }
 

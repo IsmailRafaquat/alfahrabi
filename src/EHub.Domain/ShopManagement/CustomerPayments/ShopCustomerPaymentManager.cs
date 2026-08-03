@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using EHub.ShopManagement.BankAccounts;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.Notifications;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.Sales;
+using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -26,6 +28,7 @@ public class ShopCustomerPaymentManager : DomainService
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
     private readonly ShopBankAccountManager _bankAccountManager;
+    private readonly IShopNotificationEvaluator _notificationEvaluator;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -36,6 +39,7 @@ public class ShopCustomerPaymentManager : DomainService
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
         ShopBankAccountManager bankAccountManager,
+        IShopNotificationEvaluator notificationEvaluator,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -45,6 +49,7 @@ public class ShopCustomerPaymentManager : DomainService
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
         _bankAccountManager = bankAccountManager;
+        _notificationEvaluator = notificationEvaluator;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -118,6 +123,15 @@ public class ShopCustomerPaymentManager : DomainService
             await _bankAccountManager.RecordTransactionAsync(
                 tenantId, payment.BankAccountId.Value, ShopBankTransactionType.CustomerPayment, ShopBankDirection.In, payment.Amount,
                 ShopBankReferenceType.CustomerPayment, payment.Id, payment.PaymentNumber, $"Customer payment - {payment.PaymentNumber}", payment.PaymentDate);
+        }
+
+        try
+        {
+            await _notificationEvaluator.ResolveCustomerOverdueAsync(tenantId, payment.CustomerId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Customer overdue notification re-check failed for customer {CustomerId}", payment.CustomerId);
         }
     }
 

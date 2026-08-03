@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using EHub.ShopManagement.CashRegisters;
 using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.Notifications;
 using EHub.ShopManagement.ProductBatches;
 using EHub.ShopManagement.Products;
 using EHub.ShopManagement.PurchaseOrders;
 using EHub.ShopManagement.StockTransactions;
 using EHub.ShopManagement.Units;
+using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -34,6 +36,7 @@ public class ShopSaleManager : DomainService
     private readonly ShopProductBatchManager _batchManager;
     private readonly ShopDocumentNumberGenerator _numberGenerator;
     private readonly ShopCashRegisterManager _cashRegisterManager;
+    private readonly IShopNotificationEvaluator _notificationEvaluator;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
 
@@ -48,6 +51,7 @@ public class ShopSaleManager : DomainService
         ShopProductBatchManager batchManager,
         ShopDocumentNumberGenerator numberGenerator,
         ShopCashRegisterManager cashRegisterManager,
+        IShopNotificationEvaluator notificationEvaluator,
         ICurrentTenant currentTenant,
         ICurrentUser currentUser)
     {
@@ -61,6 +65,7 @@ public class ShopSaleManager : DomainService
         _batchManager = batchManager;
         _numberGenerator = numberGenerator;
         _cashRegisterManager = cashRegisterManager;
+        _notificationEvaluator = notificationEvaluator;
         _currentTenant = currentTenant;
         _currentUser = currentUser;
     }
@@ -184,6 +189,20 @@ public class ShopSaleManager : DomainService
             await _cashRegisterManager.RecordAutomaticTransactionAsync(
                 tenantId, ShopCashTransactionType.CashSale, ShopCashDirection.In, sale.PaidAmount,
                 ShopCashReferenceType.Sale, sale.Id, sale.SaleNumber, $"Cash sale - {sale.SaleNumber}", sale.SaleDate);
+        }
+
+        // Immediate Low/Out-of-Stock re-check for the products just sold - best-effort only, must
+        // never fail the sale itself. The 30-minute background sweep remains the source of truth.
+        foreach (var productId in products.Keys)
+        {
+            try
+            {
+                await _notificationEvaluator.EvaluateProductStockAsync(tenantId, productId);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Low/Out-of-Stock notification re-check failed for product {ProductId}", productId);
+            }
         }
     }
 

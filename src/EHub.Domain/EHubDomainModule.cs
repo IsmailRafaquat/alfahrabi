@@ -25,6 +25,7 @@ using System.IO;
 using System;
 using System.Threading.Tasks;
 using EHub.ShopManagement.ProductBatches;
+using EHub.ShopManagement.Notifications;
 using Volo.Abp;
 
 namespace EHub;
@@ -65,6 +66,7 @@ public class EHubDomainModule : AbpModule
     public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
     {
         await context.AddBackgroundWorkerAsync<ShopBatchStatusRefreshWorker>();
+        await context.AddBackgroundWorkerAsync<GenerateShopNotificationsJob>();
     }
 
     private void ConfigureBlobStoringOptions(IConfiguration configuration)

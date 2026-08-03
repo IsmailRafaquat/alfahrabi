@@ -1,0 +1,78 @@
+.notification-settings-panel {
+  background: #f8fafc;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: 0 1rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .85rem 1rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+
+  &.unread {
+    background: #f4f9ff;
+    border-color: #cfe2ff;
+  }
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+
+  &.severity-info { background: #eef6fc; color: #2369a3; }
+  &.severity-success { background: #e9f7ef; color: #198754; }
+  &.severity-warning { background: #fef3e2; color: #b5670a; }
+  &.severity-danger { background: #fdeced; color: #c83e4d; }
+}
+
+.notification-body {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.notification-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.notification-message {
+  color: #495057;
+  font-size: .9rem;
+  margin-top: .15rem;
+}
+
+.notification-meta {
+  color: #8a9bad;
+  font-size: .75rem;
+  margin-top: .25rem;
+}
+
+.notification-actions {
+  display: flex;
+  gap: .1rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+  .notification-item { flex-wrap: wrap; }
+  .notification-actions { width: 100%; justify-content: flex-end; }
+}

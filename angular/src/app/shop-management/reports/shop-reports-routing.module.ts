@@ -61,6 +61,10 @@ const routes: Routes = [
     path: 'product-performance', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Reports.ProductPerformance' },
     loadChildren: () => import('./product-performance-report/product-performance-report.module').then(m => m.ProductPerformanceReportModule),
   },
+  {
+    path: 'profit-loss', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.ProfitLoss.View' },
+    loadChildren: () => import('./profit-loss-report/profit-loss-report.module').then(m => m.ProfitLossReportModule),
+  },
 ];
 
 @NgModule({ imports: [RouterModule.forChild(routes)], exports: [RouterModule] })

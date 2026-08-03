@@ -9,5 +9,6 @@ public enum ShopReportPeriod
     ThisMonth = 4,
     LastMonth = 5,
     ThisYear = 6,
-    Custom = 7
+    Custom = 7,
+    ThisQuarter = 8
 }

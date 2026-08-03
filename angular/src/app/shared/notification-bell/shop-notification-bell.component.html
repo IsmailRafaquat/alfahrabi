@@ -1,0 +1,36 @@
+<div class="bell-wrapper">
+  <button type="button" class="bell-button" (click)="toggle()" attr.aria-label="{{ '::NotificationCenter' | abpLocalization }}">
+    <i class="fas fa-bell"></i>
+    <span class="bell-badge" *ngIf="summary && summary.totalUnread > 0">{{ summary.totalUnread > 99 ? '99+' : summary.totalUnread }}</span>
+  </button>
+
+  <div class="bell-backdrop" *ngIf="open" (click)="close()"></div>
+
+  <div class="bell-dropdown" *ngIf="open">
+    <div class="bell-dropdown-header">
+      <strong>{{ '::NotificationCenter' | abpLocalization }}</strong>
+      <span class="text-muted small" *ngIf="summary">{{ summary.totalUnread }} {{ '::UnreadNotifications' | abpLocalization }}</span>
+    </div>
+
+    <div class="bell-dropdown-body">
+      <div class="bell-loading" *ngIf="loadingLatest"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <div class="bell-empty" *ngIf="!loadingLatest && latest.length === 0">{{ '::NoNotifications' | abpLocalization }}</div>
+
+      <div class="bell-item" *ngFor="let item of latest" [class.unread]="item.isUnread" (click)="select(item)">
+        <i [class]="severityIcon(item.severity)"></i>
+        <div class="bell-item-body">
+          <div class="bell-item-title">{{ item.title }}</div>
+          <div class="bell-item-time">{{ timeAgo(item.triggeredDate) }}</div>
+        </div>
+        <button type="button" class="btn btn-sm btn-link" *ngIf="item.isUnread" (click)="markAsRead(item, $event)" attr.title="{{ '::MarkAsRead' | abpLocalization }}">
+          <i class="fas fa-check"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="bell-dropdown-footer">
+      <button type="button" class="btn btn-sm btn-link" (click)="viewAll()">{{ '::ViewAllNotifications' | abpLocalization }}</button>
+    </div>
+  </div>
+</div>
