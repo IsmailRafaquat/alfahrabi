@@ -79,8 +79,12 @@ public class EHubApplicationModule : AbpModule
     // container, independent of anything ShopAiActionHandlerRegistry itself does.
     public override void OnApplicationInitialization(Volo.Abp.ApplicationInitializationContext context)
     {
-        var handlers = context.ServiceProvider.GetServices<IShopAiActionHandler>().ToList();
-        var logger = context.ServiceProvider.GetRequiredService<ILogger<EHubApplicationModule>>();
+        // Some IShopAiActionHandler implementations (and their dependency chains, e.g.
+        // AbpAuthorizationService) are scoped services, so they must be resolved from a
+        // created scope rather than the root service provider.
+        using var scope = context.ServiceProvider.CreateScope();
+        var handlers = scope.ServiceProvider.GetServices<IShopAiActionHandler>().ToList();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<EHubApplicationModule>>();
         logger.LogInformation(
             "STARTUP CHECK: resolved {Count} IShopAiActionHandler via OnApplicationInitialization: {Types}",
             handlers.Count, string.Join(",", handlers.Select(h => h.GetType().FullName)));

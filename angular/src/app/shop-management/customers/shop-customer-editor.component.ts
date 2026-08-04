@@ -50,6 +50,7 @@ export class ShopCustomerEditorComponent implements OnInit {
   submitting = false;
   readonlyMode = false;
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
   ledgerSummary?: ShopCustomerBalanceSummaryDto;
 
   get isEdit(): boolean {

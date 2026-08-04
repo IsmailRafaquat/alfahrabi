@@ -58,7 +58,7 @@ export interface ShopAiConversationListDto extends EntityDto<string> {
 export interface ShopAiDataListDto {
   title?: string;
   totalCount: number;
-  rows: Record<string, any>[];
+  rows: Record<string, object>[];
 }
 
 export interface ShopAiExecutionResultDto {
@@ -154,8 +154,8 @@ export interface ShopAiResponseDto {
   assistantMessage?: string;
   missingFields: string[];
   warnings: string[];
-  preview: ShopAiActionPreviewDto;
-  executionResult: ShopAiExecutionResultDto;
+  preview?: ShopAiActionPreviewDto;
+  executionResult?: ShopAiExecutionResultDto;
   dataList?: ShopAiDataListDto;
   ambiguousLookups: ShopAiLookupResolutionDto[];
   errorCode?: string;

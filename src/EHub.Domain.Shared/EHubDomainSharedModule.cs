@@ -3,12 +3,16 @@ using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
+using Volo.Abp.Identity.Localization;
 using Volo.Abp.Localization;
 using Volo.Abp.Localization.ExceptionHandling;
 using Volo.Abp.Validation.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
+using Volo.Abp.SettingManagement.Localization;
+using Volo.Abp.UI.Navigation.Localization.Resource;
+using Localization.Resources.AbpUi;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.BlobStoring.Database;
@@ -49,6 +53,9 @@ public class EHubDomainSharedModule : AbpModule
                 .AddBaseTypes(typeof(AbpValidationResource))
                 .AddVirtualJson("/Localization/EHub");
 
+            options.Resources.Get<IdentityResource>().AddVirtualJson("/Localization/AbpIdentity");
+            options.Resources.Get<AbpSettingManagementResource>().AddVirtualJson("/Localization/AbpSettingManagement");
+
             options.DefaultResourceType = typeof(EHubResource);
             
             options.Languages.Add(new LanguageInfo("en", "en", "English")); 
@@ -79,6 +86,18 @@ public class EHubDomainSharedModule : AbpModule
         {
             options.MapCodeNamespace("EHub", typeof(EHubResource));
             options.MapCodeNamespace("ShopManagement", typeof(EHubResource));
+        });
+    }
+
+    public override void PostConfigureServices(ServiceConfigurationContext context)
+    {
+        // AbpUiNavigationResource is registered by a UI/theme module that runs after this module's
+        // ConfigureServices, so it isn't available yet there. PostConfigureServices runs after every
+        // module's ConfigureServices has completed, so it's guaranteed to exist by this point.
+        Configure<AbpLocalizationOptions>(options =>
+        {
+            options.Resources.Get<AbpUiNavigationResource>().AddVirtualJson("/Localization/AbpUiNavigation");
+            options.Resources.Get<AbpUiResource>().AddVirtualJson("/Localization/AbpUi");
         });
     }
 }
