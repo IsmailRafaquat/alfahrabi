@@ -1,0 +1,13 @@
+{
+  "culture": "ur",
+  "texts": {
+    "GivenTenantIsNotExist": "دیا گیا ٹیننٹ موجود نہیں ہے: {0}",
+    "GivenTenantIsNotAvailable": "دیا گیا ٹیننٹ دستیاب نہیں ہے: {0}",
+    "Tenant": "ٹیننٹ",
+    "Switch": "تبدیل کریں",
+    "Name": "نام",
+    "SwitchTenantHint": "ہوسٹ سائیڈ پر جانے کے لیے نام کا خانہ خالی چھوڑ دیں۔",
+    "SwitchTenant": "ٹیننٹ تبدیل کریں",
+    "NotSelected": "منتخب نہیں"
+  }
+}

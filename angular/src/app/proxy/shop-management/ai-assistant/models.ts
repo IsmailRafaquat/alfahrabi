@@ -154,9 +154,9 @@ export interface ShopAiResponseDto {
   assistantMessage?: string;
   missingFields: string[];
   warnings: string[];
-  preview?: ShopAiActionPreviewDto;
-  executionResult?: ShopAiExecutionResultDto;
-  dataList?: ShopAiDataListDto;
+  preview: ShopAiActionPreviewDto;
+  executionResult: ShopAiExecutionResultDto;
+  dataList: ShopAiDataListDto;
   ambiguousLookups: ShopAiLookupResolutionDto[];
   errorCode?: string;
   errorMessage?: string;

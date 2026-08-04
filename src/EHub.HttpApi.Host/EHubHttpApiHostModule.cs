@@ -22,6 +22,7 @@ using Volo.Abp.Studio;
 using Volo.Abp.Account;
 using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.MultiTenancy;
+using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy.Localization;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Autofac;
 using Volo.Abp.Localization;
@@ -118,6 +119,20 @@ public class EHubHttpApiHostModule : AbpModule
         ConfigureSwagger(context, configuration);
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
+    }
+
+    public override void PostConfigureServices(ServiceConfigurationContext context)
+    {
+        // AbpUiMultiTenancyResource comes from the MVC tenant-switch UI, pulled in transitively
+        // through AbpAccountWebOpenIddictModule. That module isn't a direct dependency of this one,
+        // so its resource isn't guaranteed to exist yet in ConfigureServices. PostConfigureServices
+        // runs after every module's ConfigureServices has completed, so it's safe here. This is only
+        // done in the host app (not EHub.Domain.Shared) because other entry points, like
+        // EHub.DbMigrator, don't reference the MVC multi-tenancy UI and wouldn't have this resource.
+        Configure<AbpLocalizationOptions>(options =>
+        {
+            options.Resources.Get<AbpUiMultiTenancyResource>().AddVirtualJson("/Localization/AbpUiMultiTenancy");
+        });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
