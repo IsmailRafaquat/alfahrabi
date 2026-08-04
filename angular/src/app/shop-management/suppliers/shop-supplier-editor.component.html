@@ -3,21 +3,7 @@
   [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
 
   <div topbarPills>
-    <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Supplier fields help</span></button>
-    <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
-      <div class="editor-help-item"><strong dir="ltr">Supplier Code</strong><span>سپلائر کی منفرد چھوٹی پہچان۔ ہر سپلائر کا کوڈ الگ رکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Supplier Name</strong><span>جس شخص یا کمپنی سے مال خریدتے ہیں اس کا پورا نام۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Contact Person</strong><span>سپلائر کی طرف سے رابطہ کرنے والے شخص کا نام۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Phone / Alternate Phone</strong><span>سپلائر کے مرکزی اور دوسرے رابطہ نمبر لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Email</strong><span>بل، آرڈر یا رابطے کے لیے سپلائر کا ای میل پتہ۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Tax Number</strong><span>اگر موجود ہو تو سپلائر کا ٹیکس رجسٹریشن نمبر لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Address</strong><span>سپلائر کا مکمل پتہ، شہر، صوبہ، پوسٹل کوڈ اور ملک لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Opening Balance</strong><span>شروع میں سپلائر کو دینی یا اس سے لینی والی پہلے سے موجود رقم۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Credit Limit</strong><span>زیادہ سے زیادہ رقم جتنی سپلائر ادھار دینے کی اجازت دیتا ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Payment Terms (Days)</strong><span>خریداری کے بعد ادائیگی کے لیے ملنے والے دنوں کی تعداد۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Notes</strong><span>سپلائر کے بارے میں ضروری اضافی معلومات لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر یہ سپلائر نئی خریداری میں منتخب کیا جا سکے گا۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Supplier fields help</span></button>
   </div>
 
   <div topbarActions class="d-flex align-items-center gap-2">
@@ -204,3 +190,32 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Supplier Fields Guide' : 'سپلائر فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Supplier Code</strong><span>{{ helpLang === 'en' ? "A short, unique identifier for the supplier. Keep every supplier's code different." : 'سپلائر کی منفرد چھوٹی پہچان۔ ہر سپلائر کا کوڈ الگ رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Supplier Name</strong><span>{{ helpLang === 'en' ? 'The full name of the person or company you buy goods from.' : 'جس شخص یا کمپنی سے مال خریدتے ہیں اس کا پورا نام۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Contact Person</strong><span>{{ helpLang === 'en' ? 'The name of the person to contact at the supplier.' : 'سپلائر کی طرف سے رابطہ کرنے والے شخص کا نام۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Phone / Alternate Phone</strong><span>{{ helpLang === 'en' ? "The supplier's main and secondary contact numbers." : 'سپلائر کے مرکزی اور دوسرے رابطہ نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Email</strong><span>{{ helpLang === 'en' ? "The supplier's email address for bills, orders or contact." : 'بل، آرڈر یا رابطے کے لیے سپلائر کا ای میل پتہ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Tax Number</strong><span>{{ helpLang === 'en' ? "The supplier's tax registration number, if any." : 'اگر موجود ہو تو سپلائر کا ٹیکس رجسٹریشن نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Address</strong><span>{{ helpLang === 'en' ? "The supplier's full address, city, province, postal code and country." : 'سپلائر کا مکمل پتہ، شہر، صوبہ، پوسٹل کوڈ اور ملک لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Opening Balance</strong><span>{{ helpLang === 'en' ? 'Any existing amount you owe the supplier, or the supplier owes you, at the start.' : 'شروع میں سپلائر کو دینی یا اس سے لینی والی پہلے سے موجود رقم۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Credit Limit</strong><span>{{ helpLang === 'en' ? 'The maximum amount the supplier allows you to purchase on credit.' : 'زیادہ سے زیادہ رقم جتنی سپلائر ادھار دینے کی اجازت دیتا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Terms (Days)</strong><span>{{ helpLang === 'en' ? 'The number of days allowed to pay after a purchase.' : 'خریداری کے بعد ادائیگی کے لیے ملنے والے دنوں کی تعداد۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Any other useful information about the supplier.' : 'سپلائر کے بارے میں ضروری اضافی معلومات لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Active</strong><span>{{ helpLang === 'en' ? 'When turned on, this supplier can be selected for new purchases.' : 'آن ہونے پر یہ سپلائر نئی خریداری میں منتخب کیا جا سکے گا۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

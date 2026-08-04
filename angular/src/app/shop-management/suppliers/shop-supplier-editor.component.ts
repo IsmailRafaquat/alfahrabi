@@ -47,6 +47,7 @@ export class ShopSupplierEditorComponent implements OnInit {
   submitting = false;
   savedItems: ShopSupplierDto[] = [];
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
   ledgerSummary?: ShopSupplierBalanceSummaryDto;
 
   get isEdit(): boolean {

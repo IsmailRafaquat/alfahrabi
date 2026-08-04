@@ -39,93 +39,81 @@
   <ng-container *ngIf="dto as d">
     <!-- Summary cards -->
     <div class="cards-row" *ngIf="canViewFinancialSummary || canViewBalances">
-      <div class="stat-card" (click)="goSales()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Total sales after deducting sale returns for the selected period (Gross Sales minus Sale Returns). Pending/unpaid amounts are still included since the sale itself is completed.', ur: 'منتخب مدت میں کل سیلز، سیل ریٹرن کی رقم منہا کرنے کے بعد (Gross Sales - Sale Returns)۔ ادائیگی باقی ہونے کے باوجود، مکمل ہونے والی سیل شامل ہوتی ہے۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Total sales after deducting sale returns for the selected period (Gross Sales minus Sale Returns). Pending/unpaid amounts are still included since the sale itself is completed.', ur: 'منتخب مدت میں کل سیلز، سیل ریٹرن کی رقم منہا کرنے کے بعد (Gross Sales - Sale Returns)۔ ادائیگی باقی ہونے کے باوجود، مکمل ہونے والی سیل شامل ہوتی ہے۔' }"
+          (click)="goSales()">
         <i class="fas fa-chart-line"></i>
         <div><span class="stat-label">{{ '::NetSales' | abpLocalization }}</span><strong>{{ fmt(d.summary.netSales) }}</strong></div>
       </div>
-      <div class="stat-card" (click)="goPurchases()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Total value of completed Goods Receipts (stock actually received from suppliers) in the selected period. Purchase Orders alone are not counted until goods are received.', ur: 'منتخب مدت میں مکمل ہونے والی Goods Receipts کی کل مالیت (سپلائیرز سے حقیقتاً موصول ہونے والا اسٹاک)۔ صرف Purchase Order بننے سے یہ شمار نہیں ہوتا، جب تک سامان وصول نہ ہو۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Total value of completed Goods Receipts (stock actually received from suppliers) in the selected period. Purchase Orders alone are not counted until goods are received.', ur: 'منتخب مدت میں مکمل ہونے والی Goods Receipts کی کل مالیت (سپلائیرز سے حقیقتاً موصول ہونے والا اسٹاک)۔ صرف Purchase Order بننے سے یہ شمار نہیں ہوتا، جب تک سامان وصول نہ ہو۔' }"
+          (click)="goPurchases()">
         <i class="fas fa-truck"></i>
         <div><span class="stat-label">{{ '::TotalPurchases' | abpLocalization }}</span><strong>{{ fmt(d.summary.totalPurchases) }}</strong></div>
       </div>
-      <div class="stat-card" (click)="goExpenses()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Sum of all posted (approved) business expenses recorded within the selected period.', ur: 'منتخب مدت میں درج کیے گئے تمام posted (منظور شدہ) کاروباری اخراجات کا مجموعہ۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Sum of all posted (approved) business expenses recorded within the selected period.', ur: 'منتخب مدت میں درج کیے گئے تمام posted (منظور شدہ) کاروباری اخراجات کا مجموعہ۔' }"
+          (click)="goExpenses()">
         <i class="fas fa-file-invoice-dollar"></i>
         <div><span class="stat-label">{{ '::TotalExpenses' | abpLocalization }}</span><strong>{{ fmt(d.summary.totalExpenses) }}</strong></div>
       </div>
-      <div class="stat-card" *ngIf="canViewBalances" (click)="goCashManagement()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Current cash-in-hand balance across all cash registers. This is the live balance, not limited to the selected period.', ur: 'تمام کیش رجسٹرز میں موجودہ نقد رقم کا بیلنس۔ یہ ہر وقت کا موجودہ بیلنس ہے، منتخب مدت تک محدود نہیں۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" *ngIf="canViewBalances" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Current cash-in-hand balance across all cash registers. This is the live balance, not limited to the selected period.', ur: 'تمام کیش رجسٹرز میں موجودہ نقد رقم کا بیلنس۔ یہ ہر وقت کا موجودہ بیلنس ہے، منتخب مدت تک محدود نہیں۔' }"
+          (click)="goCashManagement()">
         <i class="fas fa-cash-register"></i>
         <div><span class="stat-label">{{ '::CashBalance' | abpLocalization }}</span><strong>{{ fmt(d.summary.cashBalance) }}</strong></div>
       </div>
     </div>
 
     <div class="cards-row" *ngIf="canViewBalances || canViewInventoryValue">
-      <div class="stat-card" *ngIf="canViewBalances" (click)="goBankManagement()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Total current balance of all active bank accounts. This is the live balance, not limited to the selected period.', ur: 'تمام ایکٹو بینک اکاؤنٹس کا موجودہ کل بیلنس۔ یہ ہر وقت کا موجودہ بیلنس ہے، منتخب مدت تک محدود نہیں۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" *ngIf="canViewBalances" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Total current balance of all active bank accounts. This is the live balance, not limited to the selected period.', ur: 'تمام ایکٹو بینک اکاؤنٹس کا موجودہ کل بیلنس۔ یہ ہر وقت کا موجودہ بیلنس ہے، منتخب مدت تک محدود نہیں۔' }"
+          (click)="goBankManagement()">
         <i class="fas fa-university"></i>
         <div><span class="stat-label">{{ '::BankBalance' | abpLocalization }}</span><strong>{{ fmt(d.summary.bankBalance) }}</strong></div>
       </div>
-      <div class="stat-card" *ngIf="canViewBalances" (click)="goCustomerLedger()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Total outstanding amount currently owed to you by all customers, across all their unpaid invoices - not limited to the selected period.', ur: 'تمام کسٹمرز کی جانب سے آپ کو واجب الادا کل رقم، ان کے تمام غیر ادا شدہ انوائسز کی بنیاد پر - یہ منتخب مدت تک محدود نہیں۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" *ngIf="canViewBalances" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Total outstanding amount currently owed to you by all customers, across all their unpaid invoices - not limited to the selected period.', ur: 'تمام کسٹمرز کی جانب سے آپ کو واجب الادا کل رقم، ان کے تمام غیر ادا شدہ انوائسز کی بنیاد پر - یہ منتخب مدت تک محدود نہیں۔' }"
+          (click)="goCustomerLedger()">
         <i class="fas fa-hand-holding-usd"></i>
         <div><span class="stat-label">{{ '::CustomerReceivables' | abpLocalization }}</span><strong>{{ fmt(d.summary.customerReceivables) }}</strong></div>
       </div>
-      <div class="stat-card" *ngIf="canViewBalances" (click)="goSupplierLedger()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Total outstanding amount you currently owe to suppliers, across all unpaid purchases - not limited to the selected period.', ur: 'سپلائرز کو آپ کی جانب سے واجب الادا کل رقم، تمام غیر ادا شدہ خریداریوں کی بنیاد پر - یہ منتخب مدت تک محدود نہیں۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" *ngIf="canViewBalances" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Total outstanding amount you currently owe to suppliers, across all unpaid purchases - not limited to the selected period.', ur: 'سپلائرز کو آپ کی جانب سے واجب الادا کل رقم، تمام غیر ادا شدہ خریداریوں کی بنیاد پر - یہ منتخب مدت تک محدود نہیں۔' }"
+          (click)="goSupplierLedger()">
         <i class="fas fa-money-bill-wave"></i>
         <div><span class="stat-label">{{ '::SupplierPayables' | abpLocalization }}</span><strong>{{ fmt(d.summary.supplierPayables) }}</strong></div>
       </div>
-      <div class="stat-card" *ngIf="canViewInventoryValue" (click)="goProducts()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Estimated value of all stock currently on hand, calculated using each product\'s purchase cost (or batch cost for batch-tracked products).', ur: 'اس وقت موجود تمام اسٹاک کی تخمینی مالیت، ہر پروڈکٹ کی خریداری قیمت (یا بیچ ٹریک شدہ پروڈکٹس کے لیے بیچ کاسٹ) کی بنیاد پر۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card" *ngIf="canViewInventoryValue" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Estimated value of all stock currently on hand, calculated using each product\'s purchase cost (or batch cost for batch-tracked products).', ur: 'اس وقت موجود تمام اسٹاک کی تخمینی مالیت، ہر پروڈکٹ کی خریداری قیمت (یا بیچ ٹریک شدہ پروڈکٹس کے لیے بیچ کاسٹ) کی بنیاد پر۔' }"
+          (click)="goProducts()">
         <i class="fas fa-warehouse"></i>
         <div><span class="stat-label">{{ '::InventoryValue' | abpLocalization }}</span><strong>{{ fmt(d.summary.inventoryValue) }}</strong></div>
       </div>
     </div>
 
     <div class="cards-row" *ngIf="canViewStockAlerts">
-      <div class="stat-card alert-card" (click)="goProducts()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Number of active products whose current stock has fallen to or below their reorder level.', ur: 'ایسی ایکٹو پروڈکٹس کی تعداد جن کا موجودہ اسٹاک ان کی Reorder Level کے برابر یا اس سے کم ہو چکا ہے۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card alert-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Number of active products whose current stock has fallen to or below their reorder level.', ur: 'ایسی ایکٹو پروڈکٹس کی تعداد جن کا موجودہ اسٹاک ان کی Reorder Level کے برابر یا اس سے کم ہو چکا ہے۔' }"
+          (click)="goProducts()">
         <i class="fas fa-exclamation-triangle"></i>
         <div><span class="stat-label">{{ '::LowStockProducts' | abpLocalization }}</span><strong>{{ d.summary.lowStockProductCount ?? '—' }}</strong></div>
       </div>
-      <div class="stat-card alert-card" (click)="goProducts()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Number of active products with zero or negative current stock.', ur: 'ایسی ایکٹو پروڈکٹس کی تعداد جن کا موجودہ اسٹاک صفر یا اس سے کم ہے۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card alert-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Number of active products with zero or negative current stock.', ur: 'ایسی ایکٹو پروڈکٹس کی تعداد جن کا موجودہ اسٹاک صفر یا اس سے کم ہے۔' }"
+          (click)="goProducts()">
         <i class="fas fa-ban"></i>
         <div><span class="stat-label">{{ '::OutOfStockProducts' | abpLocalization }}</span><strong>{{ d.summary.outOfStockProductCount ?? '—' }}</strong></div>
       </div>
-      <div class="stat-card alert-card" (click)="goProductBatches()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Number of product batches expiring soon, based on each product\'s Expiry Alert Days setting.', ur: 'ایسے پروڈکٹ بیچز کی تعداد جن کی میعاد جلد ختم ہونے والی ہے، ہر پروڈکٹ کی Expiry Alert Days سیٹنگ کی بنیاد پر۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card alert-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Number of product batches expiring soon, based on each product\'s Expiry Alert Days setting.', ur: 'ایسے پروڈکٹ بیچز کی تعداد جن کی میعاد جلد ختم ہونے والی ہے، ہر پروڈکٹ کی Expiry Alert Days سیٹنگ کی بنیاد پر۔' }"
+          (click)="goProductBatches()">
         <i class="fas fa-hourglass-half"></i>
         <div><span class="stat-label">{{ '::NearExpiryBatches' | abpLocalization }}</span><strong>{{ d.summary.nearExpiryBatchCount ?? '—' }}</strong></div>
       </div>
-      <div class="stat-card alert-card" (click)="goProductBatches()">
-        <button type="button" class="card-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
-            [nzTooltipTitleContext]="{ en: 'Number of product batches that have already expired but still have available stock remaining.', ur: 'ایسے پروڈکٹ بیچز کی تعداد جن کی میعاد ختم ہو چکی ہے مگر ان میں اسٹاک اب بھی باقی ہے۔' }"
-            (click)="$event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+      <div class="stat-card alert-card" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+          [nzTooltipTitleContext]="{ en: 'Number of product batches that have already expired but still have available stock remaining.', ur: 'ایسے پروڈکٹ بیچز کی تعداد جن کی میعاد ختم ہو چکی ہے مگر ان میں اسٹاک اب بھی باقی ہے۔' }"
+          (click)="goProductBatches()">
         <i class="fas fa-skull-crossbones"></i>
         <div><span class="stat-label">{{ '::ExpiredBatches' | abpLocalization }}</span><strong>{{ d.summary.expiredBatchCount ?? '—' }}</strong></div>
       </div>
