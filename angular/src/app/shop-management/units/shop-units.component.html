@@ -80,18 +80,6 @@
 <abp-modal [(visible)]="modalOpen" [busy]="submitting"><ng-template #abpHeader>
         <h5 class="unit-modal-title">
             {{ (selected ? '::EditUnit' : '::CreateUnit') | abpLocalization }}
-            <button type="button" class="unit-help-btn" (click)="unitHelpOpen = !unitHelpOpen"
-                [attr.aria-expanded]="unitHelpOpen">
-                <i class="fas fa-info-circle" aria-hidden="true"></i>
-                <span class="visually-hidden">Unit fields help</span>
-            </button>
-            <div *ngIf="unitHelpOpen" class="unit-fields-help" dir="rtl" lang="ur">
-                <div class="unit-help-arrow"></div>
-                <div class="unit-help-item"><strong dir="ltr">Unit Name</strong><span>چیز ناپنے یا بیچنے کی اکائی کا پورا نام، جیسے عدد، ڈبہ، میٹر یا کلو۔</span></div>
-                <div class="unit-help-item"><strong dir="ltr">Short Name</strong><span>یونٹ کا چھوٹا نام جو مقدار کے ساتھ نظر آئے گا، جیسے pcs، kg یا m۔</span></div>
-                <div class="unit-help-item"><strong dir="ltr">Allow Decimal Quantity</strong><span>اگر آدھی یا سوا مقدار بیچ سکتے ہیں، جیسے 1.5 میٹر، تو اسے آن کریں۔</span></div>
-                <div class="unit-help-item"><strong dir="ltr">Active</strong><span>اسے آن رکھنے سے یہ یونٹ نئی پروڈکٹ بناتے وقت فہرست میں نظر آئے گا۔</span></div>
-            </div>
         </h5>
     </ng-template><ng-template #abpBody>
         <form [formGroup]="form">
