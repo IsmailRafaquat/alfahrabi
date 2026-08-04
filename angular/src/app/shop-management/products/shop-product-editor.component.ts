@@ -74,6 +74,7 @@ export class ShopProductEditorComponent implements OnInit {
   currentStock = 0;
   savedItems: ShopProductDto[] = [];
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
 
   get isEdit(): boolean {
     return !!this.editId;

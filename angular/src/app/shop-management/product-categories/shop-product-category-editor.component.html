@@ -3,15 +3,7 @@
   [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
 
   <div topbarPills>
-    <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Category fields help</span></button>
-    <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
-      <div class="editor-help-item"><strong dir="ltr">Category Name</strong><span>کیٹیگری کا پورا نام، جیسے پائپس یا پانی کی ٹینکیاں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Category Code</strong><span>کیٹیگری کی منفرد چھوٹی پہچان، جیسے PIPE۔ ایک کوڈ دوبارہ نہ رکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Parent Category</strong><span>اگر یہ کسی بڑی کیٹیگری کے اندر ہے تو وہ منتخب کریں، ورنہ Root Category رکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Display Order</strong><span>چھوٹا نمبر والی کیٹیگری فہرست میں پہلے نظر آئے گی۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Description</strong><span>کیٹیگری کے بارے میں مختصر معلومات لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر یہ کیٹیگری نئی پروڈکٹ کے لیے منتخب ہو سکے گی۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Category fields help</span></button>
   </div>
 
   <div topbarActions class="d-flex align-items-center gap-2">
@@ -51,3 +43,26 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Category Fields Guide' : 'کیٹیگری فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Category Name</strong><span>{{ helpLang === 'en' ? 'The full name of the category, e.g. Pipes or Water Tanks.' : 'کیٹیگری کا پورا نام، جیسے پائپس یا پانی کی ٹینکیاں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Category Code</strong><span>{{ helpLang === 'en' ? "A short unique identifier for the category, e.g. PIPE. A code can't be reused." : 'کیٹیگری کی منفرد چھوٹی پہچان، جیسے PIPE۔ ایک کوڈ دوبارہ نہ رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Parent Category</strong><span>{{ helpLang === 'en' ? 'Choose the parent category if this belongs inside a bigger one, otherwise leave it as Root Category.' : 'اگر یہ کسی بڑی کیٹیگری کے اندر ہے تو وہ منتخب کریں، ورنہ Root Category رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Display Order</strong><span>{{ helpLang === 'en' ? 'A category with a smaller number appears first in the list.' : 'چھوٹا نمبر والی کیٹیگری فہرست میں پہلے نظر آئے گی۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Description</strong><span>{{ helpLang === 'en' ? 'Write a short note about this category.' : 'کیٹیگری کے بارے میں مختصر معلومات لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Active</strong><span>{{ helpLang === 'en' ? 'When turned on, this category can be selected while creating a new product.' : 'آن ہونے پر یہ کیٹیگری نئی پروڈکٹ کے لیے منتخب ہو سکے گی۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

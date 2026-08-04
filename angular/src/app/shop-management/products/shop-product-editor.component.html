@@ -3,23 +3,7 @@
   [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
 
   <div topbarPills>
-    <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Product fields help</span></button>
-    <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
-      <div class="editor-help-item"><strong dir="ltr">Product Name</strong><span>دکان میں خریدی یا بیچی جانے والی چیز کا مکمل نام۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Product Code</strong><span>پروڈکٹ کی منفرد پہچان۔ ہر پروڈکٹ کا کوڈ الگ رکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Category</strong><span>پروڈکٹ جس قسم میں شامل ہے، وہ کیٹیگری منتخب کریں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Unit</strong><span>پروڈکٹ کس حساب سے بکتا ہے، جیسے عدد، ڈبہ، میٹر یا کلو۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">SKU / Barcode</strong><span>اسٹاک کے مختصر کوڈ اور اسکین کرنے والا بارکوڈ نمبر لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Brand / Model</strong><span>پروڈکٹ بنانے والی کمپنی اور اس کا ماڈل لکھیں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Purchase Price</strong><span>وہ قیمت جس پر پروڈکٹ سپلائر سے خریدا جاتا ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Sale Price</strong><span>وہ قیمت جس پر پروڈکٹ گاہک کو بیچا جاتا ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Wholesale / Minimum Sale Price</strong><span>تھوک کی قیمت اور سب سے کم اجازت والی فروخت قیمت۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Taxable / Tax Percentage</strong><span>ٹیکس لگتا ہو تو آن کریں اور ٹیکس کی شرح درج کریں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Minimum / Maximum Stock</strong><span>اسٹاک کی کم اور زیادہ حد درج کریں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Reorder Level</strong><span>اس مقدار پر پہنچنے کے بعد نیا مال منگوانا چاہیے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Track Batch / Expiry / Serial</strong><span>ضرورت کے مطابق بیچ، ایکسپائری یا سیریل نمبر کی نگرانی آن کریں۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Active</strong><span>آن ہونے پر پروڈکٹ خرید و فروخت میں نظر آئے گا۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Product fields help</span></button>
   </div>
 
   <div topbarActions class="d-flex align-items-center gap-2">
@@ -223,3 +207,34 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Product Fields Guide' : 'پراڈکٹ فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Product Name</strong><span>{{ helpLang === 'en' ? 'The full name of the item bought or sold in the shop.' : 'دکان میں خریدی یا بیچی جانے والی چیز کا مکمل نام۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Product Code</strong><span>{{ helpLang === 'en' ? "A unique identifier for the product. Keep every product's code different." : 'پروڈکٹ کی منفرد پہچان۔ ہر پروڈکٹ کا کوڈ الگ رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Category</strong><span>{{ helpLang === 'en' ? 'Choose the category the product belongs to.' : 'پروڈکٹ جس قسم میں شامل ہے، وہ کیٹیگری منتخب کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Unit</strong><span>{{ helpLang === 'en' ? 'How the product is measured or sold, e.g. Piece, Box, Meter or Kilogram.' : 'پروڈکٹ کس حساب سے بکتا ہے، جیسے عدد، ڈبہ، میٹر یا کلو۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">SKU / Barcode</strong><span>{{ helpLang === 'en' ? 'Enter the short stock code and the scannable barcode number.' : 'اسٹاک کے مختصر کوڈ اور اسکین کرنے والا بارکوڈ نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Brand / Model</strong><span>{{ helpLang === 'en' ? 'The manufacturer and model of the product.' : 'پروڈکٹ بنانے والی کمپنی اور اس کا ماڈل لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Purchase Price</strong><span>{{ helpLang === 'en' ? 'The price at which the product is bought from the supplier.' : 'وہ قیمت جس پر پروڈکٹ سپلائر سے خریدا جاتا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Sale Price</strong><span>{{ helpLang === 'en' ? 'The price at which the product is sold to the customer.' : 'وہ قیمت جس پر پروڈکٹ گاہک کو بیچا جاتا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Wholesale / Minimum Sale Price</strong><span>{{ helpLang === 'en' ? 'The wholesale price and the lowest price the product may be sold at.' : 'تھوک کی قیمت اور سب سے کم اجازت والی فروخت قیمت۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Taxable / Tax Percentage</strong><span>{{ helpLang === 'en' ? 'Turn on if tax applies, and enter the tax rate.' : 'ٹیکس لگتا ہو تو آن کریں اور ٹیکس کی شرح درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Minimum / Maximum Stock</strong><span>{{ helpLang === 'en' ? 'Enter the lowest and highest stock levels to keep.' : 'اسٹاک کی کم اور زیادہ حد درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reorder Level</strong><span>{{ helpLang === 'en' ? 'Once stock reaches this quantity, new stock should be ordered.' : 'اس مقدار پر پہنچنے کے بعد نیا مال منگوانا چاہیے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Track Batch / Expiry / Serial</strong><span>{{ helpLang === 'en' ? 'Turn on batch, expiry, or serial number tracking as needed.' : 'ضرورت کے مطابق بیچ، ایکسپائری یا سیریل نمبر کی نگرانی آن کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Active</strong><span>{{ helpLang === 'en' ? 'When turned on, the product appears in purchase and sale screens.' : 'آن ہونے پر پروڈکٹ خرید و فروخت میں نظر آئے گا۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>
