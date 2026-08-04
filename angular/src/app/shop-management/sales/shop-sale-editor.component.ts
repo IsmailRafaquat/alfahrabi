@@ -76,6 +76,7 @@ export class ShopSaleEditorComponent implements OnInit {
   loading = false;
   submitting = false;
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
   saleNumber = '';
 
   private paidAmountManuallyEdited = false;

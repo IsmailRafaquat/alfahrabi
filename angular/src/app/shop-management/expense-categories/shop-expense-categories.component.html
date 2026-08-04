@@ -71,17 +71,6 @@
   <ng-template #abpHeader>
     <h5 class="modal-title-help">
       {{ (selected ? '::EditExpenseCategory' : '::CreateExpenseCategory') | abpLocalization }}
-      <button type="button" class="editor-help-btn" (click)="categoryHelpOpen = !categoryHelpOpen" [attr.aria-expanded]="categoryHelpOpen">
-        <i class="fas fa-info-circle" aria-hidden="true"></i>
-        <span class="visually-hidden">Expense category fields help</span>
-      </button>
-      <div *ngIf="categoryHelpOpen" class="editor-fields-help" dir="rtl" lang="ur">
-        <div class="editor-help-arrow"></div>
-        <div class="editor-help-item"><strong dir="ltr">Category Code</strong><span>مختصر منفرد کوڈ، جیسے RENT یا UTIL۔ ایک ہی دکان میں یہ کوڈ دہرایا نہیں جا سکتا۔</span></div>
-        <div class="editor-help-item"><strong dir="ltr">Category Name</strong><span>کیٹیگری کا مکمل نام، جیسے Rent یا Utilities۔</span></div>
-        <div class="editor-help-item"><strong dir="ltr">Description</strong><span>اس کیٹیگری کے بارے میں اضافی تفصیل، اختیاری ہے۔</span></div>
-        <div class="editor-help-item"><strong dir="ltr">Active</strong><span>اسے آف کرنے سے یہ کیٹیگری نئی Expense بناتے وقت فہرست میں نظر نہیں آئے گی، مگر پرانی expenses پر موجود رہے گی۔</span></div>
-      </div>
     </h5>
   </ng-template>
   <ng-template #abpBody>

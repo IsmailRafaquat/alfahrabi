@@ -100,10 +100,10 @@ export class BankTransactionReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Opening Balance', value: t.openingBalance.toFixed(2), icon: 'fas fa-university', colorClass: 'primary' },
-      { label: 'Amount In', value: t.totalAmountIn.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
-      { label: 'Amount Out', value: t.totalAmountOut.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
-      { label: 'Closing Balance', value: t.closingBalance.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
+      { label: '::OpeningBalance', value: t.openingBalance.toFixed(2), icon: 'fas fa-university', colorClass: 'primary' },
+      { label: '::AmountIn', value: t.totalAmountIn.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
+      { label: '::AmountOut', value: t.totalAmountOut.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
+      { label: '::ClosingBalance', value: t.closingBalance.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
     ];
   }
 }

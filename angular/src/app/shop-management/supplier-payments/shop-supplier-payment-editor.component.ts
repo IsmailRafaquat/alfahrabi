@@ -88,6 +88,7 @@ export class ShopSupplierPaymentEditorComponent implements OnInit {
   loadingReceipts = false;
   submitting = false;
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
   supplierLocked = false;
 
   private existingAllocations: { goodsReceiptId: string; allocatedAmount?: number }[] = [];

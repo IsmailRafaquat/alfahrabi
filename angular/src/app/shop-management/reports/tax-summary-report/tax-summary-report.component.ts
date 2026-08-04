@@ -51,13 +51,13 @@ export class TaxSummaryReportComponent implements OnInit {
     const t = this.result;
     if (!t) return [];
     return [
-      { label: 'Sales Tax Collected', value: t.salesTaxCollected.toFixed(2), icon: 'fas fa-receipt', colorClass: 'success' },
-      { label: 'Sales Return Tax Reversed', value: t.salesReturnTaxReversed.toFixed(2), icon: 'fas fa-undo', colorClass: 'warning' },
-      { label: 'Net Sales Tax', value: t.netSalesTax.toFixed(2), icon: 'fas fa-percentage', colorClass: 'primary' },
-      { label: 'Purchase Tax Paid', value: t.purchaseTaxPaid.toFixed(2), icon: 'fas fa-file-invoice-dollar', colorClass: 'info' },
-      { label: 'Purchase Return Tax Reversed', value: t.purchaseReturnTaxReversed.toFixed(2), icon: 'fas fa-undo', colorClass: 'warning' },
-      { label: 'Net Purchase Tax', value: t.netPurchaseTax.toFixed(2), icon: 'fas fa-percentage', colorClass: 'info' },
-      { label: 'Net Tax Position', value: t.netTaxPosition.toFixed(2), icon: 'fas fa-balance-scale', colorClass: t.netTaxPosition >= 0 ? 'success' : 'danger' },
+      { label: '::SalesTaxCollected', value: t.salesTaxCollected.toFixed(2), icon: 'fas fa-receipt', colorClass: 'success' },
+      { label: '::SalesReturnTaxReversed', value: t.salesReturnTaxReversed.toFixed(2), icon: 'fas fa-undo', colorClass: 'warning' },
+      { label: '::NetSalesTax', value: t.netSalesTax.toFixed(2), icon: 'fas fa-percentage', colorClass: 'primary' },
+      { label: '::PurchaseTaxPaid', value: t.purchaseTaxPaid.toFixed(2), icon: 'fas fa-file-invoice-dollar', colorClass: 'info' },
+      { label: '::PurchaseReturnTaxReversed', value: t.purchaseReturnTaxReversed.toFixed(2), icon: 'fas fa-undo', colorClass: 'warning' },
+      { label: '::NetPurchaseTax', value: t.netPurchaseTax.toFixed(2), icon: 'fas fa-percentage', colorClass: 'info' },
+      { label: '::NetTaxPosition', value: t.netTaxPosition.toFixed(2), icon: 'fas fa-balance-scale', colorClass: t.netTaxPosition >= 0 ? 'success' : 'danger' },
     ];
   }
 }

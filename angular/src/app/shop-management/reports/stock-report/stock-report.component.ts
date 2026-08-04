@@ -112,14 +112,14 @@ export class StockReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     const cards: ReportTotalCard[] = [
-      { label: 'Total Products', value: String(t.totalProducts), icon: 'fas fa-boxes', colorClass: 'primary' },
-      { label: 'In Stock', value: String(t.inStockProducts), icon: 'fas fa-check-circle', colorClass: 'success' },
-      { label: 'Low Stock', value: String(t.lowStockProducts), icon: 'fas fa-exclamation-triangle', colorClass: 'warning' },
-      { label: 'Out of Stock', value: String(t.outOfStockProducts), icon: 'fas fa-times-circle', colorClass: 'danger' },
-      { label: 'Total Stock Quantity', value: t.totalStockQuantity.toFixed(2), icon: 'fas fa-cubes', colorClass: 'info' },
+      { label: '::TotalProducts', value: String(t.totalProducts), icon: 'fas fa-boxes', colorClass: 'primary' },
+      { label: '::InStock', value: String(t.inStockProducts), icon: 'fas fa-check-circle', colorClass: 'success' },
+      { label: '::LowStock', value: String(t.lowStockProducts), icon: 'fas fa-exclamation-triangle', colorClass: 'warning' },
+      { label: '::OutOfStockProducts', value: String(t.outOfStockProducts), icon: 'fas fa-times-circle', colorClass: 'danger' },
+      { label: '::TotalStockQuantity', value: t.totalStockQuantity.toFixed(2), icon: 'fas fa-cubes', colorClass: 'info' },
     ];
     if (t.totalStockValue !== undefined && t.totalStockValue !== null) {
-      cards.push({ label: 'Total Stock Value', value: t.totalStockValue.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' });
+      cards.push({ label: '::TotalStockValue', value: t.totalStockValue.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' });
     }
     return cards;
   }

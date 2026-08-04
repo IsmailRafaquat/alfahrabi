@@ -101,10 +101,10 @@ export class StockMovementReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Transactions', value: String(t.transactionCount), icon: 'fas fa-exchange-alt', colorClass: 'primary' },
-      { label: 'Quantity In', value: t.totalQuantityIn.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
-      { label: 'Quantity Out', value: t.totalQuantityOut.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
-      { label: 'Net Movement', value: t.netQuantityMovement.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
+      { label: '::Transactions', value: String(t.transactionCount), icon: 'fas fa-exchange-alt', colorClass: 'primary' },
+      { label: '::QuantityIn', value: t.totalQuantityIn.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
+      { label: '::QuantityOut', value: t.totalQuantityOut.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
+      { label: '::NetMovement', value: t.netQuantityMovement.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
     ];
   }
 

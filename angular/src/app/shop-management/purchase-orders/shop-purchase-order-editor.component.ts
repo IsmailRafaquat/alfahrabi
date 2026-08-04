@@ -59,6 +59,7 @@ export class ShopPurchaseOrderEditorComponent implements OnInit {
   loading = false;
   submitting = false;
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
   purchaseOrderNumber = '';
 
   get isEdit(): boolean {

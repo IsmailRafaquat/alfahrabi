@@ -106,14 +106,14 @@ export class ProductPerformanceReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     const cards: ReportTotalCard[] = [
-      { label: 'Products', value: String(t.productCount), icon: 'fas fa-boxes', colorClass: 'primary' },
-      { label: 'Purchased Quantity', value: t.totalPurchasedQuantity.toFixed(2), icon: 'fas fa-dolly', colorClass: 'info' },
-      { label: 'Sale Quantity', value: t.totalSaleQuantity.toFixed(2), icon: 'fas fa-receipt', colorClass: 'success' },
-      { label: 'Net Sales Amount', value: t.totalNetSalesAmount.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
-      { label: 'Current Stock', value: t.totalCurrentStock.toFixed(2), icon: 'fas fa-cubes', colorClass: 'warning' },
+      { label: '::Products', value: String(t.productCount), icon: 'fas fa-boxes', colorClass: 'primary' },
+      { label: '::PurchasedQuantity', value: t.totalPurchasedQuantity.toFixed(2), icon: 'fas fa-dolly', colorClass: 'info' },
+      { label: '::SaleQuantity', value: t.totalSaleQuantity.toFixed(2), icon: 'fas fa-receipt', colorClass: 'success' },
+      { label: '::NetSalesAmount', value: t.totalNetSalesAmount.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
+      { label: '::CurrentStock', value: t.totalCurrentStock.toFixed(2), icon: 'fas fa-cubes', colorClass: 'warning' },
     ];
     if (t.totalCurrentStockValue !== undefined && t.totalCurrentStockValue !== null) {
-      cards.push({ label: 'Current Stock Value', value: t.totalCurrentStockValue.toFixed(2), icon: 'fas fa-money-bill-wave', colorClass: 'info' });
+      cards.push({ label: '::CurrentStockValue', value: t.totalCurrentStockValue.toFixed(2), icon: 'fas fa-money-bill-wave', colorClass: 'info' });
     }
     return cards;
   }

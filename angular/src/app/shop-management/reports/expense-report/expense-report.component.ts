@@ -105,11 +105,11 @@ export class ExpenseReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Expense Count', value: String(t.expenseCount), icon: 'fas fa-file-invoice', colorClass: 'primary' },
-      { label: 'Total Amount', value: t.totalExpenseAmount.toFixed(2), icon: 'fas fa-coins', colorClass: 'danger' },
-      { label: 'Cash', value: t.cashExpenses.toFixed(2), icon: 'fas fa-money-bill-wave', colorClass: 'success' },
-      { label: 'Bank', value: t.bankExpenses.toFixed(2), icon: 'fas fa-university', colorClass: 'info' },
-      { label: 'Average Expense', value: t.averageExpense.toFixed(2), icon: 'fas fa-calculator', colorClass: 'warning' },
+      { label: '::ExpenseCount', value: String(t.expenseCount), icon: 'fas fa-file-invoice', colorClass: 'primary' },
+      { label: '::TotalAmount', value: t.totalExpenseAmount.toFixed(2), icon: 'fas fa-coins', colorClass: 'danger' },
+      { label: '::Cash', value: t.cashExpenses.toFixed(2), icon: 'fas fa-money-bill-wave', colorClass: 'success' },
+      { label: '::Bank', value: t.bankExpenses.toFixed(2), icon: 'fas fa-university', colorClass: 'info' },
+      { label: '::AverageExpense', value: t.averageExpense.toFixed(2), icon: 'fas fa-calculator', colorClass: 'warning' },
     ];
   }
 

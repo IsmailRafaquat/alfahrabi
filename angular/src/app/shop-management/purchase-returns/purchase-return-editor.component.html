@@ -3,18 +3,7 @@
   [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
 
   <div topbarPills>
-    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Purchase return fields help</span></button>
-    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-      <div class="transaction-help-item"><strong dir="ltr">Goods Receipt</strong><span>وہ رسید جس میں ملا ہوا سامان درج ہے اور جس میں سے سامان واپس کرنا ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Supplier</strong><span>وہ سپلائر جس کو سامان واپس بھیجا جائے گا۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Return Date</strong><span>جس تاریخ کو سامان سپلائر کو واپس کیا جا رہا ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Return Reason</strong><span>سامان واپس کرنے کی بنیادی وجہ منتخب کریں، مثلاً خراب یا غلط سامان۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Reason Details</strong><span>واپسی کی وجہ کے بارے میں مزید آسان وضاحت لکھیں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Other Charges</strong><span>واپسی پر ہونے والا کوئی اضافی خرچ یہاں درج کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Return Quantity</strong><span>ہر پروڈکٹ کی جتنی مقدار واپس کرنی ہے وہ لکھیں۔ یہ Returnable مقدار سے زیادہ نہیں ہو سکتی۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Item Reason</strong><span>ہر پروڈکٹ واپس کرنے کی الگ وجہ منتخب کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>واپسی سے متعلق کوئی ضروری اضافی بات لکھیں۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Purchase return fields help</span></button>
   </div>
 
   <div topbarActions>
@@ -117,3 +106,29 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Purchase Return Fields Guide' : 'پرچیز ریٹرن فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Goods Receipt</strong><span>{{ helpLang === 'en' ? 'The receipt that recorded the goods received, and from which items are being returned.' : 'وہ رسید جس میں ملا ہوا سامان درج ہے اور جس میں سے سامان واپس کرنا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Supplier</strong><span>{{ helpLang === 'en' ? 'The supplier the goods will be returned to.' : 'وہ سپلائر جس کو سامان واپس بھیجا جائے گا۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Return Date</strong><span>{{ helpLang === 'en' ? 'The date the goods are being returned to the supplier.' : 'جس تاریخ کو سامان سپلائر کو واپس کیا جا رہا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Return Reason</strong><span>{{ helpLang === 'en' ? 'Select the main reason for the return, e.g. damaged or wrong goods.' : 'سامان واپس کرنے کی بنیادی وجہ منتخب کریں، مثلاً خراب یا غلط سامان۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reason Details</strong><span>{{ helpLang === 'en' ? 'Write a simple further explanation of the reason for the return.' : 'واپسی کی وجہ کے بارے میں مزید آسان وضاحت لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Other Charges</strong><span>{{ helpLang === 'en' ? 'Enter any extra charges incurred on the return here.' : 'واپسی پر ہونے والا کوئی اضافی خرچ یہاں درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Return Quantity</strong><span>{{ helpLang === 'en' ? 'Enter the quantity of each product being returned. It cannot exceed the returnable quantity.' : 'ہر پروڈکٹ کی جتنی مقدار واپس کرنی ہے وہ لکھیں۔ یہ Returnable مقدار سے زیادہ نہیں ہو سکتی۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Item Reason</strong><span>{{ helpLang === 'en' ? 'Select a separate reason for returning each product.' : 'ہر پروڈکٹ واپس کرنے کی الگ وجہ منتخب کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful information about the return.' : 'واپسی سے متعلق کوئی ضروری اضافی بات لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

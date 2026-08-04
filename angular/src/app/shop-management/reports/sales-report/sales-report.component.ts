@@ -107,15 +107,15 @@ export class SalesReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Sale Count', value: String(t.saleCount), icon: 'fas fa-receipt', colorClass: 'primary' },
-      { label: 'Gross Sales', value: t.grossSales.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
-      { label: 'Discount', value: t.totalDiscount.toFixed(2), icon: 'fas fa-percent', colorClass: 'warning' },
-      { label: 'Tax', value: t.totalTax.toFixed(2), icon: 'fas fa-file-invoice', colorClass: 'info' },
-      { label: 'Sale Returns', value: t.saleReturnAmount.toFixed(2), icon: 'fas fa-undo', colorClass: 'danger' },
-      { label: 'Final Net Sales', value: t.finalNetSales.toFixed(2), icon: 'fas fa-chart-line', colorClass: 'success' },
-      { label: 'Paid', value: t.paidAmount.toFixed(2), icon: 'fas fa-hand-holding-usd', colorClass: 'primary' },
-      { label: 'Pending', value: t.pendingAmount.toFixed(2), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
-      { label: 'Avg Sale Value', value: t.averageSaleValue.toFixed(2), icon: 'fas fa-calculator', colorClass: 'info' },
+      { label: '::SaleCount', value: String(t.saleCount), icon: 'fas fa-receipt', colorClass: 'primary' },
+      { label: '::GrossSales', value: t.grossSales.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
+      { label: '::Discount', value: t.totalDiscount.toFixed(2), icon: 'fas fa-percent', colorClass: 'warning' },
+      { label: '::Tax', value: t.totalTax.toFixed(2), icon: 'fas fa-file-invoice', colorClass: 'info' },
+      { label: '::SaleReturns', value: t.saleReturnAmount.toFixed(2), icon: 'fas fa-undo', colorClass: 'danger' },
+      { label: '::FinalNetSales', value: t.finalNetSales.toFixed(2), icon: 'fas fa-chart-line', colorClass: 'success' },
+      { label: '::Paid', value: t.paidAmount.toFixed(2), icon: 'fas fa-hand-holding-usd', colorClass: 'primary' },
+      { label: '::Pending', value: t.pendingAmount.toFixed(2), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
+      { label: '::AvgSaleValue', value: t.averageSaleValue.toFixed(2), icon: 'fas fa-calculator', colorClass: 'info' },
     ];
   }
 

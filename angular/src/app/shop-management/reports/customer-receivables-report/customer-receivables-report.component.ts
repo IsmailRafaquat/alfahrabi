@@ -94,11 +94,11 @@ export class CustomerReceivablesReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Customers', value: String(t.customerCount), icon: 'fas fa-users', colorClass: 'primary' },
-      { label: 'With Receivables', value: String(t.customersWithReceivables), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
-      { label: 'With Advance', value: String(t.customersWithAdvance), icon: 'fas fa-piggy-bank', colorClass: 'success' },
-      { label: 'Total Receivables', value: t.totalReceivables.toFixed(2), icon: 'fas fa-hand-holding-usd', colorClass: 'danger' },
-      { label: 'Total Advance', value: t.totalCustomerAdvance.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
+      { label: '::Customers', value: String(t.customerCount), icon: 'fas fa-users', colorClass: 'primary' },
+      { label: '::WithReceivables', value: String(t.customersWithReceivables), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
+      { label: '::WithAdvance', value: String(t.customersWithAdvance), icon: 'fas fa-piggy-bank', colorClass: 'success' },
+      { label: '::TotalReceivables', value: t.totalReceivables.toFixed(2), icon: 'fas fa-hand-holding-usd', colorClass: 'danger' },
+      { label: '::TotalAdvance', value: t.totalCustomerAdvance.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
     ];
   }
 }

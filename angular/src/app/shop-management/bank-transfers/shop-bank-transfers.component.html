@@ -70,10 +70,10 @@
             <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
             <td>{{ row.postedDate ? (row.postedDate | date:'mediumDate') : '—' }}</td>
             <td class="text-end">
-              <button class="icon-btn" (click)="view(row)" [title]="'::BankTransfer' | abpLocalization"><i class="fas fa-eye"></i></button>
-              <button *ngIf="canEdit && row.status === ShopBankTransferStatus.Draft" class="icon-btn" (click)="edit(row)" [title]="'::EditBankTransfer' | abpLocalization"><i class="fas fa-pen"></i></button>
-              <button *ngIf="canPost && row.status === ShopBankTransferStatus.Draft" class="icon-btn" (click)="post(row)" [title]="'::PostBankTransfer' | abpLocalization"><i class="fas fa-check"></i></button>
-              <button *ngIf="canDelete && row.status === ShopBankTransferStatus.Draft" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteBankTransfer' | abpLocalization"><i class="fas fa-trash"></i></button>
+              <button class="icon-btn" nz-tooltip [nzTooltipTitle]="'::BankTransfer' | abpLocalization" nzTooltipPlacement="top" (click)="view(row)"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && row.status === ShopBankTransferStatus.Draft" class="icon-btn" nz-tooltip [nzTooltipTitle]="'::EditBankTransfer' | abpLocalization" nzTooltipPlacement="top" (click)="edit(row)"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canPost && row.status === ShopBankTransferStatus.Draft" class="icon-btn" nz-tooltip [nzTooltipTitle]="'::PostBankTransfer' | abpLocalization" nzTooltipPlacement="top" (click)="post(row)"><i class="fas fa-check"></i></button>
+              <button *ngIf="canDelete && row.status === ShopBankTransferStatus.Draft" class="icon-btn danger" nz-tooltip [nzTooltipTitle]="'::DeleteBankTransfer' | abpLocalization" nzTooltipPlacement="top" (click)="remove(row)"><i class="fas fa-trash"></i></button>
             </td>
           </tr>
           <tr *ngIf="!loading && !items.length">

@@ -94,11 +94,11 @@ export class SupplierPayablesReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Suppliers', value: String(t.supplierCount), icon: 'fas fa-truck', colorClass: 'primary' },
-      { label: 'With Payables', value: String(t.suppliersWithPayables), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
-      { label: 'With Advance', value: String(t.suppliersWithAdvance), icon: 'fas fa-piggy-bank', colorClass: 'success' },
-      { label: 'Total Payables', value: t.totalPayables.toFixed(2), icon: 'fas fa-money-bill-wave', colorClass: 'danger' },
-      { label: 'Total Advance', value: t.totalSupplierAdvance.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
+      { label: '::Suppliers', value: String(t.supplierCount), icon: 'fas fa-truck', colorClass: 'primary' },
+      { label: '::WithPayables', value: String(t.suppliersWithPayables), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
+      { label: '::WithAdvance', value: String(t.suppliersWithAdvance), icon: 'fas fa-piggy-bank', colorClass: 'success' },
+      { label: '::TotalPayables', value: t.totalPayables.toFixed(2), icon: 'fas fa-money-bill-wave', colorClass: 'danger' },
+      { label: '::TotalAdvance', value: t.totalSupplierAdvance.toFixed(2), icon: 'fas fa-coins', colorClass: 'success' },
     ];
   }
 }

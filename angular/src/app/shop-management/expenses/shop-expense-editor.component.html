@@ -4,18 +4,7 @@
 
   <div topbarPills>
     <span *ngIf="isEdit" class="expense-number-badge">{{ expenseNumber }}</span>
-    <button type="button" class="editor-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Expense fields help</span></button>
-    <div *ngIf="helpOpen" class="editor-fields-help" dir="rtl" lang="ur"><div class="editor-help-arrow"></div>
-      <div class="editor-help-item"><strong dir="ltr">Expense Category</strong><span>وہ کیٹیگری منتخب کریں جس میں یہ خرچہ آتا ہے، جیسے کرایہ یا بجلی۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Expense Date</strong><span>جس دن یہ خرچہ ہوا وہ تاریخ۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Amount</strong><span>خرچ کی گئی کل رقم، صفر سے زیادہ ہونی چاہیے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ یا چیک۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Paid To</strong><span>وہ شخص یا ادارہ جسے رقم ادا کی گئی، اختیاری ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Reference Number</strong><span>بل یا رسید کا حوالہ نمبر، اختیاری ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Cheque Number</strong><span>اگر ادائیگی چیک سے کی گئی ہو تو چیک نمبر لازمی ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Bank Name</strong><span>بینک ٹرانسفر یا چیک کی صورت میں بینک کا نام لازمی ہے۔</span></div>
-      <div class="editor-help-item"><strong dir="ltr">Description / Notes</strong><span>خرچے سے متعلق ضروری اضافی تفصیل یا نوٹس لکھیں۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Expense fields help</span></button>
   </div>
 
   <div topbarActions>
@@ -101,3 +90,29 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Expense Fields Guide' : 'اخراجات فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Expense Category</strong><span>{{ helpLang === 'en' ? 'Select the category this expense belongs to, e.g. rent or electricity.' : 'وہ کیٹیگری منتخب کریں جس میں یہ خرچہ آتا ہے، جیسے کرایہ یا بجلی۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Expense Date</strong><span>{{ helpLang === 'en' ? 'The date this expense occurred.' : 'جس دن یہ خرچہ ہوا وہ تاریخ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Amount</strong><span>{{ helpLang === 'en' ? 'The total amount spent; it must be greater than zero.' : 'خرچ کی گئی کل رقم، صفر سے زیادہ ہونی چاہیے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Method</strong><span>{{ helpLang === 'en' ? 'How the payment was made, e.g. cash, bank, card, or cheque.' : 'ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ یا چیک۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Paid To</strong><span>{{ helpLang === 'en' ? 'The person or organization the money was paid to; optional.' : 'وہ شخص یا ادارہ جسے رقم ادا کی گئی، اختیاری ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reference Number</strong><span>{{ helpLang === 'en' ? 'The bill or receipt reference number; optional.' : 'بل یا رسید کا حوالہ نمبر، اختیاری ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Cheque Number</strong><span>{{ helpLang === 'en' ? 'Required if the payment was made by cheque.' : 'اگر ادائیگی چیک سے کی گئی ہو تو چیک نمبر لازمی ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Bank Name</strong><span>{{ helpLang === 'en' ? 'Required for bank transfer or cheque payments.' : 'بینک ٹرانسفر یا چیک کی صورت میں بینک کا نام لازمی ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Description / Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful detail or notes about the expense.' : 'خرچے سے متعلق ضروری اضافی تفصیل یا نوٹس لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

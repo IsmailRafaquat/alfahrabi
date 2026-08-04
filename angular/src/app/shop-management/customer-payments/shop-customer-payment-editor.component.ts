@@ -89,6 +89,7 @@ export class ShopCustomerPaymentEditorComponent implements OnInit {
   submitting = false;
   submitted = false;
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
   customerLocked = false;
 
   private existingAllocations: { saleId: string; allocatedAmount?: number }[] = [];

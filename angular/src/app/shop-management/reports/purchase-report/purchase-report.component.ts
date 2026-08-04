@@ -102,13 +102,13 @@ export class PurchaseReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Purchase Count', value: String(t.purchaseCount), icon: 'fas fa-dolly', colorClass: 'primary' },
-      { label: 'Gross Purchases', value: t.grossPurchases.toFixed(2), icon: 'fas fa-coins', colorClass: 'info' },
-      { label: 'Discount', value: t.totalDiscount.toFixed(2), icon: 'fas fa-percent', colorClass: 'warning' },
-      { label: 'Purchase Returns', value: t.purchaseReturnAmount.toFixed(2), icon: 'fas fa-undo', colorClass: 'danger' },
-      { label: 'Final Net Purchases', value: t.finalNetPurchases.toFixed(2), icon: 'fas fa-chart-line', colorClass: 'success' },
-      { label: 'Paid', value: t.paidAmount.toFixed(2), icon: 'fas fa-hand-holding-usd', colorClass: 'primary' },
-      { label: 'Pending', value: t.pendingAmount.toFixed(2), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
+      { label: '::PurchaseCount', value: String(t.purchaseCount), icon: 'fas fa-dolly', colorClass: 'primary' },
+      { label: '::GrossPurchases', value: t.grossPurchases.toFixed(2), icon: 'fas fa-coins', colorClass: 'info' },
+      { label: '::Discount', value: t.totalDiscount.toFixed(2), icon: 'fas fa-percent', colorClass: 'warning' },
+      { label: '::PurchaseReturns', value: t.purchaseReturnAmount.toFixed(2), icon: 'fas fa-undo', colorClass: 'danger' },
+      { label: '::FinalNetPurchases', value: t.finalNetPurchases.toFixed(2), icon: 'fas fa-chart-line', colorClass: 'success' },
+      { label: '::Paid', value: t.paidAmount.toFixed(2), icon: 'fas fa-hand-holding-usd', colorClass: 'primary' },
+      { label: '::Pending', value: t.pendingAmount.toFixed(2), icon: 'fas fa-exclamation-circle', colorClass: 'danger' },
     ];
   }
 

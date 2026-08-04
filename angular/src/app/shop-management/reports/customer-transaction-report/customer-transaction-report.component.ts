@@ -79,10 +79,10 @@ export class CustomerTransactionReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Opening Balance', value: t.openingBalance.toFixed(2), icon: 'fas fa-book', colorClass: 'primary' },
-      { label: 'Total Debit', value: t.totalDebit.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
-      { label: 'Total Credit', value: t.totalCredit.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
-      { label: 'Closing Balance', value: t.closingBalance.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
+      { label: '::OpeningBalance', value: t.openingBalance.toFixed(2), icon: 'fas fa-book', colorClass: 'primary' },
+      { label: '::TotalDebit', value: t.totalDebit.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
+      { label: '::TotalCredit', value: t.totalCredit.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
+      { label: '::ClosingBalance', value: t.closingBalance.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
     ];
   }
 

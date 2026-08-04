@@ -4,19 +4,7 @@
 
   <div topbarPills>
     <span *ngIf="isEdit" class="adjustment-number-badge">{{ adjustmentNumber }}</span>
-    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock adjustment fields help</span></button>
-    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-      <div class="transaction-help-item"><strong dir="ltr">Adjustment Date</strong><span>جس دن یہ اسٹاک ایڈجسٹمنٹ کی جا رہی ہے وہ تاریخ۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Adjustment Reason</strong><span>ایڈجسٹمنٹ کی وجہ منتخب کریں، مثلاً نقصان، گمشدگی، چوری یا گنتی میں فرق۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Reason Details</strong><span>وجہ سے متعلق اضافی تفصیل، اگر ضروری ہو۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Product</strong><span>وہ پروڈکٹ منتخب کریں جس کا اسٹاک درست کرنا ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">System Quantity</strong><span>سسٹم میں موجودہ ریکارڈ شدہ اسٹاک مقدار۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Adjustment Type</strong><span>Increase منتخب کریں اگر اسٹاک بڑھانا ہے، یا Decrease اگر کم کرنا ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Adjustment Quantity</strong><span>جتنی مقدار بڑھانی یا کم کرنی ہے وہ درج کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Final Stock</strong><span>ایڈجسٹمنٹ کے بعد متوقع حتمی اسٹاک، خودکار طور پر شمار ہوتا ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Batch Number / Expiry Date</strong><span>اگر پروڈکٹ بیچ یا ایکسپائری ٹریک کرتا ہے تو یہ درج کرنا ضروری ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Post</strong><span>Draft کو Post کرنے پر ہی اصل پروڈکٹ اسٹاک تبدیل ہوتا ہے، اس سے پہلے کوئی تبدیلی نہیں آتی۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock adjustment fields help</span></button>
   </div>
 
   <div topbarActions>
@@ -147,3 +135,30 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Stock Adjustment Fields Guide' : 'اسٹاک ایڈجسٹمنٹ فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Adjustment Date</strong><span>{{ helpLang === 'en' ? 'The date this stock adjustment is being made.' : 'جس دن یہ اسٹاک ایڈجسٹمنٹ کی جا رہی ہے وہ تاریخ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Adjustment Reason</strong><span>{{ helpLang === 'en' ? 'Select the reason for the adjustment, e.g. damage, loss, theft, or a count difference.' : 'ایڈجسٹمنٹ کی وجہ منتخب کریں، مثلاً نقصان، گمشدگی، چوری یا گنتی میں فرق۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reason Details</strong><span>{{ helpLang === 'en' ? 'Additional detail about the reason, if needed.' : 'وجہ سے متعلق اضافی تفصیل، اگر ضروری ہو۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Product</strong><span>{{ helpLang === 'en' ? 'Select the product whose stock needs to be corrected.' : 'وہ پروڈکٹ منتخب کریں جس کا اسٹاک درست کرنا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">System Quantity</strong><span>{{ helpLang === 'en' ? 'The stock quantity currently recorded in the system.' : 'سسٹم میں موجودہ ریکارڈ شدہ اسٹاک مقدار۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Adjustment Type</strong><span>{{ helpLang === 'en' ? 'Select Increase to raise the stock, or Decrease to lower it.' : 'Increase منتخب کریں اگر اسٹاک بڑھانا ہے، یا Decrease اگر کم کرنا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Adjustment Quantity</strong><span>{{ helpLang === 'en' ? 'Enter the quantity to increase or decrease.' : 'جتنی مقدار بڑھانی یا کم کرنی ہے وہ درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Final Stock</strong><span>{{ helpLang === 'en' ? 'The expected final stock after the adjustment, calculated automatically.' : 'ایڈجسٹمنٹ کے بعد متوقع حتمی اسٹاک، خودکار طور پر شمار ہوتا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Batch Number / Expiry Date</strong><span>{{ helpLang === 'en' ? 'Required if the product tracks batches or expiry.' : 'اگر پروڈکٹ بیچ یا ایکسپائری ٹریک کرتا ہے تو یہ درج کرنا ضروری ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Post</strong><span>{{ helpLang === 'en' ? 'The actual product stock only changes once a Draft is Posted; nothing changes before that.' : 'Draft کو Post کرنے پر ہی اصل پروڈکٹ اسٹاک تبدیل ہوتا ہے، اس سے پہلے کوئی تبدیلی نہیں آتی۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

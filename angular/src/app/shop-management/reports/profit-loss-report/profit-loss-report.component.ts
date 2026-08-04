@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { PermissionService } from '@abp/ng.core';
+import { LocalizationService, PermissionService } from '@abp/ng.core';
 import { ToasterService } from '@abp/ng.theme.shared';
 import { Chart, registerables } from 'chart.js';
 import { finalize } from 'rxjs';
@@ -23,6 +23,7 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
   private readonly service = inject(ShopProfitLossService);
   private readonly permissions = inject(PermissionService);
   private readonly toaster = inject(ToasterService);
+  private readonly localizationService = inject(LocalizationService);
 
   @ViewChild('salesVsCogsCanvas') salesVsCogsCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('profitVsExpenseCanvas') profitVsExpenseCanvas?: ElementRef<HTMLCanvasElement>;
@@ -150,21 +151,21 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
     const s = this.result?.summary;
     if (!s) return [];
     const cards: ReportTotalCard[] = [
-      { label: 'Net Sales', value: this.fmt(s.netSales), icon: 'fas fa-coins', colorClass: 'primary' },
+      { label: '::NetSales', value: this.fmt(s.netSales), icon: 'fas fa-coins', colorClass: 'primary' },
     ];
     if (this.canViewCost) {
-      cards.push({ label: 'Cost of Goods Sold', value: this.fmt(s.costOfGoodsSold), icon: 'fas fa-dolly', colorClass: 'warning' });
-      cards.push({ label: 'Gross Profit', value: this.fmt(s.grossProfit), icon: 'fas fa-chart-line', colorClass: (s.grossProfit ?? 0) >= 0 ? 'success' : 'danger' });
+      cards.push({ label: '::CostOfGoodsSold', value: this.fmt(s.costOfGoodsSold), icon: 'fas fa-dolly', colorClass: 'warning' });
+      cards.push({ label: '::GrossProfit', value: this.fmt(s.grossProfit), icon: 'fas fa-chart-line', colorClass: (s.grossProfit ?? 0) >= 0 ? 'success' : 'danger' });
     }
     if (this.canViewExpenses) {
-      cards.push({ label: 'Operating Expenses', value: this.fmt(s.operatingExpenses), icon: 'fas fa-file-invoice-dollar', colorClass: 'danger' });
+      cards.push({ label: '::OperatingExpenses', value: this.fmt(s.operatingExpenses), icon: 'fas fa-file-invoice-dollar', colorClass: 'danger' });
     }
     if (this.canViewCost && this.canViewExpenses) {
-      cards.push({ label: 'Net Profit / (Loss)', value: this.fmt(s.netProfit), icon: 'fas fa-balance-scale', colorClass: (s.netProfit ?? 0) >= 0 ? 'success' : 'danger' });
+      cards.push({ label: '::NetProfitOrLoss', value: this.fmt(s.netProfit), icon: 'fas fa-balance-scale', colorClass: (s.netProfit ?? 0) >= 0 ? 'success' : 'danger' });
     }
     if (this.canViewMargins) {
-      cards.push({ label: 'Gross Margin', value: this.pct(s.grossProfitMarginPercentage), icon: 'fas fa-percent', colorClass: 'info' });
-      cards.push({ label: 'Net Margin', value: this.pct(s.netProfitMarginPercentage), icon: 'fas fa-percent', colorClass: 'info' });
+      cards.push({ label: '::GrossMargin', value: this.pct(s.grossProfitMarginPercentage), icon: 'fas fa-percent', colorClass: 'info' });
+      cards.push({ label: '::NetMargin', value: this.pct(s.netProfitMarginPercentage), icon: 'fas fa-percent', colorClass: 'info' });
     }
     return cards;
   }
@@ -190,8 +191,8 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
       data: {
         labels: trend.map(t => t.label),
         datasets: [
-          { label: 'Net Sales', data: trend.map(t => t.netSales), backgroundColor: '#2369a3' },
-          ...(this.canViewCost ? [{ label: 'COGS', data: trend.map(t => t.costOfGoodsSold ?? 0), backgroundColor: '#c83e4d' }] : []),
+          { label: this.localizationService.instant('::NetSales'), data: trend.map(t => t.netSales), backgroundColor: '#2369a3' },
+          ...(this.canViewCost ? [{ label: this.localizationService.instant('::COGS'), data: trend.map(t => t.costOfGoodsSold ?? 0), backgroundColor: '#c83e4d' }] : []),
         ],
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } },
@@ -213,8 +214,8 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
       data: {
         labels: trend.map(t => t.label),
         datasets: [
-          { label: 'Gross Profit', data: trend.map(t => t.grossProfit ?? 0), backgroundColor: '#2f9e44' },
-          { label: 'Operating Expenses', data: trend.map(t => t.operatingExpenses ?? 0), backgroundColor: '#e8590c' },
+          { label: this.localizationService.instant('::GrossProfit'), data: trend.map(t => t.grossProfit ?? 0), backgroundColor: '#2f9e44' },
+          { label: this.localizationService.instant('::OperatingExpenses'), data: trend.map(t => t.operatingExpenses ?? 0), backgroundColor: '#e8590c' },
         ],
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } },
@@ -236,7 +237,7 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
       data: {
         labels: trend.map(t => t.label),
         datasets: [
-          { label: 'Net Profit', data: trend.map(t => t.netProfit ?? 0), borderColor: '#2369a3', backgroundColor: 'rgba(35, 105, 163, 0.12)', tension: 0.3, fill: true },
+          { label: this.localizationService.instant('::NetProfit'), data: trend.map(t => t.netProfit ?? 0), borderColor: '#2369a3', backgroundColor: 'rgba(35, 105, 163, 0.12)', tension: 0.3, fill: true },
         ],
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } },

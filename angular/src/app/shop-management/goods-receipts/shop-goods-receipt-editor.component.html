@@ -4,20 +4,7 @@
 
   <div topbarPills>
     <span class="gr-number-badge">{{ purchaseOrderNumber }}</span>
-    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Goods receipt fields help</span></button>
-    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-      <div class="transaction-help-item"><strong dir="ltr">Receipt Date</strong><span>جس دن سامان وصول ہوا وہ تاریخ درج کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Supplier Invoice Number</strong><span>سپلائر کے بل پر لکھا ہوا انوائس نمبر۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Shipping / Other Charges</strong><span>سامان لانے اور دوسرے اضافی خرچ کی رقم۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Included</strong><span>جو پروڈکٹ واقعی وصول ہوئی ہے اسے منتخب رکھیں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Received Quantity</strong><span>اصل میں وصول ہونے والی پروڈکٹ کی مقدار۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Bonus Quantity</strong><span>سپلائر سے مفت ملنے والی اضافی مقدار۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Purchase / Sale Price</strong><span>وصول شدہ مال کی خریداری اور فروخت قیمت۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Batch Number</strong><span>اگر پروڈکٹ بیچ کے حساب سے ہے تو بیچ نمبر لکھیں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Manufacturing / Expiry Date</strong><span>سامان بننے اور ختم ہونے کی تاریخ درج کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>رعایت اور ٹیکس کی فیصد درج کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>سامان کی وصولی سے متعلق ضروری بات لکھیں۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Goods receipt fields help</span></button>
   </div>
 
   <div topbarActions>
@@ -159,3 +146,31 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Goods Receipt Fields Guide' : 'گڈز رسیٹ فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Receipt Date</strong><span>{{ helpLang === 'en' ? 'Enter the date the goods were received.' : 'جس دن سامان وصول ہوا وہ تاریخ درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Supplier Invoice Number</strong><span>{{ helpLang === 'en' ? "The invoice number written on the supplier's bill." : 'سپلائر کے بل پر لکھا ہوا انوائس نمبر۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Shipping / Other Charges</strong><span>{{ helpLang === 'en' ? 'Shipping cost and any other additional charges.' : 'سامان لانے اور دوسرے اضافی خرچ کی رقم۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Included</strong><span>{{ helpLang === 'en' ? 'Keep selected the products that were actually received.' : 'جو پروڈکٹ واقعی وصول ہوئی ہے اسے منتخب رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Received Quantity</strong><span>{{ helpLang === 'en' ? 'The quantity of the product actually received.' : 'اصل میں وصول ہونے والی پروڈکٹ کی مقدار۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Bonus Quantity</strong><span>{{ helpLang === 'en' ? 'Extra quantity received free from the supplier.' : 'سپلائر سے مفت ملنے والی اضافی مقدار۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Purchase / Sale Price</strong><span>{{ helpLang === 'en' ? 'The purchase and sale price of the received goods.' : 'وصول شدہ مال کی خریداری اور فروخت قیمت۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Batch Number</strong><span>{{ helpLang === 'en' ? 'If the product is tracked by batch, enter the batch number.' : 'اگر پروڈکٹ بیچ کے حساب سے ہے تو بیچ نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Manufacturing / Expiry Date</strong><span>{{ helpLang === 'en' ? 'Enter the manufacturing and expiry dates of the goods.' : 'سامان بننے اور ختم ہونے کی تاریخ درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>{{ helpLang === 'en' ? 'Enter the discount and tax percentage.' : 'رعایت اور ٹیکس کی فیصد درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful information about the receipt.' : 'سامان کی وصولی سے متعلق ضروری بات لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

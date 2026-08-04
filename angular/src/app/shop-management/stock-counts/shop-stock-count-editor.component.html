@@ -4,13 +4,7 @@
 
   <div topbarPills>
     <span *ngIf="isEdit" class="count-number-badge">{{ stockCountNumber }}</span>
-    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock count fields help</span></button>
-    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-      <div class="transaction-help-item"><strong dir="ltr">Count Date</strong><span>جس دن یہ فزیکل اسٹاک کاؤنٹ کیا جا رہا ہے وہ تاریخ۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Scope</strong><span>All Products تمام فعال پروڈکٹس شامل کرتا ہے، Category صرف منتخب کیٹیگری کی پروڈکٹس، اور Selected Products آپ کی اپنی منتخب کردہ پروڈکٹس۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>اس کاؤنٹ سے متعلق ضروری اضافی بات لکھیں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Start</strong><span>Save کرنے کے بعد Draft بنتا ہے۔ گنتی شروع کرنے کے لیے Start پر کلک کریں۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Stock count fields help</span></button>
   </div>
 
   <div topbarActions>
@@ -71,3 +65,24 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Stock Count Fields Guide' : 'اسٹاک کاؤنٹ فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Count Date</strong><span>{{ helpLang === 'en' ? 'The date this physical stock count is being done.' : 'جس دن یہ فزیکل اسٹاک کاؤنٹ کیا جا رہا ہے وہ تاریخ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Scope</strong><span>{{ helpLang === 'en' ? 'All Products includes every active product, Category includes only the selected category\'s products, and Selected Products lets you pick specific products yourself.' : 'All Products تمام فعال پروڈکٹس شامل کرتا ہے، Category صرف منتخب کیٹیگری کی پروڈکٹس، اور Selected Products آپ کی اپنی منتخب کردہ پروڈکٹس۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful information about this count.' : 'اس کاؤنٹ سے متعلق ضروری اضافی بات لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Start</strong><span>{{ helpLang === 'en' ? 'Saving creates a Draft. Click Start to begin counting.' : 'Save کرنے کے بعد Draft بنتا ہے۔ گنتی شروع کرنے کے لیے Start پر کلک کریں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

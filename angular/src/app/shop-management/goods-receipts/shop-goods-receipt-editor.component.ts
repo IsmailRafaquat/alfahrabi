@@ -70,6 +70,7 @@ export class ShopGoodsReceiptEditorComponent implements OnInit {
   loading = false;
   submitting = false;
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
 
   get isEdit(): boolean {
     return !!this.editId;

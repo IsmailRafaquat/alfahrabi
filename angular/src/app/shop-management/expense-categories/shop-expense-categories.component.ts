@@ -31,7 +31,6 @@ export class ShopExpenseCategoriesComponent implements OnInit {
   statusFilter: boolean | null = null;
 
   tooltipLang: 'en' | 'ur' = 'en';
-  categoryHelpOpen = false;
 
   readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(32)]],
@@ -64,7 +63,6 @@ export class ShopExpenseCategoriesComponent implements OnInit {
 
   create(): void {
     this.selected = undefined;
-    this.categoryHelpOpen = false;
     this.form.reset({ code: '', name: '', description: '', isActive: true });
     this.modalOpen = true;
   }
@@ -72,7 +70,6 @@ export class ShopExpenseCategoriesComponent implements OnInit {
   edit(row: ShopExpenseCategoryDto): void {
     this.service.get(row.id).subscribe(dto => {
       this.selected = dto;
-      this.categoryHelpOpen = false;
       this.form.patchValue({
         code: dto.code,
         name: dto.name,

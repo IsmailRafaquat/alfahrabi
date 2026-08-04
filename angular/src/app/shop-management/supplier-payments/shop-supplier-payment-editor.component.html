@@ -3,18 +3,7 @@
   [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
 
   <div topbarPills>
-    <button type="button" class="transaction-help-btn" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen"><i class="fas fa-info-circle"></i><span class="visually-hidden">Supplier payment fields help</span></button>
-    <div *ngIf="helpOpen" class="transaction-fields-help" dir="rtl" lang="ur"><div class="transaction-help-arrow"></div>
-      <div class="transaction-help-item"><strong dir="ltr">Supplier</strong><span>جس سپلائر کو رقم دینی یا جس سے رقم لینی ہے اسے منتخب کریں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Payment Date</strong><span>جس دن رقم دی یا وصول کی گئی وہ تاریخ۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Payment Type</strong><span>یہ منتخب کریں کہ رقم سپلائر کو دی جا رہی ہے یا واپس وصول ہو رہی ہے۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Payment Method</strong><span>ادائیگی کا طریقہ، جیسے نقد، بینک یا چیک۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Amount</strong><span>ادا یا وصول کی جانے والی کل رقم۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Reference Number</strong><span>بینک ٹرانزیکشن یا ادائیگی کا حوالہ نمبر۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Cheque Number / Bank Name</strong><span>چیک سے ادائیگی ہو تو چیک نمبر اور بینک کا نام لکھیں۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Allocate Amount</strong><span>اس ادائیگی میں سے کسی خاص خریداری کے بل پر لگائی جانے والی رقم۔</span></div>
-      <div class="transaction-help-item"><strong dir="ltr">Notes</strong><span>ادائیگی سے متعلق ضروری اضافی معلومات لکھیں۔</span></div>
-    </div>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Supplier payment fields help</span></button>
   </div>
 
   <div topbarActions>
@@ -152,3 +141,29 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Supplier Payment Fields Guide' : 'سپلائر ادائیگی فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Supplier</strong><span>{{ helpLang === 'en' ? 'Select the supplier the payment is being made to or received from.' : 'جس سپلائر کو رقم دینی یا جس سے رقم لینی ہے اسے منتخب کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Date</strong><span>{{ helpLang === 'en' ? 'The date the payment was made or received.' : 'جس دن رقم دی یا وصول کی گئی وہ تاریخ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Type</strong><span>{{ helpLang === 'en' ? 'Select whether the payment is being made to the supplier or received back.' : 'یہ منتخب کریں کہ رقم سپلائر کو دی جا رہی ہے یا واپس وصول ہو رہی ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Method</strong><span>{{ helpLang === 'en' ? 'How the payment was made, e.g. cash, bank, or cheque.' : 'ادائیگی کا طریقہ، جیسے نقد، بینک یا چیک۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Amount</strong><span>{{ helpLang === 'en' ? 'The total amount paid or received.' : 'ادا یا وصول کی جانے والی کل رقم۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reference Number</strong><span>{{ helpLang === 'en' ? 'The bank transaction or payment reference number.' : 'بینک ٹرانزیکشن یا ادائیگی کا حوالہ نمبر۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Cheque Number / Bank Name</strong><span>{{ helpLang === 'en' ? 'For cheque payments, enter the cheque number and bank name.' : 'چیک سے ادائیگی ہو تو چیک نمبر اور بینک کا نام لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Allocate Amount</strong><span>{{ helpLang === 'en' ? 'The amount from this payment applied to a specific purchase invoice.' : 'اس ادائیگی میں سے کسی خاص خریداری کے بل پر لگائی جانے والی رقم۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful information about the payment.' : 'ادائیگی سے متعلق ضروری اضافی معلومات لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

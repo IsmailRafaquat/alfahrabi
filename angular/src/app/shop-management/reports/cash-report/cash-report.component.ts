@@ -100,13 +100,13 @@ export class CashReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     const cards: ReportTotalCard[] = [
-      { label: 'Opening Cash', value: t.openingCash.toFixed(2), icon: 'fas fa-cash-register', colorClass: 'primary' },
-      { label: 'Cash In', value: t.totalCashIn.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
-      { label: 'Cash Out', value: t.totalCashOut.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
-      { label: 'Expected Closing Cash', value: t.expectedClosingCash.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
+      { label: '::OpeningCash', value: t.openingCash.toFixed(2), icon: 'fas fa-cash-register', colorClass: 'primary' },
+      { label: '::CashIn', value: t.totalCashIn.toFixed(2), icon: 'fas fa-arrow-down', colorClass: 'success' },
+      { label: '::CashOut', value: t.totalCashOut.toFixed(2), icon: 'fas fa-arrow-up', colorClass: 'danger' },
+      { label: '::ExpectedClosingCash', value: t.expectedClosingCash.toFixed(2), icon: 'fas fa-balance-scale', colorClass: 'info' },
     ];
     if (t.difference !== undefined && t.difference !== null) {
-      cards.push({ label: 'Difference', value: t.difference.toFixed(2), icon: 'fas fa-exclamation-triangle', colorClass: t.difference === 0 ? 'success' : 'warning' });
+      cards.push({ label: '::Difference', value: t.difference.toFixed(2), icon: 'fas fa-exclamation-triangle', colorClass: t.difference === 0 ? 'success' : 'warning' });
     }
     return cards;
   }

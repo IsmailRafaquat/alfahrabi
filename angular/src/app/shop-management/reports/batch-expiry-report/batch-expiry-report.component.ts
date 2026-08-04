@@ -107,11 +107,11 @@ export class BatchExpiryReportComponent implements OnInit {
     const t = this.result?.totals;
     if (!t) return [];
     return [
-      { label: 'Total Batches', value: String(t.totalBatches), icon: 'fas fa-boxes', colorClass: 'primary' },
-      { label: 'Active', value: String(t.activeBatches), icon: 'fas fa-check-circle', colorClass: 'success' },
-      { label: 'Near Expiry', value: String(t.nearExpiryBatches), icon: 'fas fa-hourglass-half', colorClass: 'warning' },
-      { label: 'Expired', value: String(t.expiredBatches), icon: 'fas fa-ban', colorClass: 'danger' },
-      { label: 'Blocked', value: String(t.blockedBatches), icon: 'fas fa-lock', colorClass: 'danger' },
+      { label: '::TotalBatches', value: String(t.totalBatches), icon: 'fas fa-boxes', colorClass: 'primary' },
+      { label: '::Active', value: String(t.activeBatches), icon: 'fas fa-check-circle', colorClass: 'success' },
+      { label: '::NearExpiry', value: String(t.nearExpiryBatches), icon: 'fas fa-hourglass-half', colorClass: 'warning' },
+      { label: '::Expired', value: String(t.expiredBatches), icon: 'fas fa-ban', colorClass: 'danger' },
+      { label: '::Blocked', value: String(t.blockedBatches), icon: 'fas fa-lock', colorClass: 'danger' },
     ];
   }
 

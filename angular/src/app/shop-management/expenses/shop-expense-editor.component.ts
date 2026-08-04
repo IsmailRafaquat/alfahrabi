@@ -55,6 +55,7 @@ export class ShopExpenseEditorComponent implements OnInit {
   submitting = false;
   expenseNumber = '';
   helpOpen = false;
+  helpLang: 'en' | 'ur' = 'en';
 
   get isEdit(): boolean {
     return !!this.editId;
