@@ -20,6 +20,7 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
 {
     private readonly IRepository<ShopCustomer, Guid> _customerRepository;
     private readonly IRepository<ShopSale, Guid> _saleRepository;
+    private readonly IRepository<ShopSaleItem, Guid> _saleItemRepository;
     private readonly IRepository<ShopCustomerPayment, Guid> _paymentRepository;
     private readonly IRepository<ShopSaleReturn, Guid> _saleReturnRepository;
     private readonly IRepository<ShopSetting, Guid> _settingRepository;
@@ -27,12 +28,14 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
     public ShopCustomerLedgerAppService(
         IRepository<ShopCustomer, Guid> customerRepository,
         IRepository<ShopSale, Guid> saleRepository,
+        IRepository<ShopSaleItem, Guid> saleItemRepository,
         IRepository<ShopCustomerPayment, Guid> paymentRepository,
         IRepository<ShopSaleReturn, Guid> saleReturnRepository,
         IRepository<ShopSetting, Guid> settingRepository)
     {
         _customerRepository = customerRepository;
         _saleRepository = saleRepository;
+        _saleItemRepository = saleItemRepository;
         _paymentRepository = paymentRepository;
         _saleReturnRepository = saleReturnRepository;
         _settingRepository = settingRepository;
@@ -264,17 +267,31 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         var saleReturns = await AsyncExecuter.ToListAsync(saleReturnQuery.Where(x =>
             x.TenantId == tenantId && x.CustomerId == customerId && x.Status == ShopSaleReturnStatus.Completed));
 
+        var saleIds = sales.Select(x => x.Id).ToList();
+        var itemsBySale = new Dictionary<Guid, List<ShopSaleItem>>();
+        if (saleIds.Count > 0)
+        {
+            var saleItemQuery = await _saleItemRepository.GetQueryableAsync();
+            var saleItems = await AsyncExecuter.ToListAsync(saleItemQuery.Where(i =>
+                i.TenantId == tenantId && saleIds.Contains(i.SaleId)));
+            itemsBySale = saleItems.GroupBy(i => i.SaleId).ToDictionary(g => g.Key, g => g.ToList());
+        }
+
         var rows = new List<LedgerRow>();
 
         foreach (var sale in sales)
         {
-            var debit = Math.Max(0, Round(sale.GrandTotal - sale.PaidAmount));
-            if (debit <= 0) continue; // Fully paid at sale time has no receivable effect; excluded from the ledger.
+            // Every completed sale gets a row, even one fully paid at sale time (Debit == Credit, net
+            // zero effect on the running balance) - the ledger is also the customer's purchase/price
+            // history, not just a list of what's still owed.
+            var debit = Round(sale.GrandTotal);
+            var credit = Round(sale.PaidAmount);
+            itemsBySale.TryGetValue(sale.Id, out var items);
 
             rows.Add(new LedgerRow(
                 sale.SaleDate, sale.CreationTime, ShopCustomerLedgerReferenceType.Sale,
-                sale.Id, sale.SaleNumber, BuildSaleDescription(sale),
-                debit, 0, "Completed"));
+                sale.Id, sale.SaleNumber, BuildSaleDescription(sale, items),
+                debit, credit, "Completed"));
         }
 
         foreach (var payment in payments)
@@ -299,7 +316,15 @@ public class ShopCustomerLedgerAppService : ApplicationService, IShopCustomerLed
         return (orderedRows, sales, saleReturns);
     }
 
-    private static string BuildSaleDescription(ShopSale sale) => $"Sale - {sale.SaleType}";
+    private static string BuildSaleDescription(ShopSale sale, List<ShopSaleItem>? items)
+    {
+        var baseText = $"Sale - {sale.SaleType}";
+        if (items == null || items.Count == 0) return baseText;
+
+        var summary = string.Join(", ", items.Take(2).Select(i => $"{i.ProductNameSnapshot} x{i.Quantity:0.##}"));
+        if (items.Count > 2) summary += $" +{items.Count - 2} more";
+        return $"{baseText} ({summary})";
+    }
 
     private static string BuildPaymentDescription(ShopCustomerPayment payment)
     {

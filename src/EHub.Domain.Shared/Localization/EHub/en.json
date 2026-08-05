@@ -818,6 +818,7 @@
     "ViewAll": "View All",
     "NetSalesAmount": "Net Sales Amount",
     "Invoice": "Invoice",
+    "PrintInvoice": "Print Invoice",
     "TotalAmount": "Total Amount",
     "DocumentNumber": "Document Number",
     "QuickActions": "Quick Actions",

@@ -789,6 +789,7 @@
     "InventoryReconciliationNote": "ابتدائی/اختتامی انوینٹری کی مالیت ایک تخمینی مصالحتی عدد ہے، حتمی لاگت کا ماخذ نہیں۔",
     "InventoryValue": "انوینٹری کی مالیت",
     "Invoice": "انوائس",
+    "PrintInvoice": "انوائس پرنٹ کریں",
     "InvoiceNumber": "انوائس نمبر",
     "IsDefault": "ڈیفالٹ رجسٹر",
     "IsTaxable": "ٹیکس کے قابل",

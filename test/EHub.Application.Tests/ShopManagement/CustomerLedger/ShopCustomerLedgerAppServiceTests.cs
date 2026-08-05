@@ -92,7 +92,7 @@ public abstract class ShopCustomerLedgerAppServiceTests<TStartupModule> : EHubAp
     }
 
     [Fact]
-    public async Task Completed_Sale_Only_Adds_GrandTotal_Minus_InitialPaid()
+    public async Task Completed_Sale_Shows_Full_GrandTotal_As_Debit_And_Initial_Payment_As_Credit()
     {
         var tenantId = await CreateTenantAsync("tenant-sale-partial-" + Guid.NewGuid().ToString("N"));
         using (_currentTenant.Change(tenantId))
@@ -102,7 +102,8 @@ public abstract class ShopCustomerLedgerAppServiceTests<TStartupModule> : EHubAp
 
             var ledger = await _ledgerAppService.GetLedgerAsync(new GetShopCustomerLedgerInput { CustomerId = customer.Id });
             var saleEntry = ledger.Entries.Single(x => x.ReferenceType == ShopCustomerLedgerReferenceType.Sale);
-            saleEntry.DebitAmount.ShouldBe(700);
+            saleEntry.DebitAmount.ShouldBe(1000);
+            saleEntry.CreditAmount.ShouldBe(300);
             ledger.ClosingBalance.ShouldBe(700);
             ledger.TotalSales.ShouldBe(1000);
             ledger.TotalInitialPaid.ShouldBe(300);
@@ -110,15 +111,21 @@ public abstract class ShopCustomerLedgerAppServiceTests<TStartupModule> : EHubAp
     }
 
     [Fact]
-    public async Task Fully_Paid_Cash_Sale_Does_Not_Increase_Receivable()
+    public async Task Fully_Paid_Cash_Sale_Still_Appears_On_The_Ledger_With_No_Net_Receivable_Effect()
     {
+        // A fully-paid sale must still show up as a row (with its price) - the ledger is also the
+        // customer's purchase history, not just a list of what's still owed. Debit == Credit here, so
+        // it nets to zero on the running/closing balance even though the row itself is now visible.
         var tenantId = await CreateTenantAsync("tenant-cash-fully-paid-" + Guid.NewGuid().ToString("N"));
         using (_currentTenant.Change(tenantId))
         {
-            var (customer, _) = await CreateCompletedSaleAsync(openingBalance: 0, quantity: 10, price: 100, paidAmount: 1000, saleType: ShopSaleType.Cash);
+            var (customer, sale) = await CreateCompletedSaleAsync(openingBalance: 0, quantity: 10, price: 100, paidAmount: 1000, saleType: ShopSaleType.Cash);
 
             var ledger = await _ledgerAppService.GetLedgerAsync(new GetShopCustomerLedgerInput { CustomerId = customer.Id });
-            ledger.Entries.ShouldNotContain(x => x.ReferenceType == ShopCustomerLedgerReferenceType.Sale);
+            var saleEntry = ledger.Entries.Single(x => x.ReferenceType == ShopCustomerLedgerReferenceType.Sale);
+            saleEntry.DebitAmount.ShouldBe(1000);
+            saleEntry.CreditAmount.ShouldBe(1000);
+            saleEntry.ReferenceNumber.ShouldBe(sale.SaleNumber);
             ledger.ClosingBalance.ShouldBe(0);
         }
     }

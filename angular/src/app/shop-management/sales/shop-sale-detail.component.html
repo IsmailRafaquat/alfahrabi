@@ -9,6 +9,9 @@
 
   <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
     <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canViewPrice && d.status === ShopSaleStatus.Completed" type="button" class="btn btn-light btn-sm" [disabled]="printing" (click)="openPrintLanguageDialog()">
+      <span *ngIf="printing" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!printing" class="fas fa-print me-2"></i>{{ '::PrintInvoice' | abpLocalization }}
+    </button>
     <button *ngIf="canViewCustomerLedger" class="btn btn-light btn-sm" (click)="viewCustomerLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewCustomerLedger' | abpLocalization }}</button>
     <button *ngIf="canViewStockTransactions && d.status === ShopSaleStatus.Completed" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>
     <button *ngIf="canEdit && d.status === ShopSaleStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditSale' | abpLocalization }}</button>
@@ -106,6 +109,74 @@
   </div>
 </app-topbar-layout>
 </abp-page>
+
+<div class="invoice-print print-only" [class.rtl]="printLang === 'ur'" [attr.dir]="printLang === 'ur' ? 'rtl' : 'ltr'" *ngIf="dto as d">
+  <ng-container *ngIf="settings as s">
+    <div class="invoice-header">
+      <div class="shop-info">
+        <h2>{{ s.shopDisplayName }}</h2>
+        <p *ngIf="shopAddress">{{ shopAddress }}</p>
+        <p *ngIf="s.phone || s.email">{{ s.phone }}<span *ngIf="s.phone && s.email"> &middot; </span>{{ s.email }}</p>
+      </div>
+      <div class="invoice-title">
+        <h3>{{ invoiceLabels.invoice }}</h3>
+        <p><strong>{{ d.saleNumber }}</strong></p>
+        <p>{{ d.saleDate | date:'mediumDate' }}</p>
+      </div>
+    </div>
+
+    <div class="customer-info">
+      <strong>{{ d.customerCode }} - {{ d.customerName }}</strong>
+    </div>
+
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>{{ invoiceLabels.product }}</th>
+          <th class="text-end">{{ invoiceLabels.quantity }}</th>
+          <th class="text-end">{{ invoiceLabels.unitPrice }}</th>
+          <th class="text-end">{{ invoiceLabels.discount }}</th>
+          <th class="text-end">{{ invoiceLabels.tax }}</th>
+          <th class="text-end">{{ invoiceLabels.lineTotal }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of d.items">
+          <td>{{ item.productName }} <span class="muted">({{ item.productCode }})</span></td>
+          <td class="text-end">{{ item.quantity | number:'1.0-4' }} {{ item.unitShortName }}</td>
+          <td class="text-end">{{ item.unitSalePrice | number:'1.2-2' }}</td>
+          <td class="text-end">{{ item.discountPercentage }}%</td>
+          <td class="text-end">{{ item.taxPercentage }}%</td>
+          <td class="text-end">{{ item.lineTotal | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="invoice-totals">
+      <div><span>{{ invoiceLabels.subTotal }}</span><strong>{{ d.subTotal | number:'1.2-2' }}</strong></div>
+      <div><span>{{ invoiceLabels.discountAmount }}</span><strong>-{{ d.discountAmount | number:'1.2-2' }}</strong></div>
+      <div><span>{{ invoiceLabels.taxAmount }}</span><strong>{{ d.taxAmount | number:'1.2-2' }}</strong></div>
+      <div *ngIf="(d.otherCharges ?? 0) > 0"><span>{{ invoiceLabels.otherCharges }}</span><strong>{{ d.otherCharges | number:'1.2-2' }}</strong></div>
+      <div class="grand"><span>{{ invoiceLabels.grandTotal }}</span><strong>{{ d.grandTotal | number:'1.2-2' }}</strong></div>
+      <div><span>{{ invoiceLabels.totalPaid }}</span><strong>{{ (totalPaidAmount ?? d.paidAmount) | number:'1.2-2' }}</strong></div>
+      <div *ngIf="(currentPendingAmount ?? d.pendingAmount ?? 0) > 0"><span>{{ invoiceLabels.pendingAmount }}</span><strong>{{ (currentPendingAmount ?? d.pendingAmount) | number:'1.2-2' }}</strong></div>
+    </div>
+
+    <p class="invoice-footer" *ngIf="s.receiptFooter">{{ s.receiptFooter }}</p>
+  </ng-container>
+</div>
+
+<abp-modal [(visible)]="printLangModalOpen">
+  <ng-template #abpHeader><h5>{{ '::PrintInvoice' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <p>Choose the language for the invoice.</p>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-outline-primary btn-sm" [disabled]="printing" (click)="selectPrintLanguage('en')">English</button>
+    <button class="btn btn-primary btn-sm" [disabled]="printing" (click)="selectPrintLanguage('ur')">اردو</button>
+  </ng-template>
+</abp-modal>
 
 <abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
   <ng-template #abpHeader><h5>{{ '::CancelSale' | abpLocalization }}</h5></ng-template>
