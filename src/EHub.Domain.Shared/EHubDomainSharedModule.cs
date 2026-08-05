@@ -91,13 +91,23 @@ public class EHubDomainSharedModule : AbpModule
 
     public override void PostConfigureServices(ServiceConfigurationContext context)
     {
-        // AbpUiNavigationResource is registered by a UI/theme module that runs after this module's
-        // ConfigureServices, so it isn't available yet there. PostConfigureServices runs after every
-        // module's ConfigureServices has completed, so it's guaranteed to exist by this point.
+        // AbpUiNavigationResource/AbpUiResource are registered by a UI/theme module (the MVC/Angular
+        // theme packages EHub.HttpApi.Host depends on) that runs after this module's ConfigureServices,
+        // so they aren't available yet there - PostConfigureServices runs after every module's
+        // ConfigureServices has completed, so they're guaranteed to exist by this point *for hosts that
+        // reference a UI module*. Entry points with no UI at all, like EHub.DbMigrator, never register
+        // these types, so the lookup is guarded here instead of assuming every host has them.
         Configure<AbpLocalizationOptions>(options =>
         {
-            options.Resources.Get<AbpUiNavigationResource>().AddVirtualJson("/Localization/AbpUiNavigation");
-            options.Resources.Get<AbpUiResource>().AddVirtualJson("/Localization/AbpUi");
+            if (options.Resources.ContainsResource(typeof(AbpUiNavigationResource)))
+            {
+                options.Resources.Get<AbpUiNavigationResource>().AddVirtualJson("/Localization/AbpUiNavigation");
+            }
+
+            if (options.Resources.ContainsResource(typeof(AbpUiResource)))
+            {
+                options.Resources.Get<AbpUiResource>().AddVirtualJson("/Localization/AbpUi");
+            }
         });
     }
 }

@@ -298,6 +298,8 @@
     "ShopManagement:AiAudioTooLarge": "آڈیو فائل بہت بڑی ہے۔",
     "ShopManagement:AiAudioTooLong": "ریکارڈنگ بہت طویل ہے۔",
     "ShopManagement:AiSpeechServiceUnavailable": "آواز کو تحریر میں بدلنے کی سروس فی الحال دستیاب نہیں۔",
+    "ShopManagement:UnitNameAlreadyExists": "'{Name}' نام کا یونٹ پہلے سے موجود ہے۔",
+    "ShopManagement:UnitShortNameAlreadyExists": "'{ShortName}' مختصر نام والا یونٹ پہلے سے موجود ہے۔",
     "ShopManagement": "دکان کا انتظام",
     "ShopDashboard": "ڈیش بورڈ",
     "ShopSettings": "ترتیبات",
