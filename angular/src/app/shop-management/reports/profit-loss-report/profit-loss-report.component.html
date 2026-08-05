@@ -39,10 +39,10 @@
       </div>
 
       <div class="card pl-card pl-error-card text-center" *ngIf="!loading && loadError && !result">
-        <i class="fas fa-triangle-exclamation text-danger mb-2"></i>
+        <i class="fas fa-exclamation-triangle text-danger mb-2"></i>
         <p class="mb-3">{{ '::ReportLoadError' | abpLocalization }}</p>
         <button type="button" class="btn btn-sm btn-outline-primary mx-auto" (click)="load()">
-          <i class="fas fa-rotate-right me-1"></i>{{ '::Button:Retry' | abpLocalization }}
+          <i class="fas fa-redo me-1"></i>{{ '::Button:Retry' | abpLocalization }}
         </button>
       </div>
 
@@ -62,8 +62,8 @@
             </div>
             <span class="pl-status-badge" [ngClass]="'pl-status-badge--' + view.status">
               <i class="fas" [ngClass]="{
-                'fa-arrow-trend-up': view.status === 'profitable',
-                'fa-arrow-trend-down': view.status === 'loss',
+                'fa-long-arrow-alt-up': view.status === 'profitable',
+                'fa-long-arrow-alt-down': view.status === 'loss',
                 'fa-equals': view.status === 'breakEven'
               }"></i>
               {{ statusLabelKey(view.status) | abpLocalization }}
@@ -93,7 +93,7 @@
             </div>
 
             <div class="pl-kpi-card" [ngClass]="view.status === 'loss' ? 'pl-kpi-card--danger' : 'pl-kpi-card--success'" *ngIf="canViewBreakdown">
-              <i class="fas pl-kpi-icon" [ngClass]="view.status === 'loss' ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up'"></i>
+              <i class="fas pl-kpi-icon" [ngClass]="view.status === 'loss' ? 'fa-long-arrow-alt-down' : 'fa-long-arrow-alt-up'"></i>
               <span class="pl-kpi-label">{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
               <strong class="pl-kpi-value">{{ fmt(view.netProfit) }}</strong>
               <span class="pl-kpi-subtitle">{{ (view.status === 'loss' ? '::NetLossSubtitle' : '::NetProfitSubtitle') | abpLocalization }}</span>
@@ -162,7 +162,7 @@
           </div>
 
           <div class="pl-insight" [ngClass]="'pl-insight--' + view.status" *ngIf="canViewBreakdown">
-            <i class="fas fa-circle-info"></i>
+            <i class="fas fa-info-circle"></i>
             <span>{{ insightKey(view.status) | abpLocalization }}</span>
           </div>
         </ng-container>

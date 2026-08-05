@@ -26,6 +26,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient } from '@angular/common/http';
 import { NotificationBellModule } from './shared/notification-bell/notification-bell.module';
 import { NOTIFICATION_BELL_PROVIDER } from './shared/notification-bell/notification-bell.provider';
+import { SystemGuideModule } from './shared/system-guide/system-guide.module';
 
 registerLocaleData(en);
 registerLocaleData(ur);
@@ -43,6 +44,7 @@ storeLocaleData(ur, 'ur');
     SideMenuLayoutModule.forRoot(),
     FormsModule,
     NotificationBellModule,
+    SystemGuideModule,
   ],
   providers: [
     APP_ROUTE_PROVIDER,

@@ -1,6 +1,17 @@
 {
   "Culture": "ur",
   "Texts": {
+    "SystemGuide": "سسٹم گائیڈ",
+    "SystemGuideTooltip": "ہر ماڈیول کے استعمال کا طریقہ دیکھیں",
+    "SystemGuideModalTitle": "شاپ مینجمنٹ سسٹم گائیڈ",
+    "SearchModules": "ماڈیولز تلاش کریں",
+    "Language:English": "انگریزی",
+    "Language:Urdu": "اردو",
+    "Language:Both": "دونوں",
+    "OpenModule": "ماڈیول کھولیں",
+    "NoModulesFound": "کوئی ماڈیول نہیں ملا",
+    "ComingSoon": "جلد دستیاب ہوگا",
+    "BackToModuleList": "ماڈیول کی فہرست پر واپس جائیں",
     "Advance": "ایڈوانس",
     "AverageExpense": "اوسط خرچہ",
     "AvgSaleValue": "اوسط سیل ویلیو",

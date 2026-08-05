@@ -1,0 +1,17 @@
+<button
+  type="button"
+  class="system-guide-fab"
+  [class.is-open]="open"
+  (click)="toggle()"
+  [attr.aria-label]="'::SystemGuideTooltip' | abpLocalization"
+  [attr.aria-expanded]="open"
+  [title]="'::SystemGuideTooltip' | abpLocalization"
+>
+  <span class="system-guide-fab-ring" aria-hidden="true"></span>
+  <span class="system-guide-fab-icon" aria-hidden="true">
+    <i class="fas fa-book-open"></i>
+  </span>
+  <span class="system-guide-fab-label">{{ '::SystemGuide' | abpLocalization }}</span>
+</button>
+
+<app-system-guide-modal *ngIf="open" (closed)="close()"></app-system-guide-modal>
