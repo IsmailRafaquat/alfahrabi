@@ -1,61 +1,260 @@
-.pl-status-bar {
+// Shared visual language: matches report-page.scss / report-totals-cards.component.scss
+// (radius, shadow, and the primary/success/warning/danger palette already used across
+// Shop Management reports) so this page looks consistent with the rest of the module.
+
+.pl-report {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pl-card {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(20, 55, 90, .07);
+  background: #fff;
+}
+
+.pl-card-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #173f68;
+  margin-bottom: 1rem;
+}
+
+// --- Period banner + status badge ---------------------------------------------------
+
+.pl-period-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+
+.pl-period-title { margin: 0; font-size: 1.2rem; font-weight: 700; color: #173f68; }
+.pl-period-range { margin: .15rem 0 0; font-size: .82rem; color: #718096; }
+
+.pl-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .85rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--profitable { background: #e9f7ef; color: #198754; }
+  &--loss { background: #fdeced; color: #c83e4d; }
+  &--breakEven { background: #fef3e2; color: #b5670a; }
+}
+
+// --- KPI cards ------------------------------------------------------------------------
+
+.pl-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.pl-kpi-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem 1.25rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  min-height: 128px;
+  box-shadow: 0 4px 20px rgba(20, 55, 90, .07);
+}
+
+.pl-kpi-icon { font-size: 1.1rem; color: #8a9bad; margin-bottom: .5rem; }
+.pl-kpi-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #8a9bad; }
+.pl-kpi-value { font-size: 1.4rem; font-weight: 700; color: #173f68; margin: .2rem 0; line-height: 1.2; }
+.pl-kpi-subtitle { font-size: .74rem; color: #8a9bad; margin-top: auto; }
+
+.pl-kpi-card--primary { background: #f8fafc; .pl-kpi-icon { color: #2369a3; } }
+.pl-kpi-card--warning { background: #fef3e2; .pl-kpi-icon { color: #b5670a; } .pl-kpi-value { color: #b5670a; } }
+.pl-kpi-card--danger { background: #fdeced; .pl-kpi-icon { color: #c83e4d; } .pl-kpi-value { color: #c83e4d; } }
+.pl-kpi-card--success { background: #e9f7ef; .pl-kpi-icon { color: #198754; } .pl-kpi-value { color: #198754; } }
+
+// --- Profit calculation + financial overview ------------------------------------------
+
+.pl-breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  align-items: start;
+}
+
+.pl-calc-row {
+  display: flex;
+  justify-content: space-between;
+  padding: .45rem 0;
+  font-size: .88rem;
+  color: #435b73;
+}
+
+.pl-calc-row--muted { color: #8a9bad; }
+
+.pl-calc-row--subtotal {
+  border-top: 1px solid #edf2f7;
+  font-weight: 600;
+  color: #173f68;
+}
+
+.pl-calc-row--result {
+  margin-top: .4rem;
+  padding-top: .6rem;
+  border-top: 2px solid #173f68;
+  font-size: 1.05rem;
+  font-weight: 700;
+
+  &.pl-calc-row--profitable { color: #198754; }
+  &.pl-calc-row--loss { color: #c83e4d; }
+  &.pl-calc-row--breakEven { color: #56708b; }
+}
+
+.pl-calc-amount { font-variant-numeric: tabular-nums; }
+
+// --- Comparison bars --------------------------------------------------------------------
+
+.pl-bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .85rem;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.pl-bar-label { font-size: .78rem; color: #56708b; }
+.pl-bar-amount { font-size: .82rem; font-weight: 600; color: #173f68; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.pl-bar-track {
+  height: .55rem;
+  border-radius: 999px;
+  background: #edf2f7;
+  overflow: hidden;
+}
+
+.pl-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+
+  &--primary { background: #2369a3; }
+  &--warning { background: #e8a33d; }
+  &--danger { background: #c83e4d; }
+}
+
+// --- Ratio cards --------------------------------------------------------------------------
+
+.pl-ratio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.pl-ratio-card {
+  padding: .9rem 1.1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  box-shadow: 0 4px 20px rgba(20, 55, 90, .07);
+}
+
+.pl-ratio-label { display: block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #8a9bad; margin-bottom: .3rem; }
+.pl-ratio-value { font-size: 1.15rem; font-weight: 700; color: #173f68; }
+
+.pl-ratio-card--positive { background: #e9f7ef; .pl-ratio-value { color: #198754; } }
+.pl-ratio-card--warning { background: #fef3e2; .pl-ratio-value { color: #b5670a; } }
+.pl-ratio-card--negative { background: #fdeced; .pl-ratio-value { color: #c83e4d; } }
+
+// --- Insight panel --------------------------------------------------------------------------
+
+.pl-insight {
   display: flex;
   align-items: center;
   gap: .6rem;
-  padding: .75rem 1.25rem;
-  font-weight: 600;
-  border-radius: 10px 10px 0 0;
+  padding: .85rem 1.1rem;
+  border-radius: 10px;
+  font-size: .85rem;
+  background: #eef6fc;
+  color: #2369a3;
 
-  i { font-size: 1.1rem; }
-  small { margin-left: auto; font-weight: 400; opacity: .85; }
+  i { font-size: 1rem; }
 
-  &--success { background: #e9f7ef; color: #198754; }
-  &--warning { background: #fef3e2; color: #b5670a; }
-  &--danger { background: #fdeced; color: #c83e4d; }
-  &--secondary { background: #f1f3f5; color: #495057; }
+  &--profitable { background: #e9f7ef; color: #198754; }
+  &--loss { background: #fdeced; color: #c83e4d; }
+  &--breakEven { background: #fef3e2; color: #b5670a; }
 }
 
-.pl-statement {
-  td { padding: .35rem .5rem; }
+// --- Empty / error states --------------------------------------------------------------------
+
+.pl-empty-card,
+.pl-error-card {
+  padding: 3rem 1.5rem !important;
+  color: #8a9bad;
+
+  i { display: block; font-size: 2rem; margin-bottom: .75rem; color: #b8c4d1; }
 }
 
-.pl-section-header td {
-  font-weight: 700;
-  padding-top: .75rem;
-  color: #173f68;
+.pl-empty-title { font-size: 1rem; font-weight: 700; color: #173f68; margin-bottom: .25rem; }
+.pl-empty-range { font-size: .82rem; margin-bottom: .5rem; }
+.pl-empty-hint { font-size: .82rem; margin-bottom: 1rem; }
+
+// --- Skeleton loading state -------------------------------------------------------------------
+
+.pl-skeleton-banner,
+.pl-skeleton-card,
+.pl-skeleton-panel {
+  border-radius: 12px;
+  background: linear-gradient(90deg, #eef0f2 25%, #e2e5e8 37%, #eef0f2 63%);
+  background-size: 400% 100%;
+  animation: pl-skeleton-shimmer 1.4s ease infinite;
 }
 
-.pl-indent { padding-left: 1.5rem !important; color: #495057; }
+.pl-skeleton-banner { height: 2.75rem; margin-bottom: 1.25rem; }
 
-.pl-subtotal td {
-  border-top: 1px solid #dee2e6;
-  font-weight: 600;
+.pl-kpi-grid .pl-skeleton-card { height: 128px; }
+.pl-skeleton-card:nth-child(2) { animation-delay: .1s; }
+.pl-skeleton-card:nth-child(3) { animation-delay: .2s; }
+.pl-skeleton-card:nth-child(4) { animation-delay: .3s; }
+
+.pl-breakdown-grid .pl-skeleton-panel { height: 220px; }
+.pl-skeleton-panel:nth-child(2) { animation-delay: .15s; }
+
+@keyframes pl-skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
 }
 
-.pl-total td {
-  border-top: 2px solid #173f68;
-  font-weight: 700;
-}
-
-.pl-grand-total td {
-  font-size: 1.05rem;
-  color: #173f68;
-}
-
-.pl-muted td { color: #8a9bad; font-size: .85rem; }
-
-.chart-card h6 { margin-bottom: .75rem; }
-
-.chart-wrap {
-  position: relative;
-  height: 280px;
-}
+// --- Responsive breakpoints -------------------------------------------------------------------
 
 @media (max-width: 991.98px) {
-  .chart-wrap { height: 240px; }
+  .pl-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .pl-breakdown-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 575.98px) {
-  .chart-wrap { height: 220px; }
-  .pl-status-bar small { display: block; margin-left: 0; margin-top: .25rem; }
+  .pl-kpi-grid { grid-template-columns: 1fr; }
+  .pl-ratio-grid { grid-template-columns: 1fr; }
+  .pl-bar-row { grid-template-columns: 90px 1fr; }
+  .pl-bar-amount { grid-column: 2; text-align: left; }
+  .pl-period-banner { align-items: flex-start; }
+}
+
+// --- Print ------------------------------------------------------------------------------------
+
+@media print {
+  .pl-report { max-width: 100%; }
+  .pl-card, .pl-kpi-card, .pl-ratio-card { box-shadow: none !important; border: 1px solid #e4ebf2 !important; }
+  .pl-bar-fill, .pl-status-badge, .pl-kpi-card, .pl-ratio-card, .pl-insight {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print { display: none !important; }
 }

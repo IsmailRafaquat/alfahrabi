@@ -15,14 +15,17 @@ public partial class ShopProfitLossAppService
     {
         var tenantId = RequireTenant();
         var range = await _dateRangeResolver.ResolveAsync(input.Period, input.DateFrom, input.DateTo);
-        var core = await _calculator.ComputeAsync(tenantId, range.From, range.ToExclusive);
-        var summary = await BuildSummaryDtoAsync(tenantId, core, range);
-        var setting = await GetSettingAsync(tenantId);
 
         var canRevenue = await CanAsync(EHubPermissions.ShopProfitLoss.ViewRevenue);
         var canCost = await CanAsync(EHubPermissions.ShopProfitLoss.ViewCost);
         var canExpenses = await CanAsync(EHubPermissions.ShopProfitLoss.ViewExpenses);
         var canMargins = await CanAsync(EHubPermissions.ShopProfitLoss.ViewMargins);
+
+        // Aggregate-only: the exported statement only ever reads the summed totals below, never
+        // row-level Sale/SaleItem/SaleReturn/Expense detail.
+        var core = await _calculator.ComputeAggregateAsync(tenantId, range.From, range.ToExclusive, includeInventoryReconciliation: canCost);
+        var summary = await BuildSummaryDtoAsync(tenantId, core, range);
+        var setting = await GetSettingAsync(tenantId);
 
         var rows = new List<Dictionary<string, object?>>();
         void AddRow(string label, string? amount) => rows.Add(new Dictionary<string, object?> { ["label"] = label, ["amount"] = amount });

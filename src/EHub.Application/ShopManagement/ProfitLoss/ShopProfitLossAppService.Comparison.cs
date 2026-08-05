@@ -11,25 +11,26 @@ public partial class ShopProfitLossAppService
     {
         var tenantId = RequireTenant();
         var range = await _dateRangeResolver.ResolveAsync(input.Period, input.DateFrom, input.DateTo);
-        return await BuildComparisonAsync(tenantId, input.Period, range, currentCore: null, closingInventoryValue: null);
+        return await BuildComparisonAsync(tenantId, input.Period, range, currentCore: null);
     }
 
     /// <summary>
-    /// <paramref name="currentCore"/>/<paramref name="closingInventoryValue"/> let a caller that
-    /// already computed the current period (e.g. GetAsync building the main statement) pass that
-    /// work in instead of this method redoing it - closing inventory valuation in particular is a
-    /// full product/batch scan that is identical for every period, so it must never be computed more
-    /// than once per request.
+    /// <paramref name="currentCore"/> lets a caller that already computed the current period (e.g.
+    /// GetAsync building the main statement) pass that work in instead of this method redoing it.
+    /// Both the current (when not passed in) and previous period otherwise go through
+    /// <see cref="ShopProfitLossCalculator.ComputeAggregateAsync"/> rather than the full detailed
+    /// computation - the comparison DTO only ever surfaces NetSales/GrossProfit/NetProfit, never the
+    /// inventory reconciliation fields or row-level detail, so there's nothing to gain from paying for
+    /// either here.
     /// </summary>
     private async Task<ShopProfitLossComparisonDto> BuildComparisonAsync(
         Guid tenantId, ShopReportPeriod period, ShopReportDateRange range,
-        ShopProfitLossCoreResult? currentCore, decimal? closingInventoryValue)
+        ShopProfitLossCoreResult? currentCore)
     {
         var (previousFrom, previousToExclusive) = GetPreviousPeriodRange(period, range);
 
-        closingInventoryValue ??= await _calculator.ComputeClosingInventoryValueAsync(tenantId);
-        var current = currentCore ?? await _calculator.ComputeAsync(tenantId, range.From, range.ToExclusive, closingInventoryValue);
-        var previous = await _calculator.ComputeAsync(tenantId, previousFrom, previousToExclusive, closingInventoryValue);
+        var current = currentCore ?? await _calculator.ComputeAggregateAsync(tenantId, range.From, range.ToExclusive);
+        var previous = await _calculator.ComputeAggregateAsync(tenantId, previousFrom, previousToExclusive);
 
         var canRevenue = await CanAsync(EHubPermissions.ShopProfitLoss.ViewRevenue);
         var canCost = await CanAsync(EHubPermissions.ShopProfitLoss.ViewCost);

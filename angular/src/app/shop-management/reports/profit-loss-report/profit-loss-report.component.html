@@ -1,12 +1,12 @@
 <abp-page>
-  <app-topbar-layout titleKey="::ProfitLoss" [(filters)]="input" showFiltersToggle
+  <app-topbar-layout titleKey="::ProfitLoss" [(filters)]="input" showFiltersToggle [showSearch]="false"
     [showApplyFilters]="true" [showResetFilters]="false" (onFilter)="onFilterChange()">
 
     <div topbarActions class="d-flex align-items-center gap-2">
       <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="loading" (click)="load()">
         <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> {{ '::Refresh' | abpLocalization }}
       </button>
-      <app-report-export-menu *ngIf="canExport || canPrint" [exporting]="exporting" [showPrint]="canPrint"
+      <app-report-export-menu *ngIf="canExport || canPrint" [disabled]="loading" [exporting]="exporting" [showPrint]="canPrint"
         (exportFormat)="export($event)"></app-report-export-menu>
     </div>
 
@@ -19,145 +19,153 @@
           (apply)="onFilterChange()"
         ></app-report-period-filter>
       </div>
-      <div class="col-12 col-md-3 d-flex align-items-end">
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="compareToggle" [(ngModel)]="input.compareWithPreviousPeriod" (ngModelChange)="onFilterChange()">
-          <label class="form-check-label" for="compareToggle">{{ '::CompareWithPreviousPeriod' | abpLocalization }}</label>
-        </div>
-      </div>
     </ng-container>
 
-    <div class="print-only">
+    <div class="print-only pl-report">
       <app-report-print-header
         reportTitleKey="::ProfitLoss"
-        [dateRangeText]="(result?.summary?.currentPeriodFrom || input.dateFrom) + ' - ' + (result?.summary?.currentPeriodTo || input.dateTo)"
+        [dateRangeText]="(result?.currentPeriodFrom || input.dateFrom) + ' - ' + (result?.currentPeriodTo || input.dateTo)"
       ></app-report-print-header>
 
-      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+      <div class="pl-skeleton" *ngIf="loading" aria-hidden="true">
+        <div class="pl-skeleton-banner"></div>
+        <div class="pl-kpi-grid">
+          <div class="pl-skeleton-card" *ngFor="let _ of [0,1,2,3]"></div>
+        </div>
+        <div class="pl-breakdown-grid">
+          <div class="pl-skeleton-panel"></div>
+          <div class="pl-skeleton-panel"></div>
+        </div>
+      </div>
 
-      <ng-container *ngIf="!loading && result">
-        <div class="card report-card mb-3">
-          <div class="pl-status-bar" [ngClass]="'pl-status-bar--' + statusVariant">
-            <i [class]="statusIcon"></i>
-            <span>{{ statusLabel | abpLocalization }}</span>
-            <small>{{ result.summary.currentPeriodFrom | date: 'mediumDate' }} - {{ result.summary.currentPeriodTo | date: 'mediumDate' }}</small>
-          </div>
-          <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      <div class="card pl-card pl-error-card text-center" *ngIf="!loading && loadError && !result">
+        <i class="fas fa-triangle-exclamation text-danger mb-2"></i>
+        <p class="mb-3">{{ '::ReportLoadError' | abpLocalization }}</p>
+        <button type="button" class="btn btn-sm btn-outline-primary mx-auto" (click)="load()">
+          <i class="fas fa-rotate-right me-1"></i>{{ '::Button:Retry' | abpLocalization }}
+        </button>
+      </div>
+
+      <ng-container *ngIf="!loading && result && view">
+        <div class="card pl-card pl-empty-card text-center" *ngIf="view.isZeroData">
+          <i class="fas fa-chart-pie"></i>
+          <p class="pl-empty-title">{{ '::NoFinancialActivityFound' | abpLocalization }}</p>
+          <p class="pl-empty-range">{{ result.currentPeriodFrom | date: 'mediumDate' }} - {{ result.currentPeriodTo | date: 'mediumDate' }}</p>
+          <p class="pl-empty-hint">{{ '::TryChangingReportFilters' | abpLocalization }}</p>
         </div>
 
-        <div class="card report-card mb-3 p-3">
-          <h5>{{ '::ProfitLoss' | abpLocalization }}</h5>
-          <table class="table table-sm pl-statement">
-            <tbody>
-              <tr class="pl-section-header"><td colspan="2">{{ '::Revenue' | abpLocalization }}</td></tr>
-              <tr><td class="pl-indent">{{ '::GrossSales' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.grossSales) }}</td></tr>
-              <tr><td class="pl-indent">{{ '::LessDiscounts' | abpLocalization }}</td><td class="text-end">({{ fmt(result.summary.salesDiscounts) }})</td></tr>
-              <tr><td class="pl-indent">{{ '::LessSaleReturns' | abpLocalization }}</td><td class="text-end">({{ fmt(result.summary.salesReturns) }})</td></tr>
-              <tr class="pl-subtotal"><td>{{ '::NetSales' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.netSales) }}</td></tr>
-              <tr class="pl-muted" *ngIf="result.summary.salesTax"><td class="pl-indent">{{ '::SalesTaxInformational' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.salesTax) }}</td></tr>
+        <ng-container *ngIf="!view.isZeroData">
+          <div class="pl-period-banner">
+            <div>
+              <h2 class="pl-period-title">{{ '::ProfitLoss' | abpLocalization }}</h2>
+              <p class="pl-period-range">{{ result.currentPeriodFrom | date: 'mediumDate' }} &ndash; {{ result.currentPeriodTo | date: 'mediumDate' }}</p>
+            </div>
+            <span class="pl-status-badge" [ngClass]="'pl-status-badge--' + view.status">
+              <i class="fas" [ngClass]="{
+                'fa-arrow-trend-up': view.status === 'profitable',
+                'fa-arrow-trend-down': view.status === 'loss',
+                'fa-equals': view.status === 'breakEven'
+              }"></i>
+              {{ statusLabelKey(view.status) | abpLocalization }}
+            </span>
+          </div>
 
-              <ng-container *ngIf="canViewCost">
-                <tr class="pl-section-header"><td colspan="2">{{ '::CostOfGoodsSold' | abpLocalization }}</td></tr>
-                <tr class="pl-subtotal"><td>{{ '::CostOfGoodsSold' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.costOfGoodsSold) }}</td></tr>
-                <tr class="pl-total"><td>{{ '::GrossProfit' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.grossProfit) }}</td></tr>
-              </ng-container>
+          <div class="pl-kpi-grid">
+            <div class="pl-kpi-card pl-kpi-card--primary">
+              <i class="fas fa-coins pl-kpi-icon"></i>
+              <span class="pl-kpi-label">{{ '::TotalSales' | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.totalSales) }}</strong>
+              <span class="pl-kpi-subtitle">{{ '::TotalSalesSubtitle' | abpLocalization }}</span>
+            </div>
 
-              <ng-container *ngIf="canViewExpenses">
-                <tr class="pl-section-header"><td colspan="2">{{ '::OperatingExpenses' | abpLocalization }}</td></tr>
-                <tr *ngFor="let c of result.expenseBreakdown">
-                  <td class="pl-indent">{{ c.expenseCategoryName }}</td>
-                  <td class="text-end">{{ fmt(c.amount) }}</td>
-                </tr>
-                <tr class="pl-subtotal"><td>{{ '::OperatingExpenses' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.operatingExpenses) }}</td></tr>
-                <tr><td class="pl-indent">{{ '::OtherIncome' | abpLocalization }}</td><td class="text-end">{{ fmt(result.summary.otherIncome) }}</td></tr>
-              </ng-container>
+            <div class="pl-kpi-card pl-kpi-card--warning" *ngIf="canViewCost">
+              <i class="fas fa-dolly pl-kpi-icon"></i>
+              <span class="pl-kpi-label">{{ '::CostOfGoodsSold' | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.costOfGoodsSold) }}</strong>
+              <span class="pl-kpi-subtitle">{{ '::CostOfGoodsSoldSubtitle' | abpLocalization }}</span>
+            </div>
 
-              <tr class="pl-total pl-grand-total" *ngIf="canViewCost && canViewExpenses">
-                <td>{{ '::NetProfitOrLoss' | abpLocalization }}</td>
-                <td class="text-end">{{ fmt(result.summary.netProfit) }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="text-muted small mb-0" *ngIf="canViewCost">
-            {{ '::InventoryReconciliationNote' | abpLocalization }}
-            {{ '::OpeningInventoryValue' | abpLocalization }}: {{ fmt(result.summary.openingInventoryValue) }},
-            {{ '::NetPurchases' | abpLocalization }}: {{ fmt(result.summary.netPurchases) }},
-            {{ '::ClosingInventoryValue' | abpLocalization }}: {{ fmt(result.summary.closingInventoryValue) }}
-          </p>
-        </div>
+            <div class="pl-kpi-card pl-kpi-card--danger" *ngIf="canViewExpenses">
+              <i class="fas fa-file-invoice-dollar pl-kpi-icon"></i>
+              <span class="pl-kpi-label">{{ '::TotalExpenses' | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.totalExpenses) }}</strong>
+              <span class="pl-kpi-subtitle">{{ '::TotalExpensesSubtitle' | abpLocalization }}</span>
+            </div>
 
-        <div class="card report-card mb-3 p-3" *ngIf="result.comparison as cmp">
-          <h5>{{ '::PreviousPeriodComparison' | abpLocalization }}</h5>
-          <div class="row g-2">
-            <div class="col-6 col-md-3"><span class="text-muted small">{{ '::NetSales' | abpLocalization }}</span><br>{{ fmt(cmp.currentNetSales) }} <small class="text-muted">({{ fmt(cmp.previousNetSales) }})</small></div>
-            <div class="col-6 col-md-3" *ngIf="canViewCost"><span class="text-muted small">{{ '::GrossProfit' | abpLocalization }}</span><br>{{ fmt(cmp.currentGrossProfit) }} <small class="text-muted">({{ fmt(cmp.previousGrossProfit) }})</small></div>
-            <div class="col-6 col-md-3" *ngIf="canViewCost && canViewExpenses"><span class="text-muted small">{{ '::NetProfitOrLoss' | abpLocalization }}</span><br>{{ fmt(cmp.currentNetProfit) }} <small class="text-muted">({{ fmt(cmp.previousNetProfit) }})</small></div>
-            <div class="col-6 col-md-3" *ngIf="canViewCost && canViewExpenses">
-              <span class="text-muted small">{{ '::Change' | abpLocalization }}</span><br>
-              <span [ngClass]="(cmp.netProfitChangeAmount ?? 0) >= 0 ? 'text-success' : 'text-danger'">
-                {{ fmt(cmp.netProfitChangeAmount) }} ({{ pct(cmp.netProfitChangePercentage) }})
-              </span>
+            <div class="pl-kpi-card" [ngClass]="view.status === 'loss' ? 'pl-kpi-card--danger' : 'pl-kpi-card--success'" *ngIf="canViewBreakdown">
+              <i class="fas pl-kpi-icon" [ngClass]="view.status === 'loss' ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up'"></i>
+              <span class="pl-kpi-label">{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.netProfit) }}</strong>
+              <span class="pl-kpi-subtitle">{{ (view.status === 'loss' ? '::NetLossSubtitle' : '::NetProfitSubtitle') | abpLocalization }}</span>
             </div>
           </div>
-        </div>
 
-        <div class="row g-3 mb-3">
-          <div class="col-12 col-lg-6">
-            <div class="card report-card p-3 chart-card">
-              <h6>{{ '::NetSalesVsCogs' | abpLocalization }}</h6>
-              <div class="chart-wrap"><canvas #salesVsCogsCanvas></canvas></div>
+          <div class="pl-breakdown-grid" *ngIf="canViewBreakdown">
+            <div class="card pl-card p-3">
+              <h5 class="pl-card-title">{{ '::ProfitCalculation' | abpLocalization }}</h5>
+              <div class="pl-calc-row">
+                <span>{{ '::TotalSales' | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmt(view.totalSales) }}</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--muted">
+                <span>{{ '::LessCostOfGoodsSold' | abpLocalization }}</span>
+                <span class="pl-calc-amount">({{ fmt(view.costOfGoodsSold) }})</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--subtotal">
+                <span>{{ '::GrossProfit' | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmt(view.grossProfit) }}</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--muted">
+                <span>{{ '::LessOperatingExpenses' | abpLocalization }}</span>
+                <span class="pl-calc-amount">({{ fmt(view.totalExpenses) }})</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--result" [ngClass]="'pl-calc-row--' + view.status">
+                <span>{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmt(view.netProfit) }}</span>
+              </div>
             </div>
-          </div>
-          <div class="col-12 col-lg-6" *ngIf="canViewCost && canViewExpenses">
-            <div class="card report-card p-3 chart-card">
-              <h6>{{ '::GrossProfitVsExpenses' | abpLocalization }}</h6>
-              <div class="chart-wrap"><canvas #profitVsExpenseCanvas></canvas></div>
-            </div>
-          </div>
-          <div class="col-12 col-lg-6" *ngIf="canViewCost && canViewExpenses">
-            <div class="card report-card p-3 chart-card">
-              <h6>{{ '::NetProfitTrend' | abpLocalization }}</h6>
-              <div class="chart-wrap"><canvas #netProfitTrendCanvas></canvas></div>
-            </div>
-          </div>
-          <div class="col-12 col-lg-6" *ngIf="canViewExpenses && result.expenseBreakdown?.length">
-            <div class="card report-card p-3 chart-card">
-              <h6>{{ '::ExpenseCategoryBreakdown' | abpLocalization }}</h6>
-              <div class="chart-wrap"><canvas #expenseCategoryCanvas></canvas></div>
-            </div>
-          </div>
-        </div>
 
-        <div class="card report-card p-3" *ngIf="canViewProductContribution">
-          <h5>{{ '::ProductContribution' | abpLocalization }}</h5>
-          <div class="table-responsive" *ngIf="result.productContribution?.length; else emptyState">
-            <table class="table align-middle report-table">
-              <thead>
-                <tr>
-                  <th>{{ '::Product' | abpLocalization }}</th>
-                  <th>{{ '::QuantitySold' | abpLocalization }}</th>
-                  <th>{{ '::NetSales' | abpLocalization }}</th>
-                  <th *ngIf="canViewCost">{{ '::CostOfGoodsSold' | abpLocalization }}</th>
-                  <th *ngIf="canViewCost">{{ '::GrossProfit' | abpLocalization }}</th>
-                  <th *ngIf="canViewMargins">{{ '::MarginPercentage' | abpLocalization }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let p of result.productContribution">
-                  <td><strong>{{ p.productName }}</strong><br><small class="text-muted">{{ p.productCode }}</small></td>
-                  <td>{{ p.quantitySold | shopReportQuantity }}</td>
-                  <td>{{ fmt(p.netSales) }}</td>
-                  <td *ngIf="canViewCost">{{ fmt(p.costOfGoodsSold) }}</td>
-                  <td *ngIf="canViewCost" [ngClass]="(p.grossProfit ?? 0) >= 0 ? 'text-success' : 'text-danger'">{{ fmt(p.grossProfit) }}</td>
-                  <td *ngIf="canViewMargins">{{ pct(p.grossMarginPercentage) }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="card pl-card p-3">
+              <h5 class="pl-card-title">{{ '::FinancialOverview' | abpLocalization }}</h5>
+
+              <div class="pl-bar-row">
+                <span class="pl-bar-label">{{ '::TotalSales' | abpLocalization }}</span>
+                <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--primary" [style.width.%]="view.salesBarPct"></div></div>
+                <span class="pl-bar-amount">{{ fmt(view.totalSales) }}</span>
+              </div>
+              <div class="pl-bar-row">
+                <span class="pl-bar-label">{{ '::CostOfGoodsSold' | abpLocalization }}</span>
+                <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--warning" [style.width.%]="view.costOfGoodsSoldBarPct"></div></div>
+                <span class="pl-bar-amount">{{ fmt(view.costOfGoodsSold) }}</span>
+              </div>
+              <div class="pl-bar-row">
+                <span class="pl-bar-label">{{ '::TotalExpenses' | abpLocalization }}</span>
+                <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--danger" [style.width.%]="view.expensesBarPct"></div></div>
+                <span class="pl-bar-amount">{{ fmt(view.totalExpenses) }}</span>
+              </div>
+            </div>
           </div>
-          <ng-template #emptyState>
-            <app-report-empty-state></app-report-empty-state>
-          </ng-template>
-        </div>
+
+          <div class="pl-ratio-grid" *ngIf="canViewBreakdown">
+            <div class="pl-ratio-card" [ngClass]="view.grossMarginPct >= 0 ? 'pl-ratio-card--positive' : 'pl-ratio-card--negative'">
+              <span class="pl-ratio-label">{{ '::GrossMargin' | abpLocalization }}</span>
+              <strong class="pl-ratio-value">{{ pct(view.grossMarginPct) }}</strong>
+            </div>
+            <div class="pl-ratio-card" [ngClass]="view.expenseRatioPct > 70 ? 'pl-ratio-card--warning' : 'pl-ratio-card--positive'">
+              <span class="pl-ratio-label">{{ '::ExpenseRatio' | abpLocalization }}</span>
+              <strong class="pl-ratio-value">{{ pct(view.expenseRatioPct) }}</strong>
+            </div>
+            <div class="pl-ratio-card" [ngClass]="view.netMarginPct >= 0 ? 'pl-ratio-card--positive' : 'pl-ratio-card--negative'">
+              <span class="pl-ratio-label">{{ '::NetMargin' | abpLocalization }}</span>
+              <strong class="pl-ratio-value">{{ pct(view.netMarginPct) }}</strong>
+            </div>
+          </div>
+
+          <div class="pl-insight" [ngClass]="'pl-insight--' + view.status" *ngIf="canViewBreakdown">
+            <i class="fas fa-circle-info"></i>
+            <span>{{ insightKey(view.status) | abpLocalization }}</span>
+          </div>
+        </ng-container>
       </ng-container>
     </div>
   </app-topbar-layout>

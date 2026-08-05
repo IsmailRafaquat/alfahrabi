@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using EHub.Permissions;
 using EHub.ShopManagement.ExpenseCategories;
@@ -11,6 +12,7 @@ using EHub.ShopManagement.Sales;
 using EHub.ShopManagement.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -73,13 +75,19 @@ public partial class ShopProfitLossAppService : ApplicationService, IShopProfitL
     public async Task<ShopProfitLossDto> GetAsync(GetShopProfitLossInput input)
     {
         var tenantId = RequireTenant();
+        var stopwatch = Stopwatch.StartNew();
+
         var range = await _dateRangeResolver.ResolveAsync(input.Period, input.DateFrom, input.DateTo);
-        var closingInventoryValue = await _calculator.ComputeClosingInventoryValueAsync(tenantId);
+
+        // A viewer without ViewCost never sees OpeningInventoryValue/NetPurchases/ClosingInventoryValue
+        // (BuildSummaryDtoAsync strips them below), so there's no point paying for the goods-receipt/
+        // purchase-return queries and the closing-inventory product/batch scan for that viewer.
+        var canViewCost = await CanAsync(EHubPermissions.ShopProfitLoss.ViewCost);
 
         // One load of this period's sales/items/returns/return-items/expenses, reused below by the
         // trend, expense-breakdown, and product-contribution sections instead of each re-querying
         // the same rows for the same period.
-        var computation = await _calculator.ComputeDetailedAsync(tenantId, range.From, range.ToExclusive, closingInventoryValue);
+        var computation = await _calculator.ComputeDetailedAsync(tenantId, range.From, range.ToExclusive, includeInventoryReconciliation: canViewCost);
         var core = computation.Core;
 
         var dto = new ShopProfitLossDto
@@ -100,10 +108,16 @@ public partial class ShopProfitLossAppService : ApplicationService, IShopProfitL
 
         if (input.CompareWithPreviousPeriod)
         {
-            // Reuse the current period's already-computed core (and the inventory valuation we just
-            // did once above) instead of recomputing "current" from scratch inside the comparison.
-            dto.Comparison = await BuildComparisonAsync(tenantId, input.Period, range, core, closingInventoryValue);
+            // Reuse the current period's already-computed core instead of recomputing it from
+            // scratch inside the comparison - only the previous period still needs a fresh (lightweight,
+            // aggregate-only) computation.
+            dto.Comparison = await BuildComparisonAsync(tenantId, input.Period, range, core);
         }
+
+        stopwatch.Stop();
+        Logger.LogInformation(
+            "ShopProfitLoss.Get tenant={TenantId} period={Period} range={From:yyyy-MM-dd}..{To:yyyy-MM-dd} durationMs={DurationMs}",
+            tenantId, input.Period, range.From, range.ToExclusive, stopwatch.ElapsedMilliseconds);
 
         return dto;
     }
@@ -111,9 +125,21 @@ public partial class ShopProfitLossAppService : ApplicationService, IShopProfitL
     public async Task<ShopProfitLossSummaryDto> GetSummaryAsync(GetShopProfitLossInput input)
     {
         var tenantId = RequireTenant();
+        var stopwatch = Stopwatch.StartNew();
+
         var range = await _dateRangeResolver.ResolveAsync(input.Period, input.DateFrom, input.DateTo);
-        var core = await _calculator.ComputeAsync(tenantId, range.From, range.ToExclusive);
-        return await BuildSummaryDtoAsync(tenantId, core, range);
+        var canViewCost = await CanAsync(EHubPermissions.ShopProfitLoss.ViewCost);
+        // Aggregate-only: this DTO never needs row-level Sale/SaleItem/SaleReturn/Expense detail,
+        // only the summed totals, so there's no reason to pay for ComputeDetailedAsync's full load.
+        var core = await _calculator.ComputeAggregateAsync(tenantId, range.From, range.ToExclusive, includeInventoryReconciliation: canViewCost);
+        var dto = await BuildSummaryDtoAsync(tenantId, core, range);
+
+        stopwatch.Stop();
+        Logger.LogInformation(
+            "ShopProfitLoss.GetSummary tenant={TenantId} period={Period} range={From:yyyy-MM-dd}..{To:yyyy-MM-dd} durationMs={DurationMs}",
+            tenantId, input.Period, range.From, range.ToExclusive, stopwatch.ElapsedMilliseconds);
+
+        return dto;
     }
 
     private Guid RequireTenant() => CurrentTenant.Id ?? throw new BusinessException("ShopManagement:ReportTenantRequired");

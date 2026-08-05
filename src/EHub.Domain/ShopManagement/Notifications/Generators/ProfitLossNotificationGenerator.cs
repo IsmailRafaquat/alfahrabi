@@ -42,7 +42,7 @@ public class ProfitLossNotificationGenerator : IShopNotificationGenerator, ITran
         var monthStart = new DateTime(today.Year, today.Month, 1);
         var monthEndExclusive = today.AddDays(1);
 
-        var result = await _calculator.ComputeAsync(tenantId, monthStart, monthEndExclusive);
+        var result = await _calculator.ComputeAggregateAsync(tenantId, monthStart, monthEndExclusive);
         var sourceKey = $"ProfitLossWarning:{tenantId}:{today.Year}:{today.Month}";
 
         var marginPercentage = result.NetSales > 0 ? Math.Round(result.NetProfit / result.NetSales * 100, 2) : (decimal?)null;

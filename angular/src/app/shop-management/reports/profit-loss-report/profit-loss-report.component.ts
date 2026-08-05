@@ -1,71 +1,81 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { LocalizationService, PermissionService } from '@abp/ng.core';
+import { Component, OnInit, inject } from '@angular/core';
+import { PermissionService } from '@abp/ng.core';
 import { ToasterService } from '@abp/ng.theme.shared';
-import { Chart, registerables } from 'chart.js';
 import { finalize } from 'rxjs';
 import { saveAs } from 'file-saver';
 import { ShopProfitLossService } from '../../../proxy/shop-management/profit-loss/shop-profit-loss.service';
-import { GetShopProfitLossInput, ShopProfitLossDto } from '../../../proxy/shop-management/profit-loss/models';
-import { ShopProfitLossResultStatus } from '../../../proxy/shop-management/profit-loss/shop-profit-loss-result-status.enum';
+import { GetShopProfitLossInput, ShopProfitLossSummaryDto } from '../../../proxy/shop-management/profit-loss/models';
 import { ShopReportPeriod } from '../../../proxy/shop-management/reports/shop-report-period.enum';
 import { ShopReportExportFormat } from '../../../proxy/shop-management/reports/shop-report-export-format.enum';
-import { ReportTotalCard } from '../../../shared/reports/report-totals-cards.component';
 
-Chart.register(...registerables);
+export type ProfitLossStatus = 'profitable' | 'loss' | 'breakEven';
 
+/**
+ * Everything below is derived once from the loaded ShopProfitLossSummaryDto (see buildView()) and
+ * cached on the component instead of recomputed via template getters, so Angular's change detector
+ * never re-runs a percentage/ratio calculation on every check - it just reads plain fields.
+ */
+export interface ProfitLossView {
+  totalSales: number;
+  costOfGoodsSold: number;
+  totalExpenses: number;
+  grossProfit: number;
+  netProfit: number;
+  grossMarginPct: number;
+  expenseRatioPct: number;
+  netMarginPct: number;
+  status: ProfitLossStatus;
+  isZeroData: boolean;
+  maxComparisonValue: number;
+  salesBarPct: number;
+  costOfGoodsSoldBarPct: number;
+  expensesBarPct: number;
+}
+
+/**
+ * Deliberately thin: this page shows only the four top-line Profit & Loss figures (Total Sales,
+ * COGS, Total Expenses, Net Profit/Loss) plus a frontend-only breakdown of those same numbers, so it
+ * calls ShopProfitLossService.getSummary() - the aggregate-only backend path - exactly once per load.
+ * Every ratio/bar/insight below is derived client-side from that one response; none of it triggers a
+ * second request.
+ */
 @Component({
   selector: 'app-profit-loss-report',
   standalone: false,
   templateUrl: './profit-loss-report.component.html',
   styleUrl: './profit-loss-report.component.scss',
 })
-export class ProfitLossReportComponent implements OnInit, OnDestroy {
+export class ProfitLossReportComponent implements OnInit {
   private readonly service = inject(ShopProfitLossService);
   private readonly permissions = inject(PermissionService);
   private readonly toaster = inject(ToasterService);
-  private readonly localizationService = inject(LocalizationService);
-
-  @ViewChild('salesVsCogsCanvas') salesVsCogsCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('profitVsExpenseCanvas') profitVsExpenseCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('netProfitTrendCanvas') netProfitTrendCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('expenseCategoryCanvas') expenseCategoryCanvas?: ElementRef<HTMLCanvasElement>;
-
-  private salesVsCogsChart?: Chart;
-  private profitVsExpenseChart?: Chart;
-  private netProfitTrendChart?: Chart;
-  private expenseCategoryChart?: Chart;
 
   readonly ShopReportPeriod = ShopReportPeriod;
-  readonly ShopProfitLossResultStatus = ShopProfitLossResultStatus;
 
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.ProfitLoss.ViewCost');
   readonly canViewExpenses = this.permissions.getGrantedPolicy('ShopManagement.ProfitLoss.ViewExpenses');
-  readonly canViewMargins = this.permissions.getGrantedPolicy('ShopManagement.ProfitLoss.ViewMargins');
-  readonly canViewProductContribution = this.permissions.getGrantedPolicy('ShopManagement.ProfitLoss.ViewProductContribution');
   readonly canExport = this.permissions.getGrantedPolicy('ShopManagement.ProfitLoss.Export');
   readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.ProfitLoss.Print');
 
+  /** Only meaningful once both cost and expenses are visible - otherwise there's no complete breakdown to show. */
+  readonly canViewBreakdown = this.canViewCost && this.canViewExpenses;
+
   input: GetShopProfitLossInput = {
     period: ShopReportPeriod.ThisMonth,
-    compareWithPreviousPeriod: true,
-    includeExpenseBreakdown: true,
-    includeProductContribution: true,
+    compareWithPreviousPeriod: false,
+    includeExpenseBreakdown: false,
+    includeProductContribution: false,
     topProductCount: 10,
   };
 
-  result?: ShopProfitLossDto;
+  result?: ShopProfitLossSummaryDto;
+  view?: ProfitLossView;
   loading = false;
   exporting = false;
+  loadError = false;
 
   ngOnInit(): void {
     this.load();
-  }
-
-  ngOnDestroy(): void {
-    this.salesVsCogsChart?.destroy();
-    this.profitVsExpenseChart?.destroy();
-    this.netProfitTrendChart?.destroy();
-    this.expenseCategoryChart?.destroy();
   }
 
   onFilterChange(): void {
@@ -78,19 +88,24 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
     if (this.input.period === ShopReportPeriod.Custom && (!this.input.dateFrom || !this.input.dateTo)) return;
 
     this.loading = true;
+    this.loadError = false;
     this.service
-      .get(this.input)
+      .getSummary(this.input)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: r => {
           this.result = r;
-          setTimeout(() => this.renderCharts());
+          this.view = this.buildView(r);
         },
-        error: e => this.toaster.error(e?.error?.error?.message || e?.message || '::UnexpectedError'),
+        error: e => {
+          this.loadError = true;
+          this.toaster.error(e?.error?.error?.message || e?.message || '::UnexpectedError');
+        },
       });
   }
 
   export(format: ShopReportExportFormat): void {
+    if (this.exporting) return;
     this.exporting = true;
     this.service
       .export(this.input, format)
@@ -111,160 +126,60 @@ export class ProfitLossReportComponent implements OnInit, OnDestroy {
 
   fmt(value: number | null | undefined): string {
     if (value == null) return '—';
-    const symbol = this.result?.summary?.currencySymbol;
-    const formatted = value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const symbol = this.result?.currencySymbol;
+    const formatted = Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return symbol ? `${symbol} ${formatted}` : formatted;
   }
 
-  pct(value: number | null | undefined): string {
-    return value == null ? 'N/A' : `${value.toFixed(2)}%`;
+  pct(value: number): string {
+    return `${value.toFixed(2)}%`;
   }
 
-  get statusVariant(): 'success' | 'warning' | 'danger' | 'secondary' {
-    switch (this.result?.summary?.resultStatus) {
-      case ShopProfitLossResultStatus.Profit: return 'success';
-      case ShopProfitLossResultStatus.BreakEven: return 'warning';
-      case ShopProfitLossResultStatus.Loss: return 'danger';
-      default: return 'secondary';
+  statusLabelKey(status: ProfitLossStatus): string {
+    switch (status) {
+      case 'profitable': return '::ProfitLossStatusProfitable';
+      case 'loss': return '::ProfitLossStatusLoss';
+      default: return '::ProfitLossStatusBreakEven';
     }
   }
 
-  get statusIcon(): string {
-    switch (this.result?.summary?.resultStatus) {
-      case ShopProfitLossResultStatus.Profit: return 'fas fa-arrow-trend-up';
-      case ShopProfitLossResultStatus.BreakEven: return 'fas fa-equals';
-      case ShopProfitLossResultStatus.Loss: return 'fas fa-arrow-trend-down';
-      default: return 'fas fa-question';
+  insightKey(status: ProfitLossStatus): string {
+    switch (status) {
+      case 'profitable': return '::ProfitLossInsightProfit';
+      case 'loss': return '::ProfitLossInsightLoss';
+      default: return '::ProfitLossInsightBreakEven';
     }
   }
 
-  get statusLabel(): string {
-    switch (this.result?.summary?.resultStatus) {
-      case ShopProfitLossResultStatus.Profit: return '::Profit';
-      case ShopProfitLossResultStatus.BreakEven: return '::BreakEven';
-      case ShopProfitLossResultStatus.Loss: return '::Loss';
-      default: return '';
-    }
-  }
+  /** grossProfit is frontend-derived (totalSales - costOfGoodsSold); everything else uses the API's own totals. */
+  private buildView(s: ShopProfitLossSummaryDto): ProfitLossView {
+    const totalSales = s.netSales ?? 0;
+    const costOfGoodsSold = this.canViewCost ? (s.costOfGoodsSold ?? 0) : 0;
+    const totalExpenses = this.canViewExpenses ? (s.operatingExpenses ?? 0) : 0;
+    const grossProfit = totalSales - costOfGoodsSold;
+    const netProfit = this.canViewBreakdown ? (s.netProfit ?? grossProfit - totalExpenses) : grossProfit - totalExpenses;
 
-  get totalsCards(): ReportTotalCard[] {
-    const s = this.result?.summary;
-    if (!s) return [];
-    const cards: ReportTotalCard[] = [
-      { label: '::NetSales', value: this.fmt(s.netSales), icon: 'fas fa-coins', colorClass: 'primary' },
-    ];
-    if (this.canViewCost) {
-      cards.push({ label: '::CostOfGoodsSold', value: this.fmt(s.costOfGoodsSold), icon: 'fas fa-dolly', colorClass: 'warning' });
-      cards.push({ label: '::GrossProfit', value: this.fmt(s.grossProfit), icon: 'fas fa-chart-line', colorClass: (s.grossProfit ?? 0) >= 0 ? 'success' : 'danger' });
-    }
-    if (this.canViewExpenses) {
-      cards.push({ label: '::OperatingExpenses', value: this.fmt(s.operatingExpenses), icon: 'fas fa-file-invoice-dollar', colorClass: 'danger' });
-    }
-    if (this.canViewCost && this.canViewExpenses) {
-      cards.push({ label: '::NetProfitOrLoss', value: this.fmt(s.netProfit), icon: 'fas fa-balance-scale', colorClass: (s.netProfit ?? 0) >= 0 ? 'success' : 'danger' });
-    }
-    if (this.canViewMargins) {
-      cards.push({ label: '::GrossMargin', value: this.pct(s.grossProfitMarginPercentage), icon: 'fas fa-percent', colorClass: 'info' });
-      cards.push({ label: '::NetMargin', value: this.pct(s.netProfitMarginPercentage), icon: 'fas fa-percent', colorClass: 'info' });
-    }
-    return cards;
-  }
+    const status: ProfitLossStatus = netProfit > 0 ? 'profitable' : netProfit < 0 ? 'loss' : 'breakEven';
+    const isZeroData = totalSales === 0 && costOfGoodsSold === 0 && totalExpenses === 0;
 
-  private renderCharts(): void {
-    this.renderSalesVsCogs();
-    this.renderProfitVsExpense();
-    this.renderNetProfitTrend();
-    this.renderExpenseCategory();
-  }
+    const maxComparisonValue = Math.max(totalSales, costOfGoodsSold, totalExpenses, 0);
+    const barPct = (value: number) => (maxComparisonValue > 0 ? Math.min(100, Math.round((Math.abs(value) / maxComparisonValue) * 100)) : 0);
 
-  private renderSalesVsCogs(): void {
-    this.salesVsCogsChart?.destroy();
-    this.salesVsCogsChart = undefined;
-    const canvas = this.salesVsCogsCanvas?.nativeElement;
-    const trend = this.result?.trend;
-    if (!canvas || !trend?.length) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    this.salesVsCogsChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: trend.map(t => t.label),
-        datasets: [
-          { label: this.localizationService.instant('::NetSales'), data: trend.map(t => t.netSales), backgroundColor: '#2369a3' },
-          ...(this.canViewCost ? [{ label: this.localizationService.instant('::COGS'), data: trend.map(t => t.costOfGoodsSold ?? 0), backgroundColor: '#c83e4d' }] : []),
-        ],
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } },
-    });
-  }
-
-  private renderProfitVsExpense(): void {
-    this.profitVsExpenseChart?.destroy();
-    this.profitVsExpenseChart = undefined;
-    if (!this.canViewCost || !this.canViewExpenses) return;
-    const canvas = this.profitVsExpenseCanvas?.nativeElement;
-    const trend = this.result?.trend;
-    if (!canvas || !trend?.length) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    this.profitVsExpenseChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: trend.map(t => t.label),
-        datasets: [
-          { label: this.localizationService.instant('::GrossProfit'), data: trend.map(t => t.grossProfit ?? 0), backgroundColor: '#2f9e44' },
-          { label: this.localizationService.instant('::OperatingExpenses'), data: trend.map(t => t.operatingExpenses ?? 0), backgroundColor: '#e8590c' },
-        ],
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } },
-    });
-  }
-
-  private renderNetProfitTrend(): void {
-    this.netProfitTrendChart?.destroy();
-    this.netProfitTrendChart = undefined;
-    if (!this.canViewCost || !this.canViewExpenses) return;
-    const canvas = this.netProfitTrendCanvas?.nativeElement;
-    const trend = this.result?.trend;
-    if (!canvas || !trend?.length) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    this.netProfitTrendChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: trend.map(t => t.label),
-        datasets: [
-          { label: this.localizationService.instant('::NetProfit'), data: trend.map(t => t.netProfit ?? 0), borderColor: '#2369a3', backgroundColor: 'rgba(35, 105, 163, 0.12)', tension: 0.3, fill: true },
-        ],
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } },
-    });
-  }
-
-  private renderExpenseCategory(): void {
-    this.expenseCategoryChart?.destroy();
-    this.expenseCategoryChart = undefined;
-    const canvas = this.expenseCategoryCanvas?.nativeElement;
-    const breakdown = this.result?.expenseBreakdown;
-    if (!canvas || !breakdown?.length) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    this.expenseCategoryChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: breakdown.map(b => b.expenseCategoryName),
-        datasets: [
-          {
-            data: breakdown.map(b => b.amount),
-            backgroundColor: ['#2369a3', '#c83e4d', '#2f9e44', '#e8590c', '#7048e8', '#f08c00', '#087f5b', '#495057'],
-          },
-        ],
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } },
-    });
+    return {
+      totalSales,
+      costOfGoodsSold,
+      totalExpenses,
+      grossProfit,
+      netProfit,
+      grossMarginPct: totalSales !== 0 ? (grossProfit / totalSales) * 100 : 0,
+      expenseRatioPct: totalSales !== 0 ? (totalExpenses / totalSales) * 100 : 0,
+      netMarginPct: totalSales !== 0 ? (netProfit / totalSales) * 100 : 0,
+      status,
+      isZeroData,
+      maxComparisonValue,
+      salesBarPct: barPct(totalSales),
+      costOfGoodsSoldBarPct: barPct(costOfGoodsSold),
+      expensesBarPct: barPct(totalExpenses),
+    };
   }
 }
