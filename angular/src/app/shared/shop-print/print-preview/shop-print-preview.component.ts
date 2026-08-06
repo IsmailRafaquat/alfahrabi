@@ -1,13 +1,14 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ConfigStateService } from '@abp/ng.core';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { ShopCustomerPaymentService } from '../../../proxy/shop-management/customer-payments';
 import { ShopPrintTemplateService } from '../../../proxy/shop-management/print-templates/shop-print-template.service';
 import { ShopPrintSettingsService } from '../../../proxy/shop-management/print-settings/shop-print-settings.service';
 import { ShopPrintDocumentDto } from '../../../proxy/shop-management/print-templates/models';
 import { ShopPrintPaperSize } from '../../../proxy/shop-management/print-settings';
 import { ShopPrintSettingsDto } from '../../../proxy/shop-management/print-settings/models';
 import { ShopPrintLang } from '../models/shop-print-labels';
-import { SHOP_PRINT_LABEL_DOCUMENT_TYPES } from '../models/shop-print-document-types';
+import { SHOP_PRINT_DOCUMENT_TYPES, SHOP_PRINT_LABEL_DOCUMENT_TYPES } from '../models/shop-print-document-types';
 import { ShopPrintService } from '../services/shop-print.service';
 import { shareOrOpenWhatsApp } from '../services/shop-whatsapp-share.util';
 
@@ -72,6 +73,7 @@ export class ShopPrintPreviewComponent implements OnInit {
   constructor(
     private templateService: ShopPrintTemplateService,
     private printSettingsService: ShopPrintSettingsService,
+    private customerPaymentService: ShopCustomerPaymentService,
     private printService: ShopPrintService,
     private configState: ConfigStateService,
   ) {}
@@ -84,12 +86,22 @@ export class ShopPrintPreviewComponent implements OnInit {
     forkJoin({
       document: this.templateService.getPrintDocument(this.documentType, this.documentId),
       settings: this.printSettingsService.get(),
+      customerPaymentTotals: this.getCustomerPaymentTotals(),
     }).subscribe({
-      next: ({ document, settings }) => {
-        this.document = document;
+      next: ({ document, settings, customerPaymentTotals }) => {
+        this.document = customerPaymentTotals == null
+          ? document
+          : {
+              ...document,
+              totals: {
+                ...document.totals,
+                netAmount: customerPaymentTotals.totalAmount,
+                pendingAmount: customerPaymentTotals.pendingAmount,
+              },
+            };
         this.settings = settings;
         this.paperSize = this.initialPaperSize ?? document.paperSize ?? settings.defaultPrintPaperSize;
-        this.document = { ...document, paperSize: this.paperSize };
+        this.document = { ...this.document, paperSize: this.paperSize };
         this.showLogo = settings.printHeaderLogo;
         this.showQrCode = settings.printQrCode;
         this.showBatch = settings.printBatchNumber;
@@ -101,6 +113,38 @@ export class ShopPrintPreviewComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  /**
+   * Customer-payment print documents do not currently include the allocated sales' full total or
+   * remaining balance. Get the full total from the payment allocations and reuse the outstanding-
+   * sale source shown on the detail page for the pending amount. A failure must not block printing.
+   */
+  private getCustomerPaymentTotals(): Observable<{ totalAmount: number; pendingAmount: number } | undefined> {
+    if (this.documentType !== SHOP_PRINT_DOCUMENT_TYPES.CustomerPayment) return of(undefined);
+
+    return this.customerPaymentService.get(this.documentId).pipe(
+      switchMap(payment => {
+        if (!payment.customerId) return of(undefined);
+        const totalAmount = (payment.allocations ?? []).reduce(
+          (sum, allocation) => sum + (allocation.grandTotal ?? 0),
+          0,
+        );
+        const allocatedSaleIds = new Set(
+          (payment.allocations ?? []).map(allocation => allocation.saleId).filter((id): id is string => !!id),
+        );
+
+        return this.customerPaymentService.getOutstandingSales(payment.customerId).pipe(
+          map(result => ({
+            totalAmount,
+            pendingAmount: (result.items ?? [])
+              .filter(sale => !!sale.saleId && allocatedSaleIds.has(sale.saleId))
+              .reduce((sum, sale) => sum + (sale.pendingAmount ?? 0), 0),
+          })),
+        );
+      }),
+      catchError(() => of(undefined)),
+    );
   }
 
   onPaperSizeChange(size: ShopPrintPaperSize): void {

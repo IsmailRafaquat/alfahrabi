@@ -101,6 +101,10 @@
   padding: 2rem;
 }
 
+.sp-language-buttons {
+  gap: 0.5rem;
+}
+
 // The printable layout lives inside the preview modal. The backdrop itself must remain in the
 // print tree (putting .no-print on an ancestor makes every descendant display:none), while the
 // modal chrome is hidden by its own .no-print classes. Reset the modal sizing/overflow so the
