@@ -24,7 +24,12 @@ export interface ProfitLossView {
   grossMarginPct: number;
   expenseRatioPct: number;
   netMarginPct: number;
+  /** Net result status (Total Sales - COGS - Operating Expenses). Drives the Net Profit/Loss card. */
   status: ProfitLossStatus;
+  /** Gross result status (Total Sales - COGS only) - can differ from `status`, e.g. a positive
+   * gross profit that operating expenses turn into a net loss (Scenario 4 in the spec this was
+   * built against), so "Gross Profit"/"Gross Loss" must be labeled independently of the net result. */
+  grossStatus: ProfitLossStatus;
   isZeroData: boolean;
   maxComparisonValue: number;
   salesBarPct: number;
@@ -124,11 +129,26 @@ export class ProfitLossReportComponent implements OnInit {
     }
   }
 
+  /** Plain magnitude, no sign - matches the "Less: X (Rs N.NN)" statement convention where the
+   * surrounding label/parens (not the number itself) carry the meaning. Use fmtSigned() for any
+   * figure that can legitimately go negative and has no dynamic label of its own to convey that. */
   fmt(value: number | null | undefined): string {
     if (value == null) return '—';
     const symbol = this.result?.currencySymbol;
     const formatted = Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return symbol ? `${symbol} ${formatted}` : formatted;
+  }
+
+  /**
+   * Standard accounting convention: negative amounts in parentheses, e.g. "(Rs 15.00)" for a
+   * Rs 15 loss - matches the exact "Gross Loss (Rs 5.00)" / "Net Loss (Rs 15.00)" format the
+   * dynamic labels below are built for. Also covers Total Sales/Cost of Goods Sold themselves,
+   * which have no dynamic label and would otherwise silently look identical whether a period was
+   * sales-driven or return-driven (a return-only day makes NetSales/CostOfGoodsSold negative).
+   */
+  fmtSigned(value: number | null | undefined): string {
+    if (value == null) return '—';
+    return value < 0 ? `(${this.fmt(value)})` : this.fmt(value);
   }
 
   pct(value: number): string {
@@ -143,12 +163,44 @@ export class ProfitLossReportComponent implements OnInit {
     }
   }
 
-  insightKey(status: ProfitLossStatus): string {
-    switch (status) {
-      case 'profitable': return '::ProfitLossInsightProfit';
-      case 'loss': return '::ProfitLossInsightLoss';
-      default: return '::ProfitLossInsightBreakEven';
-    }
+  /** "Gross Profit" vs "Gross Loss" - independent of the net result label below. */
+  grossResultLabelKey(view: ProfitLossView): string {
+    return view.grossStatus === 'loss' ? '::GrossLoss' : '::GrossProfit';
+  }
+
+  /** "Net Profit" vs "Net Loss" vs "Break Even" - per the net result status only. */
+  netResultLabelKey(view: ProfitLossView): string {
+    if (view.status === 'profitable') return '::NetProfit';
+    if (view.status === 'loss') return '::NetLoss';
+    return '::BreakEven';
+  }
+
+  isProfit(view: ProfitLossView): boolean {
+    return view.status === 'profitable';
+  }
+
+  isLoss(view: ProfitLossView): boolean {
+    return view.status === 'loss';
+  }
+
+  isBreakEven(view: ProfitLossView): boolean {
+    return view.status === 'breakEven';
+  }
+
+  /**
+   * Diagnoses the actual cause instead of a generic "expenses exceeded sales" message that isn't
+   * true for every loss (e.g. a return-heavy period with zero expenses, or COGS alone exceeding
+   * net sales before expenses are even considered) - each condition is checked against the real
+   * numbers, not inferred from the net status alone.
+   */
+  insightKey(view: ProfitLossView): string {
+    if (view.status === 'profitable') return '::ProfitLossInsightProfit';
+    if (view.status === 'breakEven') return '::ProfitLossInsightBreakEven';
+
+    // Loss: identify which component actually drove it.
+    if (view.costOfGoodsSold > view.totalSales) return '::ProfitLossInsightCogsExceededSales';
+    if (view.totalExpenses > view.grossProfit) return '::ProfitLossInsightExpensesExceededGrossProfit';
+    return '::ProfitLossInsightLoss';
   }
 
   /** grossProfit is frontend-derived (totalSales - costOfGoodsSold); everything else uses the API's own totals. */
@@ -160,6 +212,7 @@ export class ProfitLossReportComponent implements OnInit {
     const netProfit = this.canViewBreakdown ? (s.netProfit ?? grossProfit - totalExpenses) : grossProfit - totalExpenses;
 
     const status: ProfitLossStatus = netProfit > 0 ? 'profitable' : netProfit < 0 ? 'loss' : 'breakEven';
+    const grossStatus: ProfitLossStatus = grossProfit > 0 ? 'profitable' : grossProfit < 0 ? 'loss' : 'breakEven';
     const isZeroData = totalSales === 0 && costOfGoodsSold === 0 && totalExpenses === 0;
 
     const maxComparisonValue = Math.max(totalSales, costOfGoodsSold, totalExpenses, 0);
@@ -171,10 +224,13 @@ export class ProfitLossReportComponent implements OnInit {
       totalExpenses,
       grossProfit,
       netProfit,
-      grossMarginPct: totalSales !== 0 ? (grossProfit / totalSales) * 100 : 0,
-      expenseRatioPct: totalSales !== 0 ? (totalExpenses / totalSales) * 100 : 0,
-      netMarginPct: totalSales !== 0 ? (netProfit / totalSales) * 100 : 0,
+      // Guarded on totalSales > 0 (not just !== 0), matching the spec: a negative net-sales
+      // period (returns exceeding gross sales) has no meaningful "margin" to express as a ratio.
+      grossMarginPct: totalSales > 0 ? (grossProfit / totalSales) * 100 : 0,
+      expenseRatioPct: totalSales > 0 ? (totalExpenses / totalSales) * 100 : 0,
+      netMarginPct: totalSales > 0 ? (netProfit / totalSales) * 100 : 0,
       status,
+      grossStatus,
       isZeroData,
       maxComparisonValue,
       salesBarPct: barPct(totalSales),
