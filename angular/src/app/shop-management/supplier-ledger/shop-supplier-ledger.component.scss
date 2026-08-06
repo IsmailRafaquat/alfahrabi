@@ -91,3 +91,35 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
   .screen-only { display: none !important; }
   .print-only { display: block !important; }
 }
+
+.ledger-print-backdrop { position: fixed; inset: 0; z-index: 10700; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5); }
+.ledger-print-modal { width: min(900px,95vw); max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 9px; background: #fff; }
+.ledger-print-modal-header { display: flex; align-items: center; justify-content: space-between; padding: .85rem 1.1rem; border-bottom: 1px solid #e4ebf2; }
+.ledger-print-modal-header h5 { margin: 0; color: #173f68; }
+.ledger-print-modal-body { display: flex; gap: 1rem; min-height: 0; padding: 1rem; overflow: auto; }
+.ledger-print-options { flex: 0 0 180px; }
+.ledger-print-options > label { margin-top: .8rem; }
+.ledger-print-options > label:first-child { margin-top: 0; }
+.ledger-language-buttons { display: flex; gap: .5rem; }
+.ledger-print-preview { flex: 1; min-width: 0; max-height: 68vh; padding: 12px; overflow: auto; border: 1px solid #d7e6f2; border-radius: 6px; background: #f8fafc; }
+.ledger-print-modal-footer { display: flex; justify-content: flex-end; gap: .5rem; padding: .75rem 1.1rem; border-top: 1px solid #e4ebf2; }
+.ledger-print-preview .supplier-ledger-print { display: block; }
+.supplier-ledger-print { background: #fff; }
+.ledger-receipt-header { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.supplier-ledger-print h4 { margin: 3px 0; font-size: 1.05em; font-weight: 700; text-align: center; }
+.ledger-print-entry { padding: 4px 0; border-bottom: 1px dashed #aaa; }
+.ledger-entry-head, .ledger-entry-amounts, .ledger-print-totals > div { display: flex; justify-content: space-between; gap: 8px; }
+.ledger-entry-amounts { margin-top: 2px; font-size: .85em; flex-wrap: wrap; }
+.ledger-print-totals > div { padding: 2px 0; }
+.ledger-grand-total { margin: 3px 0; padding: 4px 0 !important; border-top: 2px solid #000; border-bottom: 2px solid #000; font-size: 1.08em; }
+.ledger-print-preview .thermal-print-58, .ledger-print-preview .thermal-print-80 { zoom: 1.35; }
+.ledger-print-preview .a4-print { zoom: .55; }
+
+@media print {
+  .ledger-print-backdrop, .ledger-print-modal, .ledger-print-modal-body, .ledger-print-preview {
+    position: static !important; display: block !important; width: auto !important; max-width: none !important;
+    height: auto !important; max-height: none !important; margin: 0 !important; padding: 0 !important;
+    border: 0 !important; overflow: visible !important; background: transparent !important;
+  }
+  .supplier-ledger-print { zoom: 1 !important; }
+}

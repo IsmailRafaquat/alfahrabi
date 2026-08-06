@@ -2,6 +2,8 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild }
 import { ConfigStateService } from '@abp/ng.core';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { ShopCustomerPaymentService } from '../../../proxy/shop-management/customer-payments';
+import { ShopSupplierPaymentService } from '../../../proxy/shop-management/supplier-payments';
+import { ShopCashDirection, ShopCashRegisterService } from '../../../proxy/shop-management/cash-registers';
 import { ShopPrintTemplateService } from '../../../proxy/shop-management/print-templates/shop-print-template.service';
 import { ShopPrintSettingsService } from '../../../proxy/shop-management/print-settings/shop-print-settings.service';
 import { ShopPrintDocumentDto } from '../../../proxy/shop-management/print-templates/models';
@@ -74,6 +76,8 @@ export class ShopPrintPreviewComponent implements OnInit {
     private templateService: ShopPrintTemplateService,
     private printSettingsService: ShopPrintSettingsService,
     private customerPaymentService: ShopCustomerPaymentService,
+    private supplierPaymentService: ShopSupplierPaymentService,
+    private cashRegisterService: ShopCashRegisterService,
     private printService: ShopPrintService,
     private configState: ConfigStateService,
   ) {}
@@ -87,18 +91,62 @@ export class ShopPrintPreviewComponent implements OnInit {
       document: this.templateService.getPrintDocument(this.documentType, this.documentId),
       settings: this.printSettingsService.get(),
       customerPaymentTotals: this.getCustomerPaymentTotals(),
+      supplierPaymentTotals: this.getSupplierPaymentTotals(),
+      cashClosingDetails: this.getCashClosingDetails(),
     }).subscribe({
-      next: ({ document, settings, customerPaymentTotals }) => {
-        this.document = customerPaymentTotals == null
-          ? document
-          : {
-              ...document,
-              totals: {
-                ...document.totals,
-                netAmount: customerPaymentTotals.totalAmount,
-                pendingAmount: customerPaymentTotals.pendingAmount,
-              },
-            };
+      next: ({ document, settings, customerPaymentTotals, supplierPaymentTotals, cashClosingDetails }) => {
+        const paymentTotals = customerPaymentTotals ?? supplierPaymentTotals;
+        this.document = paymentTotals == null ? document : {
+          ...document,
+          totals: {
+            ...document.totals,
+            netAmount: paymentTotals.totalAmount,
+            paidAmount: paymentTotals.paidAmount,
+            pendingAmount: paymentTotals.pendingAmount,
+          },
+        };
+        if (cashClosingDetails) {
+          const { closing, transactions } = cashClosingDetails;
+          const amount = (value?: number) => (value ?? 0).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const summaryLines = [
+            'CASH SUMMARY',
+            `Opening Cash: ${amount(closing.openingCash)}`,
+            `Cash Sales: ${amount(closing.cashSales)}`,
+            `Customer Payments: ${amount(closing.customerCashPayments)}`,
+            `Supplier Payments: -${amount(closing.supplierCashPayments)}`,
+            `Cash Expenses: -${amount(closing.cashExpenses)}`,
+            `Customer Refunds: -${amount(closing.customerRefunds)}`,
+            `Manual Cash In: ${amount(closing.manualCashIn)}`,
+            `Manual Cash Out: -${amount(closing.manualCashOut)}`,
+            `Expected Closing Cash: ${amount(closing.expectedClosingCash)}`,
+          ];
+          if (closing.actualClosingCash != null) summaryLines.push(`Actual Closing Cash: ${amount(closing.actualClosingCash)}`);
+          if (closing.differenceAmount != null) summaryLines.push(`Difference: ${amount(closing.differenceAmount)}`);
+
+          const transactionLines = transactions.flatMap(transaction => [
+            `${transaction.transactionDate ? new Date(transaction.transactionDate).toLocaleString() : ''} | ${transaction.referenceNumber || '—'}`,
+            `${transaction.description || 'Cash transaction'} | ${transaction.direction === ShopCashDirection.In ? 'Cash In' : 'Cash Out'}: ${amount(transaction.amount)}`,
+          ]);
+          this.document = {
+            ...this.document,
+            notes: [...summaryLines, ...(transactionLines.length ? ['', 'CASH TRANSACTIONS', ...transactionLines] : [])].join('\n'),
+            totals: {
+              ...this.document.totals,
+              subTotal: undefined,
+              discountAmount: undefined,
+              taxAmount: undefined,
+              otherChargesAmount: undefined,
+              adjustmentAmount: undefined,
+              paidAmount: undefined,
+              pendingAmount: undefined,
+              changeAmount: undefined,
+              netAmount: closing.expectedClosingCash ?? 0,
+            },
+          };
+        }
         this.settings = settings;
         this.paperSize = this.initialPaperSize ?? document.paperSize ?? settings.defaultPrintPaperSize;
         this.document = { ...this.document, paperSize: this.paperSize };
@@ -120,7 +168,7 @@ export class ShopPrintPreviewComponent implements OnInit {
    * remaining balance. Get the full total from the payment allocations and reuse the outstanding-
    * sale source shown on the detail page for the pending amount. A failure must not block printing.
    */
-  private getCustomerPaymentTotals(): Observable<{ totalAmount: number; pendingAmount: number } | undefined> {
+  private getCustomerPaymentTotals(): Observable<{ totalAmount: number; paidAmount?: number; pendingAmount: number } | undefined> {
     if (this.documentType !== SHOP_PRINT_DOCUMENT_TYPES.CustomerPayment) return of(undefined);
 
     return this.customerPaymentService.get(this.documentId).pipe(
@@ -143,6 +191,69 @@ export class ShopPrintPreviewComponent implements OnInit {
           })),
         );
       }),
+      catchError(() => of(undefined)),
+    );
+  }
+
+  /** Adds the allocated goods receipts' full total and cumulative paid amount to the receipt. */
+  private getSupplierPaymentTotals(): Observable<{
+    totalAmount: number;
+    paidAmount: number;
+    pendingAmount: number;
+  } | undefined> {
+    if (this.documentType !== SHOP_PRINT_DOCUMENT_TYPES.SupplierPayment) return of(undefined);
+
+    return this.supplierPaymentService.get(this.documentId).pipe(
+      switchMap(payment => {
+        if (!payment.supplierId) return of(undefined);
+        const allocations = payment.allocations ?? [];
+        const totalAmount = allocations.reduce(
+          (sum, allocation) => sum + (allocation.grandTotal ?? 0),
+          0,
+        );
+
+        return this.supplierPaymentService.getOutstandingReceipts(payment.supplierId).pipe(
+          map(receipts => {
+            const outstandingById = new Map(
+              (receipts ?? [])
+                .filter(receipt => !!receipt.goodsReceiptId)
+                .map(receipt => [receipt.goodsReceiptId!, receipt]),
+            );
+            const paidAmount = allocations.reduce((sum, allocation) => {
+              const outstanding = allocation.goodsReceiptId
+                ? outstandingById.get(allocation.goodsReceiptId)
+                : undefined;
+              // Fully paid receipts may no longer be returned by the outstanding endpoint.
+              return sum + (outstanding?.paidAmount ?? allocation.grandTotal ?? 0);
+            }, 0);
+
+            return {
+              totalAmount,
+              paidAmount,
+              pendingAmount: Math.max(totalAmount - paidAmount, 0),
+            };
+          }),
+        );
+      }),
+      catchError(() => of(undefined)),
+    );
+  }
+
+  private getCashClosingDetails(): Observable<{
+    closing: import('../../../proxy/shop-management/cash-registers').ShopCashClosingDto;
+    transactions: import('../../../proxy/shop-management/cash-registers').ShopCashRegisterTransactionDto[];
+  } | undefined> {
+    if (this.documentType !== SHOP_PRINT_DOCUMENT_TYPES.CashClosingSlip) return of(undefined);
+
+    return forkJoin({
+      closing: this.cashRegisterService.getClosing(this.documentId),
+      transactionResult: this.cashRegisterService.getTransactions({
+        cashClosingId: this.documentId,
+        sorting: 'transactionDate asc, creationTime asc',
+        maxResultCount: 1000,
+      }),
+    }).pipe(
+      map(({ closing, transactionResult }) => ({ closing, transactions: transactionResult.items ?? [] })),
       catchError(() => of(undefined)),
     );
   }

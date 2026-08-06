@@ -58,7 +58,7 @@
       <button type="button" class="btn btn-outline-success btn-sm" *ngIf="whatsAppShareMessage" [disabled]="loading || !!errorMessage || sharing" (click)="shareOnWhatsApp()">
         <i class="fab fa-whatsapp"></i> {{ sharing ? 'Preparing...' : 'Share' }}
       </button>
-      <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="loading || !!errorMessage || downloading" (click)="downloadPdf()">
+      <button type="button" class="btn btn-outline-primary btn-sm d-none" [disabled]="loading || !!errorMessage || downloading" (click)="downloadPdf()">
         {{ downloading ? 'Preparing PDF...' : 'Download PDF' }}
       </button>
       <button type="button" class="btn btn-primary btn-sm" [disabled]="loading || !!errorMessage || printing" (click)="print()">

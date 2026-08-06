@@ -14,6 +14,8 @@ import {
   shopCustomerLedgerReferenceTypeOptions,
 } from '../../proxy/shop-management/customer-ledger';
 import { ShopCustomerLookupDto, ShopCustomerService } from '../../proxy/shop-management/customers';
+import { ShopPrintPaperSize } from '../../proxy/shop-management/print-settings';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
 
 @Component({ selector: 'app-shop-customer-ledger', standalone: false, templateUrl: './shop-customer-ledger.component.html', styleUrl: './shop-customer-ledger.component.scss' })
 export class ShopCustomerLedgerComponent implements OnInit {
@@ -22,6 +24,7 @@ export class ShopCustomerLedgerComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly permissions = inject(PermissionService);
   private readonly toaster = inject(ToasterService);
+  private readonly shopPrintService = inject(ShopPrintService);
 
   readonly ShopCustomerLedgerReferenceType = ShopCustomerLedgerReferenceType;
   readonly referenceTypeOptions = shopCustomerLedgerReferenceTypeOptions;
@@ -46,7 +49,11 @@ export class ShopCustomerLedgerComponent implements OnInit {
   tooltipLang: 'en' | 'ur' = 'en';
 
   printLangModalOpen = false;
+  printPreviewOpen = false;
+  printPreviewLoading = false;
   printLang: 'en' | 'ur' = 'en';
+  printPaperSize = ShopPrintPaperSize.Thermal80Mm;
+  readonly ShopPrintPaperSize = ShopPrintPaperSize;
   private pendingAction: 'print' | 'share' = 'print';
 
   private readonly statementLabelsByLang = {
@@ -66,6 +73,10 @@ export class ShopCustomerLedgerComponent implements OnInit {
       totalSaleReturns: 'Total Sale Returns',
       totalRefunds: 'Total Refunds',
       totalCustomerCredits: 'Total Customer Credits',
+      openingBalance: 'Opening Balance',
+      totalSales: 'Total Sales',
+      paidAtSale: 'Paid at Sale',
+      additionalPayments: 'Additional Payments',
     },
     ur: {
       statementTitle: 'کسٹمر اسٹیٹمنٹ',
@@ -83,6 +94,10 @@ export class ShopCustomerLedgerComponent implements OnInit {
       totalSaleReturns: 'کل سیل ریٹرن',
       totalRefunds: 'کل ریفنڈ',
       totalCustomerCredits: 'کل کسٹمر کریڈٹ',
+      openingBalance: 'اوپننگ بیلنس',
+      totalSales: 'کل سیلز',
+      paidAtSale: 'سیل پر ادا شدہ',
+      additionalPayments: 'اضافی ادائیگیاں',
     },
   };
 
@@ -149,6 +164,33 @@ export class ShopCustomerLedgerComponent implements OnInit {
     if (!this.customerId) return;
     this.pendingAction = action;
     this.printLangModalOpen = true;
+  }
+
+  openPrintPreview(): void {
+    if (!this.customerId || !this.ledger) return;
+    this.printPreviewLoading = true;
+    this.service.getStatement({
+      customerId: this.customerId,
+      dateFrom: this.dateFrom || undefined,
+      dateTo: this.dateTo || undefined,
+      referenceType: this.referenceType === '' ? undefined : this.referenceType,
+      filter: this.filters.filter || undefined,
+    }).pipe(finalize(() => (this.printPreviewLoading = false))).subscribe({
+      next: statement => {
+        this.statement = statement;
+        this.printPreviewOpen = true;
+      },
+      error: e => this.toaster.error(e?.error?.error?.message || e?.message || '::UnexpectedError'),
+    });
+  }
+
+  async printLedger(): Promise<void> {
+    this.printing = true;
+    try {
+      await this.shopPrintService.print();
+    } finally {
+      this.printing = false;
+    }
   }
 
   selectLanguage(lang: 'en' | 'ur'): void {

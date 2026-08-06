@@ -14,6 +14,8 @@ import {
   shopSupplierLedgerReferenceTypeOptions,
 } from '../../proxy/shop-management/supplier-ledger';
 import { ShopSupplierLookupDto, ShopSupplierService } from '../../proxy/shop-management/suppliers';
+import { ShopPrintPaperSize } from '../../proxy/shop-management/print-settings';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
 
 @Component({ selector: 'app-shop-supplier-ledger', standalone: false, templateUrl: './shop-supplier-ledger.component.html', styleUrl: './shop-supplier-ledger.component.scss' })
 export class ShopSupplierLedgerComponent implements OnInit {
@@ -22,6 +24,7 @@ export class ShopSupplierLedgerComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly permissions = inject(PermissionService);
   private readonly toaster = inject(ToasterService);
+  private readonly shopPrintService = inject(ShopPrintService);
 
   readonly ShopSupplierLedgerReferenceType = ShopSupplierLedgerReferenceType;
   readonly referenceTypeOptions = shopSupplierLedgerReferenceTypeOptions;
@@ -46,7 +49,11 @@ export class ShopSupplierLedgerComponent implements OnInit {
   tooltipLang: 'en' | 'ur' = 'en';
 
   printLangModalOpen = false;
+  printPreviewOpen = false;
+  printPreviewLoading = false;
   printLang: 'en' | 'ur' = 'en';
+  printPaperSize = ShopPrintPaperSize.Thermal80Mm;
+  readonly ShopPrintPaperSize = ShopPrintPaperSize;
   private pendingAction: 'print' | 'share' = 'print';
 
   private readonly statementLabelsByLang = {
@@ -63,6 +70,10 @@ export class ShopSupplierLedgerComponent implements OnInit {
       closingBalance: 'Closing Balance',
       payableAmount: 'Payable Amount',
       advanceAmount: 'Advance Amount',
+      openingBalance: 'Opening Balance',
+      totalPurchases: 'Total Purchases',
+      totalPayments: 'Total Payments',
+      totalReturns: 'Total Returns',
     },
     ur: {
       statementTitle: 'سپلائر اسٹیٹمنٹ',
@@ -77,6 +88,10 @@ export class ShopSupplierLedgerComponent implements OnInit {
       closingBalance: 'اختتامی بیلنس',
       payableAmount: 'قابلِ ادائیگی رقم',
       advanceAmount: 'ایڈوانس رقم',
+      openingBalance: 'اوپننگ بیلنس',
+      totalPurchases: 'کل خریداری',
+      totalPayments: 'کل ادائیگیاں',
+      totalReturns: 'کل واپسی',
     },
   };
 
@@ -143,6 +158,33 @@ export class ShopSupplierLedgerComponent implements OnInit {
     if (!this.supplierId) return;
     this.pendingAction = action;
     this.printLangModalOpen = true;
+  }
+
+  openPrintPreview(): void {
+    if (!this.supplierId || !this.ledger) return;
+    this.printPreviewLoading = true;
+    this.service.getStatement({
+      supplierId: this.supplierId,
+      dateFrom: this.dateFrom || undefined,
+      dateTo: this.dateTo || undefined,
+      referenceType: this.referenceType === '' ? undefined : this.referenceType,
+      filter: this.filters.filter || undefined,
+    }).pipe(finalize(() => (this.printPreviewLoading = false))).subscribe({
+      next: statement => {
+        this.statement = statement;
+        this.printPreviewOpen = true;
+      },
+      error: e => this.toaster.error(e?.error?.error?.message || e?.message || '::UnexpectedError'),
+    });
+  }
+
+  async printLedger(): Promise<void> {
+    this.printing = true;
+    try {
+      await this.shopPrintService.print();
+    } finally {
+      this.printing = false;
+    }
   }
 
   selectLanguage(lang: 'en' | 'ur'): void {
