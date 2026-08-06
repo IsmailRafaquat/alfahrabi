@@ -672,5 +672,15 @@ body .ngx-datatable.material .datatable-header .datatable-header-cell {
 }
 
 .lpx-topbar-container .lpx-topbar {
-    border-radius: 0 0 0 0 !important; 
+    border-radius: 0 0 0 0 !important;
+}
+
+// Global overflow safety net - NOT a fix in itself. The real fixes are the min-width:0/
+// minmax(0,1fr) changes made across the shared layout and Shop Management pages so content
+// actually shrinks to fit. This is only a last-line-of-defence guard against the page (as
+// opposed to an individual table/card container) ever growing a horizontal scrollbar again.
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }

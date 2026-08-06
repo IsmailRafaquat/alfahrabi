@@ -24,9 +24,9 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
 .empty-state { text-align: center; padding: 3rem !important; color: #8a9bad !important; i { display: block; font-size: 1.8rem; margin-bottom: .6rem; } }
 .loading { text-align: center; padding: 1rem; }
 .pager { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; color: #75879a; font-size: .75rem; border-top: 1px solid #edf2f6; button { margin-left: .3rem; } }
-.preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 1rem; margin-bottom: 1rem; }
+.preview-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .75rem 1rem; margin-bottom: 1rem; }
 .field-label { display: block; color: #8a9bad; font-size: .68rem; text-transform: uppercase; margin-bottom: .2rem; }
 .changed-warning { background: #fff0f1; color: #c83e4d; border-radius: 8px; padding: .65rem .8rem; font-size: .8rem; margin-bottom: .75rem; }
 .changed-products { margin-top: .3rem; font-weight: 600; }
 .confirm-text { font-size: .85rem; color: #435b73; margin: 0; }
-@media(max-width:767.98px){.stock-counts-page{padding:.65rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}}
+@media(max-width:767.98px){.stock-counts-page{padding:.65rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}.preview-grid{grid-template-columns:minmax(0,1fr)}}

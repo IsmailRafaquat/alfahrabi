@@ -68,7 +68,7 @@
 
   .report-card__content {
     display: grid;
-    grid-template-columns: 100px 1fr;
+    grid-template-columns: 100px minmax(0, 1fr);
     gap: 1.75rem;
     align-items: center;
     position: relative;
@@ -270,7 +270,7 @@
   }
 
   .sales-reports-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
   }
 
@@ -278,7 +278,7 @@
     padding: 1.5rem;
 
     .report-card__content {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       text-align: center;
       justify-items: center;
     }

@@ -27,4 +27,4 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
 .loading { text-align: center; padding: 1rem; }
 .pager { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; color: #75879a; font-size: .75rem; border-top: 1px solid #edf2f6; button { margin-left: .3rem; } }
 
-@media(max-width:767.98px){.expenses-page{padding:.65rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}.summary-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:767.98px){.expenses-page{padding:.65rem}.pager{padding:.65rem}.table-responsive{max-height:60vh}.summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}

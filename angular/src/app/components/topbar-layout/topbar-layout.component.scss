@@ -1,5 +1,18 @@
+// app-topbar-layout's host is a flex/grid child of the theme's sidebar+content shell. Without an
+// explicit min-width, a flex/grid item defaults to min-width:auto - it refuses to shrink below its
+// content's natural width, so any one wide table/card anywhere on the page forces the WHOLE page
+// wider than the viewport instead of that element scrolling on its own. This is the root cause
+// behind "sidebar covers content", "black area on the right", and "page-level horizontal scroll"
+// reported across Shop Management - fixed once here since every page renders through this wrapper.
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
 ::ng-deep .lpx-content {
   padding: 0 !important;
+  min-width: 0;
 }
 
 .app-topbar {
@@ -76,6 +89,12 @@
   background-color: #f4f6f9;
   min-height: calc(100vh - 4.5rem);
   box-sizing: border-box;
+  // See the :host comment above - this is what actually lets the content area shrink to the
+  // available width instead of forcing the page to overflow horizontally. Any table that still
+  // needs more room than that scrolls within its own .table-responsive wrapper, never the page.
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .app-content.full-width {

@@ -32,7 +32,7 @@ table { margin: 0; thead th { background: #f8fafc; color: #62788e; font-size: .6
 .counted-badge.yes { color: #198754; background: #e9f7ef; }
 .counted-badge.no { color: #63707d; background: #eef1f4; }
 
-.preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 1rem; margin-bottom: 1rem; }
+.preview-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .75rem 1rem; margin-bottom: 1rem; }
 .changed-warning { background: #fff0f1; color: #c83e4d; border-radius: 8px; padding: .65rem .8rem; font-size: .8rem; margin-bottom: .75rem; }
 .changed-products { margin-top: .3rem; font-weight: 600; }
 .confirm-text { font-size: .85rem; color: #435b73; margin: 0; }
@@ -40,4 +40,5 @@ table { margin: 0; thead th { background: #f8fafc; color: #62788e; font-size: .6
 @media(max-width:767.98px) {
   .detail-page { padding: .65rem; }
   .section-body { padding: .8rem; }
+  .preview-grid { grid-template-columns: minmax(0, 1fr); }
 }

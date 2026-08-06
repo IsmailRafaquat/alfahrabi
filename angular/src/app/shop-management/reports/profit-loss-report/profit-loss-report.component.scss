@@ -54,7 +54,7 @@
 
 .pl-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
@@ -83,7 +83,7 @@
 
 .pl-breakdown-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
   margin-bottom: 1.25rem;
   align-items: start;
@@ -123,7 +123,7 @@
 
 .pl-bar-row {
   display: grid;
-  grid-template-columns: 110px 1fr auto;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
   align-items: center;
   gap: .75rem;
   margin-bottom: .85rem;
@@ -154,7 +154,7 @@
 
 .pl-ratio-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
@@ -235,14 +235,14 @@
 // --- Responsive breakpoints -------------------------------------------------------------------
 
 @media (max-width: 991.98px) {
-  .pl-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .pl-breakdown-grid { grid-template-columns: 1fr; }
+  .pl-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pl-breakdown-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 575.98px) {
-  .pl-kpi-grid { grid-template-columns: 1fr; }
-  .pl-ratio-grid { grid-template-columns: 1fr; }
-  .pl-bar-row { grid-template-columns: 90px 1fr; }
+  .pl-kpi-grid { grid-template-columns: minmax(0, 1fr); }
+  .pl-ratio-grid { grid-template-columns: minmax(0, 1fr); }
+  .pl-bar-row { grid-template-columns: 90px minmax(0, 1fr); }
   .pl-bar-amount { grid-column: 2; text-align: left; }
   .pl-period-banner { align-items: flex-start; }
 }

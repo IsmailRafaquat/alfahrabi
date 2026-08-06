@@ -4,14 +4,19 @@
 
 .system-guide-fab {
   position: fixed;
-  right: 1.5rem;
+  // Logical properties: if the app ever adds a real dir="rtl" mode for Urdu (it currently doesn't -
+  // Urdu here is translation-only, the layout itself stays LTR everywhere outside a few components
+  // with their own internal print/guide language toggle), this repositions itself automatically
+  // instead of needing a separate RTL override.
+  inset-inline-end: 1.5rem;
   bottom: 1.5rem;
   z-index: 9990;
 
   display: inline-flex;
   align-items: center;
   gap: .6rem;
-  padding: .4rem 1.1rem .4rem .4rem;
+  padding: .4rem;
+  padding-inline-end: 1.1rem;
   border: 0;
   border-radius: 999px;
   background: linear-gradient(135deg, #2369a3, #173f68);
@@ -85,12 +90,28 @@
   .system-guide-fab-ring { animation: none; }
 }
 
+// Tablet: still icon + label, just tighter to the edge so it clears cards/scrollbars comfortably.
+@media (max-width: 991.98px) {
+  .system-guide-fab {
+    inset-inline-end: 1.1rem;
+    bottom: 1.1rem;
+  }
+}
+
+// Mobile: icon-only circular button, well clear of the viewport edge and any bottom-anchored UI.
 @media (max-width: 575.98px) {
   .system-guide-fab {
-    right: 1rem;
-    bottom: 1rem;
-    padding: .4rem;
+    inset-inline-end: .85rem;
+    bottom: .85rem;
+    padding: .55rem;
+    padding-inline-end: .55rem;
 
     .system-guide-fab-label { display: none; }
+  }
+
+  .system-guide-fab-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: .95rem;
   }
 }

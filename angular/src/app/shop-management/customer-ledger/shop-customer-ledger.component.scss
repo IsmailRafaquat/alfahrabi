@@ -35,7 +35,7 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
 .empty-state { text-align: center; padding: 3rem !important; color: #8a9bad !important; i { display: block; font-size: 1.8rem; margin-bottom: .6rem; } }
 .loading { text-align: center; padding: 1rem; }
 
-@media(max-width:767.98px){.ledger-page{padding:.65rem}.summary-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:767.98px){.ledger-page{padding:.65rem}.summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .print-only { display: none; }
 
