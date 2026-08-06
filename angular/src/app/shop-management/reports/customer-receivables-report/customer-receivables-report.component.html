@@ -1,0 +1,77 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopCustomerReceivablesReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <app-report-export-menu *ngIf="canExport" [exporting]="exporting" (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-auto">
+        <label>{{ '::OutstandingBalance' | abpLocalization }}</label>
+        <label class="form-check form-check-inline d-block mt-2">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="input.hasOutstandingBalance" />
+          <span class="form-check-label">{{ '::OutstandingBalance' | abpLocalization }}</span>
+        </label>
+      </div>
+      <div class="col-12 col-md-auto">
+        <label>{{ '::IsActive' | abpLocalization }}</label>
+        <label class="form-check form-check-inline d-block mt-2">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="input.includeInactiveCustomers" />
+          <span class="form-check-label">{{ '::Active' | abpLocalization }}</span>
+        </label>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopCustomerReceivablesReport" [dateRangeText]="''"></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="summary-section">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="!loading">
+        <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+          <table class="table align-middle report-table">
+            <thead>
+              <tr>
+                <th>{{ '::Customer' | abpLocalization }}</th>
+                <th>{{ '::Phone' | abpLocalization }}</th>
+                <th>{{ '::TotalSales' | abpLocalization }}</th>
+                <th>{{ '::TotalReceived' | abpLocalization }}</th>
+                <th>{{ '::CustomerAdvanceBalance' | abpLocalization }}</th>
+                <th>{{ '::OutstandingBalance' | abpLocalization }}</th>
+                <th>{{ '::LastTransactionDate' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.items">
+                <td><strong>{{ row.customerName }}</strong> <small class="text-muted">({{ row.customerCode }})</small></td>
+                <td>{{ row.phone || '-' }}</td>
+                <td>{{ row.totalSales | shopReportCurrency }}</td>
+                <td>{{ row.totalReceived | shopReportCurrency }}</td>
+                <td>{{ row.customerAdvance | shopReportCurrency }}</td>
+                <td class="balance-cell">{{ row.outstandingBalance | shopReportCurrency }}</td>
+                <td>{{ row.lastTransactionDate ? (row.lastTransactionDate | date: 'mediumDate') : '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <nz-pagination
+            class="p-3"
+            [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+            (nzPageIndexChange)="onPageChange($event)"
+          ></nz-pagination>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <app-report-empty-state></app-report-empty-state>
+      </ng-template>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

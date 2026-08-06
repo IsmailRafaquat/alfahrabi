@@ -1,0 +1,85 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopBatchExpiryReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <app-report-export-menu *ngIf="canExport" [exporting]="exporting" (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::Status' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.batchStatus" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+          <nz-option *ngFor="let o of batchStatusOptions" [nzValue]="o.value" [nzLabel]="('::' + o.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-auto">
+        <label>{{ '::NearExpiry' | abpLocalization }}</label>
+        <label class="form-check form-check-inline d-block mt-2">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="input.nearExpiryOnly" />
+          <span class="form-check-label">{{ '::NearExpiry' | abpLocalization }}</span>
+        </label>
+      </div>
+      <div class="col-12 col-md-auto">
+        <label>{{ '::Expired' | abpLocalization }}</label>
+        <label class="form-check form-check-inline d-block mt-2">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="input.expiredOnly" />
+          <span class="form-check-label">{{ '::Expired' | abpLocalization }}</span>
+        </label>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopBatchExpiryReport" [dateRangeText]="''"></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="summary-section">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="!loading">
+        <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+          <table class="table align-middle report-table">
+            <thead>
+              <tr>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::BatchNumber' | abpLocalization }}</th>
+                <th>{{ '::ManufacturingDate' | abpLocalization }}</th>
+                <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+                <th>{{ '::DaysToExpiry' | abpLocalization }}</th>
+                <th>{{ '::AvailableQuantity' | abpLocalization }}</th>
+                <th>{{ '::StockValue' | abpLocalization }}</th>
+                <th>{{ '::Status' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.items">
+                <td><strong>{{ row.productName }}</strong></td>
+                <td>{{ row.batchNumber }}</td>
+                <td>{{ row.manufacturingDate ? (row.manufacturingDate | date: 'mediumDate') : '-' }}</td>
+                <td>{{ row.expiryDate ? (row.expiryDate | date: 'mediumDate') : '-' }}</td>
+                <td>{{ row.daysToExpiry ?? '-' }}</td>
+                <td>{{ row.availableQuantity | shopReportQuantity }}</td>
+                <td class="balance-cell">{{ row.stockValue !== null && row.stockValue !== undefined ? (row.stockValue | shopReportCurrency) : '-' }}</td>
+                <td><app-report-status-badge [text]="statusLabel(row.status) | abpLocalization" [variant]="statusVariant(row.status)"></app-report-status-badge></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <nz-pagination
+            class="p-3"
+            [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+            (nzPageIndexChange)="onPageChange($event)"
+          ></nz-pagination>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <app-report-empty-state></app-report-empty-state>
+      </ng-template>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

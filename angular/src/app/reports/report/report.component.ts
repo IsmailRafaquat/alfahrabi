@@ -30,4 +30,8 @@ export class ReportComponent {
   openSalaryReport() {
     this.router.navigate(['reports/report/salary-report']);
   }
+
+  openStudentFeeReport() {
+    this.router.navigate(['/reports/report/student-fee-report']);
+  }
 }

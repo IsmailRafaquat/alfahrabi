@@ -5,17 +5,19 @@ import { StudentAttendanceRoutingModule } from './student-attendance-routing.mod
 import { StudentAttendanceComponent } from './student-attendance.component';
 import { SharedModule } from '../shared/shared.module';
 import { PageModule } from '@abp/ng.components/page';
+import { ClassMarkAttendanceModalComponent } from './class-mark-attendance-modal.component';
 
 
 @NgModule({
   declarations: [
-    StudentAttendanceComponent
+    StudentAttendanceComponent,
+    ClassMarkAttendanceModalComponent
   ],
   imports: [
     CommonModule,
     StudentAttendanceRoutingModule,
     SharedModule,
-    PageModule
+    PageModule,
   ]
 })
 export class StudentAttendanceModule { }

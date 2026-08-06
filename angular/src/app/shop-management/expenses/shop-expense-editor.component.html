@@ -1,0 +1,118 @@
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditExpense' : '::CreateExpense'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span *ngIf="isEdit" class="expense-number-badge">{{ expenseNumber }}</span>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Expense fields help</span></button>
+  </div>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <section class="form-section expense-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::ExpenseCategory' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="expenseCategoryId" nzShowSearch [nzPlaceHolder]="'::SelectExpenseCategory' | abpLocalization">
+            <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+          </nz-select>
+          <small class="error" *ngIf="form.controls.expenseCategoryId.touched && form.controls.expenseCategoryId.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::ExpenseDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="expenseDate">
+          <small class="error" *ngIf="form.controls.expenseDate.touched && form.controls.expenseDate.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::Amount' | abpLocalization }} <b class="required">*</b></label>
+          <input type="number" min="0.01" step="0.01" class="form-control form-control-sm" formControlName="amount">
+          <small class="error" *ngIf="form.controls.amount.touched && form.controls.amount.invalid">{{ '::ExpenseAmountMustBeGreaterThanZero' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::PaymentMethod' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="paymentMethod">
+            <nz-option *ngFor="let x of paymentMethodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::PaidTo' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="paidTo">
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+          <label>{{ '::ReferenceNumber' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="referenceNumber">
+        </div>
+        <div class="col-12 col-md-6 col-xl-4" *ngIf="form.value.paymentMethod === ShopExpensePaymentMethod.Cheque">
+          <label>{{ '::ChequeNumber' | abpLocalization }} <b class="required">*</b></label>
+          <input class="form-control form-control-sm" formControlName="chequeNumber">
+          <small class="error" *ngIf="(form.touched || submitting) && form.errors?.['chequeNumberRequired']">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4" *ngIf="form.value.paymentMethod === ShopExpensePaymentMethod.Cheque || form.value.paymentMethod === ShopExpensePaymentMethod.BankTransfer">
+          <label>{{ '::BankName' | abpLocalization }} <b class="required">*</b></label>
+          <input class="form-control form-control-sm" formControlName="bankName">
+          <small class="error" *ngIf="(form.touched || submitting) && form.errors?.['bankNameRequired']">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4" *ngIf="requiresBankAccount">
+          <label>{{ '::BankAccount' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="bankAccountId" nzShowSearch [nzPlaceHolder]="'::SelectBankAccount' | abpLocalization">
+            <nz-option *ngFor="let a of bankAccounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+          </nz-select>
+          <small class="error" *ngIf="(form.touched || submitting) && form.errors?.['bankAccountRequired']">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12">
+          <label>{{ '::Description' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea>
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Expense Fields Guide' : 'اخراجات فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Expense Category</strong><span>{{ helpLang === 'en' ? 'Select the category this expense belongs to, e.g. rent or electricity.' : 'وہ کیٹیگری منتخب کریں جس میں یہ خرچہ آتا ہے، جیسے کرایہ یا بجلی۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Expense Date</strong><span>{{ helpLang === 'en' ? 'The date this expense occurred.' : 'جس دن یہ خرچہ ہوا وہ تاریخ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Amount</strong><span>{{ helpLang === 'en' ? 'The total amount spent; it must be greater than zero.' : 'خرچ کی گئی کل رقم، صفر سے زیادہ ہونی چاہیے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Method</strong><span>{{ helpLang === 'en' ? 'How the payment was made, e.g. cash, bank, card, or cheque.' : 'ادائیگی کس طریقے سے کی گئی، مثلاً نقد، بینک، کارڈ یا چیک۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Paid To</strong><span>{{ helpLang === 'en' ? 'The person or organization the money was paid to; optional.' : 'وہ شخص یا ادارہ جسے رقم ادا کی گئی، اختیاری ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reference Number</strong><span>{{ helpLang === 'en' ? 'The bill or receipt reference number; optional.' : 'بل یا رسید کا حوالہ نمبر، اختیاری ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Cheque Number</strong><span>{{ helpLang === 'en' ? 'Required if the payment was made by cheque.' : 'اگر ادائیگی چیک سے کی گئی ہو تو چیک نمبر لازمی ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Bank Name</strong><span>{{ helpLang === 'en' ? 'Required for bank transfer or cheque payments.' : 'بینک ٹرانسفر یا چیک کی صورت میں بینک کا نام لازمی ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Description / Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful detail or notes about the expense.' : 'خرچے سے متعلق ضروری اضافی تفصیل یا نوٹس لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

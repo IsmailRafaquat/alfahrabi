@@ -1,0 +1,40 @@
+:host { display: block; }
+.detail-page { padding: 1.25rem 1rem; }
+[topbarPills] { display: inline-flex !important; align-items: center; gap: .5rem; }
+.account-number-badge { padding: .25rem .6rem; border-radius: 999px; background: #eaf3fb; color: #2369a3; font-size: .72rem; font-weight: 700; }
+
+.status-badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; vertical-align: middle; color: #198754; background: #e9f7ef; }
+.status-badge.inactive { color: #7b8794; background: #edf0f3; }
+
+.form-section.detail-card {
+  margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px;
+  background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); overflow: hidden; padding: 0;
+}
+.section-head {
+  display: flex; align-items: center; gap: .6rem; padding: .75rem 1.1rem;
+  background: #eaf3fb; border-bottom: 1px solid #d3e6f5;
+}
+.section-head h6 { margin: 0; font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #173f68; }
+.section-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; font-size: .82rem; flex: none; background: #fff; color: #2369a3; }
+.section-body { padding: 1.1rem 1.25rem; }
+
+.field-label { display: block; color: #8a9bad; font-size: .7rem; text-transform: uppercase; letter-spacing: .02em; margin-bottom: .2rem; }
+.notes-text { margin: 0; color: #435b73; font-size: .85rem; }
+
+.summary-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; margin-bottom: 1rem; }
+.summary-cards.secondary { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 0; }
+.summary-card { border: 1px solid #edf2f7; border-radius: 10px; padding: .75rem .9rem; background: #f8fafc; min-width: 0; max-width: 100%; box-sizing: border-box; span { display: block; color: #718096; font-size: .66rem; text-transform: uppercase; letter-spacing: .03em; margin-bottom: .3rem; } strong { font-size: 1rem; color: #1a3556; overflow-wrap: break-word; } }
+.summary-card.expected { background: #eef6fc; border-color: #cfe4f4; strong { color: #1d5f96; } }
+
+table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #56708b; font-size: .72rem; text-transform: uppercase; border-bottom: 1px solid #e4ebf2; padding: .7rem; } tbody td { color: #435b73; font-size: .8rem; padding: .65rem .7rem; border-color: #edf2f6; } }
+.in-amount { color: #198754; font-weight: 600; }
+.out-amount { color: #c83e4d; font-weight: 600; }
+.reversal-icon { margin-left: .4rem; color: #b5670a; font-size: .7rem; }
+.empty-state { text-align: center; padding: 2rem !important; color: #8a9bad !important; }
+
+label { display: block; margin-bottom: .25rem; color: #345c80; font-size: .74rem; font-weight: 600; }
+.required { color: #dc3545; }
+small.error { display: block; margin-top: .2rem; color: #dc3545; font-size: .68rem; }
+
+@media(max-width:991.98px){.summary-cards,.summary-cards.secondary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767.98px){.detail-page{padding:.65rem}.section-body{padding:.8rem}}

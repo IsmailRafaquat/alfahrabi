@@ -1,0 +1,134 @@
+<abp-page>
+<app-topbar-layout [titleKey]="readonlyMode ? '::PurchaseReturn' : (id ? '::EditPurchaseReturn' : '::CreatePurchaseReturn')" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Purchase return fields help</span></button>
+  </div>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="done()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <section class="form-section return-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-file-invoice"></i></span><h6>{{ '::GoodsReceiptInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="receipt-summary row g-3">
+        <div class="col-12 col-md-4"><span class="field-label">{{ '::GoodsReceiptNumber' | abpLocalization }}</span><strong>{{ receipt.goodsReceiptNumber }}</strong></div>
+        <div class="col-12 col-md-4"><span class="field-label">{{ '::Supplier' | abpLocalization }}</span><strong>{{ receipt.supplierName }}</strong></div>
+        <div class="col-12 col-md-4" *ngIf="receipt.receiptDate"><span class="field-label">{{ '::ReceiptDate' | abpLocalization }}</span><strong>{{ receipt.receiptDate | date:'mediumDate' }}</strong></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section return-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::ReturnInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ReturnDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="returnDate">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ReturnReason' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="reason">
+            <nz-option *ngFor="let r of reasons; let i = index" [nzValue]="i" [nzLabel]="r"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::OtherCharges' | abpLocalization }}</label>
+          <input type="number" min="0" class="form-control form-control-sm" formControlName="otherCharges">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ReasonDetails' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="reasonDetails">
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea class="form-control form-control-sm" rows="2" formControlName="notes"></textarea>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section return-form-card items-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::ReturnItems' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="table-responsive" formArrayName="items">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>{{ '::Product' | abpLocalization }}</th>
+              <th>{{ '::ReceivedQuantity' | abpLocalization }}</th>
+              <th>{{ '::BonusQuantity' | abpLocalization }}</th>
+              <th>{{ '::PreviouslyReturnedQuantity' | abpLocalization }}</th>
+              <th>{{ '::ReturnableQuantity' | abpLocalization }}</th>
+              <th>{{ '::ReturnQuantity' | abpLocalization }}</th>
+              <th *ngIf="canCost">{{ '::PurchasePrice' | abpLocalization }}</th>
+              <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+              <th>{{ '::Reason' | abpLocalization }}</th>
+              <th *ngIf="canCost">{{ '::LineTotal' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+              <td><strong>{{ row.value.productName }}</strong><br><span class="code-chip">{{ row.value.productCode }}</span></td>
+              <td>{{ row.value.receivedQuantity }}</td>
+              <td>{{ row.value.bonusQuantity }}</td>
+              <td>{{ row.value.previouslyReturnedQuantity }}</td>
+              <td><span class="returnable">{{ row.value.returnableQuantity }}</span></td>
+              <td><input type="number" min="0" [max]="row.value.returnableQuantity" class="form-control form-control-sm qty-input" formControlName="returnQuantity"></td>
+              <td *ngIf="canCost">{{ row.value.purchasePrice | number:'1.2-2' }}</td>
+              <td>{{ row.value.batchNumber || '—' }}</td>
+              <td>{{ row.value.expiryDate ? (row.value.expiryDate | date:'mediumDate') : '—' }}</td>
+              <td><nz-select class="reason-select" formControlName="reason"><nz-option *ngFor="let r of reasons; let ri = index" [nzValue]="ri" [nzLabel]="r"></nz-option></nz-select></td>
+              <td *ngIf="canCost" class="amount-cell"><strong>{{ lineTotal(row) | number:'1.2-2' }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </section>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="done()">{{ readonlyMode ? ('::Back' | abpLocalization) : ('AbpUi::Cancel' | abpLocalization) }}</button>
+      <button *ngIf="!readonlyMode" type="submit" class="btn btn-primary btn-sm" [disabled]="submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ id ? ('::UpdatePurchaseReturn' | abpLocalization) : ('::SavePurchaseReturn' | abpLocalization) }}
+      </button>
+    </div>
+  </form>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Purchase Return Fields Guide' : 'پرچیز ریٹرن فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Goods Receipt</strong><span>{{ helpLang === 'en' ? 'The receipt that recorded the goods received, and from which items are being returned.' : 'وہ رسید جس میں ملا ہوا سامان درج ہے اور جس میں سے سامان واپس کرنا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Supplier</strong><span>{{ helpLang === 'en' ? 'The supplier the goods will be returned to.' : 'وہ سپلائر جس کو سامان واپس بھیجا جائے گا۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Return Date</strong><span>{{ helpLang === 'en' ? 'The date the goods are being returned to the supplier.' : 'جس تاریخ کو سامان سپلائر کو واپس کیا جا رہا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Return Reason</strong><span>{{ helpLang === 'en' ? 'Select the main reason for the return, e.g. damaged or wrong goods.' : 'سامان واپس کرنے کی بنیادی وجہ منتخب کریں، مثلاً خراب یا غلط سامان۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Reason Details</strong><span>{{ helpLang === 'en' ? 'Write a simple further explanation of the reason for the return.' : 'واپسی کی وجہ کے بارے میں مزید آسان وضاحت لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Other Charges</strong><span>{{ helpLang === 'en' ? 'Enter any extra charges incurred on the return here.' : 'واپسی پر ہونے والا کوئی اضافی خرچ یہاں درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Return Quantity</strong><span>{{ helpLang === 'en' ? 'Enter the quantity of each product being returned. It cannot exceed the returnable quantity.' : 'ہر پروڈکٹ کی جتنی مقدار واپس کرنی ہے وہ لکھیں۔ یہ Returnable مقدار سے زیادہ نہیں ہو سکتی۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Item Reason</strong><span>{{ helpLang === 'en' ? 'Select a separate reason for returning each product.' : 'ہر پروڈکٹ واپس کرنے کی الگ وجہ منتخب کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful information about the return.' : 'واپسی سے متعلق کوئی ضروری اضافی بات لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

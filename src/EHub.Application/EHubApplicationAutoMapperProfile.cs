@@ -1,4 +1,18 @@
 using AutoMapper;
+using EHub.ShopManagement.Settings;
+using EHub.ShopManagement.PrintSettings;
+using EHub.ShopManagement.ProductCategories;
+using EHub.ShopManagement.Units;
+using EHub.ShopManagement.Products;
+using EHub.ShopManagement.Suppliers;
+using EHub.ShopManagement.PurchaseOrders;
+using EHub.ShopManagement.GoodsReceipts;
+using EHub.ShopManagement.StockTransactions;
+using EHub.ShopManagement.SupplierPayments;
+using EHub.ShopManagement.Customers;
+using EHub.ShopManagement.AiAssistant;
+using EHub.ShopManagement.ExpenseCategories;
+using EHub.ShopManagement.CashRegisters;
 using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
@@ -27,6 +41,65 @@ public class EHubApplicationAutoMapperProfile : Profile
 {
     public EHubApplicationAutoMapperProfile()
     {
+        CreateMap<ShopSetting, ShopSettingDto>();
+        CreateMap<CreateUpdateShopSettingDto, ShopSetting>();
+        CreateMap<ShopPrintSetting, ShopPrintSettingsDto>();
+        CreateMap<ShopProductCategory, ShopProductCategoryDto>();
+        CreateMap<ShopProductCategory, ShopProductCategoryLookupDto>();
+        CreateMap<ShopUnit, ShopUnitDto>();
+        CreateMap<ShopUnit, ShopUnitLookupDto>();
+        CreateMap<ShopProduct, ShopProductDto>()
+            .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.ShortName : string.Empty))
+            .ForMember(x => x.UnitAllowDecimal, opt => opt.MapFrom(src => src.Unit != null && src.Unit.AllowDecimal));
+        CreateMap<ShopCustomer, ShopCustomerDto>();
+        CreateMap<ShopCustomer, ShopCustomerLookupDto>();
+        CreateMap<ShopAiConversation, ShopAiConversationListDto>();
+        CreateMap<ShopSupplier, ShopSupplierDto>();
+        CreateMap<ShopSupplier, ShopSupplierLookupDto>()
+            .ForMember(x => x.DisplayName, opt => opt.MapFrom(src => src.Code + " - " + src.Name));
+        CreateMap<ShopExpenseCategory, ShopExpenseCategoryDto>();
+        CreateMap<ShopExpenseCategory, ShopExpenseCategoryLookupDto>();
+        CreateMap<ShopCashRegister, ShopCashRegisterDto>();
+        CreateMap<ShopCashRegister, ShopCashRegisterLookupDto>();
+        CreateMap<ShopPurchaseOrder, ShopPurchaseOrderDto>()
+            .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
+            .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty));
+        CreateMap<ShopPurchaseOrderItem, ShopPurchaseOrderItemDto>()
+            .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.ProductNameSnapshot))
+            .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.ProductCodeSnapshot))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.UnitNameSnapshot))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.UnitShortNameSnapshot));
+        CreateMap<ShopGoodsReceipt, ShopGoodsReceiptDto>()
+            .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
+            .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty))
+            .ForMember(x => x.PurchaseOrderNumber, opt => opt.MapFrom(src => src.PurchaseOrder != null ? src.PurchaseOrder.PurchaseOrderNumber : string.Empty));
+        CreateMap<ShopGoodsReceiptItem, ShopGoodsReceiptItemDto>()
+            .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.ProductNameSnapshot))
+            .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.ProductCodeSnapshot))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.UnitNameSnapshot))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.UnitShortNameSnapshot))
+            .ForMember(x => x.OrderedQuantity, opt => opt.MapFrom(src => src.OrderedQuantitySnapshot))
+            .ForMember(x => x.RemainingQuantity, opt => opt.MapFrom(src => src.OrderedQuantitySnapshot - src.PreviouslyReceivedQuantity));
+        CreateMap<ShopStockTransaction, ShopStockTransactionDto>()
+            .ForMember(x => x.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+            .ForMember(x => x.ProductCode, opt => opt.MapFrom(src => src.Product != null ? src.Product.Code : string.Empty));
+        CreateMap<ShopSupplierPayment, ShopSupplierPaymentDto>()
+            .ForMember(x => x.SupplierCode, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Code : string.Empty))
+            .ForMember(x => x.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty))
+            .ForMember(x => x.AllocatedAmount, opt => opt.Ignore())
+            .ForMember(x => x.UnallocatedAmount, opt => opt.Ignore());
+        CreateMap<ShopSupplierPaymentAllocation, ShopSupplierPaymentAllocationDto>()
+            .ForMember(x => x.GoodsReceiptNumber, opt => opt.MapFrom(src => src.GoodsReceipt != null ? src.GoodsReceipt.GoodsReceiptNumber : string.Empty))
+            .ForMember(x => x.SupplierInvoiceNumber, opt => opt.MapFrom(src => src.GoodsReceipt != null ? src.GoodsReceipt.SupplierInvoiceNumber : null))
+            .ForMember(x => x.ReceiptDate, opt => opt.MapFrom(src => src.GoodsReceipt != null ? src.GoodsReceipt.ReceiptDate : default))
+            .ForMember(x => x.GrandTotal, opt => opt.MapFrom(src => src.GoodsReceipt != null ? (decimal?)src.GoodsReceipt.GrandTotal : null));
+        CreateMap<ShopProduct, ShopProductLookupDto>()
+            .ForMember(x => x.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+            .ForMember(x => x.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : string.Empty))
+            .ForMember(x => x.UnitShortName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.ShortName : string.Empty))
+            .ForMember(x => x.UnitAllowDecimal, opt => opt.MapFrom(src => src.Unit != null && src.Unit.AllowDecimal));
         CreateMap<Student, StudentDto>()
             .ForMember(x => x.StudentDocument, opt => opt.MapFrom(src => src.StudentDocuments));
         CreateMap<Staff, StaffDto>()

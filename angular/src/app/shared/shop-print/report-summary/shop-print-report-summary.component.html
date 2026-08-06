@@ -1,0 +1,22 @@
+<div class="sp-report-shop" *ngIf="shopName">{{ shopName }}</div>
+<div class="sp-report-title">{{ title }}</div>
+<div class="sp-report-range" *ngIf="dateRangeText">{{ dateRangeText }}</div>
+
+<hr class="shop-print-separator" />
+
+<div class="sp-report-kpi-row thermal-total-row" *ngFor="let kpi of kpis">
+  <span>{{ kpi.label }}:</span>
+  <span class="shop-print-amount">{{ kpi.value }}</span>
+</div>
+
+<ng-container *ngIf="topItems?.length">
+  <hr class="shop-print-separator" />
+  <div class="sp-report-top-title">{{ topItemsTitle }}</div>
+  <div class="sp-report-top-row thermal-line" *ngFor="let item of topItems; let i = index">
+    <span>{{ i + 1 }}. {{ item.label }}</span>
+    <span class="shop-print-amount">{{ item.value }}</span>
+  </div>
+</ng-container>
+
+<hr class="shop-print-separator" />
+<div class="sp-report-generated">Generated: {{ generatedAt | date: 'dd-MMM-yyyy hh:mm a' }}</div>

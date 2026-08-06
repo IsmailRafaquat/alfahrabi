@@ -3,12 +3,16 @@ using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
+using Volo.Abp.Identity.Localization;
 using Volo.Abp.Localization;
 using Volo.Abp.Localization.ExceptionHandling;
 using Volo.Abp.Validation.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
+using Volo.Abp.SettingManagement.Localization;
+using Volo.Abp.UI.Navigation.Localization.Resource;
+using Localization.Resources.AbpUi;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.BlobStoring.Database;
@@ -49,34 +53,42 @@ public class EHubDomainSharedModule : AbpModule
                 .AddBaseTypes(typeof(AbpValidationResource))
                 .AddVirtualJson("/Localization/EHub");
 
+            options.Resources.Get<IdentityResource>().AddVirtualJson("/Localization/AbpIdentity");
+            options.Resources.Get<AbpSettingManagementResource>().AddVirtualJson("/Localization/AbpSettingManagement");
+
             options.DefaultResourceType = typeof(EHubResource);
             
-            options.Languages.Add(new LanguageInfo("en", "en", "English")); 
-            options.Languages.Add(new LanguageInfo("en-GB", "en-GB", "English (United Kingdom)")); 
-            options.Languages.Add(new LanguageInfo("zh-Hans", "zh-Hans", "简体中文")); 
-            options.Languages.Add(new LanguageInfo("es", "es", "Español")); 
-            options.Languages.Add(new LanguageInfo("ar", "ar", "العربية")); 
-            options.Languages.Add(new LanguageInfo("hi", "hi", "हिन्दी")); 
-            options.Languages.Add(new LanguageInfo("pt-BR", "pt-BR", "Português (Brasil)")); 
-            options.Languages.Add(new LanguageInfo("fr", "fr", "Français")); 
-            options.Languages.Add(new LanguageInfo("ru", "ru", "Русский")); 
-            options.Languages.Add(new LanguageInfo("de-DE", "de-DE", "Deutsch (Deutschland)")); 
-            options.Languages.Add(new LanguageInfo("tr", "tr", "Türkçe")); 
-            options.Languages.Add(new LanguageInfo("it", "it", "Italiano")); 
-            options.Languages.Add(new LanguageInfo("cs", "cs", "Čeština")); 
-            options.Languages.Add(new LanguageInfo("hu", "hu", "Magyar")); 
-            options.Languages.Add(new LanguageInfo("ro-RO", "ro-RO", "Română (România)")); 
-            options.Languages.Add(new LanguageInfo("sv", "sv", "Svenska")); 
-            options.Languages.Add(new LanguageInfo("fi", "fi", "Suomi")); 
-            options.Languages.Add(new LanguageInfo("sk", "sk", "Slovenčina")); 
-            options.Languages.Add(new LanguageInfo("is", "is", "Íslenska")); 
-            options.Languages.Add(new LanguageInfo("zh-Hant", "zh-Hant", "繁體中文")); 
+            options.Languages.Add(new LanguageInfo("en", "en", "English"));
+            options.Languages.Add(new LanguageInfo("ur", "ur", "اردو"));
 
         });
         
         Configure<AbpExceptionLocalizationOptions>(options =>
         {
             options.MapCodeNamespace("EHub", typeof(EHubResource));
+            options.MapCodeNamespace("ShopManagement", typeof(EHubResource));
+        });
+    }
+
+    public override void PostConfigureServices(ServiceConfigurationContext context)
+    {
+        // AbpUiNavigationResource/AbpUiResource are registered by a UI/theme module (the MVC/Angular
+        // theme packages EHub.HttpApi.Host depends on) that runs after this module's ConfigureServices,
+        // so they aren't available yet there - PostConfigureServices runs after every module's
+        // ConfigureServices has completed, so they're guaranteed to exist by this point *for hosts that
+        // reference a UI module*. Entry points with no UI at all, like EHub.DbMigrator, never register
+        // these types, so the lookup is guarded here instead of assuming every host has them.
+        Configure<AbpLocalizationOptions>(options =>
+        {
+            if (options.Resources.ContainsResource(typeof(AbpUiNavigationResource)))
+            {
+                options.Resources.Get<AbpUiNavigationResource>().AddVirtualJson("/Localization/AbpUiNavigation");
+            }
+
+            if (options.Resources.ContainsResource(typeof(AbpUiResource)))
+            {
+                options.Resources.Get<AbpUiResource>().AddVirtualJson("/Localization/AbpUi");
+            }
         });
     }
 }

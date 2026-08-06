@@ -1,0 +1,84 @@
+<abp-page>
+<app-topbar-layout titleKey="::CashTransactions" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchCashTransactions'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::CashRegister' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="registerFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllCashRegisters' | abpLocalization">
+        <nz-option *ngFor="let r of registers" [nzValue]="r.id" [nzLabel]="r.code + ' - ' + r.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::TransactionType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllTransactionTypes' | abpLocalization">
+        <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::TransactionDirection' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="directionFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllDirections' | abpLocalization">
+        <nz-option [nzValue]="ShopCashDirection.In" [nzLabel]="'::DirectionIn' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="ShopCashDirection.Out" [nzLabel]="'::DirectionOut' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="sp-page">
+  <div class="card sp-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::TransactionDate' | abpLocalization }}</th>
+            <th>{{ '::TransactionType' | abpLocalization }}</th>
+            <th>{{ '::TransactionDirection' | abpLocalization }}</th>
+            <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+            <th>{{ '::Description' | abpLocalization }}</th>
+            <th class="text-end">{{ '::CashIn' | abpLocalization }}</th>
+            <th class="text-end">{{ '::CashOut' | abpLocalization }}</th>
+            <th class="text-end" *ngIf="canViewAmounts">{{ '::RunningBalance' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td>{{ row.transactionDate | date:'medium' }}</td>
+            <td>{{ typeLabel(row.transactionType) | abpLocalization }}</td>
+            <td><span class="direction-badge" [class.out]="row.direction === ShopCashDirection.Out">{{ directionLabel(row.direction) | abpLocalization }}</span></td>
+            <td>{{ row.referenceNumber || '—' }}</td>
+            <td>{{ row.description || '—' }}</td>
+            <td class="text-end in-amount">{{ row.direction === ShopCashDirection.In && row.amount != null ? (row.amount | number:'1.2-2') : '—' }}</td>
+            <td class="text-end out-amount">{{ row.direction === ShopCashDirection.Out && row.amount != null ? (row.amount | number:'1.2-2') : '—' }}</td>
+            <td class="text-end" *ngIf="canViewAmounts">{{ row.runningBalance != null ? (row.runningBalance | number:'1.2-2') : '—' }}</td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewAmounts ? 8 : 7" class="empty-state"><i class="fas fa-exchange-alt"></i><span>{{ '::NoCashTransactionsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>

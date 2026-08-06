@@ -1,0 +1,158 @@
+<abp-page>
+<app-topbar-layout titleKey="::StockCounts" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchStockCounts'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Physical Stock Count compares your recorded system stock against the actual counted stock. Draft and In Progress counts do not change stock. Posting a completed count automatically creates and posts a Stock Adjustment for every difference found.', ur: 'Physical Stock Count سسٹم میں موجود اسٹاک کا اصل گنتی سے موازنہ کرتا ہے۔ Draft اور In Progress حالت میں اسٹاک تبدیل نہیں ہوتا۔ مکمل شدہ گنتی کو Post کرنے پر ہر فرق کے لیے خودکار Stock Adjustment بن کر پوسٹ ہو جاتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateStockCount' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Category' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllCategories' | abpLocalization">
+        <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::CountScope' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="scopeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllScopes' | abpLocalization">
+        <nz-option *ngFor="let x of scopeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::HasDifferences' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="hasDifferencesFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::HasDifferences' | abpLocalization">
+        <nz-option [nzValue]="true" [nzLabel]="'::Yes' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="false" [nzLabel]="'::No' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="countDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="countDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="stock-counts-page">
+  <div class="card stock-counts-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::StockCountNumber' | abpLocalization }}</th>
+            <th>{{ '::CountDate' | abpLocalization }}</th>
+            <th>{{ '::CountScope' | abpLocalization }}</th>
+            <th>{{ '::TotalProducts' | abpLocalization }}</th>
+            <th>{{ '::CountedProducts' | abpLocalization }}</th>
+            <th>{{ '::DifferenceItems' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::PostedOn' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="count-link" (click)="view(row)">{{ row.stockCountNumber }}</a></td>
+            <td>{{ row.countDate | date:'mediumDate' }}</td>
+            <td>{{ scopeLabel(row.scope) | abpLocalization }}</td>
+            <td>{{ row.totalItems }}</td>
+            <td>{{ row.countedItems }} / {{ row.totalItems }}</td>
+            <td>{{ row.differenceItems }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td>{{ row.postedDate ? (row.postedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" nz-tooltip [nzTooltipTitle]="'::ViewStockCount' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewStockCount' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" (click)="edit(row)" nz-tooltip [nzTooltipTitle]="'::EditStockCount' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::EditStockCount' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canStart && isDraft(row)" class="icon-btn success" [disabled]="actionInProgress" (click)="start(row)" nz-tooltip [nzTooltipTitle]="'::StartStockCount' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::StartStockCount' | abpLocalization"><i class="fas fa-play"></i></button>
+              <button *ngIf="isInProgress(row)" class="icon-btn success" (click)="count(row)" nz-tooltip [nzTooltipTitle]="'::ContinueCounting' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ContinueCounting' | abpLocalization"><i class="fas fa-clipboard-list"></i></button>
+              <button *ngIf="canPost && isCounted(row)" class="icon-btn success" [disabled]="actionInProgress" (click)="openPost(row)" nz-tooltip [nzTooltipTitle]="'::PostStockCount' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::PostStockCount' | abpLocalization"><i class="fas fa-check"></i></button>
+              <button *ngIf="canCancel && isCancellable(row)" class="icon-btn" [disabled]="actionInProgress" (click)="openCancel(row)" nz-tooltip [nzTooltipTitle]="'::CancelStockCount' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::CancelStockCount' | abpLocalization"><i class="fas fa-ban"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" nz-tooltip [nzTooltipTitle]="'::DeleteStockCount' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::DeleteStockCount' | abpLocalization"><i class="fas fa-trash"></i></button>
+              <button *ngIf="canViewStockAdjustments && row.generatedStockAdjustmentId" class="icon-btn" (click)="viewGeneratedStockAdjustment(row)" nz-tooltip [nzTooltipTitle]="'::ViewGeneratedStockAdjustment' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewGeneratedStockAdjustment' | abpLocalization"><i class="fas fa-balance-scale"></i></button>
+              <button *ngIf="canViewStockTransactions && row.status === ShopStockCountStatus.Posted && row.generatedStockAdjustmentNumber" class="icon-btn" (click)="viewStockTransactions(row)" nz-tooltip [nzTooltipTitle]="'::ViewStockTransactions' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewStockTransactions' | abpLocalization"><i class="fas fa-exchange-alt"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td colspan="9" class="empty-state"><i class="fas fa-clipboard-check"></i><span>{{ '::NoStockCountsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>
+
+<abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::CancelStockCount' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="cancelForm">
+      <div class="mb-3">
+        <label>{{ '::CancellationReason' | abpLocalization }} <b>*</b></label>
+        <textarea rows="3" class="form-control" formControlName="cancellationReason"></textarea>
+        <small *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || actionInProgress" (click)="confirmCancel()">{{ '::CancelStockCount' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>
+
+<abp-modal [(visible)]="postModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::PostingPreview' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <div *ngIf="postPreviewLoading" class="text-center py-4"><span class="spinner-border spinner-border-sm"></span></div>
+    <div *ngIf="!postPreviewLoading && postPreview as p">
+      <div class="preview-grid">
+        <div><span class="field-label">{{ '::TotalProducts' | abpLocalization }}</span><strong>{{ p.totalProducts }}</strong></div>
+        <div><span class="field-label">{{ '::NoDifference' | abpLocalization }}</span><strong>{{ p.noDifferenceCount }}</strong></div>
+        <div><span class="field-label">{{ '::IncreaseItems' | abpLocalization }}</span><strong>{{ p.increaseCount }} ({{ p.totalIncreaseQuantity | number:'1.0-4' }})</strong></div>
+        <div><span class="field-label">{{ '::DecreaseItems' | abpLocalization }}</span><strong>{{ p.decreaseCount }} ({{ p.totalDecreaseQuantity | number:'1.0-4' }})</strong></div>
+      </div>
+      <div class="changed-warning" *ngIf="!p.canPost">
+        <i class="fas fa-triangle-exclamation me-2"></i>{{ '::ProductsWithChangedStock' | abpLocalization }}:
+        <div class="changed-products">{{ p.changedProducts.join(', ') }}</div>
+      </div>
+      <p class="confirm-text" *ngIf="p.canPost">{{ '::ConfirmPostStockCount' | abpLocalization }}</p>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-primary btn-sm" [disabled]="postPreviewLoading || !postPreview?.canPost || actionInProgress" (click)="confirmPost()">{{ '::PostStockCount' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>

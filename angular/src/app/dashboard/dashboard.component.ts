@@ -127,7 +127,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   data: DashboardDto | null = null;
   loading = false;
-  showFilters = false; 
+  topbarFilters: any = {}; 
 
   private viewReady = false;
   private renderQueued = false;
@@ -168,9 +168,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.refresh();
   }
 
-   toggleFilters(): void {
-    this.showFilters = !this.showFilters;
-  }
 
   ngAfterViewInit(): void {
     this.viewReady = true;

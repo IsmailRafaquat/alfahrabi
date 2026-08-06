@@ -1,4 +1,6 @@
 ﻿using Volo.Abp.Account;
+using Volo.Abp.Account.Localization;
+using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
@@ -22,5 +24,13 @@ public class EHubApplicationContractsModule : AbpModule
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
         EHubDtoExtensions.Configure();
+    }
+
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        Configure<AbpLocalizationOptions>(options =>
+        {
+            options.Resources.Get<AccountResource>().AddVirtualJson("/Localization/AbpAccount");
+        });
     }
 }

@@ -1,8 +1,27 @@
+import type { AttendanceStatus } from '../attendance-statuss/attendance-status.enum';
 import type { GradeLevel } from '../students/grade-level.enum';
 import type { Section } from '../students/section.enum';
 import type { EntityDto, FullAuditedEntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
 import type { AttendanceLeaderboardOrder } from '../students/attendance-leaderboard-order.enum';
-import type { AttendanceStatus } from '../attendance-statuss/attendance-status.enum';
+
+export interface BulkMarkClassStudentAttendanceDto {
+  attendanceDate?: string;
+  items: BulkMarkClassStudentAttendanceItemDto[];
+}
+
+export interface BulkMarkClassStudentAttendanceItemDto {
+  studentId?: string;
+  status?: AttendanceStatus;
+  remarks?: string;
+}
+
+export interface ClassStudentAttendanceRowDto {
+  studentId?: string;
+  admissionNo?: string;
+  fullName?: string;
+  status?: AttendanceStatus;
+  remarks?: string;
+}
 
 export interface GenerateStudentAttendanceTemplateDto {
   gradeLevel?: GradeLevel;
@@ -18,6 +37,12 @@ export interface GetAttendanceLeaderboardDto extends EntityDto<string> {
   order?: AttendanceLeaderboardOrder;
   dateFrom?: string;
   dateTo?: string;
+}
+
+export interface GetClassStudentsForAttendanceInput {
+  gradeLevel?: GradeLevel;
+  section?: Section;
+  attendanceDate?: string;
 }
 
 export interface GetStudentAttendanceListDto extends PagedAndSortedResultRequestDto {

@@ -1,0 +1,176 @@
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditGoodsReceipt' : '::CreateGoodsReceipt'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <span class="gr-number-badge">{{ purchaseOrderNumber }}</span>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Goods receipt fields help</span></button>
+  </div>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <section class="form-section gr-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-file-invoice"></i></span><h6>{{ '::PurchaseOrderDetails' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::PurchaseOrderNumber' | abpLocalization }}</span><strong>{{ purchaseOrderNumber }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::Supplier' | abpLocalization }}</span><strong>{{ supplierCode }} - {{ supplierName }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::OrderDate' | abpLocalization }}</span><strong>{{ orderDate ? (orderDate | date:'mediumDate') : '—' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::ExpectedDeliveryDate' | abpLocalization }}</span><strong>{{ expectedDeliveryDate ? (expectedDeliveryDate | date:'mediumDate') : '—' }}</strong></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section gr-form-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-dolly"></i></span><h6>{{ '::ReceivingInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ReceiptDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="receiptDate">
+          <small class="error" *ngIf="form.controls.receiptDate.touched && form.controls.receiptDate.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::SupplierInvoiceNumber' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="supplierInvoiceNumber">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::ShippingCharges' | abpLocalization }}</label>
+          <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="shippingCharges">
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <label>{{ '::OtherCharges' | abpLocalization }}</label>
+          <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="otherCharges">
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section gr-form-card items-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::Product' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <small class="error d-block mb-2" *ngIf="form.errors?.['noItemsIncluded']">{{ '::GoodsReceiptRequiresItems' | abpLocalization }}</small>
+
+      <div class="table-responsive">
+        <table class="table align-middle items-table">
+          <thead>
+            <tr>
+              <th>{{ '::Include' | abpLocalization }}</th>
+              <th class="col-product">{{ '::Product' | abpLocalization }}</th>
+              <th>{{ '::OrderedQuantity' | abpLocalization }}</th>
+              <th>{{ '::PreviouslyReceivedQuantity' | abpLocalization }}</th>
+              <th>{{ '::RemainingQuantity' | abpLocalization }}</th>
+              <th>{{ '::ReceivedQuantity' | abpLocalization }}</th>
+              <th>{{ '::BonusQuantity' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::PurchasePrice' | abpLocalization }}</th>
+              <th>{{ '::SalePrice' | abpLocalization }}</th>
+              <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ManufacturingDate' | abpLocalization }}</th>
+              <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+              <th>{{ '::DiscountPercentage' | abpLocalization }}</th>
+              <th>{{ '::TaxPercentage' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::LineTotal' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody [formArrayName]="'items'">
+            <tr *ngFor="let row of items.controls; let i = index" [formGroupName]="i" [class.excluded-row]="!row.value.included">
+              <td><input type="checkbox" class="form-check-input" formControlName="included"></td>
+              <td class="col-product">
+                <strong>{{ row.value.productName }}</strong><br><span class="code-chip">{{ row.value.productCode }}</span>
+                <small class="unit-hint">{{ row.value.unitName }} ({{ row.value.unitShortName }})</small>
+                <small class="error" *ngIf="row.value.included && row.errors?.['serialNotSupported']">{{ '::SerialTrackingWarning' | abpLocalization }}</small>
+              </td>
+              <td>{{ row.value.orderedQuantity | number:'1.0-4' }}</td>
+              <td>{{ row.value.previouslyReceivedQuantity | number:'1.0-4' }}</td>
+              <td>{{ row.value.remainingQuantity | number:'1.0-4' }}</td>
+              <td>
+                <input type="number" min="0" [step]="row.value.unitAllowDecimal ? '0.01' : '1'" class="form-control form-control-sm qty-input" formControlName="receivedQuantity" [disabled]="!row.value.included">
+                <small class="error" *ngIf="row.errors?.['quantityRequired']">{{ '::GoodsReceiptInvalidQuantity' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['wholeQuantityRequired']">{{ '::GoodsReceiptWholeQuantityRequired' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['exceedsRemaining']">{{ '::GoodsReceiptQuantityExceedsRemaining' | abpLocalization }}</small>
+              </td>
+              <td>
+                <input type="number" min="0" step="0.01" class="form-control form-control-sm qty-input" formControlName="bonusQuantity" [disabled]="!row.value.included">
+                <small class="error" *ngIf="row.errors?.['invalidBonus']">{{ '::GoodsReceiptInvalidBonusQuantity' | abpLocalization }}</small>
+              </td>
+              <td *ngIf="canViewCost"><input type="number" min="0" step="0.01" class="form-control form-control-sm price-input" formControlName="purchasePrice" [disabled]="!row.value.included"></td>
+              <td><input type="number" min="0" step="0.01" class="form-control form-control-sm price-input" formControlName="salePrice" [disabled]="!row.value.included"></td>
+              <td>
+                <input class="form-control form-control-sm batch-input" formControlName="batchNumber" [disabled]="!row.value.included || !row.value.trackBatch">
+                <small class="error" *ngIf="row.errors?.['batchRequired']">{{ '::GoodsReceiptBatchNumberRequired' | abpLocalization }}</small>
+              </td>
+              <td><input type="date" class="form-control form-control-sm date-input" formControlName="manufacturingDate" [disabled]="!row.value.included || !row.value.trackExpiry"></td>
+              <td>
+                <input type="date" class="form-control form-control-sm date-input" formControlName="expiryDate" [disabled]="!row.value.included || !row.value.trackExpiry">
+                <small class="error" *ngIf="row.errors?.['expiryRequired']">{{ '::GoodsReceiptExpiryDateRequired' | abpLocalization }}</small>
+                <small class="error" *ngIf="row.errors?.['invalidManufacturingDate']">{{ '::GoodsReceiptInvalidManufacturingDate' | abpLocalization }}</small>
+              </td>
+              <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm pct-input" formControlName="discountPercentage" [disabled]="!row.value.included"></td>
+              <td><input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm pct-input" formControlName="taxPercentage" [disabled]="!row.value.included"></td>
+              <td *ngIf="canViewCost" class="amount-cell">{{ lineTotal(i) | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section gr-form-card totals-card" *ngIf="canViewCost">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::Totals' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ subTotal | number:'1.2-2' }}</strong></div>
+      <div class="totals-row"><span>{{ '::ShippingCharges' | abpLocalization }}</span><strong>{{ form.value.shippingCharges | number:'1.2-2' }}</strong></div>
+      <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ form.value.otherCharges | number:'1.2-2' }}</strong></div>
+      <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ grandTotal | number:'1.2-2' }}</strong></div>
+      </div>
+    </section>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Goods Receipt Fields Guide' : 'گڈز رسیٹ فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Receipt Date</strong><span>{{ helpLang === 'en' ? 'Enter the date the goods were received.' : 'جس دن سامان وصول ہوا وہ تاریخ درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Supplier Invoice Number</strong><span>{{ helpLang === 'en' ? "The invoice number written on the supplier's bill." : 'سپلائر کے بل پر لکھا ہوا انوائس نمبر۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Shipping / Other Charges</strong><span>{{ helpLang === 'en' ? 'Shipping cost and any other additional charges.' : 'سامان لانے اور دوسرے اضافی خرچ کی رقم۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Included</strong><span>{{ helpLang === 'en' ? 'Keep selected the products that were actually received.' : 'جو پروڈکٹ واقعی وصول ہوئی ہے اسے منتخب رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Received Quantity</strong><span>{{ helpLang === 'en' ? 'The quantity of the product actually received.' : 'اصل میں وصول ہونے والی پروڈکٹ کی مقدار۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Bonus Quantity</strong><span>{{ helpLang === 'en' ? 'Extra quantity received free from the supplier.' : 'سپلائر سے مفت ملنے والی اضافی مقدار۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Purchase / Sale Price</strong><span>{{ helpLang === 'en' ? 'The purchase and sale price of the received goods.' : 'وصول شدہ مال کی خریداری اور فروخت قیمت۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Batch Number</strong><span>{{ helpLang === 'en' ? 'If the product is tracked by batch, enter the batch number.' : 'اگر پروڈکٹ بیچ کے حساب سے ہے تو بیچ نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Manufacturing / Expiry Date</strong><span>{{ helpLang === 'en' ? 'Enter the manufacturing and expiry dates of the goods.' : 'سامان بننے اور ختم ہونے کی تاریخ درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Discount / Tax Percentage</strong><span>{{ helpLang === 'en' ? 'Enter the discount and tax percentage.' : 'رعایت اور ٹیکس کی فیصد درج کریں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Write any other useful information about the receipt.' : 'سامان کی وصولی سے متعلق ضروری بات لکھیں۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

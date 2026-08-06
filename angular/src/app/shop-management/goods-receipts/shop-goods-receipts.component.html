@@ -1,0 +1,104 @@
+<abp-page>
+<app-topbar-layout titleKey="::GoodsReceipts" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchGoodsReceipts'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Goods Receipt records the products you actually received from a supplier against an approved Purchase Order. Completing it increases your stock and updates the Purchase Order automatically.', ur: 'Goods Receipt وہ ریکارڈ ہے جو بتاتا ہے کہ منظور شدہ Purchase Order کے مطابق سپلائیر سے کتنا سامان واقعی موصول ہوا۔ اسے مکمل کرنے پر آپ کا اسٹاک خود بخود بڑھ جاتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="createFromPurchaseOrder()"><i class="fas fa-plus me-2"></i>{{ '::CreateGoodsReceipt' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Supplier' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="supplierFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectSupplier' | abpLocalization">
+        <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::GoodsReceiptStatus' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllPurchaseOrderStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::OrderDateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="receiptDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::OrderDateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="receiptDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="gr-page">
+  <div class="card gr-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::GoodsReceiptNumber' | abpLocalization }}</th>
+            <th>{{ '::PurchaseOrder' | abpLocalization }}</th>
+            <th>{{ '::Supplier' | abpLocalization }}</th>
+            <th>{{ '::SupplierInvoiceNumber' | abpLocalization }}</th>
+            <th>{{ '::ReceiptDate' | abpLocalization }}</th>
+            <th>{{ '::GoodsReceiptStatus' | abpLocalization }}</th>
+            <th *ngIf="canViewCost">{{ '::GrandTotal' | abpLocalization }}</th>
+            <th *ngIf="canViewPaymentAmount">{{ '::PaidAmount' | abpLocalization }}</th>
+            <th *ngIf="canViewPaymentAmount">{{ '::PendingAmount' | abpLocalization }}</th>
+            <th>{{ '::PaymentStatus' | abpLocalization }}</th>
+            <th>{{ '::CompletedOn' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="gr-link" (click)="view(row)">{{ row.goodsReceiptNumber }}</a></td>
+            <td>{{ row.purchaseOrderNumber }}</td>
+            <td>{{ row.supplierCode }} - {{ row.supplierName }}</td>
+            <td>{{ row.supplierInvoiceNumber || '—' }}</td>
+            <td>{{ row.receiptDate | date:'mediumDate' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td *ngIf="canViewCost">{{ row.grandTotal != null ? (row.grandTotal | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewPaymentAmount">{{ row.paidAmount != null ? (row.paidAmount | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewPaymentAmount">{{ row.pendingAmount != null ? (row.pendingAmount | number:'1.2-2') : '—' }}</td>
+            <td><span class="status-badge payment" [ngClass]="paymentStatusClass(row.paymentStatus)">{{ paymentStatusLabel(row.paymentStatus) | abpLocalization }}</span></td>
+            <td>{{ row.completedDate ? (row.completedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" [title]="'::GoodsReceipt' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" (click)="edit(row)" [title]="'::EditGoodsReceipt' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteGoodsReceipt' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="(canViewCost ? 1 : 0) + (canViewPaymentAmount ? 2 : 0) + 8" class="empty-state"><i class="fas fa-dolly"></i><span>{{ '::NoGoodsReceiptsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

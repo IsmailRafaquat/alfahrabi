@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+.student-fee-report {
+  .report-table-wrapper {
+    max-height: calc(100vh - 250px);
+    overflow: auto;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  .report-table {
+    font-size: 12px;
+    margin-bottom: 0;
+
+    th {
+      background: #f8f9fb;
+      font-weight: 700;
+      color: #1f2937;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    td,
+    th {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  .class-row {
+    cursor: pointer;
+    background: #eef3f7;
+    font-weight: 600;
+
+    &:hover {
+      background: #e6eef5;
+    }
+  }
+
+  .students-row {
+    background: #fff;
+  }
+
+  .students-table {
+    font-size: 12px;
+
+    th {
+      background: #f9fafb;
+      font-size: 11px;
+    }
+
+    td,
+    th {
+      padding: 7px 10px;
+    }
+  }
+
+  .pending-student {
+    background: #ffe4e6 !important;
+
+    td {
+      color: #991b1b;
+      font-weight: 600;
+    }
+  }
+
+  .text-danger {
+    color: #dc2626 !important;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .student-fee-report {
+    .report-table-wrapper {
+      max-height: calc(100vh - 200px);
+      overflow-x: auto;
+    }
+
+    .report-table,
+    .students-table {
+      font-size: 10px;
+      min-width: 720px;
+    }
+
+    .report-table td,
+    .report-table th,
+    .students-table td,
+    .students-table th {
+      padding: 5px 6px;
+    }
+  }
+}

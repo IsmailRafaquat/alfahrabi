@@ -1,0 +1,27 @@
+<div class="sp-header">
+  <div class="sp-business" *ngIf="document?.business as biz">
+    <!-- Logo intentionally omitted: PrintHeaderLogo ships as a toggle only in this pass, there is
+         no logo upload/serve endpoint anywhere in the backend yet (documented gap). -->
+    <div class="sp-shop-name" *ngIf="biz.showShopName && biz.shopName">{{ biz.shopName }}</div>
+    <div class="sp-shop-line" *ngIf="biz.showAddress && biz.addressLine">{{ biz.addressLine }}</div>
+    <div class="sp-shop-line" *ngIf="biz.showPhone && biz.phone">{{ labels.phone }}: {{ biz.phone }}</div>
+    <div class="sp-shop-line" *ngIf="biz.showEmail && biz.email">{{ biz.email }}</div>
+    <div class="sp-shop-line" *ngIf="biz.showTaxNumber && biz.taxNumber">{{ biz.taxNumber }}</div>
+  </div>
+
+  <hr class="shop-print-separator" />
+
+  <div class="sp-doc-title">{{ labels.documentTitle(document.documentType) }}</div>
+  <div class="sp-doc-line">{{ labels.invoice }}: {{ document.documentNumber }}</div>
+  <div class="sp-doc-line" *ngIf="showDateTime">{{ labels.date }}: {{ document.documentDate | date: 'dd-MMM-yyyy hh:mm a' }}</div>
+  <div class="sp-doc-line" *ngIf="showCashierName && cashierName">{{ labels.cashier }}: {{ cashierName }}</div>
+  <div class="sp-copy-label" *ngIf="copyLabel">{{ copyLabel }}</div>
+
+  <hr class="shop-print-separator" />
+
+  <ng-container *ngIf="document.party as party">
+    <div class="sp-party-line">{{ party.label }}: {{ party.name }}</div>
+    <div class="sp-party-line" *ngIf="party.phone">{{ labels.phone }}: {{ party.phone }}</div>
+    <hr class="shop-print-separator" />
+  </ng-container>
+</div>

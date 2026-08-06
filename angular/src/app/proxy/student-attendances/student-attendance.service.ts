@@ -1,4 +1,4 @@
-import type { GenerateStudentAttendanceTemplateDto, GetAttendanceLeaderboardDto, GetStudentAttendanceListDto, MarkStudentAttendanceDto, StudentAttendanceDto, StudentAttendanceLeaderboardDto } from './models';
+import type { BulkMarkClassStudentAttendanceDto, ClassStudentAttendanceRowDto, GenerateStudentAttendanceTemplateDto, GetAttendanceLeaderboardDto, GetClassStudentsForAttendanceInput, GetStudentAttendanceListDto, MarkStudentAttendanceDto, StudentAttendanceDto, StudentAttendanceLeaderboardDto } from './models';
 import { RestService, Rest } from '@abp/ng.core';
 import type { PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
@@ -8,6 +8,15 @@ import { Injectable } from '@angular/core';
 })
 export class StudentAttendanceService {
   apiName = 'Default';
+  
+
+  bulkMarkClassAttendance = (input: BulkMarkClassStudentAttendanceDto, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, void>({
+      method: 'POST',
+      url: '/api/app/student-attendance/bulk-mark-class-attendance',
+      body: input,
+    },
+    { apiName: this.apiName,...config });
   
 
   delete = (id: string, config?: Partial<Rest.Config>) =>
@@ -41,6 +50,15 @@ export class StudentAttendanceService {
       method: 'GET',
       url: '/api/app/student-attendance/attendance-leaderboard',
       params: { gradeLevel: input.gradeLevel, section: input.section, count: input.count, order: input.order, dateFrom: input.dateFrom, dateTo: input.dateTo, id: input.id },
+    },
+    { apiName: this.apiName,...config });
+  
+
+  getClassStudentsForAttendance = (input: GetClassStudentsForAttendanceInput, config?: Partial<Rest.Config>) =>
+    this.restService.request<any, ClassStudentAttendanceRowDto[]>({
+      method: 'GET',
+      url: '/api/app/student-attendance/class-students-for-attendance',
+      params: { gradeLevel: input.gradeLevel, section: input.section, attendanceDate: input.attendanceDate },
     },
     { apiName: this.apiName,...config });
   

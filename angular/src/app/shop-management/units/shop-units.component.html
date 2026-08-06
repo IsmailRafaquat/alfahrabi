@@ -1,0 +1,108 @@
+<abp-page>
+<app-topbar-layout titleKey="::Units" [(filters)]="filters" showSearch="true"
+    [searchPlaceholder]="'::SearchUnits'" showFiltersToggle
+    [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+    <div topbarPills>
+        <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+            [nzTooltipTitleContext]="{ en: 'A Unit tells how a product is measured or sold, like Piece, Meter, Kilogram, or Box. Units keep stock and sales quantities consistent across all products.', ur: 'Unit بتاتا ہے کہ پروڈکٹ کس پیمانے میں بکتا ہے، جیسے عدد، میٹر، کلو یا ڈبہ۔ اس سے تمام پروڈکٹس کا اسٹاک اور فروخت درست طریقے سے ریکارڈ ہوتا ہے۔' }">
+            <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+        </button>
+    </div>
+
+    <div topbarActions>
+        <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i
+                class="fas fa-plus me-2"></i>{{ '::CreateUnit' | abpLocalization }}</button>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+        <div class="col-6 col-lg-2">
+            <label>{{ '::AllowDecimal' | abpLocalization }}</label>
+            <nz-select class="w-100" [(ngModel)]="quantityFilter"
+                    (ngModelChange)="load(true)" nzAllowClear
+                    [nzPlaceHolder]="'::AllQuantityTypes' | abpLocalization"><nz-option [nzValue]="true"
+                        [nzLabel]="'::DecimalQuantityAllowed' | abpLocalization"></nz-option><nz-option
+                        [nzValue]="false" [nzLabel]="'::WholeNumbersOnly' | abpLocalization"></nz-option></nz-select>
+        </div>
+        <div class="col-6 col-lg-2">
+            <label>{{ '::IsActive' | abpLocalization }}</label>
+            <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)"
+                    nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization"><nz-option [nzValue]="true"
+                        [nzLabel]="'::ActiveUnits' | abpLocalization"></nz-option><nz-option [nzValue]="false"
+                        [nzLabel]="'::InactiveUnits' | abpLocalization"></nz-option></nz-select>
+        </div>
+    </ng-container>
+
+    <div class="units-page">
+    <div class="card units-card">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>{{ '::UnitName' | abpLocalization }}</th>
+                        <th>{{ '::UnitShortName' | abpLocalization }}</th>
+                        <th>{{ '::AllowDecimal' | abpLocalization }}</th>
+                        <th>{{ '::IsActive' | abpLocalization }}</th>
+                        <th>{{ '::CreationTime' | abpLocalization }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of items">
+                        <td><strong>{{ row.name }}</strong></td>
+                        <td><span class="short-chip">{{ row.shortName }}</span></td>
+                        <td><span class="type-badge" [class.whole]="!row.allowDecimal">{{ (row.allowDecimal ?
+                                '::DecimalQuantityAllowed' : '::WholeNumbersOnly') | abpLocalization }}</span></td>
+                        <td><span class="status" [class.inactive]="!row.isActive">{{ (row.isActive ? '::ActiveUnits' :
+                                '::InactiveUnits') | abpLocalization }}</span></td>
+                        <td>{{ row.creationTime | date:'mediumDate' }}</td>
+                        <td class="text-end"><button *ngIf="canEdit" class="action" (click)="edit(row)"><i
+                                    class="fas fa-pen"></i></button><button *ngIf="canDelete" class="action danger"
+                                (click)="remove(row)"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                    <tr *ngIf="!loading && !items.length">
+                        <td colspan="6" class="empty">{{ '::NoUnitsFound' | abpLocalization }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pager"><span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize,
+                totalCount) }} / {{ totalCount }}</span>
+            <div><button class="btn btn-light btn-sm" [disabled]="page===0" (click)="previous()"><i
+                        class="fas fa-chevron-left"></i></button><button class="btn btn-light btn-sm"
+                    [disabled]="(page+1)*pageSize>=totalCount" (click)="next()"><i
+                        class="fas fa-chevron-right"></i></button></div>
+        </div>
+    </div>
+    </div>
+</app-topbar-layout>
+</abp-page>
+<abp-modal [(visible)]="modalOpen" [busy]="submitting"><ng-template #abpHeader>
+        <h5 class="unit-modal-title">
+            {{ (selected ? '::EditUnit' : '::CreateUnit') | abpLocalization }}
+        </h5>
+    </ng-template><ng-template #abpBody>
+        <form [formGroup]="form">
+          <div class="row g-2">
+            <div class="col-12 col-sm-6"><label>{{ '::UnitName' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm unit-input"
+                    formControlName="name"><small *ngIf="form.controls.name.touched && form.controls.name.invalid">{{
+                    '::ValidationRequired' | abpLocalization }}</small></div>
+            <div class="col-12 col-sm-6"><label>{{ '::UnitShortName' | abpLocalization }} <b>*</b></label><input
+                    class="form-control form-control-sm unit-input" formControlName="shortName"><small
+                    *ngIf="form.controls.shortName.touched && form.controls.shortName.invalid">{{ '::ValidationRequired'
+                    | abpLocalization }}</small></div>
+            <div class="col-12 col-sm-6"><label class="option"><span>{{ '::AllowDecimal' | abpLocalization }}</span><input type="checkbox" class="form-check-input"
+                    formControlName="allowDecimal"></label></div>
+            <div class="col-12 col-sm-6"><label class="option"><span>{{ '::IsActive' | abpLocalization }}</span><input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
+          </div>
+        </form>
+    </ng-template><ng-template #abpFooter><button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' |
+            abpLocalization }}</button><button class="btn btn-primary btn-sm" [disabled]="form.invalid||submitting"
+            (click)="save()">{{ '::Save' | abpLocalization }}</button></ng-template></abp-modal>
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+    <div class="tooltip-lang-tabs">
+        <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+        <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+    </div>
+    <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

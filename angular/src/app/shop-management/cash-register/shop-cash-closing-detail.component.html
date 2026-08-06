@@ -1,0 +1,99 @@
+<abp-page class="screen-only">
+<app-topbar-layout titleKey="::DailyClosings" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="closing">
+    <span class="closing-number-badge">{{ closing.cashRegisterCode }} - {{ closing.cashRegisterName }}</span>
+    <span class="status-badge" [ngClass]="statusClass(closing.status)">{{ statusLabel(closing.status) | abpLocalization }}</span>
+  </div>
+
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="closing">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button class="btn btn-outline-primary btn-sm btn-icon" nz-tooltip [nzTooltipTitle]="'::PrintClosing' | abpLocalization" nzTooltipPlacement="top" (click)="print()">
+      <i class="fas fa-print"></i>
+    </button>
+  </div>
+
+  <div class="detail-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <ng-container *ngIf="!loading && closing">
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::BusinessDate' | abpLocalization }}</span><strong>{{ closing.businessDate | date:'mediumDate' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::OpenedBy' | abpLocalization }}</span><strong>{{ closing.openedDate | date:'medium' }}</strong></div>
+        <div class="col-6 col-md-3" *ngIf="closing.status !== ShopCashClosingStatus.Open"><span class="field-label">{{ '::ClosedBy' | abpLocalization }}</span><strong>{{ closing.closedDate ? (closing.closedDate | date:'medium') : '—' }}</strong></div>
+        <div class="col-12" *ngIf="closing.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ closing.notes }}</p></div>
+        <div class="col-12" *ngIf="closing.status === ShopCashClosingStatus.Cancelled && closing.cancellationReason"><span class="field-label">{{ '::CancellationReason' | abpLocalization }}</span><p class="notes-text">{{ closing.cancellationReason }}</p></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-calculator"></i></span><h6>{{ '::CashManagementDescription' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="summary-grid">
+        <div class="summary-row"><span>{{ '::OpeningCash' | abpLocalization }}</span><strong>{{ closing.openingCash != null ? (closing.openingCash | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::CashSales' | abpLocalization }}</span><strong>{{ closing.cashSales != null ? (closing.cashSales | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::CustomerCashPayments' | abpLocalization }}</span><strong>{{ closing.customerCashPayments != null ? (closing.customerCashPayments | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::SupplierCashPayments' | abpLocalization }}</span><strong>-{{ closing.supplierCashPayments != null ? (closing.supplierCashPayments | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::CashExpenses' | abpLocalization }}</span><strong>-{{ closing.cashExpenses != null ? (closing.cashExpenses | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::CustomerRefunds' | abpLocalization }}</span><strong>-{{ closing.customerRefunds != null ? (closing.customerRefunds | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::ManualCashIn' | abpLocalization }}</span><strong>{{ closing.manualCashIn != null ? (closing.manualCashIn | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row"><span>{{ '::ManualCashOut' | abpLocalization }}</span><strong>-{{ closing.manualCashOut != null ? (closing.manualCashOut | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row grand"><span>{{ '::ExpectedClosingCash' | abpLocalization }}</span><strong>{{ closing.expectedClosingCash != null ? (closing.expectedClosingCash | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row" *ngIf="closing.status !== ShopCashClosingStatus.Open"><span>{{ '::ActualClosingCash' | abpLocalization }}</span><strong>{{ closing.actualClosingCash != null ? (closing.actualClosingCash | number:'1.2-2') : '—' }}</strong></div>
+        <div class="summary-row grand" *ngIf="closing.status !== ShopCashClosingStatus.Open">
+          <span>{{ '::DifferenceAmount' | abpLocalization }}</span>
+          <strong [class.text-danger]="closing.differenceAmount != null && closing.differenceAmount < 0" [class.text-success]="closing.differenceAmount != null && closing.differenceAmount > 0">
+            {{ closing.differenceAmount != null ? (closing.differenceAmount | number:'1.2-2') : '—' }}
+            <span class="badge" *ngIf="closing.differenceAmount != null && closing.differenceAmount < 0">{{ '::CashShortage' | abpLocalization }}</span>
+            <span class="badge" *ngIf="closing.differenceAmount != null && closing.differenceAmount > 0">{{ '::CashExcess' | abpLocalization }}</span>
+            <span class="badge matched" *ngIf="closing.differenceAmount === 0">{{ '::CashMatched' | abpLocalization }}</span>
+          </strong>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-exchange-alt"></i></span><h6>{{ '::CashTransactions' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{{ '::TransactionDate' | abpLocalization }}</th>
+              <th>{{ '::TransactionType' | abpLocalization }}</th>
+              <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+              <th>{{ '::Description' | abpLocalization }}</th>
+              <th class="text-end">{{ '::CashIn' | abpLocalization }}</th>
+              <th class="text-end">{{ '::CashOut' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of transactions">
+              <td>{{ t.transactionDate | date:'medium' }}</td>
+              <td>{{ typeLabel(t.transactionType) | abpLocalization }}</td>
+              <td>{{ t.referenceNumber || '—' }}</td>
+              <td>{{ t.description || '—' }}</td>
+              <td class="text-end in-amount">{{ t.direction === ShopCashDirection.In && t.amount != null ? (t.amount | number:'1.2-2') : '—' }}</td>
+              <td class="text-end out-amount">{{ t.direction === ShopCashDirection.Out && t.amount != null ? (t.amount | number:'1.2-2') : '—' }}</td>
+            </tr>
+            <tr *ngIf="!transactions.length">
+              <td colspan="6" class="empty-state">{{ '::NoCashTransactionsFound' | abpLocalization }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </section>
+  </ng-container>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<!-- Print/Share now goes through the shared thermal/A4 print framework (ShopPrintService,
+     documentType 'cash-closing-slip') instead of this page's own print-only capture block. -->

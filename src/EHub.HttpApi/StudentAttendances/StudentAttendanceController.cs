@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
@@ -73,5 +73,17 @@ public class StudentAttendanceController : AbpController
     public async Task<StudentAttendanceDto> MarkAsync(MarkStudentAttendanceDto input)
     {
         return await _studentAttendanceAppService.MarkAsync(input);
+    }
+
+    [HttpGet("class-students-for-attendance")]
+    public Task<List<ClassStudentAttendanceRowDto>> GetClassStudentsForAttendanceAsync(GetClassStudentsForAttendanceInput input)
+    {
+        return _studentAttendanceAppService.GetClassStudentsForAttendanceAsync(input);
+    }
+
+    [HttpPost("bulk-mark-class-attendance")]
+    public Task BulkMarkClassAttendanceAsync(BulkMarkClassStudentAttendanceDto input)
+    {
+        return _studentAttendanceAppService.BulkMarkClassAttendanceAsync(input);
     }
 }

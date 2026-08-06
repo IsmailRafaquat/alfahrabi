@@ -1,0 +1,88 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopProductPerformanceReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <app-report-export-menu *ngIf="canExport" [exporting]="exporting" (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::Category' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.productCategoryId" nzAllowClear [nzPlaceHolder]="'::AllCategories' | abpLocalization">
+          <nz-option *ngFor="let c of categories" [nzValue]="c.id" [nzLabel]="c.name || ''"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-auto">
+        <label>{{ '::SaleQuantity' | abpLocalization }}</label>
+        <label class="form-check form-check-inline d-block mt-2">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="input.soldOnly" />
+          <span class="form-check-label">{{ '::SaleQuantity' | abpLocalization }}</span>
+        </label>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopProductPerformanceReport" [dateRangeText]="input.dateFrom + ' - ' + input.dateTo"></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="summary-section">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="!loading">
+        <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+          <table class="table align-middle report-table">
+            <thead>
+              <tr>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::Category' | abpLocalization }}</th>
+                <th>{{ '::OpeningStock' | abpLocalization }}</th>
+                <th>{{ '::PurchasedQuantity' | abpLocalization }}</th>
+                <th>{{ '::SaleQuantity' | abpLocalization }}</th>
+                <th>{{ '::SaleReturnQuantity' | abpLocalization }}</th>
+                <th>{{ '::ClosingStock' | abpLocalization }}</th>
+                <th>{{ '::NetSalesAmount' | abpLocalization }}</th>
+                <th>{{ '::CurrentStock' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.items">
+                <td><strong>{{ row.productName }}</strong> <small class="text-muted">({{ row.productCode }})</small></td>
+                <td>{{ row.categoryName }}</td>
+                <td>{{ row.openingStock | shopReportQuantity }}</td>
+                <td>{{ row.purchasedQuantity | shopReportQuantity }}</td>
+                <td>{{ row.saleQuantity | shopReportQuantity }}</td>
+                <td>{{ row.saleReturnQuantity | shopReportQuantity }}</td>
+                <td>{{ row.closingStock | shopReportQuantity }}</td>
+                <td class="balance-cell">{{ row.netSalesAmount | shopReportCurrency }}</td>
+                <td>{{ row.currentStock | shopReportQuantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <nz-pagination
+            class="p-3"
+            [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+            (nzPageIndexChange)="onPageChange($event)"
+          ></nz-pagination>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <app-report-empty-state></app-report-empty-state>
+      </ng-template>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

@@ -1,0 +1,5 @@
+// Angular's emulated view encapsulation scopes styles per-component, so a sibling component
+// cannot rely on shop-settings.component.scss's rules even though they render inside the same
+// module - importing the Sass source directly (compiled into THIS component's own stylesheet)
+// is the correct way to reuse them without duplicating the class definitions by hand.
+@import '../settings/shop-settings.component.scss';

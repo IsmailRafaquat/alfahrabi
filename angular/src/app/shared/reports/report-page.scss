@@ -1,0 +1,60 @@
+// Shared visual language for Shop Management report pages, mirroring the existing
+// Supplier Ledger page design (shop-supplier-ledger.component.scss) so every report
+// looks and behaves consistently with the rest of Shop Management.
+
+.report-page { padding: 1.25rem; max-width: 1700px; margin: auto; }
+
+.page-heading {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
+  h3 { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; color: #173f68; margin: 0; font-size: 1.35rem; font-weight: 700; }
+  p { margin: .2rem 0 0; color: #718096; font-size: .8rem; }
+}
+
+.report-card { border: 0; border-radius: 12px; box-shadow: 0 4px 20px rgba(20, 55, 90, .07); overflow: hidden; }
+
+.filters { padding: 1rem 1.25rem; border-bottom: 1px solid #edf2f7; }
+.filters-row { display: flex; flex-wrap: wrap; gap: .85rem; align-items: flex-end; }
+.filters-row + .filters-row { margin-top: .85rem; }
+.filter-field { display: flex; flex-direction: column; gap: .3rem; flex: 0 1 220px; min-width: 180px; max-width: 260px; }
+.filter-field label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: #8a9bad; }
+.filter-field.filter-search { flex: 1 1 320px; min-width: 260px; max-width: none; }
+.filter-buttons { display: flex; gap: .5rem; flex: 0 0 auto; }
+.filter-buttons .btn { white-space: nowrap; min-width: 128px; height: 34px; display: inline-flex; align-items: center; justify-content: center; }
+.report-actions { display: flex; gap: .5rem; margin-left: auto; flex-wrap: wrap; }
+.search-box { position: relative; i { position: absolute; left: .7rem; top: .58rem; color: #8da1b5; font-size: .75rem; } input { padding-left: 2rem; } }
+.form-control-sm, .form-select-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
+
+@media (max-width: 767.98px) {
+  .filters-row { flex-direction: column; align-items: stretch; }
+  .filter-field, .filter-field.filter-search { flex: 1 1 auto; min-width: 0; max-width: none; }
+  .filter-buttons .btn { flex: 1 1 0; min-width: 0; }
+  .filter-buttons { justify-content: flex-start; }
+  .report-actions { margin-left: 0; flex-wrap: wrap; }
+}
+
+.summary-section { border-bottom: 1px solid #edf2f7; }
+.summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; padding: 1rem; }
+.summary-card { padding: .75rem 1rem; border-radius: 10px; background: #f8fafc; span { display: block; color: #8a9bad; font-size: .68rem; text-transform: uppercase; margin-bottom: .25rem; } strong { font-size: 1.05rem; color: #173f68; } }
+.summary-card.grand { background: #eef6fc; strong { color: #2369a3; } }
+.summary-card.payable { background: #fdeced; strong { color: #c83e4d; } }
+.summary-card.advance { background: #e9f7ef; strong { color: #198754; } }
+
+.report-table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #56708b; font-size: .72rem; text-transform: uppercase; border-bottom: 1px solid #e4ebf2; padding: .7rem; } tbody td { color: #435b73; font-size: .8rem; padding: .65rem .7rem; border-color: #edf2f6; } }
+.balance-cell { font-weight: 700; color: #173f68; }
+
+.empty-state { text-align: center; padding: 3rem !important; color: #8a9bad !important; i { display: block; font-size: 1.8rem; margin-bottom: .6rem; } }
+.loading { text-align: center; padding: 1rem; }
+
+@media (max-width: 767.98px) {
+  .report-page { padding: .65rem; }
+  .page-heading { align-items: flex-start; gap: .75rem; h3 { font-size: 1.1rem; } p { display: none; } }
+  .filters { padding: .75rem; }
+  .summary-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media print {
+  .report-card { border: 0 !important; box-shadow: none !important; }
+  nz-pagination, .loading { display: none !important; }
+  .table-responsive { overflow: visible !important; }
+  .report-table { white-space: normal !important; }
+}

@@ -1,0 +1,12 @@
+.report-period-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .period-select {
+    min-width: 160px;
+    flex: 1 1 auto;
+  }
+}

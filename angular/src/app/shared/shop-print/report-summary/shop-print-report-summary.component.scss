@@ -1,0 +1,30 @@
+.sp-report-shop {
+  text-align: center;
+  font-weight: 700;
+}
+
+.sp-report-title {
+  text-align: center;
+  font-weight: 700;
+}
+
+.sp-report-range {
+  text-align: center;
+  font-size: 0.85em;
+}
+
+.sp-report-kpi-row,
+.sp-report-top-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.sp-report-top-title {
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.sp-report-generated {
+  font-size: 0.75em;
+  text-align: center;
+}

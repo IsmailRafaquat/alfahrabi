@@ -6,7 +6,7 @@ import { ThemeSharedModule, provideAbpThemeShared,} from '@abp/ng.theme.shared';
 import { provideIdentityConfig } from '@abp/ng.identity/config';
 import { provideAccountConfig } from '@abp/ng.account/config';
 import { provideTenantManagementConfig } from '@abp/ng.tenant-management/config';
-import { registerLocale } from '@abp/ng.core/locale';
+import { registerLocale, storeLocaleData } from '@abp/ng.core/locale';
 import { ThemeLeptonXModule } from '@abp/ng.theme.lepton-x';
 import { SideMenuLayoutModule } from '@abp/ng.theme.lepton-x/layouts';
 import { NgModule } from '@angular/core';
@@ -20,11 +20,18 @@ import { provideNzI18n } from 'ng-zorro-antd/i18n';
 import { en_US } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
+import ur from '@angular/common/locales/ur';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
+import { NotificationBellModule } from './shared/notification-bell/notification-bell.module';
+import { NOTIFICATION_BELL_PROVIDER } from './shared/notification-bell/notification-bell.provider';
+import { SystemGuideModule } from './shared/system-guide/system-guide.module';
+import { ShopPrintModule } from './shared/shop-print/shop-print.module';
 
 registerLocaleData(en);
+registerLocaleData(ur);
+storeLocaleData(ur, 'ur');
 
 @NgModule({
   declarations: [AppComponent],
@@ -37,9 +44,13 @@ registerLocaleData(en);
     ThemeLeptonXModule.forRoot(),
     SideMenuLayoutModule.forRoot(),
     FormsModule,
+    NotificationBellModule,
+    SystemGuideModule,
+    ShopPrintModule,
   ],
   providers: [
     APP_ROUTE_PROVIDER,
+    NOTIFICATION_BELL_PROVIDER,
     provideAbpCore(
       withOptions({
         environment,

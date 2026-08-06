@@ -143,6 +143,134 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'shop-management/dashboard',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.Dashboard' },
+    loadChildren: () => import('./shop-management/dashboard/shop-dashboard.module').then(m => m.ShopDashboardModule),
+  },
+  {
+    path: 'shop-management/settings',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.Settings' },
+    loadChildren: () => import('./shop-management/settings/shop-settings.module').then(m => m.ShopSettingsModule),
+  },
+  {
+    path: 'shop-management/notifications',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.Notifications.View' },
+    loadChildren: () => import('./shop-management/notifications/shop-notifications.module').then(m => m.ShopNotificationsModule),
+  },
+  {
+    path: 'shop-management/product-categories',
+    canActivate: [permissionGuard],
+    data: { requiredPolicy: 'ShopManagement.ProductCategories' },
+    loadChildren: () => import('./shop-management/product-categories/shop-product-categories.module').then(m => m.ShopProductCategoriesModule),
+  },
+  {
+    path: 'shop-management/units', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Units' },
+    loadChildren: () => import('./shop-management/units/shop-units.module').then(m => m.ShopUnitsModule),
+  },
+  {
+    path: 'shop-management/products', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Products' },
+    loadChildren: () => import('./shop-management/products/shop-products.module').then(m => m.ShopProductsModule),
+  },
+  {
+    path: 'shop-management/suppliers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Suppliers' },
+    loadChildren: () => import('./shop-management/suppliers/shop-suppliers.module').then(m => m.ShopSuppliersModule),
+  },
+  {
+    path: 'shop-management/customers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Customers' },
+    loadChildren: () => import('./shop-management/customers/shop-customers.module').then(m => m.ShopCustomersModule),
+  },
+  {
+    path: 'shop-management/sales', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Sales' },
+    loadChildren: () => import('./shop-management/sales/shop-sales.module').then(m => m.ShopSalesModule),
+  },
+  {
+    path: 'shop-management/customer-payments', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CustomerPayments' },
+    loadChildren: () => import('./shop-management/customer-payments/shop-customer-payments.module').then(m => m.ShopCustomerPaymentsModule),
+  },
+  {
+    path: 'shop-management/customer-ledger', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CustomerLedger' },
+    loadChildren: () => import('./shop-management/customer-ledger/shop-customer-ledger.module').then(m => m.ShopCustomerLedgerModule),
+  },
+  {
+    path: 'shop-management/sale-returns', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.SaleReturns' },
+    loadChildren: () => import('./shop-management/sale-returns/shop-sale-returns.module').then(m => m.ShopSaleReturnsModule),
+  },
+  {
+    path: 'shop-management/expense-categories', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.ExpenseCategories' },
+    loadChildren: () => import('./shop-management/expense-categories/shop-expense-categories.module').then(m => m.ShopExpenseCategoriesModule),
+  },
+  {
+    path: 'shop-management/expenses', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Expenses' },
+    loadChildren: () => import('./shop-management/expenses/shop-expenses.module').then(m => m.ShopExpensesModule),
+  },
+  {
+    path: 'shop-management/cash-registers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CashRegisters' },
+    loadChildren: () => import('./shop-management/cash-registers/shop-cash-registers.module').then(m => m.ShopCashRegistersModule),
+  },
+  {
+    path: 'shop-management/cash-register', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.CashRegisters' },
+    loadChildren: () => import('./shop-management/cash-register/shop-cash-register.module').then(m => m.ShopCashRegisterModule),
+  },
+  {
+    path: 'shop-management/bank-accounts', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.BankAccounts' },
+    loadChildren: () => import('./shop-management/bank-accounts/shop-bank-accounts.module').then(m => m.ShopBankAccountsModule),
+  },
+  {
+    path: 'shop-management/bank-transactions', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.BankTransactions' },
+    loadChildren: () => import('./shop-management/bank-transactions/shop-bank-transactions.module').then(m => m.ShopBankTransactionsModule),
+  },
+  {
+    path: 'shop-management/bank-transfers', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.BankTransfers' },
+    loadChildren: () => import('./shop-management/bank-transfers/shop-bank-transfers.module').then(m => m.ShopBankTransfersModule),
+  },
+  {
+    path: 'shop-management/purchase-orders', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseOrders' },
+    loadChildren: () => import('./shop-management/purchase-orders/shop-purchase-orders.module').then(m => m.ShopPurchaseOrdersModule),
+  },
+  {
+    path: 'shop-management/goods-receipts', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.GoodsReceipts' },
+    loadChildren: () => import('./shop-management/goods-receipts/shop-goods-receipts.module').then(m => m.ShopGoodsReceiptsModule),
+  },
+  {
+    path: 'shop-management/supplier-payments', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.SupplierPayments' },
+    loadChildren: () => import('./shop-management/supplier-payments/shop-supplier-payments.module').then(m => m.ShopSupplierPaymentsModule),
+  },
+  {
+    path: 'shop-management/purchase-returns', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.PurchaseReturns' },
+    loadChildren: () => import('./shop-management/purchase-returns/purchase-returns.module').then(m => m.PurchaseReturnsModule),
+  },
+  {
+    path: 'shop-management/supplier-ledger', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.SupplierLedger' },
+    loadChildren: () => import('./shop-management/supplier-ledger/shop-supplier-ledger.module').then(m => m.ShopSupplierLedgerModule),
+  },
+  {
+    path: 'shop-management/stock-transactions', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.StockTransactions' },
+    loadChildren: () => import('./shop-management/stock-transactions/shop-stock-transactions.module').then(m => m.ShopStockTransactionsModule),
+  },
+  {
+    path: 'shop-management/stock-adjustments', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.StockAdjustments' },
+    loadChildren: () => import('./shop-management/stock-adjustments/shop-stock-adjustments.module').then(m => m.ShopStockAdjustmentsModule),
+  },
+  {
+    path: 'shop-management/stock-counts', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.StockCounts' },
+    loadChildren: () => import('./shop-management/stock-counts/shop-stock-counts.module').then(m => m.ShopStockCountsModule),
+  },
+  {
+    path: 'shop-management/product-batches', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.ProductBatches.View' },
+    loadChildren: () => import('./shop-management/product-batches/shop-product-batches.module').then(m => m.ShopProductBatchesModule),
+  },
+  {
+    path: 'shop-management/reports', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.Reports' },
+    loadChildren: () => import('./shop-management/reports/shop-reports.module').then(m => m.ShopReportsModule),
+  },
+  {
+    path: 'shop-management/ai-assistant', canActivate: [permissionGuard], data: { requiredPolicy: 'ShopManagement.AiAssistant' },
+    loadChildren: () => import('./shop-management/ai-assistant/shop-ai-assistant.module').then(m => m.ShopAiAssistantModule),
+  },
+  {
     path: 'expense-entries',
     loadChildren: () =>
       import('./expense-module/expense-entry/expense-entry.module').then(m => m.ExpenseEntryModule),
@@ -175,9 +303,10 @@ const routes: Routes = [
   {
     path: 'components/topbar-layout',
     loadChildren: () =>
-      import('./components/topbar-layout/topbar-layout.module').then(m => m.TopbarLayoutModule),
+      import('./components/topbar-layout/topbar-layout-routing.module').then(m => m.TopbarLayoutRoutingModule),
   },
   { path: 'reports/report/salary-report', loadChildren: () => import('./reports/report/salary-report/salary-report.module').then(m => m.SalaryReportModule) },
+  { path: 'reports/report/student-fee-report', loadChildren: () => import('./reports/report/student-fee-report/student-fee-report.module').then(m => m.StudentFeeReportModule) },
 ];
 
 @NgModule({

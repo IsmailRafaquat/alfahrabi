@@ -1,0 +1,11 @@
+<div class="sp-footer">
+  <div class="sp-qr-wrap" *ngIf="qrCodeValue">
+    <canvas #qrCanvas></canvas>
+  </div>
+  <div class="sp-barcode-wrap" *ngIf="barcodeValue">
+    <svg #barcodeSvg></svg>
+  </div>
+
+  <div class="sp-footer-message" *ngIf="footerMessage">{{ footerMessage }}</div>
+  <div class="sp-terms" *ngIf="termsAndConditions">{{ termsAndConditions }}</div>
+</div>

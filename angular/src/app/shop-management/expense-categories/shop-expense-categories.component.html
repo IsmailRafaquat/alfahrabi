@@ -1,0 +1,107 @@
+<abp-page>
+<app-topbar-layout titleKey="::ExpenseCategories" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchExpenseCategories'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'Expense Categories classify your shop\'s expenses, like Rent, Utilities, or Staff Salary. Only active categories appear when creating a new expense; deactivating a category keeps its name on past expenses but hides it from new ones.', ur: 'Expense Categories آپ کی دکان کے اخراجات کو الگ الگ گروپس میں تقسیم کرتی ہیں، جیسے کرایہ، بجلی، یا عملے کی تنخواہ۔ نئی Expense بناتے وقت صرف active کیٹیگریز نظر آتی ہیں؛ کسی کیٹیگری کو inactive کرنے سے پرانی expenses پر اس کا نام برقرار رہتا ہے مگر نئی expenses کے لیے وہ نظر نہیں آتی۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateExpenseCategory' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option [nzValue]="true" [nzLabel]="'::Active' | abpLocalization"></nz-option>
+        <nz-option [nzValue]="false" [nzLabel]="'::Inactive' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+  </ng-container>
+
+  <div class="categories-page">
+  <div class="card categories-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::Code' | abpLocalization }}</th>
+            <th>{{ '::Name' | abpLocalization }}</th>
+            <th>{{ '::Description' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><span class="code-chip">{{ row.code }}</span></td>
+            <td><strong>{{ row.name }}</strong></td>
+            <td>{{ row.description || '—' }}</td>
+            <td><span class="status-badge" [class.inactive]="!row.isActive">{{ (row.isActive ? '::Active' : '::Inactive') | abpLocalization }}</span></td>
+            <td class="text-end">
+              <button *ngIf="canEdit" class="icon-btn" nz-tooltip [nzTooltipTitle]="'::EditExpenseCategory' | abpLocalization" nzTooltipPlacement="top" (click)="edit(row)"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canDelete" class="icon-btn danger" nz-tooltip [nzTooltipTitle]="'::DeleteExpenseCategory' | abpLocalization" nzTooltipPlacement="top" (click)="remove(row)"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td colspan="5" class="empty-state"><i class="fas fa-layer-group"></i><span>{{ '::NoExpenseCategoriesFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="modalOpen" [busy]="submitting">
+  <ng-template #abpHeader>
+    <h5 class="modal-title-help">
+      {{ (selected ? '::EditExpenseCategory' : '::CreateExpenseCategory') | abpLocalization }}
+    </h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="form">
+      <div class="mb-2">
+        <label>{{ '::CategoryCode' | abpLocalization }} <b class="required">*</b></label>
+        <input class="form-control form-control-sm" formControlName="code">
+        <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="mb-2">
+        <label>{{ '::CategoryName' | abpLocalization }} <b class="required">*</b></label>
+        <input class="form-control form-control-sm" formControlName="name">
+        <small class="error" *ngIf="form.controls.name.touched && form.controls.name.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+      <div class="mb-2">
+        <label>{{ '::Description' | abpLocalization }}</label>
+        <textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea>
+      </div>
+      <label class="option"><span>{{ '::IsActive' | abpLocalization }}</span><input type="checkbox" class="form-check-input" formControlName="isActive"></label>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting" (click)="save()">{{ '::Save' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

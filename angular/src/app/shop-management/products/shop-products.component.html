@@ -1,0 +1,114 @@
+<abp-page>
+<app-topbar-layout titleKey="::Products" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchProducts'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+      [nzTooltipTitleContext]="{ en: 'Products are the items your shop buys and sells. Use this page to search products, check prices and stock, and open a product for editing.', ur: 'پروڈکٹس وہ چیزیں ہیں جو دکان خریدتی اور بیچتی ہے۔ اس صفحے پر آپ پروڈکٹ تلاش کر سکتے ہیں، قیمت اور اسٹاک دیکھ سکتے ہیں اور تبدیلی کے لیے پروڈکٹ کھول سکتے ہیں۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateProduct' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Category' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllCategories' | abpLocalization">
+        <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Unit' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="unitFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllUnits' | abpLocalization">
+        <nz-option *ngFor="let x of units" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.shortName + ')'"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::IsActive' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option nzValue="active" [nzLabel]="'::ActiveProducts' | abpLocalization"></nz-option>
+        <nz-option nzValue="inactive" [nzLabel]="'::InactiveProducts' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::IsTaxable' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="taxFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllProducts' | abpLocalization">
+        <nz-option nzValue="taxable" [nzLabel]="'::TaxableProducts' | abpLocalization"></nz-option>
+        <nz-option nzValue="nontaxable" [nzLabel]="'::NonTaxableProducts' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-12 col-lg-auto low-stock-toggle">
+      <label class="option"><input type="checkbox" class="form-check-input" [(ngModel)]="lowStockOnly" (ngModelChange)="load(true)"><span>{{ '::LowStockProducts' | abpLocalization }}</span></label>
+    </div>
+  </ng-container>
+
+  <div class="products-page">
+  <div class="card products-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::ProductName' | abpLocalization }}</th>
+            <th>{{ '::ProductCode' | abpLocalization }}</th>
+            <th>{{ '::Category' | abpLocalization }}</th>
+            <th>{{ '::Unit' | abpLocalization }}</th>
+            <th>{{ '::SalePrice' | abpLocalization }}</th>
+            <th *ngIf="canViewCost">{{ '::PurchasePrice' | abpLocalization }}</th>
+            <th>{{ '::CurrentStock' | abpLocalization }}</th>
+            <th>{{ '::StockStatus' | abpLocalization }}</th>
+            <th>{{ '::IsTaxable' | abpLocalization }}</th>
+            <th>{{ '::IsActive' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><strong>{{ row.name }}</strong></td>
+            <td><span class="code-chip">{{ row.code }}</span></td>
+            <td>{{ row.categoryName }}</td>
+            <td>{{ row.unitName }} ({{ row.unitShortName }})</td>
+            <td>{{ row.salePrice | number:'1.2-4' }}</td>
+            <td *ngIf="canViewCost">{{ row.purchasePrice != null ? (row.purchasePrice | number:'1.2-4') : '—' }}</td>
+            <td>{{ row.currentStock | number:'1.0-4' }}</td>
+            <td>
+              <span class="stock-badge" [class.out]="stockStatus(row) === 'out'" [class.low]="stockStatus(row) === 'low'" [class.in]="stockStatus(row) === 'in'">
+                {{ (stockStatus(row) === 'out' ? '::OutOfStock' : (stockStatus(row) === 'low' ? '::LowStock' : '::InStock')) | abpLocalization }}
+              </span>
+            </td>
+            <td><span class="status" [class.inactive]="!row.isTaxable">{{ (row.isTaxable ? '::TaxableProducts' : '::NonTaxableProducts') | abpLocalization }}</span></td>
+            <td><span class="status" [class.inactive]="!row.isActive">{{ (row.isActive ? '::ActiveProducts' : '::InactiveProducts') | abpLocalization }}</span></td>
+            <td class="text-end">
+              <button *ngIf="canEdit" class="icon-btn" (click)="edit(row)" [title]="'::EditProduct' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canDelete" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteProduct' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewCost ? 10 : 9" class="empty-state"><i class="fas fa-box-open"></i><span>{{ '::NoProductsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

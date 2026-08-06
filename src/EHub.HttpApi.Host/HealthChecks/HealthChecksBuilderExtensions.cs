@@ -1,4 +1,5 @@
 ﻿using System;
+using EHub.ShopManagement.AiAssistant;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -15,6 +16,10 @@ public static class HealthChecksBuilderExtensions
         // Add your health checks here
         var healthChecksBuilder = services.AddHealthChecks();
         healthChecksBuilder.AddCheck<EHubDatabaseCheck>("EHub DbContext Check", tags: new string[] { "database" });
+
+        // Optional AI infrastructure - Unhealthy here never blocks the app or any non-AI feature.
+        healthChecksBuilder.AddCheck<ShopAiOllamaHealthCheck>("ShopAi Ollama Check", tags: new string[] { "shopai" });
+        healthChecksBuilder.AddCheck<ShopAiSpeechHealthCheck>("ShopAi Speech-to-Text Check", tags: new string[] { "shopai" });
 
         services.ConfigureHealthCheckEndpoint("/health-status");
 

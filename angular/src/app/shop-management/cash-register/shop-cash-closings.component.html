@@ -1,0 +1,72 @@
+<abp-page>
+<app-topbar-layout titleKey="::DailyClosings" showSearch="false" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::CashRegister' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="registerFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllCashRegisters' | abpLocalization">
+        <nz-option *ngFor="let r of registers" [nzValue]="r.id" [nzLabel]="r.code + ' - ' + r.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="sp-page">
+  <div class="card sp-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::BusinessDate' | abpLocalization }}</th>
+            <th>{{ '::CashRegister' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th class="text-end" *ngIf="canViewAmounts">{{ '::OpeningCash' | abpLocalization }}</th>
+            <th class="text-end" *ngIf="canViewAmounts">{{ '::ExpectedClosingCash' | abpLocalization }}</th>
+            <th class="text-end" *ngIf="canViewAmounts">{{ '::ActualClosingCash' | abpLocalization }}</th>
+            <th class="text-end" *ngIf="canViewAmounts">{{ '::DifferenceAmount' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="sp-link" (click)="view(row)">{{ row.businessDate | date:'mediumDate' }}</a></td>
+            <td>{{ row.cashRegisterCode }} - {{ row.cashRegisterName }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td class="text-end" *ngIf="canViewAmounts">{{ row.openingCash != null ? (row.openingCash | number:'1.2-2') : '—' }}</td>
+            <td class="text-end" *ngIf="canViewAmounts">{{ row.expectedClosingCash != null ? (row.expectedClosingCash | number:'1.2-2') : '—' }}</td>
+            <td class="text-end" *ngIf="canViewAmounts">{{ row.actualClosingCash != null ? (row.actualClosingCash | number:'1.2-2') : '—' }}</td>
+            <td class="text-end" *ngIf="canViewAmounts">
+              <span [class.text-danger]="row.differenceAmount != null && row.differenceAmount < 0" [class.text-success]="row.differenceAmount != null && row.differenceAmount > 0">
+                {{ row.differenceAmount != null ? (row.differenceAmount | number:'1.2-2') : '—' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewAmounts ? 7 : 3" class="empty-state"><i class="fas fa-book"></i><span>{{ '::NoCashClosingsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>

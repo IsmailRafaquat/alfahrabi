@@ -1,0 +1,75 @@
+:host { display: block; min-width: 0; max-width: 100%; }
+.dashboard-page { padding: 1.25rem 1rem; min-width: 0; max-width: 100%; box-sizing: border-box; }
+
+.form-control-sm { min-height: 34px; border-color: #dce6ef; font-size: .8rem; }
+
+// minmax(0, 1fr) instead of a bare 1fr: a plain 1fr track still has an implicit min-width based on
+// its content, so one card with wide content (a long number, an unbroken string) can force the
+// whole grid - and the page - wider than the viewport. minmax(0, 1fr) removes that floor; it looks
+// identical to 1fr whenever there's enough room, so this changes nothing at normal widths.
+.cards-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.stat-card {
+  position: relative;
+  display: flex; align-items: center; gap: .85rem; padding: 1rem 1.1rem; background: #fff;
+  border: 1px solid #e1eaf2; border-radius: 12px; box-shadow: 0 3px 14px rgba(22,61,99,.05); cursor: pointer;
+  transition: box-shadow .15s ease, transform .15s ease;
+  min-width: 0;
+  max-width: 100%;
+}
+.tooltip-lang-tabs { display: flex; gap: .35rem; margin-bottom: .55rem; border-bottom: 1px solid rgba(255,255,255,.18); padding-bottom: .5rem; }
+.tooltip-lang-tabs button { border: 0; background: transparent; color: rgba(255,255,255,.65); font-size: .85rem; font-weight: 700; padding: .25rem .65rem; border-radius: 4px; cursor: pointer; }
+.tooltip-lang-tabs button.active { background: rgba(255,255,255,.16); color: #fff; }
+.tooltip-lang-text { max-width: 320px; font-size: .92rem; line-height: 1.6; color: rgba(255,255,255,.95); }
+.tooltip-lang-text[dir="rtl"] { text-align: right; font-size: 1.1rem; line-height: 2; font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif; }
+.stat-card:hover { box-shadow: 0 6px 20px rgba(22,61,99,.1); transform: translateY(-1px); }
+.stat-card i { font-size: 1.4rem; color: #2369a3; width: 36px; text-align: center; flex: none; }
+.stat-card.alert-card i { color: #c8763e; }
+.stat-label { display: block; color: #8a9bad; font-size: .68rem; text-transform: uppercase; letter-spacing: .02em; margin-bottom: .2rem; }
+.stat-card strong { font-size: 1.05rem; color: #22405f; }
+
+.chart-trend-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.chart-card { min-height: 320px; min-width: 0; max-width: 100%; }
+.chart-wrap { position: relative; height: 260px; max-width: 100%; }
+.trend-card { display: flex; flex-direction: column; gap: .6rem; min-width: 0; max-width: 100%; }
+.trend-row { display: flex; align-items: center; justify-content: space-between; padding: .5rem 0; border-bottom: 1px dashed #e7eef5; }
+.trend-row:last-child { border-bottom: 0; }
+.growth-positive { color: #198754; }
+.growth-negative { color: #c83e4d; }
+
+.widgets-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.widgets-row.triple { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.widget-card { min-height: 220px; min-width: 0; max-width: 100%; }
+
+.detail-card { padding: 1.1rem 1.25rem; margin-bottom: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); min-width: 0; max-width: 100%; box-sizing: border-box; }
+.section-title { margin: 0 0 .8rem; color: #315b82; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.field-label { display: block; color: #8a9bad; font-size: .68rem; text-transform: uppercase; margin-bottom: .2rem; }
+.code-chip { display: inline-block; border-radius: 5px; padding: .1rem .35rem; background: #edf4fa; color: #2d6594; font-size: .68rem; font-weight: 700; }
+.view-all-link { color: #2369a3; font-weight: 700; cursor: pointer; font-size: .78rem; text-decoration: none; }
+.view-all-link:hover { text-decoration: underline; }
+
+table { margin: 0; thead th { background: #f8fafc; color: #62788e; font-size: .68rem; text-transform: uppercase; padding: .6rem; white-space: nowrap; } tbody td { padding: .6rem; color: #435b73; font-size: .8rem; border-color: #edf2f6; } }
+
+.status-badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+.status-badge.active, .status-badge.paid { color: #198754; background: #e9f7ef; }
+.status-badge.near-expiry, .status-badge.partial { color: #a3730f; background: #fdf3dd; }
+.status-badge.expired, .status-badge.unpaid { color: #c83e4d; background: #fff0f1; }
+.status-badge.exhausted { color: #63707d; background: #eef1f4; }
+.status-badge.blocked { color: #7b8794; background: #edf0f3; }
+
+.empty-state { text-align: center; padding: 2rem !important; color: #8a9bad !important; i { display: block; font-size: 1.6rem; margin-bottom: .5rem; } }
+.page-empty { padding: 3rem 1rem; background: #fff; border-radius: 12px; border: 1px solid #e1eaf2; }
+
+.quick-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+@media (max-width: 1199.98px) {
+  .cards-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-trend-row { grid-template-columns: minmax(0, 1fr); }
+  .widgets-row, .widgets-row.triple { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 767.98px) {
+  .dashboard-page { padding: .65rem; }
+  .cards-row { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-header { align-items: flex-start; }
+  .table-responsive { max-height: 50vh; }
+}

@@ -1,0 +1,196 @@
+<abp-page>
+<app-topbar-layout [titleKey]="readonlyMode ? '::ViewCustomer' : (isEdit ? '::EditCustomer' : '::CreateCustomer')" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Customer fields help</span></button>
+  </div>
+
+  <div topbarActions class="d-flex align-items-center gap-2">
+    <button *ngIf="isEdit && canViewLedger" type="button" class="btn btn-outline-primary btn-sm" (click)="viewLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewLedger' | abpLocalization }}</button>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="done()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
+  <div *ngIf="!loading && isEdit && ledgerSummary && canViewLedgerAmounts" class="ledger-summary-panel">
+    <div class="ledger-summary-item"><span>{{ '::CurrentReceivable' | abpLocalization }}</span><strong>{{ ledgerSummary.receivableAmount | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::AvailableAdvance' | abpLocalization }}</span><strong>{{ ledgerSummary.advanceAmount | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::TotalSales' | abpLocalization }}</span><strong>{{ ledgerSummary.totalCompletedSales | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::PaidAtSale' | abpLocalization }}</span><strong>{{ ledgerSummary.totalInitialPaidAtSale | number:'1.2-2' }}</strong></div>
+    <div class="ledger-summary-item"><span>{{ '::AdditionalPayments' | abpLocalization }}</span><strong>{{ ledgerSummary.totalPostedCustomerPayments | number:'1.2-2' }}</strong></div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()" class="customer-form-wrap">
+    <div class="customer-grid">
+      <div class="grid-basic">
+        <section class="form-section section-basic">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+          <div class="section-body">
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label>{{ '::CustomerCode' | abpLocalization }} <b class="required">*</b></label>
+                <input class="form-control form-control-sm" formControlName="code">
+                <small class="error" *ngIf="form.controls.code.touched && form.controls.code.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::CustomerName' | abpLocalization }} <b class="required">*</b></label>
+                <input class="form-control form-control-sm" formControlName="name">
+                <small class="error" *ngIf="form.controls.name.touched && form.controls.name.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::CustomerType' | abpLocalization }}</label>
+                <nz-select class="w-100" formControlName="customerType">
+                  <nz-option [nzValue]="ShopCustomerType.Individual" [nzLabel]="'::Individual' | abpLocalization"></nz-option>
+                  <nz-option [nzValue]="ShopCustomerType.Business" [nzLabel]="'::Business' | abpLocalization"></nz-option>
+                  <nz-option [nzValue]="ShopCustomerType.WalkIn" [nzLabel]="'::WalkIn' | abpLocalization"></nz-option>
+                </nz-select>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::ContactPerson' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="contactPerson">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::Phone' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="phone">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::AlternatePhone' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="alternatePhone">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::Email' | abpLocalization }}</label>
+                <input type="email" class="form-control form-control-sm" formControlName="email">
+                <small class="error" *ngIf="form.controls.email.touched && form.controls.email.invalid">{{ '::ValidationInvalidEmail' | abpLocalization }}</small>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::TaxNumber' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="taxNumber">
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="grid-financial">
+        <section class="form-section section-financial" *ngIf="canViewBalance">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-coins"></i></span><h6>{{ '::FinancialInformation' | abpLocalization }}</h6></div>
+          <div class="section-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label>{{ '::OpeningBalance' | abpLocalization }}</label>
+                <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="openingBalance">
+                <small class="error" *ngIf="form.controls.openingBalance.touched && form.controls.openingBalance.invalid">{{ '::CustomerOpeningBalanceCannotBeNegative' | abpLocalization }}</small>
+              </div>
+              <div class="col-12">
+                <label>{{ '::CreditLimit' | abpLocalization }}</label>
+                <input type="number" min="0" step="0.01" class="form-control form-control-sm" formControlName="creditLimit">
+                <small class="error" *ngIf="form.controls.creditLimit.touched && form.controls.creditLimit.invalid">{{ '::CustomerCreditLimitCannotBeNegative' | abpLocalization }}</small>
+              </div>
+              <div class="col-12">
+                <label>{{ '::PaymentTermsDays' | abpLocalization }}</label>
+                <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="paymentTermsDays">
+                <small class="error" *ngIf="form.controls.paymentTermsDays.touched && form.controls.paymentTermsDays.invalid">{{ '::CustomerPaymentTermsCannotBeNegative' | abpLocalization }}</small>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="grid-address">
+        <section class="form-section section-address">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-map-marker-alt"></i></span><h6>{{ '::Address' | abpLocalization }}</h6></div>
+          <div class="section-body">
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label>{{ '::AddressLine1' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="addressLine1">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::AddressLine2' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="addressLine2">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::City' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="city">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::StateOrProvince' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="stateOrProvince">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::PostalCode' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="postalCode">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label>{{ '::Country' | abpLocalization }}</label>
+                <input class="form-control form-control-sm" formControlName="country">
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="grid-notes">
+        <section class="form-section section-notes">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-sticky-note"></i></span><h6>{{ '::Notes' | abpLocalization }}</h6></div>
+          <div class="section-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label>{{ '::Notes' | abpLocalization }}</label>
+                <textarea rows="4" class="form-control form-control-sm" formControlName="notes"></textarea>
+              </div>
+              <div class="col-6">
+                <label class="active-label">{{ '::IsWalkInCustomer' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isWalkInCustomer"></label>
+              </div>
+              <div class="col-6">
+                <label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="card-save" *ngIf="!readonlyMode">
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" [class]="isEdit ? 'fas fa-save me-2' : 'fas fa-plus me-2'"></i>{{ (isEdit ? '::UpdateCustomer' : '::SaveCustomer') | abpLocalization }}
+      </button>
+    </div>
+  </form>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Customer Fields Guide' : 'کسٹمر فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Customer Code</strong><span>{{ helpLang === 'en' ? "A short, unique identifier for the customer. Keep every customer's code different." : 'کسٹمر کی منفرد چھوٹی پہچان۔ ہر کسٹمر کا کوڈ الگ رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Customer Name</strong><span>{{ helpLang === 'en' ? 'The full name of the person or business you sell goods to.' : 'جس شخص یا کاروبار کو آپ سامان بیچتے ہیں اس کا پورا نام۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Customer Type</strong><span>{{ helpLang === 'en' ? 'Whether this customer is an individual, a business, or a walk-in customer.' : 'بتائیں کہ یہ کسٹمر انفرادی شخص ہے، کاروبار ہے، یا واک اِن (سیدھا دکان پر آنے والا) کسٹمر ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Contact Person</strong><span>{{ helpLang === 'en' ? 'The name of the person to contact at the customer.' : 'کسٹمر کی طرف سے رابطہ کرنے والے شخص کا نام۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Phone / Alternate Phone</strong><span>{{ helpLang === 'en' ? "The customer's main and secondary contact numbers." : 'کسٹمر کے مرکزی اور دوسرے رابطہ نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Email</strong><span>{{ helpLang === 'en' ? "The customer's email address for bills or contact." : 'بل یا رابطے کے لیے کسٹمر کا ای میل پتہ۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Tax Number</strong><span>{{ helpLang === 'en' ? "The customer's tax registration number, if any." : 'اگر موجود ہو تو کسٹمر کا ٹیکس رجسٹریشن نمبر لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Address</strong><span>{{ helpLang === 'en' ? "The customer's full address, city, province, postal code and country." : 'کسٹمر کا مکمل پتہ، شہر، صوبہ، پوسٹل کوڈ اور ملک لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Opening Balance</strong><span>{{ helpLang === 'en' ? 'Any existing amount the customer already owes you, at the start.' : 'شروع میں کسٹمر پر پہلے سے واجب الادا رقم۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Credit Limit</strong><span>{{ helpLang === 'en' ? 'The maximum amount this customer may be allowed to purchase on credit.' : 'زیادہ سے زیادہ رقم جتنی اس کسٹمر کو ادھار دی جا سکتی ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Payment Terms (Days)</strong><span>{{ helpLang === 'en' ? 'The number of days allowed to pay after a purchase.' : 'خریداری کے بعد ادائیگی کے لیے ملنے والے دنوں کی تعداد۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Walk-in Customer</strong><span>{{ helpLang === 'en' ? 'When turned on, this is used for general walk-in customers; only one walk-in customer is allowed per shop.' : 'آن کرنے پر یہ سیدھا دکان پر آنے والے عام کسٹمر کے لیے استعمال ہوگا؛ ہر دکان میں صرف ایک واک اِن کسٹمر ہو سکتا ہے۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Notes</strong><span>{{ helpLang === 'en' ? 'Any other useful information about the customer.' : 'کسٹمر کے بارے میں ضروری اضافی معلومات لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Active</strong><span>{{ helpLang === 'en' ? 'When turned on, this customer can be selected for new sales.' : 'آن ہونے پر یہ کسٹمر نئی فروخت میں منتخب کیا جا سکے گا۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

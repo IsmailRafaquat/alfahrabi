@@ -1,0 +1,28 @@
+<div
+  class="shop-print-root print-only"
+  *ngIf="document"
+  [ngClass]="[paperSizeClass, fontSizeClass, densityClass]"
+  [attr.dir]="lang === 'ur' ? 'rtl' : 'ltr'"
+>
+  <shop-print-label *ngIf="isLabelDocument" [document]="document" [copies]="copies"></shop-print-label>
+
+  <ng-container *ngIf="!isLabelDocument">
+    <shop-thermal-receipt
+      *ngIf="document.paperSize !== ShopPrintPaperSize.A4"
+      [document]="document"
+      [labels]="labels"
+      [settings]="settings"
+      [cashierName]="cashierName"
+      [copyLabel]="copyLabel"
+    ></shop-thermal-receipt>
+
+    <shop-a4-document
+      *ngIf="document.paperSize === ShopPrintPaperSize.A4"
+      [document]="document"
+      [labels]="labels"
+      [settings]="settings"
+      [cashierName]="cashierName"
+      [copyLabel]="copyLabel"
+    ></shop-a4-document>
+  </ng-container>
+</div>

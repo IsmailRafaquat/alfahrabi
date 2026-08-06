@@ -1,0 +1,47 @@
+<abp-page>
+  <div class="reports-container">
+    <div class="master-report-hero">
+      <div class="report-card report-card--featured report-card--primary">
+        <div class="report-card__content">
+          <div class="report-card__icon-wrapper report-card__icon-wrapper--featured">
+            <i class="fas fa-chart-pie report-card__icon"></i>
+          </div>
+
+          <div class="report-card__text">
+            <h4 class="report-card__title">{{ '::ShopReports' | abpLocalization }}</h4>
+            <p class="report-card__description">{{ '::ShopReportsDescription' | abpLocalization }}</p>
+          </div>
+        </div>
+
+        <div class="report-card__decoration">
+          <div class="decoration-circle decoration-circle--1"></div>
+          <div class="decoration-circle decoration-circle--2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sales-reports-section">
+      <div class="section-header mx-2 my-3">
+        <h3 class="section-title">{{ '::ShopReports' | abpLocalization }}</h3>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="sales-reports-grid">
+        <div class="report-card-wrapper" *ngFor="let c of visibleReportCards; let i = index" [style.animation-delay.s]="i * 0.05">
+          <div class="report-card" [ngClass]="c.colorClass" (click)="openReport(c.route)">
+            <div class="report-card__header">
+              <div class="report-card__icon-wrapper">
+                <i [class]="c.icon + ' report-card__icon'"></i>
+              </div>
+              <h4 class="report-card__title mb-0">{{ c.titleKey | abpLocalization }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-empty-notice" *ngIf="visibleReportCards.length === 0">
+        {{ '::NoReportData' | abpLocalization }}
+      </div>
+    </div>
+  </div>
+</abp-page>

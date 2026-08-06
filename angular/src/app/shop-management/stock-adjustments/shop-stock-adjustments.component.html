@@ -1,0 +1,130 @@
+<abp-page>
+<app-topbar-layout titleKey="::StockAdjustments" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchStockAdjustments'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Stock Adjustment corrects a product\'s stock quantity for reasons like damage, loss, theft, or a physical counting difference. Draft adjustments do not change stock — stock only changes once you Post the adjustment.', ur: 'Stock Adjustment کسی پروڈکٹ کی مقدار کو درست کرنے کے لیے استعمال ہوتا ہے، مثلاً نقصان، گمشدگی، چوری یا گنتی میں فرق کی وجہ سے۔ Draft ایڈجسٹمنٹ سے اسٹاک میں کوئی تبدیلی نہیں آتی — اسٹاک صرف Post کرنے پر تبدیل ہوتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateStockAdjustment' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Product' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="productFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Product' | abpLocalization">
+        <nz-option *ngFor="let x of products" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::AdjustmentType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllTypes' | abpLocalization">
+        <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::AdjustmentReason' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="reasonFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllReasons' | abpLocalization">
+        <nz-option *ngFor="let x of reasonOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="adjustmentDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="adjustmentDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="stock-adjustments-page">
+  <div class="card stock-adjustments-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::AdjustmentNumber' | abpLocalization }}</th>
+            <th>{{ '::AdjustmentDate' | abpLocalization }}</th>
+            <th>{{ '::AdjustmentReason' | abpLocalization }}</th>
+            <th>{{ '::ItemCount' | abpLocalization }}</th>
+            <th>{{ '::TotalIncreaseQuantity' | abpLocalization }}</th>
+            <th>{{ '::TotalDecreaseQuantity' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::PostedOn' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="adjustment-link" (click)="view(row)">{{ row.adjustmentNumber }}</a></td>
+            <td>{{ row.adjustmentDate | date:'mediumDate' }}</td>
+            <td>{{ reasonLabel(row.reason) | abpLocalization }}</td>
+            <td>{{ itemCount(row) }}</td>
+            <td>{{ totalIncreaseQuantity(row) | number:'1.0-4' }}</td>
+            <td>{{ totalDecreaseQuantity(row) | number:'1.0-4' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td>{{ row.postedDate ? (row.postedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" nz-tooltip [nzTooltipTitle]="'::ViewStockAdjustment' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewStockAdjustment' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" (click)="edit(row)" nz-tooltip [nzTooltipTitle]="'::EditStockAdjustment' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::EditStockAdjustment' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canPost && isDraft(row)" class="icon-btn success" [disabled]="actionInProgress" (click)="post(row)" nz-tooltip [nzTooltipTitle]="'::PostStockAdjustment' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::PostStockAdjustment' | abpLocalization"><i class="fas fa-check"></i></button>
+              <button *ngIf="canCancel && isDraft(row)" class="icon-btn" [disabled]="actionInProgress" (click)="openCancel(row)" nz-tooltip [nzTooltipTitle]="'::CancelStockAdjustment' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::CancelStockAdjustment' | abpLocalization"><i class="fas fa-ban"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" nz-tooltip [nzTooltipTitle]="'::DeleteStockAdjustment' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::DeleteStockAdjustment' | abpLocalization"><i class="fas fa-trash"></i></button>
+              <button *ngIf="canViewStockTransactions && row.status === ShopStockAdjustmentStatus.Posted" class="icon-btn" (click)="viewStockTransactions(row)" nz-tooltip [nzTooltipTitle]="'::ViewStockTransactions' | abpLocalization" nzTooltipPlacement="top" [attr.aria-label]="'::ViewStockTransactions' | abpLocalization"><i class="fas fa-exchange-alt"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td colspan="9" class="empty-state"><i class="fas fa-boxes"></i><span>{{ '::NoStockAdjustmentsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>
+
+<abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::CancelStockAdjustment' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="cancelForm">
+      <div class="mb-3">
+        <label>{{ '::CancellationReason' | abpLocalization }} <b>*</b></label>
+        <textarea rows="3" class="form-control" formControlName="cancellationReason"></textarea>
+        <small *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || actionInProgress" (click)="confirmCancel()">{{ '::CancelStockAdjustment' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>

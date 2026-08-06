@@ -1,0 +1,68 @@
+<abp-page>
+<app-topbar-layout titleKey="::ManageProductCategories" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="editor-help-btn" (click)="helpOpen = true"><i class="fas fa-info-circle"></i><span class="visually-hidden">Category fields help</span></button>
+  </div>
+
+  <div topbarActions class="d-flex align-items-center gap-2">
+    <button *ngIf="isEdit" type="button" class="btn btn-light btn-sm" (click)="cancelEdit()">{{ '::CancelEdit' | abpLocalization }}</button>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <div formArrayName="categories">
+      <div *ngFor="let row of categories.controls; let i = index" [formGroupName]="i">
+        <section class="form-section section-category">
+          <div class="section-head"><span class="section-icon"><i class="fas fa-tag"></i></span><h6>{{ '::CategoryDetails' | abpLocalization }}</h6></div>
+          <div class="section-body">
+            <div class="row g-3">
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::CategoryName' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm" formControlName="name"><small *ngIf="row.get('name')?.touched && row.get('name')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small></div>
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::CategoryCode' | abpLocalization }} <b>*</b></label><input class="form-control form-control-sm text-uppercase" formControlName="code"><small *ngIf="row.get('code')?.touched && row.get('code')?.invalid">{{ '::ValidationRequired' | abpLocalization }}</small></div>
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::ParentCategory' | abpLocalization }}</label><nz-select class="w-100 category-nz-select" formControlName="parentCategoryId" nzShowSearch nzAllowClear nzSize="small" [nzPlaceHolder]="'::SelectParentCategory' | abpLocalization"><nz-option [nzValue]="null" [nzLabel]="'::RootCategory' | abpLocalization"></nz-option><nz-option *ngFor="let x of parentOptions(i)" [nzValue]="x.id" [nzLabel]="x.displayName"></nz-option></nz-select></div>
+              <div class="col-12 col-sm-6 col-xl-3"><label>{{ '::DisplayOrder' | abpLocalization }} <b>*</b></label><input type="number" min="0" class="form-control form-control-sm" formControlName="displayOrder"></div>
+              <div class="col-12 col-xl-8"><label>{{ '::Description' | abpLocalization }}</label><textarea rows="2" class="form-control form-control-sm" formControlName="description"></textarea></div>
+              <div class="col-12 col-xl-4"><label class="active-label">{{ '::IsActive' | abpLocalization }}<input type="checkbox" class="form-check-input" formControlName="isActive"></label></div>
+            </div>
+          </div>
+        </section>
+        <div class="card-save"><button type="submit" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting"><span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span><i *ngIf="!submitting" [class]="isEdit ? 'fas fa-save me-2' : 'fas fa-plus me-2'"></i>{{ (isEdit ? '::UpdateCategory' : '::SaveCategory') | abpLocalization }}</button></div>
+      </div>
+    </div>
+  </form>
+
+  <div class="saved-list-card">
+    <div class="saved-list-header"><div><h5>{{ '::SessionProductCategories' | abpLocalization }}</h5><span>{{ savedItems.length }} {{ '::AddedThisSession' | abpLocalization }}</span></div></div>
+    <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>{{ '::CategoryName' | abpLocalization }}</th><th>{{ '::CategoryCode' | abpLocalization }}</th><th>{{ '::ParentCategory' | abpLocalization }}</th><th>{{ '::DisplayOrder' | abpLocalization }}</th><th>{{ '::IsActive' | abpLocalization }}</th><th></th></tr></thead>
+      <tbody><tr *ngFor="let item of savedItems"><td><strong>{{ item.name }}</strong></td><td><span class="code-pill">{{ item.code }}</span></td><td>{{ item.parentCategoryName || ('::RootCategory' | abpLocalization) }}</td><td>{{ item.displayOrder }}</td><td><span class="status-pill" [class.inactive]="!item.isActive">{{ (item.isActive ? '::ActiveCategories' : '::InactiveCategories') | abpLocalization }}</span></td><td class="text-end"><button class="edit-row-btn" type="button" (click)="editSaved(item)"><i class="fas fa-pen"></i> {{ '::EditProductCategory' | abpLocalization }}</button></td></tr>
+        <tr *ngIf="!savedItems.length"><td colspan="6" class="text-center text-muted py-4">{{ '::NoCategoriesAddedThisSession' | abpLocalization }}</td></tr></tbody></table></div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="helpOpen">
+  <ng-template #abpHeader>
+    <h5 class="help-modal-title">{{ helpLang === 'en' ? 'Category Fields Guide' : 'کیٹیگری فیلڈز گائیڈ' }}</h5>
+  </ng-template>
+  <ng-template #abpBody>
+    <div class="help-lang-tabs">
+      <button type="button" [class.active]="helpLang === 'en'" (click)="helpLang = 'en'">EN</button>
+      <button type="button" [class.active]="helpLang === 'ur'" (click)="helpLang = 'ur'">اردو</button>
+    </div>
+    <div class="help-field-list" [attr.dir]="helpLang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="helpLang">
+      <div class="help-field-item"><strong dir="ltr">Category Name</strong><span>{{ helpLang === 'en' ? 'The full name of the category, e.g. Pipes or Water Tanks.' : 'کیٹیگری کا پورا نام، جیسے پائپس یا پانی کی ٹینکیاں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Category Code</strong><span>{{ helpLang === 'en' ? "A short unique identifier for the category, e.g. PIPE. A code can't be reused." : 'کیٹیگری کی منفرد چھوٹی پہچان، جیسے PIPE۔ ایک کوڈ دوبارہ نہ رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Parent Category</strong><span>{{ helpLang === 'en' ? 'Choose the parent category if this belongs inside a bigger one, otherwise leave it as Root Category.' : 'اگر یہ کسی بڑی کیٹیگری کے اندر ہے تو وہ منتخب کریں، ورنہ Root Category رکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Display Order</strong><span>{{ helpLang === 'en' ? 'A category with a smaller number appears first in the list.' : 'چھوٹا نمبر والی کیٹیگری فہرست میں پہلے نظر آئے گی۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Description</strong><span>{{ helpLang === 'en' ? 'Write a short note about this category.' : 'کیٹیگری کے بارے میں مختصر معلومات لکھیں۔' }}</span></div>
+      <div class="help-field-item"><strong dir="ltr">Active</strong><span>{{ helpLang === 'en' ? 'When turned on, this category can be selected while creating a new product.' : 'آن ہونے پر یہ کیٹیگری نئی پروڈکٹ کے لیے منتخب ہو سکے گی۔' }}</span></div>
+    </div>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ helpLang === 'en' ? 'Close' : 'بند کریں' }}</button>
+  </ng-template>
+</abp-modal>

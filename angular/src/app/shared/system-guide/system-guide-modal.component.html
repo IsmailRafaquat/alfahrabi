@@ -1,0 +1,133 @@
+<div class="sg-backdrop" (click)="onBackdropClick($event)">
+  <div
+    #dialog
+    class="sg-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sgModalTitle"
+  >
+    <header class="sg-header">
+      <h2 id="sgModalTitle" class="sg-title">{{ '::SystemGuideModalTitle' | abpLocalization }}</h2>
+      <button type="button" class="sg-close" (click)="close()" [attr.aria-label]="'::Close' | abpLocalization">
+        <i class="fas fa-times"></i>
+      </button>
+    </header>
+
+    <div class="sg-toolbar">
+      <div class="sg-search">
+        <label for="sgSearchInput" class="visually-hidden">{{ '::SearchModules' | abpLocalization }}</label>
+        <i class="fas fa-search"></i>
+        <input
+          #searchInput
+          id="sgSearchInput"
+          type="search"
+          [attr.aria-label]="'::SearchModules' | abpLocalization"
+          [placeholder]="'::SearchModules' | abpLocalization"
+          [ngModel]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </div>
+
+      <div class="sg-lang-toggle" role="group" aria-label="Guide language">
+        <button type="button" [class.active]="language === 'en'" (click)="setLanguage('en')">{{ '::Language:English' | abpLocalization }}</button>
+        <button type="button" [class.active]="language === 'ur'" (click)="setLanguage('ur')">{{ '::Language:Urdu' | abpLocalization }}</button>
+        <button type="button" [class.active]="language === 'both'" (click)="setLanguage('both')">{{ '::Language:Both' | abpLocalization }}</button>
+      </div>
+    </div>
+
+    <div class="sg-body" [class.sg-body--show-detail]="showDetailOnMobile">
+      <div class="sg-list" role="listbox" [attr.aria-label]="'::SearchModules' | abpLocalization">
+        <p class="sg-empty" *ngIf="filteredModules.length === 0">{{ '::NoModulesFound' | abpLocalization }}</p>
+
+        <button
+          type="button"
+          class="sg-list-item"
+          *ngFor="let m of filteredModules"
+          role="option"
+          [attr.aria-selected]="selectedModule?.key === m.key"
+          [class.active]="selectedModule?.key === m.key"
+          (click)="selectModule(m)"
+        >
+          <i class="sg-list-icon" [ngClass]="m.icon"></i>
+          <span class="sg-list-text">
+            <span class="sg-list-name">
+              <ng-container *ngFor="let lang of displayLanguages; let last = last">
+                <span [attr.dir]="lang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="lang">{{ lang === 'ur' ? m.name.ur : m.name.en }}</span>
+                <span *ngIf="!last"> / </span>
+              </ng-container>
+              <span class="sg-coming-soon" *ngIf="m.comingSoon">{{ '::ComingSoon' | abpLocalization }}</span>
+            </span>
+            <span class="sg-list-desc" *ngFor="let lang of displayLanguages" [attr.dir]="lang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="lang">
+              {{ lang === 'ur' ? m.shortDescription.ur : m.shortDescription.en }}
+            </span>
+          </span>
+          <i class="fas fa-chevron-right sg-list-arrow"></i>
+        </button>
+      </div>
+
+      <div class="sg-detail" *ngIf="selectedModule as m">
+        <button type="button" class="sg-back-to-list" (click)="backToList()">
+          <i class="fas fa-arrow-left"></i> {{ '::BackToModuleList' | abpLocalization }}
+        </button>
+
+        <div class="sg-detail-heading">
+          <i class="sg-detail-icon" [ngClass]="m.icon"></i>
+          <div>
+            <h3 *ngFor="let lang of displayLanguages" [attr.dir]="lang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="lang">
+              {{ lang === 'ur' ? m.name.ur : m.name.en }}
+            </h3>
+            <span class="sg-coming-soon" *ngIf="m.comingSoon">{{ '::ComingSoon' | abpLocalization }}</span>
+          </div>
+        </div>
+
+        <section class="sg-section" *ngFor="let lang of displayLanguages" [attr.dir]="lang === 'ur' ? 'rtl' : 'ltr'" [attr.lang]="lang">
+          <h4>{{ sectionHeadings[lang].purpose }}</h4>
+          <p>{{ lang === 'ur' ? m.purpose.ur : m.purpose.en }}</p>
+
+          <h4>{{ sectionHeadings[lang].whenToUse }}</h4>
+          <p>{{ lang === 'ur' ? m.whenToUse.ur : m.whenToUse.en }}</p>
+
+          <ng-container *ngIf="(lang === 'ur' ? m.requiredInformation.ur : m.requiredInformation.en).length">
+            <h4>{{ sectionHeadings[lang].requiredInfo }}</h4>
+            <ul>
+              <li *ngFor="let item of (lang === 'ur' ? m.requiredInformation.ur : m.requiredInformation.en)">{{ item }}</li>
+            </ul>
+          </ng-container>
+
+          <h4>{{ sectionHeadings[lang].workflow }}</h4>
+          <ol class="sg-timeline">
+            <li *ngFor="let step of (lang === 'ur' ? m.workflow.ur : m.workflow.en)">{{ step }}</li>
+          </ol>
+
+          <h4>{{ sectionHeadings[lang].whatHappensNext }}</h4>
+          <p>{{ lang === 'ur' ? m.whatHappensNext.ur : m.whatHappensNext.en }}</p>
+
+          <ng-container *ngIf="m.relatedModules.length">
+            <h4>{{ sectionHeadings[lang].related }}</h4>
+            <div class="sg-chips">
+              <button type="button" class="sg-chip" *ngFor="let key of m.relatedModules" (click)="selectModuleByKey(key)">
+                {{ relatedModuleName(key) }}
+              </button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="(lang === 'ur' ? m.importantNotes.ur : m.importantNotes.en).length">
+            <h4>{{ sectionHeadings[lang].notes }}</h4>
+            <ul class="sg-notes">
+              <li *ngFor="let note of (lang === 'ur' ? m.importantNotes.ur : m.importantNotes.en)">{{ note }}</li>
+            </ul>
+          </ng-container>
+        </section>
+
+        <button
+          type="button"
+          class="sg-open-module"
+          [disabled]="!m.route || m.comingSoon"
+          (click)="openModule(m)"
+        >
+          {{ '::OpenModule' | abpLocalization }} <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

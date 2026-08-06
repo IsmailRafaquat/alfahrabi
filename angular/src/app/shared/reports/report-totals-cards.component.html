@@ -1,0 +1,6 @@
+<div class="summary-cards">
+  <div class="summary-card" *ngFor="let c of cards" [ngClass]="'summary-card--' + (c.colorClass || 'primary')">
+    <span>{{ c.label | abpLocalization }}</span>
+    <strong>{{ c.value }}</strong>
+  </div>
+</div>

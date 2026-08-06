@@ -1,0 +1,94 @@
+<abp-page>
+<app-topbar-layout titleKey="::StockTransactions" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::ReferenceNumber'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'Stock Transactions are a read-only history of every stock movement in your shop, like goods received, sales, or adjustments. You cannot add or edit entries here — they are created automatically by other actions.', ur: 'Stock Transactions آپ کی دکان میں اسٹاک کی ہر حرکت کا ریکارڈ ہے، جیسے سامان وصول ہونا یا فروخت ہونا۔ یہاں سے کچھ شامل یا تبدیل نہیں کیا جا سکتا، یہ خودکار طور پر بنتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::Product' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="productFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectProduct' | abpLocalization">
+        <nz-option *ngFor="let x of products" [nzValue]="x.id" [nzLabel]="x.name + ' (' + x.code + ')'"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::TransactionType' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="typeFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::TransactionType' | abpLocalization">
+        <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="st-page">
+  <div class="card st-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::ReceiptDate' | abpLocalization }}</th>
+            <th>{{ '::Product' | abpLocalization }}</th>
+            <th>{{ '::TransactionType' | abpLocalization }}</th>
+            <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+            <th>{{ '::QuantityIn' | abpLocalization }}</th>
+            <th>{{ '::QuantityOut' | abpLocalization }}</th>
+            <th>{{ '::BalanceQuantity' | abpLocalization }}</th>
+            <th *ngIf="canViewCost">{{ '::UnitCost' | abpLocalization }}</th>
+            <th *ngIf="canViewCost">{{ '::TotalCost' | abpLocalization }}</th>
+            <th>{{ '::BatchNumber' | abpLocalization }}</th>
+            <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td>{{ row.transactionDate | date:'mediumDate' }}</td>
+            <td><strong>{{ row.productName }}</strong><br><span class="code-chip">{{ row.productCode }}</span></td>
+            <td>{{ typeLabel(row.transactionType) | abpLocalization }}</td>
+            <td>{{ row.referenceNumber }}</td>
+            <td class="in-qty">{{ row.quantityIn > 0 ? ('+' + (row.quantityIn | number:'1.0-4')) : '—' }}</td>
+            <td class="out-qty">{{ row.quantityOut > 0 ? ('-' + (row.quantityOut | number:'1.0-4')) : '—' }}</td>
+            <td>{{ row.balanceQuantity | number:'1.0-4' }}</td>
+            <td *ngIf="canViewCost">{{ row.unitCost != null ? (row.unitCost | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewCost">{{ row.totalCost != null ? (row.totalCost | number:'1.2-2') : '—' }}</td>
+            <td>{{ row.batchNumber || '—' }}</td>
+            <td>{{ row.expiryDate ? (row.expiryDate | date:'mediumDate') : '—' }}</td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewCost ? 11 : 9" class="empty-state"><i class="fas fa-exchange-alt"></i><span>{{ '::NoStockTransactionsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

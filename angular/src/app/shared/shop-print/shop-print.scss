@@ -1,0 +1,198 @@
+// Shared print CSS for every Shop Management printable document (thermal 58mm/80mm + A4).
+// Screen-time layout is intentionally minimal here - the interesting rules are all inside
+// @media print, since .shop-print-root only ever becomes visible there (see the global
+// .print-only isolation rule in angular/src/styles.scss, which this markup still relies on).
+
+// No default display:none here - .shop-print-root only ever exists in the DOM while
+// ShopPrintPreviewComponent is mounted (see ShopPrintService.openPreview), where it doubles as
+// the on-screen print preview inside the modal (see .sp-preview-paper in that component's own
+// scss for the on-screen zoom/border treatment) and, at print time, as the isolated print target
+// via the global .print-only rule below.
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .shop-print-root,
+  .shop-print-root * {
+    visibility: visible !important;
+  }
+
+  .shop-print-root {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
+
+// ---- Paper size rules -------------------------------------------------------------------
+
+@page {
+  size: auto;
+  margin: 0;
+}
+
+.thermal-print-58 {
+  width: 48mm;
+  max-width: 48mm;
+  margin: 0 auto;
+  padding: 2mm;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  line-height: 1.25;
+  color: #000;
+  background: #fff;
+}
+
+.thermal-print-80 {
+  width: 72mm;
+  max-width: 72mm;
+  margin: 0 auto;
+  padding: 3mm;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #000;
+  background: #fff;
+}
+
+.a4-print {
+  width: 210mm;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 12mm;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #000;
+  background: #fff;
+}
+
+@media print {
+  .thermal-print-58,
+  .thermal-print-80 {
+    @page {
+      size: 58mm auto;
+      margin: 0;
+    }
+  }
+
+  .a4-print {
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+  }
+}
+
+// ---- Thermal font-size / density settings (driven by ShopPrintSetting) -------------------
+
+.shop-print-root.thermal-font-small {
+  font-size: 9px;
+}
+
+.shop-print-root.thermal-font-large {
+  font-size: 12px;
+}
+
+.shop-print-root.thermal-density-light {
+  font-weight: 400;
+}
+
+.shop-print-root.thermal-density-dark {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+// ---- Black-and-white design language ------------------------------------------------------
+
+.shop-print-root {
+  * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .shop-print-separator {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 3px 0;
+  }
+
+  .shop-print-total-row {
+    font-weight: 700;
+  }
+
+  .shop-print-strong-total {
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+}
+
+// ---- Urdu / RTL ----------------------------------------------------------------------------
+
+.shop-print-root[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+
+  .shop-print-amount {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: inline-block;
+  }
+}
+
+// ---- Pagination safety (thermal: continuous roll, never paginate mid-row) ----------------
+
+.thermal-line,
+.thermal-item,
+.thermal-total-row {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.thermal-print-58,
+.thermal-print-80 {
+  height: auto;
+  min-height: 0;
+}
+
+// ---- A4 pagination ---------------------------------------------------------------------
+
+.a4-print {
+  .a4-page-number {
+    display: block;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+.thermal-print-58 .a4-page-number,
+.thermal-print-80 .a4-page-number {
+  display: none;
+}

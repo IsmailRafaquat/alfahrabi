@@ -1,0 +1,175 @@
+<abp-page>
+  <app-topbar-layout titleKey="::NotificationCenter" [(filters)]="input" showSearch showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="false" (onFilter)="onFilterChange()">
+
+    <div topbarActions class="d-flex align-items-center gap-2 flex-wrap">
+      <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="canMarkRead" (click)="markAllAsRead()">
+        <i class="fas fa-check-double"></i> {{ '::MarkAllAsRead' | abpLocalization }}
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="canDismiss" (click)="dismissAll()">
+        <i class="fas fa-times"></i> {{ '::DismissAll' | abpLocalization }}
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="canGenerateNow" [disabled]="generating" (click)="generateNow()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="generating"></i> {{ '::GenerateNotificationsNow' | abpLocalization }}
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="canManageSettings" (click)="toggleSettings()">
+        <i class="fas fa-cog"></i> {{ '::NotificationSettings' | abpLocalization }}
+      </button>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::Type' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.type" nzAllowClear (ngModelChange)="onFilterChange()">
+          <nz-option *ngFor="let o of typeOptions" [nzValue]="o.value" [nzLabel]="typeLabel(o.value) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::Severity' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.severity" nzAllowClear (ngModelChange)="onFilterChange()">
+          <nz-option *ngFor="let o of severityOptions" [nzValue]="o.value" [nzLabel]="('::' + o.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::Status' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.status" nzAllowClear (ngModelChange)="onFilterChange()">
+          <nz-option *ngFor="let o of statusOptions" [nzValue]="o.value" [nzLabel]="('::' + o.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2 d-flex align-items-end">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="unreadOnly" [(ngModel)]="input.unreadOnly" (ngModelChange)="onFilterChange()">
+          <label class="form-check-label" for="unreadOnly">{{ '::UnreadNotifications' | abpLocalization }}</label>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="card notification-settings-panel p-3 mb-3" *ngIf="showSettings && settingsForm">
+      <h5>{{ '::NotificationSettings' | abpLocalization }}</h5>
+      <div class="row g-3">
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-enabled" [(ngModel)]="settingsForm.notificationsEnabled">
+          <label class="form-check-label" for="ns-enabled">{{ '::NotificationsEnabled' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-lowstock" [(ngModel)]="settingsForm.lowStockNotificationsEnabled">
+          <label class="form-check-label" for="ns-lowstock">{{ '::LowStock' | abpLocalization }} / {{ '::OutOfStock' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-expiry" [(ngModel)]="settingsForm.nearExpiryNotificationsEnabled">
+          <label class="form-check-label" for="ns-expiry">{{ '::NearExpiry' | abpLocalization }} / {{ '::ExpiredBatch' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-customer" [(ngModel)]="settingsForm.customerDueNotificationsEnabled">
+          <label class="form-check-label" for="ns-customer">{{ '::CustomerPaymentDue' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-supplier" [(ngModel)]="settingsForm.supplierDueNotificationsEnabled">
+          <label class="form-check-label" for="ns-supplier">{{ '::SupplierPaymentDue' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-cash" [(ngModel)]="settingsForm.cashDifferenceNotificationsEnabled">
+          <label class="form-check-label" for="ns-cash">{{ '::CashClosingDifference' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-bank" [(ngModel)]="settingsForm.bankLowBalanceNotificationsEnabled">
+          <label class="form-check-label" for="ns-bank">{{ '::BankLowBalance' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-draft" [(ngModel)]="settingsForm.pendingDraftNotificationsEnabled">
+          <label class="form-check-label" for="ns-draft">{{ '::DraftSalePending' | abpLocalization }} / {{ '::DraftPurchasePending' | abpLocalization }}</label>
+        </div>
+        <div class="col-12 col-md-4 form-check">
+          <input type="checkbox" class="form-check-input" id="ns-pl" [(ngModel)]="settingsForm.profitLossWarningNotificationsEnabled">
+          <label class="form-check-label" for="ns-pl">{{ '::ProfitLossWarning' | abpLocalization }}</label>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <label>{{ '::NearExpiryDefaultDays' | abpLocalization }}</label>
+          <input type="number" min="0" class="form-control" [(ngModel)]="settingsForm.nearExpiryDefaultDays">
+        </div>
+        <div class="col-6 col-md-3">
+          <label>{{ '::CustomerDueReminderDays' | abpLocalization }}</label>
+          <input type="number" min="0" class="form-control" [(ngModel)]="settingsForm.customerDueReminderDays">
+        </div>
+        <div class="col-6 col-md-3">
+          <label>{{ '::SupplierDueReminderDays' | abpLocalization }}</label>
+          <input type="number" min="0" class="form-control" [(ngModel)]="settingsForm.supplierDueReminderDays">
+        </div>
+        <div class="col-6 col-md-3">
+          <label>{{ '::DraftPendingHours' | abpLocalization }}</label>
+          <input type="number" min="0" class="form-control" [(ngModel)]="settingsForm.draftPendingHours">
+        </div>
+        <div class="col-6 col-md-3">
+          <label>{{ '::BankLowBalanceThreshold' | abpLocalization }}</label>
+          <input type="number" min="0" class="form-control" [(ngModel)]="settingsForm.bankLowBalanceThreshold">
+        </div>
+        <div class="col-6 col-md-3">
+          <label>{{ '::ProfitLossWarningThreshold' | abpLocalization }} (%)</label>
+          <input type="number" min="0" max="100" class="form-control" [(ngModel)]="settingsForm.profitLossWarningThreshold">
+        </div>
+        <div class="col-6 col-md-3">
+          <label>{{ '::NotificationRetentionDays' | abpLocalization }}</label>
+          <input type="number" min="1" class="form-control" [(ngModel)]="settingsForm.notificationRetentionDays">
+        </div>
+        <div class="col-6 col-md-3 form-check align-self-end mb-2">
+          <input type="checkbox" class="form-check-input" id="ns-email" [(ngModel)]="settingsForm.emailNotificationsEnabled">
+          <label class="form-check-label" for="ns-email">{{ '::EmailNotificationsEnabled' | abpLocalization }}</label>
+        </div>
+      </div>
+      <div class="mt-3">
+        <button type="button" class="btn btn-primary" [disabled]="savingSettings" (click)="saveSettings()">
+          {{ '::Save' | abpLocalization }}
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+    <ng-container *ngIf="!loading">
+      <div class="notification-list" *ngIf="items.length > 0; else emptyState">
+        <div class="notification-item" *ngFor="let item of items" [class.unread]="item.isUnread">
+          <div class="notification-icon" [ngClass]="'severity-' + severityVariant(item.severity)">
+            <i [class]="severityIcon(item.severity)"></i>
+          </div>
+          <div class="notification-body" (click)="navigate(item)">
+            <div class="notification-title">
+              {{ item.title }}
+              <app-report-status-badge [text]="typeLabel(item.type) | abpLocalization" [variant]="severityVariant(item.severity)"></app-report-status-badge>
+            </div>
+            <div class="notification-message">{{ item.message }}</div>
+            <div class="notification-meta">
+              <span>{{ timeAgo(item.triggeredDate) }}</span>
+              <span *ngIf="item.referenceNumber"> &middot; {{ item.referenceNumber }}</span>
+            </div>
+          </div>
+          <div class="notification-actions">
+            <button type="button" class="btn btn-sm btn-link" *ngIf="canMarkRead && item.isUnread" (click)="markAsRead(item)" title="{{ '::MarkAsRead' | abpLocalization }}">
+              <i class="fas fa-check"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-link" *ngIf="canMarkRead && !item.isUnread" (click)="markAsUnread(item)" title="{{ '::MarkAsUnread' | abpLocalization }}">
+              <i class="fas fa-undo"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-link" *ngIf="canDismiss" (click)="dismiss(item)" title="{{ '::Dismiss' | abpLocalization }}">
+              <i class="fas fa-times"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-link text-danger" *ngIf="canDelete" (click)="deleteItem(item)" title="{{ '::Delete' | abpLocalization }}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <nz-pagination
+        class="p-3"
+        *ngIf="items.length > 0"
+        [nzPageIndex]="pageIndex" [nzTotal]="totalCount" [nzPageSize]="input.maxResultCount || 20"
+        (nzPageIndexChange)="onPageChange($event)"
+      ></nz-pagination>
+
+      <ng-template #emptyState>
+        <app-report-empty-state messageKey="::NoNotifications"></app-report-empty-state>
+      </ng-template>
+    </ng-container>
+  </app-topbar-layout>
+</abp-page>

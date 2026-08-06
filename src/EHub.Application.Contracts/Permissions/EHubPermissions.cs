@@ -4,6 +4,436 @@ public static class EHubPermissions
 {
     public const string GroupName = "EHub";
 
+    public static class ManagementMenus
+    {
+        public const string School = GroupName + ".SchoolManagement";
+        public const string Shop = "ShopManagement";
+    }
+
+    public static class ShopSettings
+    {
+        public const string Default = ManagementMenus.Shop + ".Settings";
+        public const string Manage = Default + ".Manage";
+    }
+
+    public static class ShopPrint
+    {
+        public const string Default = ManagementMenus.Shop + ".Print";
+        public const string Sales = Default + ".Sales";
+        public const string Purchases = Default + ".Purchases";
+        public const string Payments = Default + ".Payments";
+        public const string Ledgers = Default + ".Ledgers";
+        public const string Expenses = Default + ".Expenses";
+        public const string Inventory = Default + ".Inventory";
+        public const string Reports = Default + ".Reports";
+        public const string ProfitLoss = Default + ".ProfitLoss";
+        public const string BarcodeLabels = Default + ".BarcodeLabels";
+        public const string ManageSettings = Default + ".ManageSettings";
+    }
+
+    public static class ShopDashboard
+    {
+        public const string Default = ManagementMenus.Shop + ".Dashboard";
+        public const string ViewFinancialSummary = Default + ".ViewFinancialSummary";
+        public const string ViewInventoryValue = Default + ".ViewInventoryValue";
+        public const string ViewBalances = Default + ".ViewBalances";
+        public const string ViewSalesChart = Default + ".ViewSalesChart";
+        public const string ViewTopProducts = Default + ".ViewTopProducts";
+        public const string ViewStockAlerts = Default + ".ViewStockAlerts";
+        public const string ViewRecentTransactions = Default + ".ViewRecentTransactions";
+    }
+
+    public static class ShopReports
+    {
+        public const string Default = ManagementMenus.Shop + ".Reports";
+        public const string Sales = Default + ".Sales";
+        public const string Purchases = Default + ".Purchases";
+        public const string Stock = Default + ".Stock";
+        public const string StockMovements = Default + ".StockMovements";
+        public const string BatchExpiry = Default + ".BatchExpiry";
+        public const string CustomerReceivables = Default + ".CustomerReceivables";
+        public const string CustomerTransactions = Default + ".CustomerTransactions";
+        public const string SupplierPayables = Default + ".SupplierPayables";
+        public const string SupplierTransactions = Default + ".SupplierTransactions";
+        public const string Expenses = Default + ".Expenses";
+        public const string Cash = Default + ".Cash";
+        public const string Bank = Default + ".Bank";
+        public const string TaxSummary = Default + ".TaxSummary";
+        public const string ProductPerformance = Default + ".ProductPerformance";
+        public const string ViewCost = Default + ".ViewCost";
+        public const string ViewProfitSensitiveData = Default + ".ViewProfitSensitiveData";
+        public const string Export = Default + ".Export";
+        public const string Print = Default + ".Print";
+    }
+
+    public static class ShopProfitLoss
+    {
+        public const string Default = ManagementMenus.Shop + ".ProfitLoss";
+        public const string View = Default + ".View";
+        public const string ViewRevenue = Default + ".ViewRevenue";
+        public const string ViewCost = Default + ".ViewCost";
+        public const string ViewExpenses = Default + ".ViewExpenses";
+        public const string ViewMargins = Default + ".ViewMargins";
+        public const string ViewProductContribution = Default + ".ViewProductContribution";
+        public const string Export = Default + ".Export";
+        public const string Print = Default + ".Print";
+    }
+
+    public static class ShopNotifications
+    {
+        public const string Default = ManagementMenus.Shop + ".Notifications";
+        public const string View = Default + ".View";
+        public const string MarkRead = Default + ".MarkRead";
+        public const string Dismiss = Default + ".Dismiss";
+        public const string Delete = Default + ".Delete";
+        public const string ManageSettings = Default + ".ManageSettings";
+        public const string GenerateNow = Default + ".GenerateNow";
+        public const string ViewFinancialAlerts = Default + ".ViewFinancialAlerts";
+        public const string ViewProfitLossAlerts = Default + ".ViewProfitLossAlerts";
+    }
+
+    public static class ShopProductCategories
+    {
+        public const string Default = ManagementMenus.Shop + ".ProductCategories";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+    public static class ShopUnits
+    {
+        public const string Default = ManagementMenus.Shop + ".Units";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class ShopProducts
+    {
+        public const string Default = ManagementMenus.Shop + ".Products";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopSuppliers
+    {
+        public const string Default = ManagementMenus.Shop + ".Suppliers";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewBalance = Default + ".ViewBalance";
+    }
+
+    public static class ShopPurchaseOrders
+    {
+        public const string Default = ManagementMenus.Shop + ".PurchaseOrders";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Submit = Default + ".Submit";
+        public const string Approve = Default + ".Approve";
+        public const string Reject = Default + ".Reject";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopGoodsReceipts
+    {
+        public const string Default = ManagementMenus.Shop + ".GoodsReceipts";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Complete = Default + ".Complete";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopStockTransactions
+    {
+        public const string Default = ManagementMenus.Shop + ".StockTransactions";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopStockAdjustments
+    {
+        public const string Default = ManagementMenus.Shop + ".StockAdjustments";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopStockCounts
+    {
+        public const string Default = ManagementMenus.Shop + ".StockCounts";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Start = Default + ".Start";
+        public const string Count = Default + ".Count";
+        public const string Complete = Default + ".Complete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopProductBatches
+    {
+        public const string Default = ManagementMenus.Shop + ".ProductBatches";
+        public const string View = Default + ".View";
+        public const string ViewCost = Default + ".ViewCost";
+        public const string EditMetadata = Default + ".EditMetadata";
+        public const string Block = Default + ".Block";
+        public const string Unblock = Default + ".Unblock";
+        public const string ViewExpired = Default + ".ViewExpired";
+        public const string ViewTransactions = Default + ".ViewTransactions";
+    }
+
+    public static class ShopSupplierPayments
+    {
+        public const string Default = ManagementMenus.Shop + ".SupplierPayments";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
+    public static class ShopPurchaseReturns
+    {
+        public const string Default = ManagementMenus.Shop + ".PurchaseReturns";
+        public const string Create = Default + ".Create"; public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete"; public const string Complete = Default + ".Complete";
+        public const string Cancel = Default + ".Cancel"; public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopSupplierLedger
+    {
+        public const string Default = ManagementMenus.Shop + ".SupplierLedger";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+        public const string Export = Default + ".Export";
+    }
+
+    public static class ShopSales
+    {
+        public const string Default = ManagementMenus.Shop + ".Sales";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Complete = Default + ".Complete";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewPrice = Default + ".ViewPrice";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopSaleReturns
+    {
+        public const string Default = ManagementMenus.Shop + ".SaleReturns";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Complete = Default + ".Complete";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewPrice = Default + ".ViewPrice";
+        public const string ViewCost = Default + ".ViewCost";
+    }
+
+    public static class ShopCustomerLedger
+    {
+        public const string Default = ManagementMenus.Shop + ".CustomerLedger";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+        public const string Print = Default + ".Print";
+    }
+
+    public static class ShopCustomerPayments
+    {
+        public const string Default = ManagementMenus.Shop + ".CustomerPayments";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
+    public static class ShopCustomers
+    {
+        public const string Default = ManagementMenus.Shop + ".Customers";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewBalance = Default + ".ViewBalance";
+    }
+
+    public static class ShopExpenseCategories
+    {
+        public const string Default = ManagementMenus.Shop + ".ExpenseCategories";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class ShopExpenses
+    {
+        public const string Default = ManagementMenus.Shop + ".Expenses";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
+    public static class ShopCashRegisters
+    {
+        public const string Default = ManagementMenus.Shop + ".CashRegisters";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+    }
+
+    public static class ShopCashClosings
+    {
+        public const string Default = ManagementMenus.Shop + ".CashClosings";
+        public const string Open = Default + ".Open";
+        public const string Close = Default + ".Close";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+    }
+
+    public static class ShopCashTransactions
+    {
+        public const string Default = ManagementMenus.Shop + ".CashTransactions";
+        public const string ManualMovement = Default + ".ManualMovement";
+        public const string ViewAmounts = Default + ".ViewAmounts";
+    }
+
+    public static class ShopBankAccounts
+    {
+        public const string Default = ManagementMenus.Shop + ".BankAccounts";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewBalance = Default + ".ViewBalance";
+    }
+
+    public static class ShopBankTransactions
+    {
+        public const string Default = ManagementMenus.Shop + ".BankTransactions";
+        public const string ManualMovement = Default + ".ManualMovement";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
+    public static class ShopBankTransfers
+    {
+        public const string Default = ManagementMenus.Shop + ".BankTransfers";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Post = Default + ".Post";
+        public const string Cancel = Default + ".Cancel";
+        public const string ViewAmount = Default + ".ViewAmount";
+    }
+
+    public static class ShopAiAssistant
+    {
+        public const string Default = ManagementMenus.Shop + ".AiAssistant";
+        public const string Use = Default + ".Use";
+        public const string UseVoice = Default + ".UseVoice";
+        public const string ViewHistory = Default + ".ViewHistory";
+
+        public const string QuerySales = Default + ".QuerySales";
+        public const string QueryExpenses = Default + ".QueryExpenses";
+        public const string QueryStock = Default + ".QueryStock";
+        public const string QueryBalances = Default + ".QueryBalances";
+        public const string QueryDashboard = Default + ".QueryDashboard";
+
+        // Read-only "list/count existing records" actions (GetUnits, GetProducts, etc.) - QueryMasterData
+        // and QueryTransactionalData are broad category gates, each paired with a per-module permission
+        // below. QuerySales/QueryExpenses/QueryStock above are reused for GetSales/GetExpenses/GetProducts
+        // rather than duplicated.
+        public const string QueryMasterData = Default + ".QueryMasterData";
+        public const string QueryTransactionalData = Default + ".QueryTransactionalData";
+        public const string QueryUnits = Default + ".QueryUnits";
+        public const string QueryProductCategories = Default + ".QueryProductCategories";
+        public const string QueryProducts = Default + ".QueryProducts";
+        public const string QueryCustomers = Default + ".QueryCustomers";
+        public const string QuerySuppliers = Default + ".QuerySuppliers";
+        public const string QueryExpenseCategories = Default + ".QueryExpenseCategories";
+        public const string QueryBankAccounts = Default + ".QueryBankAccounts";
+        public const string QueryPurchaseOrders = Default + ".QueryPurchaseOrders";
+        public const string QueryStockAdjustments = Default + ".QueryStockAdjustments";
+        public const string QueryPhysicalStockCounts = Default + ".QueryPhysicalStockCounts";
+
+        public const string ProjectHelp = Default + ".ProjectHelp";
+        public const string ViewModuleFields = Default + ".ViewModuleFields";
+        public const string GuidedCreation = Default + ".GuidedCreation";
+
+        public const string CreateCustomer = Default + ".CreateCustomer";
+        public const string CreateSupplier = Default + ".CreateSupplier";
+        public const string CreateProductDraft = Default + ".CreateProductDraft";
+        public const string CreateExpenseDraft = Default + ".CreateExpenseDraft";
+        public const string CreatePurchaseOrderDraft = Default + ".CreatePurchaseOrderDraft";
+        public const string CreateSaleDraft = Default + ".CreateSaleDraft";
+        public const string CreateProductCategory = Default + ".CreateProductCategory";
+        public const string CreateUnit = Default + ".CreateUnit";
+        public const string CreateProduct = Default + ".CreateProduct";
+        public const string CreateExpenseCategory = Default + ".CreateExpenseCategory";
+        public const string CreateBankAccount = Default + ".CreateBankAccount";
+        public const string CreateStockAdjustmentDraft = Default + ".CreateStockAdjustmentDraft";
+        public const string CreatePhysicalStockCountDraft = Default + ".CreatePhysicalStockCountDraft";
+
+        public const string ManageSettings = Default + ".ManageSettings";
+    }
+
+    public static class ShopMcp
+    {
+        public const string Default = ManagementMenus.Shop + ".Mcp";
+        public const string Use = Default + ".Use";
+        public const string ReadTools = Default + ".ReadTools";
+        public const string WriteTools = Default + ".WriteTools";
+
+        public const string GetModuleHelp = Default + ".GetModuleHelp";
+        public const string GetUnitFields = Default + ".GetUnitFields";
+        public const string GetProductStock = Default + ".GetProductStock";
+        public const string GetCustomerBalance = Default + ".GetCustomerBalance";
+        public const string GetSupplierBalance = Default + ".GetSupplierBalance";
+        public const string GetTodaySales = Default + ".GetTodaySales";
+        public const string GetDashboardSummary = Default + ".GetDashboardSummary";
+
+        public const string GetUnits = Default + ".GetUnits";
+        public const string GetProductCategories = Default + ".GetProductCategories";
+        public const string GetProducts = Default + ".GetProducts";
+        public const string GetCustomers = Default + ".GetCustomers";
+        public const string GetSuppliers = Default + ".GetSuppliers";
+        public const string GetExpenseCategories = Default + ".GetExpenseCategories";
+        public const string GetBankAccounts = Default + ".GetBankAccounts";
+        public const string GetSales = Default + ".GetSales";
+        public const string GetPurchaseOrders = Default + ".GetPurchaseOrders";
+        public const string GetExpenses = Default + ".GetExpenses";
+        public const string GetStockAdjustments = Default + ".GetStockAdjustments";
+        public const string GetPhysicalStockCounts = Default + ".GetPhysicalStockCounts";
+
+        public const string PrepareCreateUnit = Default + ".PrepareCreateUnit";
+        public const string ConfirmCreateUnit = Default + ".ConfirmCreateUnit";
+        public const string PrepareCreateCustomer = Default + ".PrepareCreateCustomer";
+        public const string ConfirmCreateCustomer = Default + ".ConfirmCreateCustomer";
+        public const string PrepareCreateSupplier = Default + ".PrepareCreateSupplier";
+        public const string ConfirmCreateSupplier = Default + ".ConfirmCreateSupplier";
+        public const string PrepareCreateProduct = Default + ".PrepareCreateProduct";
+        public const string ConfirmCreateProduct = Default + ".ConfirmCreateProduct";
+        public const string PrepareCreateExpenseDraft = Default + ".PrepareCreateExpenseDraft";
+        public const string ConfirmCreateExpenseDraft = Default + ".ConfirmCreateExpenseDraft";
+        public const string PrepareCreateSaleDraft = Default + ".PrepareCreateSaleDraft";
+        public const string ConfirmCreateSaleDraft = Default + ".ConfirmCreateSaleDraft";
+        public const string PrepareCreatePurchaseOrderDraft = Default + ".PrepareCreatePurchaseOrderDraft";
+        public const string ConfirmCreatePurchaseOrderDraft = Default + ".ConfirmCreatePurchaseOrderDraft";
+    }
+
     public static class Dashboards
     {
         public const string Dashboard = GroupName + ".Dashboard";

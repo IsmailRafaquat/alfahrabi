@@ -1,337 +1,152 @@
-<!-- Hero Section -->
-<div class="hero-section">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6 col-md-12">
-        <div class="hero-content">
-          <h1 class="hero-title">Take your time and learn from EHub</h1>
-          <p class="hero-description">
-            The world's most trusted open-source learning management system. A easy tool helping
-            educators efficiently manage and assess progress.
-          </p>
+<div class="shop-landing" *ngIf="!hasLoggedIn" [attr.dir]="dir">
 
-          <div class="hero-actions">
-            @if(!hasLoggedIn){
-            <button (click)="login()" class="btn btn-get-started me-2 mb-2 mb-sm-0">
-              <i class="fa fa-sign-in me-2"></i>
-              Login
-            </button>
+  <!-- Language switcher -->
+  <div class="lang-bar">
+    <div class="container d-flex justify-content-end">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" [class.active]="lang === 'en'" (click)="setLang('en')">EN</button>
+        <button type="button" class="lang-btn" [class.active]="lang === 'ur'" (click)="setLang('ur')">اردو</button>
+      </div>
+    </div>
+  </div>
 
-            <a class="btn btn-get-started mb-2 mb-sm-0" href="https://wa.me/923145797747" target="_blank"
-              rel="noopener">
-              <i class="fa fa-whatsapp me-2"></i>
-              Contact Us
-            </a>
-            } @else {
-            <a class="btn btn-get-started" href="https://wa.me/923145797747" target="_blank" rel="noopener">
-              <i class="fa fa-whatsapp me-2"></i>
-              Contact Us
-            </a>
-            }
+  <!-- Hero -->
+  <div class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-7 col-md-12">
+          <div class="hero-content">
+            <span class="hero-eyebrow"><i class="fas fa-store me-2"></i>{{ t.heroEyebrow }}</span>
+            <h1 class="hero-title">{{ t.heroTitle }}</h1>
+            <p class="hero-description">{{ t.heroDescription }}</p>
+
+            <div class="hero-actions">
+              <button (click)="login()" class="btn btn-get-started me-2 mb-2 mb-sm-0">
+                <i class="fa fa-sign-in me-2"></i>
+                {{ t.loginBtn }}
+              </button>
+
+              <a class="btn btn-get-started-outline mb-2 mb-sm-0" href="https://wa.me/923145797747" target="_blank"
+                rel="noopener">
+                <i class="fa fa-whatsapp me-2"></i>
+                {{ t.talkToUsBtn }}
+              </a>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="col-lg-6 col-md-12">
-        <div class="hero-image">
-          <img src="assets/images/ISMAIL.png" alt="Learning Management" class="img-fluid"
-            onerror="this.style.display='none'" />
-
-          <div class="floating-badge badge-1">
-            <i class="fa fa-check-circle text-success me-2"></i>
-            Course is started
-          </div>
-
-          <div class="floating-badge badge-2">
-            <i class="fa fa-check-circle text-success me-2"></i>
-            Course Completed
-          </div>
-
-          <div class="floating-badge badge-3">
-            <i class="fa fa-inbox me-2"></i>
-            Inbox
+        <div class="col-lg-5 col-md-12">
+          <div class="hero-panel">
+            <div class="hero-panel-row">
+              <i class="fas fa-cash-register"></i>
+              <div>
+                <strong>{{ t.panelSalesTitle }}</strong>
+                <span>{{ t.panelSalesDesc }}</span>
+              </div>
+            </div>
+            <div class="hero-panel-row">
+              <i class="fas fa-warehouse"></i>
+              <div>
+                <strong>{{ t.panelInventoryTitle }}</strong>
+                <span>{{ t.panelInventoryDesc }}</span>
+              </div>
+            </div>
+            <div class="hero-panel-row">
+              <i class="fas fa-chart-pie"></i>
+              <div>
+                <strong>{{ t.panelReportsTitle }}</strong>
+                <span>{{ t.panelReportsDesc }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Video Section -->
-<div class="video-showcase-section">
-  <div class="container">
-    <div class="text-center mb-4">
-      <h2 class="section-title">See EHub in Action</h2>
-      <p class="section-subtitle">Watch a quick demo of the system</p>
-    </div>
-
-    <div class="video-card">
-      <video controls preload="metadata" playsinline>
-        <source src="assets/videos/ehub-demo.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </div>
-</div>
-
-<!-- Achievements Section -->
-<div class="achievements-section">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="section-title">Our Achievements</h2>
-      <p class="section-subtitle">With our super powers we have reached this</p>
-    </div>
-
-    <div class="row justify-content-center">
-      <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-        <div class="achievement-card">
-          <div class="achievement-icon university-icon">
-            <i class="fa fa-university"></i>
+  <!-- Highlights -->
+  <div class="highlights-section">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="highlight-item">
+            <i class="fas fa-bolt"></i>
+            <span>{{ t.highlight1 }}</span>
           </div>
-          <h3 class="achievement-number">0+</h3>
-          <p class="achievement-label">University</p>
         </div>
-      </div>
-
-      <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-        <div class="achievement-card">
-          <div class="achievement-icon school-icon">
-            <i class="fa fa-graduation-cap"></i>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="highlight-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>{{ t.highlight2 }}</span>
           </div>
-          <h3 class="achievement-number">10+</h3>
-          <p class="achievement-label">School</p>
         </div>
-      </div>
-
-      <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-        <div class="achievement-card">
-          <div class="achievement-icon students-icon">
-            <i class="fa fa-users"></i>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="highlight-item">
+            <i class="fas fa-chart-line"></i>
+            <span>{{ t.highlight3 }}</span>
           </div>
-          <h3 class="achievement-number">5K+</h3>
-          <p class="achievement-label">Students</p>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Powerful Features Section -->
-<div class="features-section">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="section-title">Powerful Features</h2>
-      <p class="section-subtitle">
-        Manage your entire school from one place — monitor daily operations, track performance, and stay in control.
-      </p>
-    </div>
-
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-        <div class="feature-image">
-          <!-- IMPORTANT: use / not \ -->
-          <img src="assets/images/powerfeatures.png" alt="View Student Screen" class="img-fluid rounded shadow-lg"
-            onerror="this.style.display='none'" />
-        </div>
-      </div>
-
-      <div class="col-lg-6 col-md-12">
-        <div class="feature-content">
-          <h3 class="feature-title">Complete School Administration</h3>
-          <p class="feature-description">
-            This system gives administrators complete visibility and control over daily school operations.
-            From a single dashboard, the admin can manage student and staff records, monitor attendance in real time,
-            oversee fee structures and student payments, track expenses and staff salaries, and review detailed insights
-            and reports. Every academic, financial, and operational activity is organized in one place, allowing the
-            school management to make informed decisions quickly and efficiently.
-          </p>
-          <!-- <a href="/features/student-screen" class="btn btn-learn-more">
-            Learn More
-          </a> -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Additional Resources Section -->
-    <div class="row mt-5">
-      <div class="col-lg-4 col-md-6 mb-4">
-        <div class="resource-card">
-          <div class="resource-icon">
-            <i class="fa fa-book"></i>
-          </div>
-          <h4 class="resource-title">Getting Started</h4>
-          <p class="resource-description">
-            Learn how to create and run a new web application using the application startup template.
-          </p>
-          <a href="https://abp.io/docs/latest/getting-started" class="btn btn-link" target="_blank" rel="noopener">
-            <!-- View Documentation <i class="fa fa-arrow-right ms-1"></i> -->
-          </a>
-        </div>
-      </div>
-
-      <div class="col-lg-4 col-md-6 mb-4">
-        <div class="resource-card">
-          <div class="resource-icon">
-            <i class="fa fa-graduation-cap"></i>
-          </div>
-          <h4 class="resource-title">Web Application Tutorial</h4>
-          <p class="resource-description">
-            Learn how to build an ABP based web application named Acme.BookStore.
-          </p>
-          <a href="https://abp.io/docs/latest/tutorials/book-store/part-01?UI=NG&DB=EF" class="btn btn-link"
-            target="_blank" rel="noopener">
-            <!-- Explore Tutorial <i class="fa fa-arrow-right ms-1"></i> -->
-          </a>
-        </div>
-      </div>
-
-      <div class="col-lg-4 col-md-6 mb-4">
-        <div class="resource-card">
-          <div class="resource-icon">
-            <i class="fa fa-comments"></i>
-          </div>
-          <h4 class="resource-title">Community Support</h4>
-          <p class="resource-description">
-            Join our community to get help, share experiences, and connect with other developers.
-          </p>
-          <a href="https://abp.io/support/questions" class="btn btn-link" target="_blank" rel="noopener">
-            <!-- Visit Support <i class="fa fa-arrow-right ms-1"></i> -->
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Packages / What We Offer Section -->
-<div class="packages-section">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="section-title">What We Offer</h2>
-      <p class="section-subtitle">
-        Our packages are designed around how schools actually work. Start with complete student & staff management,
-        then upgrade to fees automation, rules, reminders, and advanced analytics when you’re ready.
-      </p>
-    </div>
-
-    <div class="row g-4">
-      <!-- Starter -->
-      <div class="col-lg-4 col-md-6">
-        <div class="package-card">
-          <div class="package-header">
-            <h3 class="package-title">Starter</h3>
-            <p class="package-tagline">Student & Staff Management</p>
-          </div>
-
-          <ul class="package-features">
-            <li><i class="fa fa-check"></i> Centralized student records (profiles, guardians, admissions)</li>
-            <li><i class="fa fa-check"></i> Student documents upload & secure tracking</li>
-            <li><i class="fa fa-check"></i> Staff management (profiles, roles, records)</li>
-            <li><i class="fa fa-check"></i> Staff documents upload & tracking</li>
-            <li><i class="fa fa-check"></i> WhatsApp messaging to parents, students & staff</li>
-          </ul>
-
-          <a class="btn btn-package" href="https://wa.me/923145797747" target="_blank" rel="noopener">
-            <i class="fa fa-whatsapp me-2"></i>
-            Contact Us
-          </a>
-        </div>
-      </div>
-
-      <!-- Standard -->
-      <div class="col-lg-4 col-md-6">
-        <div class="package-card featured">
-          <div class="package-badge">Most Popular</div>
-
-          <div class="package-header">
-            <h3 class="package-title">Standard</h3>
-            <p class="package-tagline">Fees + Rules + Automation</p>
-          </div>
-
-          <ul class="package-features">
-            <li><i class="fa fa-check"></i> Everything in Starter</li>
-            <li><i class="fa fa-check"></i> Complete school fees module (monthly fees, vouchers, dues)</li>
-            <li><i class="fa fa-check"></i> Late fee rules with automatic calculations</li>
-            <li><i class="fa fa-check"></i> Discounts / concessions support (percentage or fixed)</li>
-            <li><i class="fa fa-check"></i> Proper fee structure setup (class / term / category)</li>
-            <li><i class="fa fa-check"></i> WhatsApp fee reminders, alerts & due notifications</li>
-          </ul>
-
-          <a class="btn btn-package" href="https://wa.me/923145797747" target="_blank" rel="noopener">
-            <i class="fa fa-whatsapp me-2"></i>
-            Contact Us
-          </a>
-        </div>
-      </div>
-
-      <!-- Premium -->
-      <div class="col-lg-4 col-md-6">
-        <div class="package-card">
-          <div class="package-header">
-            <h3 class="package-title">Premium</h3>
-            <p class="package-tagline">Analytics + Insights</p>
-          </div>
-
-          <ul class="package-features">
-            <li><i class="fa fa-check"></i> Everything in Standard</li>
-            <li><i class="fa fa-check"></i> Fee analytics dashboards (charts, KPIs, trends)</li>
-            <li><i class="fa fa-check"></i> Defaulter lists with tracking & follow-ups</li>
-            <li><i class="fa fa-check"></i> Collection breakdown reports (class-wise / month-wise)</li>
-            <li><i class="fa fa-check"></i> Additional modules + customization support</li>
-          </ul>
-
-          <a class="btn btn-package" href="https://wa.me/923145797747" target="_blank" rel="noopener">
-            <i class="fa fa-whatsapp me-2"></i>
-            Contact Us
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="text-center mt-4 packages-note">
-      Need something specific? We can customize workflows, enable additional modules, and adapt the system to your
-      school’s rules.
-    </div>
-  </div>
-</div>
-
-
-<!-- Call to Action Section -->
-<!-- Call to Action Section (New Professional CTA) -->
-<div class="cta-section">
-  <div class="cta-bg-shape cta-shape-1"></div>
-  <div class="cta-bg-shape cta-shape-2"></div>
-
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-xl-8 col-lg-10">
-        <div class="cta-card text-center">
-          <h2 class="cta-title">Ready to Get Started?</h2>
-          <p class="cta-description">
-            Manage students, staff, documents, WhatsApp alerts, and fee analytics — all in one platform.
-          </p>
-
-          <div class="cta-actions">
-            @if(!hasLoggedIn){
-            <button (click)="login()" class="btn btn-cta-primary">
-              <i class="fa fa-sign-in me-2"></i>
-              Start Learning Now
-            </button>
-            }
-
-            <a class="btn btn-cta-secondary" href="https://wa.me/923145797747" target="_blank" rel="noopener">
-              <i class="fa fa-whatsapp me-2"></i>
-              Talk on WhatsApp
-            </a>
-          </div>
-
-          <div class="cta-trust">
-            <span><i class="fa fa-shield me-2"></i> Secure</span>
-            <span><i class="fa fa-bolt me-2"></i> Fast Setup</span>
-            <span><i class="fa fa-headset me-2"></i> Support</span>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="highlight-item">
+            <i class="fas fa-headset"></i>
+            <span>{{ t.highlight4 }}</span>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Components -->
+  <div class="components-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="section-title">{{ t.componentsTitle }}</h2>
+        <p class="section-subtitle">{{ t.componentsSubtitle }}</p>
+      </div>
+
+      <div class="components-grid">
+        <div class="component-card" *ngFor="let c of t.components">
+          <div class="component-icon"><i class="fas" [ngClass]="c.icon"></i></div>
+          <h3>{{ c.title }}</h3>
+          <p>{{ c.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-bg-shape cta-shape-1"></div>
+    <div class="cta-bg-shape cta-shape-2"></div>
+
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+          <div class="cta-card text-center">
+            <h2 class="cta-title">{{ t.ctaTitle }}</h2>
+            <p class="cta-description">{{ t.ctaDescription }}</p>
+
+            <div class="cta-actions">
+              <button (click)="login()" class="btn btn-cta-primary">
+                <i class="fa fa-sign-in me-2"></i>
+                {{ t.ctaLoginBtn }}
+              </button>
+
+              <a class="btn btn-cta-secondary" href="https://wa.me/923145797747" target="_blank" rel="noopener">
+                <i class="fa fa-whatsapp me-2"></i>
+                {{ t.ctaWhatsAppBtn }}
+              </a>
+            </div>
+
+            <div class="cta-trust">
+              <span><i class="fa fa-shield me-2"></i> {{ t.trustSecure }}</span>
+              <span><i class="fa fa-bolt me-2"></i> {{ t.trustFastSetup }}</span>
+              <span><i class="fa fa-headset me-2"></i> {{ t.trustSupport }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

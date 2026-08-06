@@ -1,0 +1,172 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ProfitLoss" [(filters)]="input" showFiltersToggle [showSearch]="false"
+    [showApplyFilters]="true" [showResetFilters]="false" (onFilter)="onFilterChange()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="loading" (click)="load()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> {{ '::Refresh' | abpLocalization }}
+      </button>
+      <app-report-export-menu *ngIf="canExport || canPrint" [disabled]="loading" [exporting]="exporting" [showPrint]="canPrint"
+        (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-3">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+    </ng-container>
+
+    <div class="print-only pl-report">
+      <app-report-print-header
+        reportTitleKey="::ProfitLoss"
+        [dateRangeText]="(result?.currentPeriodFrom || input.dateFrom) + ' - ' + (result?.currentPeriodTo || input.dateTo)"
+      ></app-report-print-header>
+
+      <div class="pl-skeleton" *ngIf="loading" aria-hidden="true">
+        <div class="pl-skeleton-banner"></div>
+        <div class="pl-kpi-grid">
+          <div class="pl-skeleton-card" *ngFor="let _ of [0,1,2,3]"></div>
+        </div>
+        <div class="pl-breakdown-grid">
+          <div class="pl-skeleton-panel"></div>
+          <div class="pl-skeleton-panel"></div>
+        </div>
+      </div>
+
+      <div class="card pl-card pl-error-card text-center" *ngIf="!loading && loadError && !result">
+        <i class="fas fa-exclamation-triangle text-danger mb-2"></i>
+        <p class="mb-3">{{ '::ReportLoadError' | abpLocalization }}</p>
+        <button type="button" class="btn btn-sm btn-outline-primary mx-auto" (click)="load()">
+          <i class="fas fa-redo me-1"></i>{{ '::Button:Retry' | abpLocalization }}
+        </button>
+      </div>
+
+      <ng-container *ngIf="!loading && result && view">
+        <div class="card pl-card pl-empty-card text-center" *ngIf="view.isZeroData">
+          <i class="fas fa-chart-pie"></i>
+          <p class="pl-empty-title">{{ '::NoFinancialActivityFound' | abpLocalization }}</p>
+          <p class="pl-empty-range">{{ result.currentPeriodFrom | date: 'mediumDate' }} - {{ result.currentPeriodTo | date: 'mediumDate' }}</p>
+          <p class="pl-empty-hint">{{ '::TryChangingReportFilters' | abpLocalization }}</p>
+        </div>
+
+        <ng-container *ngIf="!view.isZeroData">
+          <div class="pl-period-banner">
+            <div>
+              <h2 class="pl-period-title">{{ '::ProfitLoss' | abpLocalization }}</h2>
+              <p class="pl-period-range">{{ result.currentPeriodFrom | date: 'mediumDate' }} &ndash; {{ result.currentPeriodTo | date: 'mediumDate' }}</p>
+            </div>
+            <span class="pl-status-badge" [ngClass]="'pl-status-badge--' + view.status">
+              <i class="fas" [ngClass]="{
+                'fa-long-arrow-alt-up': view.status === 'profitable',
+                'fa-long-arrow-alt-down': view.status === 'loss',
+                'fa-equals': view.status === 'breakEven'
+              }"></i>
+              {{ statusLabelKey(view.status) | abpLocalization }}
+            </span>
+          </div>
+
+          <div class="pl-kpi-grid">
+            <div class="pl-kpi-card pl-kpi-card--primary">
+              <i class="fas fa-coins pl-kpi-icon"></i>
+              <span class="pl-kpi-label">{{ '::TotalSales' | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.totalSales) }}</strong>
+              <span class="pl-kpi-subtitle">{{ '::TotalSalesSubtitle' | abpLocalization }}</span>
+            </div>
+
+            <div class="pl-kpi-card pl-kpi-card--warning" *ngIf="canViewCost">
+              <i class="fas fa-dolly pl-kpi-icon"></i>
+              <span class="pl-kpi-label">{{ '::CostOfGoodsSold' | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.costOfGoodsSold) }}</strong>
+              <span class="pl-kpi-subtitle">{{ '::CostOfGoodsSoldSubtitle' | abpLocalization }}</span>
+            </div>
+
+            <div class="pl-kpi-card pl-kpi-card--danger" *ngIf="canViewExpenses">
+              <i class="fas fa-file-invoice-dollar pl-kpi-icon"></i>
+              <span class="pl-kpi-label">{{ '::TotalExpenses' | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.totalExpenses) }}</strong>
+              <span class="pl-kpi-subtitle">{{ '::TotalExpensesSubtitle' | abpLocalization }}</span>
+            </div>
+
+            <div class="pl-kpi-card" [ngClass]="view.status === 'loss' ? 'pl-kpi-card--danger' : 'pl-kpi-card--success'" *ngIf="canViewBreakdown">
+              <i class="fas pl-kpi-icon" [ngClass]="view.status === 'loss' ? 'fa-long-arrow-alt-down' : 'fa-long-arrow-alt-up'"></i>
+              <span class="pl-kpi-label">{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmt(view.netProfit) }}</strong>
+              <span class="pl-kpi-subtitle">{{ (view.status === 'loss' ? '::NetLossSubtitle' : '::NetProfitSubtitle') | abpLocalization }}</span>
+            </div>
+          </div>
+
+          <div class="pl-breakdown-grid" *ngIf="canViewBreakdown">
+            <div class="card pl-card p-3">
+              <h5 class="pl-card-title">{{ '::ProfitCalculation' | abpLocalization }}</h5>
+              <div class="pl-calc-row">
+                <span>{{ '::TotalSales' | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmt(view.totalSales) }}</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--muted">
+                <span>{{ '::LessCostOfGoodsSold' | abpLocalization }}</span>
+                <span class="pl-calc-amount">({{ fmt(view.costOfGoodsSold) }})</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--subtotal">
+                <span>{{ '::GrossProfit' | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmt(view.grossProfit) }}</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--muted">
+                <span>{{ '::LessOperatingExpenses' | abpLocalization }}</span>
+                <span class="pl-calc-amount">({{ fmt(view.totalExpenses) }})</span>
+              </div>
+              <div class="pl-calc-row pl-calc-row--result" [ngClass]="'pl-calc-row--' + view.status">
+                <span>{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmt(view.netProfit) }}</span>
+              </div>
+            </div>
+
+            <div class="card pl-card p-3">
+              <h5 class="pl-card-title">{{ '::FinancialOverview' | abpLocalization }}</h5>
+
+              <div class="pl-bar-row">
+                <span class="pl-bar-label">{{ '::TotalSales' | abpLocalization }}</span>
+                <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--primary" [style.width.%]="view.salesBarPct"></div></div>
+                <span class="pl-bar-amount">{{ fmt(view.totalSales) }}</span>
+              </div>
+              <div class="pl-bar-row">
+                <span class="pl-bar-label">{{ '::CostOfGoodsSold' | abpLocalization }}</span>
+                <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--warning" [style.width.%]="view.costOfGoodsSoldBarPct"></div></div>
+                <span class="pl-bar-amount">{{ fmt(view.costOfGoodsSold) }}</span>
+              </div>
+              <div class="pl-bar-row">
+                <span class="pl-bar-label">{{ '::TotalExpenses' | abpLocalization }}</span>
+                <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--danger" [style.width.%]="view.expensesBarPct"></div></div>
+                <span class="pl-bar-amount">{{ fmt(view.totalExpenses) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pl-ratio-grid" *ngIf="canViewBreakdown">
+            <div class="pl-ratio-card" [ngClass]="view.grossMarginPct >= 0 ? 'pl-ratio-card--positive' : 'pl-ratio-card--negative'">
+              <span class="pl-ratio-label">{{ '::GrossMargin' | abpLocalization }}</span>
+              <strong class="pl-ratio-value">{{ pct(view.grossMarginPct) }}</strong>
+            </div>
+            <div class="pl-ratio-card" [ngClass]="view.expenseRatioPct > 70 ? 'pl-ratio-card--warning' : 'pl-ratio-card--positive'">
+              <span class="pl-ratio-label">{{ '::ExpenseRatio' | abpLocalization }}</span>
+              <strong class="pl-ratio-value">{{ pct(view.expenseRatioPct) }}</strong>
+            </div>
+            <div class="pl-ratio-card" [ngClass]="view.netMarginPct >= 0 ? 'pl-ratio-card--positive' : 'pl-ratio-card--negative'">
+              <span class="pl-ratio-label">{{ '::NetMargin' | abpLocalization }}</span>
+              <strong class="pl-ratio-value">{{ pct(view.netMarginPct) }}</strong>
+            </div>
+          </div>
+
+          <div class="pl-insight" [ngClass]="'pl-insight--' + view.status" *ngIf="canViewBreakdown">
+            <i class="fas fa-info-circle"></i>
+            <span>{{ insightKey(view.status) | abpLocalization }}</span>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </app-topbar-layout>
+</abp-page>

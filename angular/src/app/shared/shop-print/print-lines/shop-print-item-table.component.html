@@ -1,0 +1,47 @@
+<!-- 58mm: stacked rows - name on its own line, "Qty x Rate ... Amount" on the next, per spec -->
+<div *ngIf="isStacked; else compactTable" class="sp-stacked-items">
+  <div class="sp-item thermal-item" *ngFor="let line of lines">
+    <div class="sp-item-name">{{ line.productName }}</div>
+    <div class="sp-item-qty-row">
+      <span>{{ line.quantity }} {{ showUnit && line.unit ? line.unit : '' }} x {{ line.unitPrice | shopPrintCurrency: '':decimalPlaces }}</span>
+      <span class="shop-print-amount">{{ line.lineTotal | shopPrintCurrency: '':decimalPlaces }}</span>
+    </div>
+    <div class="sp-item-meta" *ngIf="hasBatchOrExpiry(line)">
+      <span *ngIf="showBatch && line.batchNumber">{{ labels.batch }}: {{ line.batchNumber }}</span>
+      <span *ngIf="showExpiry && line.expiryDate">&nbsp;&nbsp;{{ labels.exp }}: {{ line.expiryDate | date: 'MM/yyyy' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- 80mm / A4: compact table, product name wraps safely, columns never overlap -->
+<ng-template #compactTable>
+  <table class="sp-item-table">
+    <thead>
+      <tr>
+        <th class="sp-col-name">{{ labels.item }}</th>
+        <th class="sp-col-qty">{{ labels.qty }}</th>
+        <th class="sp-col-rate">{{ labels.rate }}</th>
+        <th class="sp-col-amount">{{ labels.amount }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let line of lines">
+        <tr class="thermal-item">
+          <td class="sp-col-name">
+            {{ line.productName }}
+            <span *ngIf="showItemCode && line.itemCode" class="sp-item-code">({{ line.itemCode }})</span>
+          </td>
+          <td class="sp-col-qty">{{ line.quantity }}{{ showUnit && line.unit ? ' ' + line.unit : '' }}</td>
+          <td class="sp-col-rate shop-print-amount">{{ line.unitPrice | shopPrintCurrency: '':decimalPlaces }}</td>
+          <td class="sp-col-amount shop-print-amount">{{ line.lineTotal | shopPrintCurrency: '':decimalPlaces }}</td>
+        </tr>
+        <tr class="sp-item-meta-row" *ngIf="hasBatchOrExpiry(line)">
+          <td colspan="4" class="sp-item-meta">
+            <span *ngIf="showBatch && line.batchNumber">{{ labels.batch }}: {{ line.batchNumber }}</span>
+            <span *ngIf="showExpiry && line.expiryDate">&nbsp;&nbsp;{{ labels.exp }}: {{ line.expiryDate | date: 'MM/yyyy' }}</span>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</ng-template>

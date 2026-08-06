@@ -1,0 +1,32 @@
+.card-save { display: flex; justify-content: flex-end; margin-top: 1rem; padding-top: .8rem; border-top: 1px solid #e7edf3; }
+.card-save .btn { min-width: 140px; }
+.saved-list-card { margin-top: 1rem; border: 1px solid #e1eaf2; border-radius: 11px; background: #fff; box-shadow: 0 3px 14px rgba(22,61,99,.05); overflow: hidden; }
+.saved-list-header { display: flex; align-items: center; justify-content: space-between; padding: .8rem 1rem; background: #f8fbfd; border-bottom: 1px solid #e4ebf2; }
+.saved-list-header h5 { margin: 0; color: #315b82; font-size: .9rem; }
+.saved-list-header span { color: #8494a5; font-size: .7rem; }
+.saved-list-card th { padding: .65rem .8rem; background: #f8fafc; color: #62788e; font-size: .68rem; text-transform: uppercase; }
+.saved-list-card td { padding: .65rem .8rem; color: #435b73; font-size: .78rem; border-color: #edf2f6; }
+.code-pill { padding: .15rem .4rem; border-radius: 5px; background: #edf4fa; color: #2d6594; font-size: .68rem; font-weight: 700; }
+.status-pill { padding: .17rem .45rem; border-radius: 999px; background: #e8f7ef; color: #198754; font-size: .66rem; font-weight: 700; }
+.status-pill.inactive { background: #edf0f3; color: #75818d; }
+.edit-row-btn { border: 0; border-radius: 6px; padding: .3rem .5rem; background: #edf5fc; color: #286b9f; font-size: .7rem; }
+
+/* Compact quick-entry layout */
+:host ::ng-deep .editor-page { padding-top: .8rem; }
+:host ::ng-deep .section-body .row { --bs-gutter-x: .75rem; --bs-gutter-y: .65rem; }
+:host ::ng-deep .section-body label { margin-bottom: .18rem; font-size: .69rem; }
+:host ::ng-deep .section-body .form-control-sm,
+:host ::ng-deep .section-body .form-select-sm { min-height: 30px; height: 30px; padding: .22rem .5rem; border-radius: 6px; font-size: .75rem; }
+:host ::ng-deep .section-body textarea.form-control-sm { height: 48px; min-height: 48px; }
+:host ::ng-deep .category-nz-select .ant-select-selector { min-height: 30px !important; height: 30px !important; border-radius: 6px !important; border-color: #dce6ef !important; font-size: .75rem; }
+:host ::ng-deep .category-nz-select .ant-select-selection-item,
+:host ::ng-deep .category-nz-select .ant-select-selection-placeholder { line-height: 28px !important; }
+:host ::ng-deep .section-body small { display: block; margin-top: .15rem; font-size: .65rem; }
+:host ::ng-deep .active-label { min-height: 30px; margin-top: 1.08rem; padding: .3rem .55rem; font-size: .72rem; }
+:host ::ng-deep .card-save { margin-top: .65rem; }
+:host ::ng-deep .card-save .btn { min-width: 125px; padding: .32rem .75rem; font-size: .73rem; }
+.saved-list-card { margin-top: .75rem; border-radius: 9px; }
+.saved-list-header { padding: .65rem .8rem; }
+.saved-list-card th, .saved-list-card td { padding: .5rem .65rem; }
+
+@media(max-width:767.98px) { .card-save .btn { width: 100%; } .saved-list-card { margin-top: .7rem; } .saved-list-card table { white-space: nowrap; } }

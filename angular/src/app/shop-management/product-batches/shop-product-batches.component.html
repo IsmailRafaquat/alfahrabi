@@ -1,0 +1,104 @@
+<abp-page>
+<app-topbar-layout titleKey="::ProductBatches" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchProductBatches'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Product' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="productFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Product' | abpLocalization">
+        <nz-option *ngFor="let x of products" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Supplier' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="supplierFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::Supplier' | abpLocalization">
+        <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::BatchStatus' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::BatchStatus' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expiryFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expiryTo" (change)="load(true)">
+    </div>
+    <div class="col-12 d-flex flex-wrap gap-3 mt-1">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="nearExpiryOnly" [(ngModel)]="nearExpiryOnly" (ngModelChange)="load(true)">
+        <label class="form-check-label" for="nearExpiryOnly">{{ '::NearExpiry' | abpLocalization }}</label>
+      </div>
+      <div class="form-check" *ngIf="canViewExpired">
+        <input type="checkbox" class="form-check-input" id="expiredOnly" [(ngModel)]="expiredOnly" (ngModelChange)="load(true)">
+        <label class="form-check-label" for="expiredOnly">{{ '::Expired' | abpLocalization }}</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="hasAvailableStock" [(ngModel)]="hasAvailableStock" (ngModelChange)="load(true)">
+        <label class="form-check-label" for="hasAvailableStock">{{ '::AvailableBatches' | abpLocalization }}</label>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="product-batches-page">
+  <div class="card product-batches-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::Product' | abpLocalization }}</th>
+            <th>{{ '::BatchNumber' | abpLocalization }}</th>
+            <th>{{ '::ManufacturingDate' | abpLocalization }}</th>
+            <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+            <th>{{ '::DaysToExpiry' | abpLocalization }}</th>
+            <th>{{ '::ReceivedQuantity' | abpLocalization }}</th>
+            <th>{{ '::IssuedQuantity' | abpLocalization }}</th>
+            <th>{{ '::AvailableQuantity' | abpLocalization }}</th>
+            <th>{{ '::BatchStatus' | abpLocalization }}</th>
+            <th>{{ '::Supplier' | abpLocalization }}</th>
+            <th>{{ '::LastMovement' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><strong>{{ row.productName }}</strong><br><span class="code-chip">{{ row.productCode }}</span></td>
+            <td><a class="batch-link" (click)="view(row)">{{ row.batchNumber }}</a></td>
+            <td>{{ row.manufacturingDate ? (row.manufacturingDate | date:'mediumDate') : '—' }}</td>
+            <td>{{ row.expiryDate ? (row.expiryDate | date:'mediumDate') : '—' }}</td>
+            <td>{{ row.daysToExpiry ?? '—' }}</td>
+            <td>{{ row.receivedQuantity | number:'1.0-4' }}</td>
+            <td>{{ row.issuedQuantity | number:'1.0-4' }}</td>
+            <td>{{ row.availableQuantity | number:'1.0-4' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td>{{ row.supplierName || '—' }}</td>
+            <td>{{ row.lastMovementDate ? (row.lastMovementDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" nz-tooltip [nzTooltipTitle]="'::ProductBatch' | abpLocalization" nzTooltipPlacement="top"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canViewTransactions" class="icon-btn" (click)="viewStockTransactions(row)" nz-tooltip [nzTooltipTitle]="'::BatchTransactions' | abpLocalization" nzTooltipPlacement="top"><i class="fas fa-exchange-alt"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td colspan="12" class="empty-state"><i class="fas fa-boxes"></i><span>{{ '::NoBatchesFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>

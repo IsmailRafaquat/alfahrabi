@@ -1,0 +1,101 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopCashReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <div topbarActions class="d-flex align-items-center gap-2">
+      <app-report-export-menu *ngIf="canExport" [exporting]="exporting" (exportFormat)="export($event)"></app-report-export-menu>
+    </div>
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-2">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::CashRegister' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.cashRegisterId" nzAllowClear [nzPlaceHolder]="'::CashRegister' | abpLocalization">
+          <nz-option *ngFor="let r of cashRegisters" [nzValue]="r.id" [nzLabel]="r.name || ''"></nz-option>
+        </nz-select>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopCashReport" [dateRangeText]="input.dateFrom + ' - ' + input.dateTo"></app-report-print-header>
+
+    <div class="card report-card">
+      <div class="summary-section">
+        <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+      </div>
+
+      <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+      <ng-container *ngIf="!loading">
+        <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+          <table class="table align-middle report-table">
+            <thead>
+              <tr>
+                <th>{{ '::TransactionDate' | abpLocalization }}</th>
+                <th>{{ '::CashRegister' | abpLocalization }}</th>
+                <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+                <th>{{ '::CashIn' | abpLocalization }}</th>
+                <th>{{ '::CashOut' | abpLocalization }}</th>
+                <th>{{ '::BalanceAfterTransaction' | abpLocalization }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.items">
+                <td>{{ row.transactionDate | date: 'medium' }}</td>
+                <td>{{ row.cashRegisterName }}</td>
+                <td><strong>{{ row.referenceNumber }}</strong></td>
+                <td>{{ row.cashIn ? (row.cashIn | shopReportCurrency) : '-' }}</td>
+                <td>{{ row.cashOut ? (row.cashOut | shopReportCurrency) : '-' }}</td>
+                <td class="balance-cell">{{ row.balanceAfterTransaction | shopReportCurrency }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="report-groups" *ngIf="result.dailySummaries?.length">
+            <h5>{{ '::DailySummary' | abpLocalization }}</h5>
+            <table class="table table-sm report-table">
+              <thead>
+                <tr>
+                  <th>{{ '::BusinessDate' | abpLocalization }}</th>
+                  <th>{{ '::CashRegister' | abpLocalization }}</th>
+                  <th>{{ '::OpeningCash' | abpLocalization }}</th>
+                  <th>{{ '::ExpectedClosingCash' | abpLocalization }}</th>
+                  <th>{{ '::ActualClosingCash' | abpLocalization }}</th>
+                  <th>{{ '::Difference' | abpLocalization }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of result.dailySummaries">
+                  <td>{{ d.businessDate | date: 'mediumDate' }}</td>
+                  <td>{{ d.cashRegisterName }}</td>
+                  <td>{{ d.openingCash | shopReportCurrency }}</td>
+                  <td>{{ d.expectedClosingCash | shopReportCurrency }}</td>
+                  <td>{{ d.actualClosingCash !== null && d.actualClosingCash !== undefined ? (d.actualClosingCash | shopReportCurrency) : '-' }}</td>
+                  <td>{{ d.difference !== null && d.difference !== undefined ? (d.difference | shopReportCurrency) : '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <nz-pagination
+            class="p-3"
+            [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+            (nzPageIndexChange)="onPageChange($event)"
+          ></nz-pagination>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <app-report-empty-state></app-report-empty-state>
+      </ng-template>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

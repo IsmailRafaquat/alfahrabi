@@ -1,0 +1,16 @@
+.report-status-badge {
+  display: inline-block;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  font-size: .64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  white-space: nowrap;
+
+  &--success { color: #198754; background: #e9f7ef; }
+  &--warning { color: #b5670a; background: #fef3e2; }
+  &--danger { color: #c83e4d; background: #fdeced; }
+  &--info { color: #2369a3; background: #eaf3fa; }
+  &--secondary { color: #63707d; background: #eef1f4; }
+}

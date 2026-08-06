@@ -1,0 +1,131 @@
+<abp-page>
+<app-topbar-layout titleKey="::Expenses" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchExpenses'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'An Expense records money your shop spent, like rent or a utility bill. Save it as a draft first, then post it to include it in expense totals. Only posted expenses count towards totals — drafts and cancelled expenses are excluded.', ur: 'Expense اس رقم کا ریکارڈ ہے جو آپ کی دکان نے خرچ کی، جیسے کرایہ یا بجلی کا بل۔ پہلے اسے ڈرافٹ کے طور پر محفوظ کریں، پھر post کرنے پر یہ اخراجات کے کل حساب میں شامل ہو جائے گی۔ صرف posted expenses ہی کل حساب میں شمار ہوتی ہیں — draft اور cancelled expenses شامل نہیں ہوتیں۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateExpense' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::ExpenseCategory' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="categoryFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::AllExpenseCategories' | abpLocalization">
+        <nz-option *ngFor="let x of categories" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Status' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::PaymentMethod' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="paymentMethodFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllPaymentMethods' | abpLocalization">
+        <nz-option *ngFor="let x of paymentMethodOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expenseDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::DateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="expenseDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="expenses-page">
+  <div class="summary-cards" *ngIf="canViewAmount && summary">
+    <div class="summary-card"><span>{{ '::TotalPostedExpenses' | abpLocalization }}</span><strong>{{ summary.totalPostedExpenses | number:'1.2-2' }}</strong></div>
+    <div class="summary-card"><span>{{ '::TotalDraftExpenses' | abpLocalization }}</span><strong>{{ summary.totalDraftExpenses | number:'1.2-2' }}</strong></div>
+    <div class="summary-card"><span>{{ '::TotalCancelledExpenses' | abpLocalization }}</span><strong>{{ summary.totalCancelledExpenses | number:'1.2-2' }}</strong></div>
+  </div>
+
+  <div class="card expenses-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::ExpenseNumber' | abpLocalization }}</th>
+            <th>{{ '::ExpenseDate' | abpLocalization }}</th>
+            <th>{{ '::ExpenseCategory' | abpLocalization }}</th>
+            <th>{{ '::PaidTo' | abpLocalization }}</th>
+            <th>{{ '::PaymentMethod' | abpLocalization }}</th>
+            <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+            <th *ngIf="canViewAmount">{{ '::Amount' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+            <th>{{ '::PostedDate' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="expense-link" (click)="view(row)">{{ row.expenseNumber }}</a></td>
+            <td>{{ row.expenseDate | date:'mediumDate' }}</td>
+            <td>{{ row.expenseCategoryCode }} - {{ row.expenseCategoryName }}</td>
+            <td>{{ row.paidTo || '—' }}</td>
+            <td>{{ paymentMethodLabel(row.paymentMethod) | abpLocalization }}</td>
+            <td>{{ row.referenceNumber || '—' }}</td>
+            <td *ngIf="canViewAmount">{{ row.amount != null ? (row.amount | number:'1.2-2') : '—' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td>{{ row.postedDate ? (row.postedDate | date:'mediumDate') : '—' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" nz-tooltip [nzTooltipTitle]="'::ViewExpense' | abpLocalization" nzTooltipPlacement="top" (click)="view(row)"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" nz-tooltip [nzTooltipTitle]="'::EditExpense' | abpLocalization" nzTooltipPlacement="top" (click)="edit(row)"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canPost && isDraft(row)" class="icon-btn success" [disabled]="actionInProgress" nz-tooltip [nzTooltipTitle]="'::PostExpense' | abpLocalization" nzTooltipPlacement="top" (click)="post(row)"><i class="fas fa-check"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" nz-tooltip [nzTooltipTitle]="'::DeleteExpense' | abpLocalization" nzTooltipPlacement="top"><i class="fas fa-trash"></i></button>
+              <button *ngIf="canCancel && isPosted(row)" class="icon-btn" [disabled]="actionInProgress" nz-tooltip [nzTooltipTitle]="'::CancelExpense' | abpLocalization" nzTooltipPlacement="top" (click)="openCancel(row)"><i class="fas fa-ban"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewAmount ? 10 : 9" class="empty-state"><i class="fas fa-receipt"></i><span>{{ '::NoExpensesFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::CancelExpense' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="cancelForm">
+      <div class="mb-3">
+        <label>{{ '::CancellationReason' | abpLocalization }} <b>*</b></label>
+        <textarea rows="3" class="form-control" formControlName="cancellationReason"></textarea>
+        <small *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || actionInProgress" (click)="confirmCancel()">{{ '::CancelExpense' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

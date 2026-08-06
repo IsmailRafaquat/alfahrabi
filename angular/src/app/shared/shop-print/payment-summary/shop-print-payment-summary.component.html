@@ -1,0 +1,18 @@
+<div class="sp-payment" *ngIf="payment">
+  <ng-container *ngIf="!payment.splits?.length; else splitPayments">
+    <div class="sp-payment-row">{{ labels.paymentMethod }}: {{ payment.method }}</div>
+    <div class="sp-payment-row" *ngIf="payment.receivedAmount != null">
+      {{ labels.received }}: <span class="shop-print-amount">{{ payment.receivedAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+    </div>
+    <div class="sp-payment-row" *ngIf="payment.changeAmount != null">
+      {{ labels.change }}: <span class="shop-print-amount">{{ payment.changeAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+    </div>
+    <div class="sp-payment-row" *ngIf="payment.referenceNumber">{{ labels.reference }}: {{ payment.referenceNumber }}</div>
+  </ng-container>
+
+  <ng-template #splitPayments>
+    <div class="sp-payment-row" *ngFor="let split of payment.splits">
+      {{ split.method }}: <span class="shop-print-amount">{{ split.amount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+    </div>
+  </ng-template>
+</div>

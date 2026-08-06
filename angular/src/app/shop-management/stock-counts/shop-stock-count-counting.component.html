@@ -1,0 +1,79 @@
+<abp-page>
+<app-topbar-layout titleKey="::StockCount" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="dto as d">
+    <span class="count-number-badge">{{ d.stockCountNumber }}</span>
+    <span class="status-badge">{{ '::' + (d.status === ShopStockCountStatus.Draft ? 'Draft' : 'InProgress') | abpLocalization }}</span>
+    <span class="progress-chip">{{ '::CountProgress' | abpLocalization }}: <strong>{{ d.countedItems }} / {{ d.totalItems }}</strong></span>
+  </div>
+
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button class="btn btn-primary btn-sm" *ngIf="allCounted" [disabled]="completing" (click)="completeCount()">
+      <span *ngIf="completing" class="spinner-border spinner-border-sm me-2"></span>
+      <i *ngIf="!completing" class="fas fa-check me-2"></i>{{ '::CompleteCount' | abpLocalization }}
+    </button>
+  </div>
+
+  <div class="counting-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <div *ngIf="!loading && dto?.status === ShopStockCountStatus.Draft" class="start-card">
+    <p>{{ '::ConfirmStartStockCount' | abpLocalization }}</p>
+    <button class="btn btn-primary btn-sm" [disabled]="starting" (click)="start()">
+      <span *ngIf="starting" class="spinner-border spinner-border-sm me-2"></span>
+      <i *ngIf="!starting" class="fas fa-play me-2"></i>{{ '::StartStockCount' | abpLocalization }}
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && dto?.status === ShopStockCountStatus.InProgress">
+    <div class="counting-toolbar">
+      <div class="search-box"><i class="fas fa-search"></i><input class="form-control form-control-sm" [(ngModel)]="search" [placeholder]="'::SearchProduct' | abpLocalization"></div>
+      <label class="toggle-label"><input type="checkbox" [(ngModel)]="showOnlyUncounted"> {{ '::ShowOnlyUncounted' | abpLocalization }}</label>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle counting-table">
+        <thead>
+          <tr>
+            <th>{{ '::ProductCode' | abpLocalization }}</th>
+            <th>{{ '::ProductName' | abpLocalization }}</th>
+            <th>{{ '::BatchNumber' | abpLocalization }}</th>
+            <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+            <th>{{ '::Unit' | abpLocalization }}</th>
+            <th>{{ '::SystemQuantity' | abpLocalization }}</th>
+            <th>{{ '::PhysicalQuantity' | abpLocalization }}</th>
+            <th>{{ '::Difference' | abpLocalization }}</th>
+            <th>{{ '::Notes' | abpLocalization }}</th>
+            <th>{{ '::Status' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of visibleRows; let i = index; trackBy: trackByItemId" [class.counted-row]="row.isCounted">
+            <td>{{ row.productCode }}</td>
+            <td>{{ row.productName }}</td>
+            <td>{{ row.batchNumber || '—' }}</td>
+            <td>{{ row.expiryDate ? (row.expiryDate | date:'mediumDate') : '—' }}</td>
+            <td>{{ row.unitName }} ({{ row.unitShortName }})</td>
+            <td class="amount-cell">{{ row.systemQuantity | number:'1.0-4' }}</td>
+            <td>
+              <input [id]="'pq-' + i" type="number" min="0" [step]="row.unitAllowDecimal ? '0.01' : '1'" class="form-control form-control-sm qty-input"
+                  [(ngModel)]="row.physicalQuantity" (keydown)="onQuantityKeydown($event, row, i)" (blur)="saveRow(row, i, false)" [disabled]="row.saving">
+            </td>
+            <td class="amount-cell" [ngClass]="{'diff-positive': row.differenceQuantity > 0, 'diff-negative': row.differenceQuantity < 0}">
+              {{ row.isCounted ? (row.differenceQuantity | number:'1.0-4') : '—' }}
+            </td>
+            <td><input class="form-control form-control-sm notes-input" [(ngModel)]="row.notes" (blur)="saveRow(row, i, false)"></td>
+            <td><span class="counted-badge" [ngClass]="row.isCounted ? 'yes' : 'no'">{{ (row.isCounted ? '::Counted' : '::NotCounted') | abpLocalization }}</span></td>
+          </tr>
+          <tr *ngIf="!visibleRows.length">
+            <td colspan="8" class="empty-state"><i class="fas fa-clipboard-list"></i><span>{{ '::NoStockCountsFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+  </div>
+</app-topbar-layout>
+</abp-page>

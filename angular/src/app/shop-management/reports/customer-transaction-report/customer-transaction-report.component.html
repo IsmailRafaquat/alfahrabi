@@ -1,0 +1,85 @@
+<abp-page>
+  <app-topbar-layout titleKey="::ShopCustomerTransactionReport" [(filters)]="input" showSearch="true" showFiltersToggle
+    [showApplyFilters]="true" [showResetFilters]="true" (onFilter)="onFilterChange()" (onReset)="reset()">
+
+    <ng-container ngProjectAs="[topbarFilters]">
+      <div class="col-12 col-md-3">
+        <label>{{ '::Customer' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.customerId" (ngModelChange)="onFilterChange()" nzShowSearch [nzPlaceHolder]="'::Customer' | abpLocalization">
+          <nz-option *ngFor="let c of customers" [nzValue]="c.id" [nzLabel]="c.name || ''"></nz-option>
+        </nz-select>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::ReportPeriod' | abpLocalization }}</label>
+        <app-report-period-filter
+          [period]="input.period" [dateFrom]="input.dateFrom" [dateTo]="input.dateTo"
+          (periodChange)="input.period = $event" (dateFromChange)="input.dateFrom = $event" (dateToChange)="input.dateTo = $event"
+          (apply)="onFilterChange()"
+        ></app-report-period-filter>
+      </div>
+      <div class="col-12 col-md-2">
+        <label>{{ '::MovementType' | abpLocalization }}</label>
+        <nz-select class="w-100" [(ngModel)]="input.transactionType" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+          <nz-option *ngFor="let o of transactionTypeOptions" [nzValue]="o.value" [nzLabel]="('::' + o.key) | abpLocalization"></nz-option>
+        </nz-select>
+      </div>
+    </ng-container>
+
+    <div class="print-only">
+    <app-report-print-header reportTitleKey="::ShopCustomerTransactionReport" [dateRangeText]="input.dateFrom + ' - ' + input.dateTo"></app-report-print-header>
+
+    <div class="card report-card">
+      <ng-container *ngIf="!input.customerId">
+        <app-report-empty-state></app-report-empty-state>
+      </ng-container>
+
+      <ng-container *ngIf="input.customerId">
+        <div class="summary-section">
+          <app-report-totals-cards [cards]="totalsCards"></app-report-totals-cards>
+        </div>
+
+        <div class="loading" *ngIf="loading"><span class="spinner-border spinner-border-sm"></span></div>
+
+        <ng-container *ngIf="!loading">
+          <div class="table-responsive" *ngIf="result && result.items.length > 0; else emptyState">
+            <table class="table align-middle report-table">
+              <thead>
+                <tr>
+                  <th>{{ '::TransactionDate' | abpLocalization }}</th>
+                  <th>{{ '::MovementType' | abpLocalization }}</th>
+                  <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
+                  <th>{{ '::Description' | abpLocalization }}</th>
+                  <th>{{ '::Debit' | abpLocalization }}</th>
+                  <th>{{ '::Credit' | abpLocalization }}</th>
+                  <th>{{ '::RunningBalance' | abpLocalization }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of result.items">
+                  <td>{{ row.transactionDate | date: 'medium' }}</td>
+                  <td><app-report-status-badge [text]="typeLabel(row.transactionType) | abpLocalization" variant="info"></app-report-status-badge></td>
+                  <td><strong>{{ row.referenceNumber }}</strong></td>
+                  <td>{{ row.description }}</td>
+                  <td>{{ row.debit ? (row.debit | shopReportCurrency) : '-' }}</td>
+                  <td>{{ row.credit ? (row.credit | shopReportCurrency) : '-' }}</td>
+                  <td class="balance-cell">{{ row.runningBalance | shopReportCurrency }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <nz-pagination
+              class="p-3"
+              [nzPageIndex]="pageIndex" [nzTotal]="result.totalCount" [nzPageSize]="input.maxResultCount || 20"
+              (nzPageIndexChange)="onPageChange($event)"
+            ></nz-pagination>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyState>
+          <app-report-empty-state></app-report-empty-state>
+        </ng-template>
+      </ng-container>
+    </div>
+    </div>
+  </app-topbar-layout>
+</abp-page>

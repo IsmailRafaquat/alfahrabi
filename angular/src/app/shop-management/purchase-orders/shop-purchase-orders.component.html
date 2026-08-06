@@ -1,0 +1,96 @@
+<abp-page>
+<app-topbar-layout titleKey="::PurchaseOrders" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchPurchaseOrders'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Purchase Order is a request you send to a supplier for the products you want to buy. It records what you ordered and at what price, and must be approved before you can receive the goods.', ur: 'Purchase Order وہ آرڈر ہے جو آپ سپلائیر کو بھیجتے ہیں کہ آپ کون سا سامان اور کتنی مقدار میں خریدنا چاہتے ہیں۔ منظوری کے بعد ہی اس آرڈر پر سامان وصول کیا جا سکتا ہے۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreatePurchaseOrder' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-2">
+      <label>{{ '::Supplier' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="supplierFilter" (ngModelChange)="load(true)" nzShowSearch nzAllowClear [nzPlaceHolder]="'::SelectSupplier' | abpLocalization">
+        <nz-option *ngFor="let x of suppliers" [nzValue]="x.id" [nzLabel]="x.code + ' - ' + x.name"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::PurchaseOrderStatus' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllPurchaseOrderStatuses' | abpLocalization">
+        <nz-option *ngFor="let x of statusOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::OrderDateFrom' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="orderDateFrom" (change)="load(true)">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::OrderDateTo' | abpLocalization }}</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="orderDateTo" (change)="load(true)">
+    </div>
+  </ng-container>
+
+  <div class="po-page">
+  <div class="card po-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::PurchaseOrderNumber' | abpLocalization }}</th>
+            <th>{{ '::Supplier' | abpLocalization }}</th>
+            <th>{{ '::OrderDate' | abpLocalization }}</th>
+            <th>{{ '::ExpectedDeliveryDate' | abpLocalization }}</th>
+            <th>{{ '::PurchaseOrderStatus' | abpLocalization }}</th>
+            <th *ngIf="canViewCost">{{ '::GrandTotal' | abpLocalization }}</th>
+            <th>{{ '::CreationTime' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><a class="po-link" (click)="view(row)">{{ row.purchaseOrderNumber }}</a></td>
+            <td>{{ row.supplierCode }} - {{ row.supplierName }}</td>
+            <td>{{ row.orderDate | date:'mediumDate' }}</td>
+            <td>{{ row.expectedDeliveryDate ? (row.expectedDeliveryDate | date:'mediumDate') : '—' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(row.status)">{{ statusLabel(row.status) | abpLocalization }}</span></td>
+            <td *ngIf="canViewCost">{{ row.grandTotal != null ? (row.grandTotal | number:'1.2-2') : '—' }}</td>
+            <td>{{ row.creationTime | date:'mediumDate' }}</td>
+            <td class="text-end">
+              <button class="icon-btn" (click)="view(row)" [title]="'::PurchaseOrder' | abpLocalization"><i class="fas fa-eye"></i></button>
+              <button *ngIf="canEdit && isDraft(row)" class="icon-btn" (click)="edit(row)" [title]="'::EditPurchaseOrder' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canDelete && isDraft(row)" class="icon-btn danger" (click)="remove(row)" [title]="'::DeletePurchaseOrder' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewCost ? 8 : 7" class="empty-state"><i class="fas fa-file-invoice"></i><span>{{ '::NoPurchaseOrdersFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>

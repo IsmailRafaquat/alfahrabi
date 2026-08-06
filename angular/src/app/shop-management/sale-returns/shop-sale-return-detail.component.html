@@ -1,0 +1,131 @@
+<abp-page>
+<app-topbar-layout titleKey="::SaleReturn" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarPills *ngIf="dto as d">
+    <span class="sale-number-badge">{{ d.saleReturnNumber }}</span>
+    <span class="status-badge" [ngClass]="statusClass(d.status)">{{ statusLabel(d.status) | abpLocalization }}</span>
+  </div>
+
+  <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canPrint" type="button" class="btn btn-light btn-sm" (click)="print()"><i class="fas fa-print me-2"></i>Print</button>
+    <button class="btn btn-light btn-sm" (click)="viewSale()"><i class="fas fa-receipt me-2"></i>{{ '::ViewSale' | abpLocalization }}</button>
+    <button *ngIf="canViewCustomerLedger" class="btn btn-light btn-sm" (click)="viewCustomerLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewCustomerLedger' | abpLocalization }}</button>
+    <button *ngIf="canViewStockTransactions && d.status === ShopSaleReturnStatus.Completed" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>
+    <button *ngIf="canEdit && d.status === ShopSaleReturnStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditSaleReturn' | abpLocalization }}</button>
+    <button *ngIf="canDelete && d.status === ShopSaleReturnStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteSaleReturn' | abpLocalization }}</button>
+    <button *ngIf="canCancel && d.status === ShopSaleReturnStatus.Draft" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelSaleReturn' | abpLocalization }}</button>
+    <button *ngIf="canComplete && d.status === ShopSaleReturnStatus.Draft" class="btn btn-primary btn-sm" [disabled]="actionInProgress" (click)="complete()"><i class="fas fa-check me-2"></i>{{ '::CompleteSaleReturn' | abpLocalization }}</button>
+  </div>
+
+  <div class="detail-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <ng-container *ngIf="!loading && dto as d">
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::ReturnDate' | abpLocalization }}</span><strong>{{ d.returnDate | date:'mediumDate' }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::SaleNumber' | abpLocalization }}</span><strong>{{ d.saleNumber }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::ReturnReason' | abpLocalization }}</span><strong>{{ reasonLabel(d.reason) | abpLocalization }}</strong></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::SettlementType' | abpLocalization }}</span><strong>{{ settlementTypeLabel(d.settlementType) | abpLocalization }}</strong></div>
+        <div class="col-6 col-md-3" *ngIf="d.bankAccountName"><span class="field-label">{{ '::BankAccount' | abpLocalization }}</span><strong>{{ d.bankAccountCode }} - {{ d.bankAccountName }}</strong></div>
+        <div class="col-12" *ngIf="d.reasonDetails"><span class="field-label">{{ '::ReasonDetails' | abpLocalization }}</span><p class="notes-text">{{ d.reasonDetails }}</p></div>
+        <div class="col-12" *ngIf="d.notes"><span class="field-label">{{ '::Notes' | abpLocalization }}</span><p class="notes-text">{{ d.notes }}</p></div>
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::CreationTime' | abpLocalization }}</span><strong>{{ d.creationTime | date:'medium' }}</strong></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section detail-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-boxes"></i></span><h6>{{ '::Product' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{{ '::Product' | abpLocalization }}</th>
+              <th>{{ '::SoldQuantity' | abpLocalization }}</th>
+              <th>{{ '::PreviouslyReturned' | abpLocalization }}</th>
+              <th>{{ '::ReturnQuantity' | abpLocalization }}</th>
+              <th *ngIf="canViewPrice">{{ '::UnitSalePrice' | abpLocalization }}</th>
+              <th *ngIf="canViewCost">{{ '::UnitCostSnapshot' | abpLocalization }}</th>
+              <th>{{ '::DiscountPercentage' | abpLocalization }}</th>
+              <th>{{ '::TaxPercentage' | abpLocalization }}</th>
+              <th>{{ '::BatchNumber' | abpLocalization }}</th>
+              <th>{{ '::ExpiryDate' | abpLocalization }}</th>
+              <th *ngIf="canViewPrice">{{ '::LineTotal' | abpLocalization }}</th>
+              <th>{{ '::ReturnReason' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of d.items">
+              <td><strong>{{ item.productName }}</strong><br><span class="code-chip">{{ item.productCode }}</span></td>
+              <td>{{ item.soldQuantity | number:'1.0-4' }} {{ item.unitShortName }}</td>
+              <td>{{ item.previouslyReturnedQuantity | number:'1.0-4' }}</td>
+              <td>{{ item.returnQuantity | number:'1.0-4' }}</td>
+              <td *ngIf="canViewPrice">{{ item.unitSalePrice != null ? (item.unitSalePrice | number:'1.2-2') : '—' }}</td>
+              <td *ngIf="canViewCost">{{ item.unitCostSnapshot != null ? (item.unitCostSnapshot | number:'1.2-2') : '—' }}</td>
+              <td>{{ item.discountPercentage }}%</td>
+              <td>{{ item.taxPercentage }}%</td>
+              <td>{{ item.batchNumber || '—' }}</td>
+              <td>{{ item.expiryDate ? (item.expiryDate | date:'mediumDate') : '—' }}</td>
+              <td *ngIf="canViewPrice">{{ item.lineTotal != null ? (item.lineTotal | number:'1.2-2') : '—' }}</td>
+              <td>{{ reasonLabel(item.reason) | abpLocalization }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="totals-card" *ngIf="canViewPrice">
+        <div class="totals-row"><span>{{ '::SubTotal' | abpLocalization }}</span><strong>{{ d.subTotal | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::DiscountAmount' | abpLocalization }}</span><strong>-{{ d.discountAmount | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::TaxAmount' | abpLocalization }}</span><strong>{{ d.taxAmount | number:'1.2-2' }}</strong></div>
+        <div class="totals-row"><span>{{ '::OtherCharges' | abpLocalization }}</span><strong>{{ d.otherCharges | number:'1.2-2' }}</strong></div>
+        <div class="totals-row grand"><span>{{ '::GrandTotal' | abpLocalization }}</span><strong>{{ d.grandTotal | number:'1.2-2' }}</strong></div>
+        <div class="totals-row" *ngIf="d.status === ShopSaleReturnStatus.Completed"><span>{{ '::RefundAmount' | abpLocalization }}</span><strong>{{ d.refundAmount | number:'1.2-2' }}</strong></div>
+        <div class="totals-row" *ngIf="d.status === ShopSaleReturnStatus.Completed"><span>{{ '::CustomerCreditAmount' | abpLocalization }}</span><strong>{{ d.customerCreditAmount | number:'1.2-2' }}</strong></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section detail-card" *ngIf="d.status === ShopSaleReturnStatus.Completed">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-check-circle"></i></span><h6>{{ '::CompleteSaleReturn' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-6 col-md-3"><span class="field-label">{{ '::CompletedDate' | abpLocalization }}</span><strong>{{ d.completedDate ? (d.completedDate | date:'medium') : '—' }}</strong></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="form-section detail-card" *ngIf="d.status === ShopSaleReturnStatus.Cancelled">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-ban"></i></span><h6>{{ '::CancellationReason' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6"><p class="notes-text">{{ d.cancellationReason }}</p></div>
+      </div>
+      </div>
+    </section>
+  </ng-container>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<abp-modal [(visible)]="cancelModalOpen" [busy]="actionInProgress">
+  <ng-template #abpHeader><h5>{{ '::CancelSaleReturn' | abpLocalization }}</h5></ng-template>
+  <ng-template #abpBody>
+    <form [formGroup]="cancelForm">
+      <div class="mb-3">
+        <label>{{ '::CancellationReason' | abpLocalization }} <b>*</b></label>
+        <textarea rows="3" class="form-control" formControlName="cancellationReason"></textarea>
+        <small *ngIf="cancelForm.controls.cancellationReason.touched && cancelForm.controls.cancellationReason.invalid">{{ '::ValidationRequired' | abpLocalization }}</small>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template #abpFooter>
+    <button class="btn btn-light btn-sm" abpClose>{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+    <button class="btn btn-danger btn-sm" [disabled]="cancelForm.invalid || actionInProgress" (click)="confirmCancel()">{{ '::CancelSaleReturn' | abpLocalization }}</button>
+  </ng-template>
+</abp-modal>

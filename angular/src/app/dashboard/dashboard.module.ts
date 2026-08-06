@@ -5,6 +5,7 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
 import { SharedModule } from '../shared/shared.module';
 import { PageModule } from '@abp/ng.components/page';
+import { TopbarLayoutModule } from '../components/topbar-layout/topbar-layout.module';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { PageModule } from '@abp/ng.components/page';
     CommonModule,
     DashboardRoutingModule,
     SharedModule,
-    PageModule
+    PageModule,
+    TopbarLayoutModule
   ]
 })
 export class DashboardModule { }

@@ -1,0 +1,77 @@
+<abp-page>
+<app-topbar-layout [titleKey]="isEdit ? '::EditBankTransfer' : '::CreateBankTransfer'" showSearch="false" [showFiltersToggle]="false"
+  [showApplyFilters]="false" [showResetFilters]="false" fullWidthContent>
+
+  <div topbarActions>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="cancel()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+  </div>
+
+  <div class="editor-page">
+  <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+  <form *ngIf="!loading" [formGroup]="form">
+    <section class="form-section editor-card">
+      <div class="section-head"><span class="section-icon"><i class="fas fa-address-card"></i></span><h6>{{ '::BasicInformation' | abpLocalization }}</h6></div>
+      <div class="section-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label>{{ '::TransferDate' | abpLocalization }} <b class="required">*</b></label>
+          <input type="date" class="form-control form-control-sm" formControlName="transferDate">
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::TransferType' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="transferType" (ngModelChange)="onTypeChange()">
+            <nz-option *ngFor="let x of typeOptions" [nzValue]="x.value" [nzLabel]="('::' + x.key) | abpLocalization"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label>{{ '::Amount' | abpLocalization }} <b class="required">*</b></label>
+          <input type="number" step="0.01" min="0.01" class="form-control form-control-sm" formControlName="amount">
+          <small class="error" *ngIf="sourceAccountBalance != null && form.controls.amount.value > sourceAccountBalance">{{ '::InsufficientBankBalance' | abpLocalization }}</small>
+        </div>
+
+        <div class="col-12 col-md-6" *ngIf="transferType === ShopBankTransferType.BankToCash || transferType === ShopBankTransferType.BankToBank">
+          <label>{{ '::FromBankAccount' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="fromBankAccountId" nzShowSearch [nzPlaceHolder]="'::SelectFromBankAccount' | abpLocalization">
+            <nz-option *ngFor="let a of accounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+          </nz-select>
+          <small class="hint" *ngIf="sourceAccountBalance != null">{{ '::AvailableBalance' | abpLocalization }}: {{ sourceAccountBalance | number:'1.2-2' }}</small>
+        </div>
+
+        <div class="col-12 col-md-6" *ngIf="transferType === ShopBankTransferType.CashToBank || transferType === ShopBankTransferType.BankToCash">
+          <label>{{ '::CashRegister' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="cashRegisterId" nzShowSearch [nzPlaceHolder]="'::SelectCashRegisterOptional' | abpLocalization">
+            <nz-option *ngFor="let r of cashRegisters" [nzValue]="r.id" [nzLabel]="r.code + ' - ' + r.name"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-12 col-md-6" *ngIf="transferType === ShopBankTransferType.CashToBank || transferType === ShopBankTransferType.BankToBank">
+          <label>{{ '::ToBankAccount' | abpLocalization }} <b class="required">*</b></label>
+          <nz-select class="w-100" formControlName="toBankAccountId" nzShowSearch [nzPlaceHolder]="'::SelectToBankAccount' | abpLocalization">
+            <nz-option *ngFor="let a of accounts" [nzValue]="a.id" [nzLabel]="a.code + ' - ' + a.accountName"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label>{{ '::ReferenceNumber' | abpLocalization }}</label>
+          <input class="form-control form-control-sm" formControlName="referenceNumber">
+        </div>
+        <div class="col-12">
+          <label>{{ '::Notes' | abpLocalization }}</label>
+          <textarea rows="2" class="form-control form-control-sm" formControlName="notes"></textarea>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <div class="card-save">
+      <button type="button" class="btn btn-light btn-sm" (click)="cancel()">{{ 'AbpUi::Cancel' | abpLocalization }}</button>
+      <button type="button" class="btn btn-primary btn-sm" [disabled]="form.invalid || submitting" (click)="save()">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!submitting" class="fas fa-save me-2"></i>{{ '::Save' | abpLocalization }}
+      </button>
+    </div>
+  </form>
+  </div>
+</app-topbar-layout>
+</abp-page>

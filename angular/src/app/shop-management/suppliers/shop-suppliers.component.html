@@ -1,0 +1,104 @@
+<abp-page>
+<app-topbar-layout titleKey="::Suppliers" [(filters)]="filters" showSearch="true"
+  [searchPlaceholder]="'::SearchSuppliers'" showFiltersToggle
+  [showApplyFilters]="false" [showResetFilters]="false" (onFilter)="load(true)" fullWidthContent>
+
+  <div topbarPills>
+    <button type="button" class="workflow-info-btn" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+        [nzTooltipTitleContext]="{ en: 'A Supplier is the person or company you buy products from. Save their contact details, address, and payment terms here so you can select them quickly in future Purchase Orders.', ur: 'سپلائیر وہ شخص یا کمپنی ہے جس سے آپ سامان خریدتے ہیں۔ ان کا رابطہ نمبر، پتہ اور ادائیگی کی شرائط یہاں محفوظ کریں تاکہ Purchase Orders میں آسانی سے منتخب کر سکیں۔' }">
+      <i class="fas fa-info-circle"></i> {{ '::HowThisWorks' | abpLocalization }}
+    </button>
+  </div>
+
+  <div topbarActions>
+    <button *ngIf="canCreate" class="btn btn-primary btn-sm" (click)="create()"><i class="fas fa-plus me-2"></i>{{ '::CreateSupplier' | abpLocalization }}</button>
+  </div>
+
+  <ng-container ngProjectAs="[topbarFilters]">
+    <div class="col-6 col-lg-3">
+      <label>{{ '::City' | abpLocalization }}</label>
+      <input class="form-control form-control-sm" [(ngModel)]="cityFilter" (keyup.enter)="load(true)" [placeholder]="'::City' | abpLocalization">
+    </div>
+    <div class="col-6 col-lg-3">
+      <label>{{ '::Country' | abpLocalization }}</label>
+      <input class="form-control form-control-sm" [(ngModel)]="countryFilter" (keyup.enter)="load(true)" [placeholder]="'::Country' | abpLocalization">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label>{{ '::IsActive' | abpLocalization }}</label>
+      <nz-select class="w-100" [(ngModel)]="statusFilter" (ngModelChange)="load(true)" nzAllowClear [nzPlaceHolder]="'::AllStatuses' | abpLocalization">
+        <nz-option nzValue="active" [nzLabel]="'::ActiveSuppliers' | abpLocalization"></nz-option>
+        <nz-option nzValue="inactive" [nzLabel]="'::InactiveSuppliers' | abpLocalization"></nz-option>
+      </nz-select>
+    </div>
+  </ng-container>
+
+  <div class="suppliers-page">
+  <div class="card suppliers-card">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>{{ '::SupplierCode' | abpLocalization }}</th>
+            <th>{{ '::SupplierName' | abpLocalization }}</th>
+            <th>{{ '::ContactPerson' | abpLocalization }}</th>
+            <th>{{ '::Phone' | abpLocalization }}</th>
+            <th>{{ '::City' | abpLocalization }}</th>
+            <th>{{ '::PaymentTermsDays' | abpLocalization }}</th>
+            <th *ngIf="canViewBalance" class="has-tooltip" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+                [nzTooltipTitleContext]="{ en: 'The amount already owed to this supplier when they were first added to the system.', ur: 'یہ رقم ہے جو سپلائیر کو شروع میں دینی تھی۔' }">
+              {{ '::OpeningBalance' | abpLocalization }} <i class="fas fa-info-circle info-icon"></i>
+            </th>
+            <th *ngIf="canViewBalance" class="has-tooltip" nz-tooltip nzTooltipPlacement="bottom" [nzTooltipTitle]="bilingualTooltip"
+                [nzTooltipTitleContext]="{ en: 'The maximum credit amount recommended by this supplier. Currently for information only.', ur: 'سپلائیر آپ کو زیادہ سے زیادہ کتنا ادھار دے سکتا ہے۔' }">
+              {{ '::CreditLimit' | abpLocalization }} <i class="fas fa-info-circle info-icon"></i>
+            </th>
+            <th>{{ '::IsActive' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Actions' | abpLocalization }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td><span class="code-chip">{{ row.code }}</span></td>
+            <td><strong>{{ row.name }}</strong></td>
+            <td>{{ row.contactPerson || '—' }}</td>
+            <td>{{ row.phone || '—' }}</td>
+            <td>{{ row.city || '—' }}</td>
+            <td>
+              <span *ngIf="row.paymentTermsDays === 0">{{ '::CashSupplier' | abpLocalization }}</span>
+              <span *ngIf="row.paymentTermsDays > 0">{{ row.paymentTermsDays }} {{ '::Days' | abpLocalization }}</span>
+            </td>
+            <td *ngIf="canViewBalance">{{ row.openingBalance != null ? (row.openingBalance | number:'1.2-2') : '—' }}</td>
+            <td *ngIf="canViewBalance">{{ row.creditLimit != null ? (row.creditLimit | number:'1.2-2') : '—' }}</td>
+            <td><span class="status" [class.inactive]="!row.isActive">{{ (row.isActive ? '::ActiveSuppliers' : '::InactiveSuppliers') | abpLocalization }}</span></td>
+            <td class="text-end">
+              <button *ngIf="canEdit" class="icon-btn" (click)="edit(row)" [title]="'::EditSupplier' | abpLocalization"><i class="fas fa-pen"></i></button>
+              <button *ngIf="canDelete" class="icon-btn danger" (click)="remove(row)" [title]="'::DeleteSupplier' | abpLocalization"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && !items.length">
+            <td [attr.colspan]="canViewBalance ? 10 : 8" class="empty-state"><i class="fas fa-truck-loading"></i><span>{{ '::NoSuppliersFound' | abpLocalization }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="loading" class="loading"><span class="spinner-border spinner-border-sm"></span></div>
+    <div class="pager">
+      <span>{{ page * pageSize + (totalCount ? 1 : 0) }}–{{ Math.min((page + 1) * pageSize, totalCount) }} / {{ totalCount }}</span>
+      <div>
+        <button class="btn btn-light btn-sm" [disabled]="page === 0" (click)="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <button class="btn btn-light btn-sm" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  </div>
+</app-topbar-layout>
+</abp-page>
+
+<ng-template #bilingualTooltip let-en="en" let-ur="ur">
+  <div class="tooltip-lang-tabs">
+    <button type="button" [class.active]="tooltipLang === 'en'" (click)="tooltipLang = 'en'">EN</button>
+    <button type="button" [class.active]="tooltipLang === 'ur'" (click)="tooltipLang = 'ur'">اردو</button>
+  </div>
+  <div class="tooltip-lang-text" [attr.dir]="tooltipLang === 'ur' ? 'rtl' : 'ltr'">{{ tooltipLang === 'en' ? en : ur }}</div>
+</ng-template>
+
