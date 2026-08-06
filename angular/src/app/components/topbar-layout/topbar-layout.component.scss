@@ -67,6 +67,15 @@
 .app-content {
   padding: 1.25em 2em 3em;
   margin: 0 auto;
+  // The active theme bundle (Lepton-X "Dim") defaults the page body to a near-black background
+  // (#161616) meant for its own dark chrome - every Shop Management page renders light content on
+  // top of it, which only visually covers the whole viewport when there's enough content to reach
+  // the bottom. A short page (e.g. an empty list) leaves that dark background exposed below it, so
+  // this wrapper - shared by every page via app-topbar-layout - explicitly repaints itself light and
+  // guarantees at least full-viewport-minus-topbar height regardless of how little content it has.
+  background-color: #f4f6f9;
+  min-height: calc(100vh - 4.5rem);
+  box-sizing: border-box;
 }
 
 .app-content.full-width {
