@@ -1,0 +1,21 @@
+.sp-footer {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.sp-qr-wrap,
+.sp-barcode-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 3px 0;
+}
+
+.sp-footer-message {
+  font-size: 0.95em;
+}
+
+.sp-terms {
+  font-size: 0.75em;
+  opacity: 0.85;
+  margin-top: 2px;
+}

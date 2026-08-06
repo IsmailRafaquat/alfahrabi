@@ -9,11 +9,8 @@
 
   <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="closing">
     <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
-    <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" nz-tooltip [nzTooltipTitle]="'::PrintClosing' | abpLocalization" nzTooltipPlacement="top" (click)="print()">
-      <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
-    </button>
-    <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" nz-tooltip [nzTooltipTitle]="'::ShareOnWhatsApp' | abpLocalization" nzTooltipPlacement="top" (click)="shareOnWhatsApp()">
-      <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
+    <button class="btn btn-outline-primary btn-sm btn-icon" nz-tooltip [nzTooltipTitle]="'::PrintClosing' | abpLocalization" nzTooltipPlacement="top" (click)="print()">
+      <i class="fas fa-print"></i>
     </button>
   </div>
 
@@ -98,60 +95,5 @@
 </app-topbar-layout>
 </abp-page>
 
-<div #printRef class="closing-print print-only" [class.capturing]="capturing" *ngIf="closing">
-  <div class="statement-header">
-    <div class="shop-info">
-      <h2>{{ shopSetting?.shopDisplayName || 'EHub' }}</h2>
-      <p *ngIf="shopSetting?.addressLine1">{{ shopSetting?.addressLine1 }}<span *ngIf="shopSetting?.city">, {{ shopSetting?.city }}</span></p>
-      <p *ngIf="shopSetting?.phone || shopSetting?.email">{{ shopSetting?.phone }} <span *ngIf="shopSetting?.phone && shopSetting?.email"> · </span>{{ shopSetting?.email }}</p>
-    </div>
-    <div class="statement-title">
-      <h3>{{ '::DailyClosings' | abpLocalization }}</h3>
-      <p>{{ closing.businessDate | date:'mediumDate' }}</p>
-    </div>
-  </div>
-
-  <div class="closing-info">
-    <strong>{{ closing.cashRegisterCode }} - {{ closing.cashRegisterName }}</strong>
-    <p>{{ statusLabel(closing.status) | abpLocalization }} &middot; {{ '::OpenedBy' | abpLocalization }}: {{ closing.openedDate | date:'medium' }}<ng-container *ngIf="closing.closedDate"> &middot; {{ '::ClosedBy' | abpLocalization }}: {{ closing.closedDate | date:'medium' }}</ng-container></p>
-  </div>
-
-  <table class="statement-table summary-table">
-    <tbody>
-      <tr><td>{{ '::OpeningCash' | abpLocalization }}</td><td class="text-end">{{ closing.openingCash != null ? (closing.openingCash | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::CashSales' | abpLocalization }}</td><td class="text-end">{{ closing.cashSales != null ? (closing.cashSales | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::CustomerCashPayments' | abpLocalization }}</td><td class="text-end">{{ closing.customerCashPayments != null ? (closing.customerCashPayments | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::SupplierCashPayments' | abpLocalization }}</td><td class="text-end">-{{ closing.supplierCashPayments != null ? (closing.supplierCashPayments | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::CashExpenses' | abpLocalization }}</td><td class="text-end">-{{ closing.cashExpenses != null ? (closing.cashExpenses | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::CustomerRefunds' | abpLocalization }}</td><td class="text-end">-{{ closing.customerRefunds != null ? (closing.customerRefunds | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::ManualCashIn' | abpLocalization }}</td><td class="text-end">{{ closing.manualCashIn != null ? (closing.manualCashIn | number:'1.2-2') : '—' }}</td></tr>
-      <tr><td>{{ '::ManualCashOut' | abpLocalization }}</td><td class="text-end">-{{ closing.manualCashOut != null ? (closing.manualCashOut | number:'1.2-2') : '—' }}</td></tr>
-      <tr class="grand"><td>{{ '::ExpectedClosingCash' | abpLocalization }}</td><td class="text-end">{{ closing.expectedClosingCash != null ? (closing.expectedClosingCash | number:'1.2-2') : '—' }}</td></tr>
-      <tr *ngIf="closing.status !== ShopCashClosingStatus.Open"><td>{{ '::ActualClosingCash' | abpLocalization }}</td><td class="text-end">{{ closing.actualClosingCash != null ? (closing.actualClosingCash | number:'1.2-2') : '—' }}</td></tr>
-      <tr class="grand" *ngIf="closing.status !== ShopCashClosingStatus.Open"><td>{{ '::DifferenceAmount' | abpLocalization }}</td><td class="text-end">{{ closing.differenceAmount != null ? (closing.differenceAmount | number:'1.2-2') : '—' }}</td></tr>
-    </tbody>
-  </table>
-
-  <table class="statement-table">
-    <thead>
-      <tr>
-        <th>{{ '::TransactionDate' | abpLocalization }}</th>
-        <th>{{ '::TransactionType' | abpLocalization }}</th>
-        <th>{{ '::ReferenceNumber' | abpLocalization }}</th>
-        <th>{{ '::Description' | abpLocalization }}</th>
-        <th class="text-end">{{ '::CashIn' | abpLocalization }}</th>
-        <th class="text-end">{{ '::CashOut' | abpLocalization }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let t of transactions">
-        <td>{{ t.transactionDate | date:'medium' }}</td>
-        <td>{{ typeLabel(t.transactionType) | abpLocalization }}</td>
-        <td>{{ t.referenceNumber || '—' }}</td>
-        <td>{{ t.description || '—' }}</td>
-        <td class="text-end">{{ t.direction === ShopCashDirection.In && t.amount != null ? (t.amount | number:'1.2-2') : '—' }}</td>
-        <td class="text-end">{{ t.direction === ShopCashDirection.Out && t.amount != null ? (t.amount | number:'1.2-2') : '—' }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<!-- Print/Share now goes through the shared thermal/A4 print framework (ShopPrintService,
+     documentType 'cash-closing-slip') instead of this page's own print-only capture block. -->

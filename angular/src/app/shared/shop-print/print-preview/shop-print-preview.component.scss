@@ -1,0 +1,102 @@
+.sp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sp-modal-card {
+  background: #fff;
+  border-radius: 8px;
+  width: min(720px, 94vw);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid #e4ebf2;
+
+  h5 {
+    margin: 0;
+  }
+}
+
+.sp-modal-body {
+  padding: 1rem 1.1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sp-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-top: 1px solid #e4ebf2;
+}
+
+.sp-preview-layout {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sp-options {
+  flex: 0 0 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sp-option-group label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #62788e;
+  margin-bottom: 0.25rem;
+}
+
+.sp-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+// On-screen preview only - the actual print output ignores this (the global .print-only rule
+// takes over at print time and this modal chrome is hidden via .no-print).
+.sp-preview-paper {
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid #d7e6f2;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  max-height: 60vh;
+
+  ::ng-deep .shop-print-root {
+    zoom: 1.8;
+  }
+}
+
+.sp-preview-paper-a4 ::ng-deep .shop-print-root {
+  zoom: 0.55;
+}
+
+.sp-loading,
+.sp-error {
+  text-align: center;
+  padding: 2rem;
+}

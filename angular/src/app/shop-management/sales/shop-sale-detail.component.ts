@@ -8,7 +8,8 @@ import { CompleteShopSaleDto, ShopSaleDto, ShopSalePaymentMethod, ShopSaleProduc
 import { ShopCustomerPaymentService } from '../../proxy/shop-management/customer-payments';
 import { ShopSaleReturnService, ShopSaleReturnStatus } from '../../proxy/shop-management/sale-returns';
 import { ShopProductBatchLookupDto, ShopProductBatchService } from '../../proxy/shop-management/product-batches';
-import { ShopSettingDto, ShopSettingService } from '../../proxy/shop-management/settings';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 interface CompleteBatchAllocationRow {
   productBatchId: string;
@@ -33,7 +34,7 @@ export class ShopSaleDetailComponent implements OnInit {
   private readonly customerPaymentService = inject(ShopCustomerPaymentService);
   private readonly saleReturnService = inject(ShopSaleReturnService);
   private readonly productBatchService = inject(ShopProductBatchService);
-  private readonly settingService = inject(ShopSettingService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -58,11 +59,6 @@ export class ShopSaleDetailComponent implements OnInit {
   dto?: ShopSaleDto;
   loading = false;
   actionInProgress = false;
-
-  settings?: ShopSettingDto;
-  printing = false;
-  printLangModalOpen = false;
-  printLang: 'en' | 'ur' = 'en';
 
   totalPaidAmount?: number;
   currentPendingAmount?: number;
@@ -139,83 +135,8 @@ export class ShopSaleDetailComponent implements OnInit {
     if (this.dto?.customerId) this.router.navigate(['/shop-management/customer-ledger', this.dto.customerId]);
   }
 
-  openPrintLanguageDialog(): void {
-    if (this.printing) return;
-    this.printLangModalOpen = true;
-  }
-
-  selectPrintLanguage(lang: 'en' | 'ur'): void {
-    this.printLang = lang;
-    this.printLangModalOpen = false;
-
-    if (this.settings) {
-      this.triggerPrint();
-      return;
-    }
-
-    this.printing = true;
-    this.settingService
-      .get()
-      .pipe(finalize(() => (this.printing = false)))
-      .subscribe({
-        next: settings => {
-          this.settings = settings;
-          this.triggerPrint();
-        },
-        error: e => this.showError(e),
-      });
-  }
-
-  private triggerPrint(): void {
-    // Deferred one tick so the *ngIf="settings" invoice block has actually rendered before print grabs the DOM.
-    setTimeout(() => window.print());
-  }
-
-  private readonly invoiceLabelsByLang = {
-    en: {
-      invoice: 'Invoice',
-      product: 'Product',
-      quantity: 'Quantity',
-      unitPrice: 'Unit Price',
-      discount: 'Discount',
-      tax: 'Tax',
-      lineTotal: 'Line Total',
-      subTotal: 'Sub Total',
-      discountAmount: 'Discount Amount',
-      taxAmount: 'Tax Amount',
-      otherCharges: 'Other Charges',
-      grandTotal: 'Grand Total',
-      totalPaid: 'Total Paid',
-      pendingAmount: 'Pending Amount',
-    },
-    ur: {
-      invoice: 'انوائس',
-      product: 'پروڈکٹ',
-      quantity: 'مقدار',
-      unitPrice: 'یونٹ قیمت',
-      discount: 'رعایت',
-      tax: 'ٹیکس',
-      lineTotal: 'کل رقم',
-      subTotal: 'ذیلی کل',
-      discountAmount: 'رعایت کی رقم',
-      taxAmount: 'ٹیکس کی رقم',
-      otherCharges: 'دیگر اخراجات',
-      grandTotal: 'مجموعی کل',
-      totalPaid: 'کل ادا شدہ',
-      pendingAmount: 'بقایا رقم',
-    },
-  };
-
-  get invoiceLabels() {
-    return this.invoiceLabelsByLang[this.printLang];
-  }
-
-  get shopAddress(): string {
-    const s = this.settings;
-    if (!s) return '';
-    return [s.addressLine1, s.addressLine2, s.city, s.stateOrProvince, s.postalCode, s.country]
-      .filter(part => !!part && part.trim().length > 0)
-      .join(', ');
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.Sale, documentId: this.id });
   }
 
   statusLabel(status: ShopSaleStatus): string {

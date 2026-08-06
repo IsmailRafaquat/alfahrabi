@@ -1,0 +1,120 @@
+<div class="container-fluid shop-print-settings-page">
+  <div class="card settings-card border-0">
+    <div class="card-header settings-header">
+      <div>
+        <h4 class="mb-1">Print Settings</h4>
+        <p class="mb-0 text-muted">Configure receipt/invoice printing defaults for 58mm, 80mm, and A4 paper.</p>
+      </div>
+      <i class="fas fa-print settings-header-icon" aria-hidden="true"></i>
+    </div>
+    <div class="card-body settings-body">
+      <div *ngIf="loading" class="text-center py-5"><span class="spinner-border"></span></div>
+
+      <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+        <div class="section-heading"><span>Paper &amp; Style</span></div>
+        <div class="row compact-grid">
+          <div class="col-12 col-md-4 field-column">
+            <label class="form-label">Default Paper Size</label>
+            <select class="form-select form-select-sm" formControlName="defaultPrintPaperSize">
+              <option [ngValue]="ShopPrintPaperSize.Thermal58Mm">58mm Thermal</option>
+              <option [ngValue]="ShopPrintPaperSize.Thermal80Mm">80mm Thermal</option>
+              <option [ngValue]="ShopPrintPaperSize.A4">A4</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-4 field-column">
+            <label class="form-label">Thermal Font Size</label>
+            <select class="form-select form-select-sm" formControlName="thermalFontSize">
+              <option [ngValue]="ShopThermalFontSize.Small">Small</option>
+              <option [ngValue]="ShopThermalFontSize.Medium">Medium</option>
+              <option [ngValue]="ShopThermalFontSize.Large">Large</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-4 field-column">
+            <label class="form-label">Print Density</label>
+            <select class="form-select form-select-sm" formControlName="thermalPrintDensity">
+              <option [ngValue]="ShopThermalPrintDensity.Light">Light</option>
+              <option [ngValue]="ShopThermalPrintDensity.Normal">Normal</option>
+              <option [ngValue]="ShopThermalPrintDensity.Dark">Dark</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-heading"><span>Header</span></div>
+        <div class="row compact-grid">
+          <ng-container *ngFor="let field of [
+            ['printHeaderLogo','Show Logo'],['printShopName','Show Shop Name'],['printShopAddress','Show Address'],
+            ['printShopPhone','Show Phone'],['printShopEmail','Show Email'],['printTaxNumber','Show Tax Number']
+          ]">
+            <div class="col-6 col-md-4 col-xl-2 field-column">
+              <label class="form-check-label option-card">
+                <input type="checkbox" class="form-check-input" [formControlName]="field[0]" /> {{ field[1] }}
+              </label>
+            </div>
+          </ng-container>
+        </div>
+        <div class="upload-note" *ngIf="form.get('printHeaderLogo')?.value">
+          <i class="fas fa-info-circle"></i>
+          <span>Logo upload/serving is not available yet - this toggle is saved but the logo will not render on receipts until that feature is added.</span>
+        </div>
+
+        <div class="section-heading"><span>Item &amp; Totals Fields</span></div>
+        <div class="row compact-grid">
+          <ng-container *ngFor="let field of [
+            ['printItemCode','Show Item Code'],['printUnit','Show Unit'],['printBatchNumber','Show Batch Number'],
+            ['printExpiryDate','Show Expiry Date'],['printDiscount','Show Discount'],['printTax','Show Tax'],
+            ['printPaymentDetails','Show Payment Details'],['printCashierName','Show Cashier Name'],
+            ['printDateTime','Show Date/Time'],['printPageNumberForA4','Page Numbers (A4)'],
+            ['printQrCode','Show QR Code'],['printBarcode','Show Barcode']
+          ]">
+            <div class="col-6 col-md-4 col-xl-2 field-column">
+              <label class="form-check-label option-card">
+                <input type="checkbox" class="form-check-input" [formControlName]="field[0]" /> {{ field[1] }}
+              </label>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="section-heading"><span>Labels &amp; Messages</span></div>
+        <div class="row compact-grid">
+          <div class="col-12 col-md-6 field-column">
+            <label class="form-label">Customer Copy Label</label>
+            <input class="form-control form-control-sm" formControlName="printCustomerCopyLabel" />
+          </div>
+          <div class="col-12 col-md-6 field-column">
+            <label class="form-label">Duplicate Copy Label</label>
+            <input class="form-control form-control-sm" formControlName="printDuplicateCopyLabel" />
+          </div>
+          <div class="col-12 field-column">
+            <label class="form-label">Footer Message</label>
+            <textarea class="form-control form-control-sm" rows="2" formControlName="printFooterMessage"></textarea>
+          </div>
+          <div class="col-12 field-column">
+            <label class="form-label">Terms and Conditions</label>
+            <textarea class="form-control form-control-sm" rows="3" formControlName="printTermsAndConditions"></textarea>
+          </div>
+        </div>
+
+        <div class="section-heading"><span>Hardware (Optional Local Print Bridge)</span></div>
+        <div class="upload-note">
+          <i class="fas fa-info-circle"></i>
+          <span>Auto Cut and Open Cash Drawer require a compatible local printer/print-bridge integration - standard browser printing cannot control these. These settings are stored for future use only.</span>
+        </div>
+        <div class="row compact-grid">
+          <ng-container *ngFor="let field of [['thermalAutoCut','Auto Cut'],['thermalOpenCashDrawer','Open Cash Drawer']]">
+            <div class="col-6 col-md-4 field-column">
+              <label class="form-check-label option-card">
+                <input type="checkbox" class="form-check-input" [formControlName]="field[0]" /> {{ field[1] }}
+              </label>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary save-button" [disabled]="!canManage || submitting">
+            {{ submitting ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

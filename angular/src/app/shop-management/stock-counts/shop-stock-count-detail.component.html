@@ -9,6 +9,7 @@
 
   <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
     <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canPrint" type="button" class="btn btn-light btn-sm" (click)="print()"><i class="fas fa-print me-2"></i>Print</button>
     <button *ngIf="canViewStockAdjustments && d.generatedStockAdjustmentId" class="btn btn-light btn-sm" (click)="viewGeneratedStockAdjustment()"><i class="fas fa-balance-scale me-2"></i>{{ '::ViewGeneratedStockAdjustment' | abpLocalization }}</button>
     <button *ngIf="canViewStockTransactions && d.status === ShopStockCountStatus.Posted && d.generatedStockAdjustmentNumber" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>
     <button *ngIf="d.status === ShopStockCountStatus.InProgress" class="btn btn-light btn-sm" (click)="count()"><i class="fas fa-clipboard-list me-2"></i>{{ '::ContinueCounting' | abpLocalization }}</button>

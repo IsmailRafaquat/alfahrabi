@@ -3,6 +3,24 @@ using System.Linq;
 using System.Net.Http;
 using EHub.ShopManagement.AiAssistant;
 using EHub.ShopManagement.AiAssistant.Handlers;
+using EHub.ShopManagement.PrintTemplates;
+using EHub.ShopManagement.Sales;
+using EHub.ShopManagement.SaleReturns;
+using EHub.ShopManagement.PurchaseOrders;
+using EHub.ShopManagement.GoodsReceipts;
+using EHub.ShopManagement.PurchaseReturns;
+using EHub.ShopManagement.CustomerPayments;
+using EHub.ShopManagement.SupplierPayments;
+using EHub.ShopManagement.CustomerLedger;
+using EHub.ShopManagement.SupplierLedger;
+using EHub.ShopManagement.Expenses;
+using EHub.ShopManagement.CashRegisters;
+using EHub.ShopManagement.BankAccounts;
+using EHub.ShopManagement.StockAdjustments;
+using EHub.ShopManagement.StockCounts;
+using EHub.ShopManagement.StockTransactions;
+using EHub.ShopManagement.Products;
+using EHub.ShopManagement.ProductBatches;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -70,6 +88,34 @@ public class EHubApplicationModule : AbpModule
         context.Services.AddTransient<IShopAiActionHandler, GetExpensesAiHandler>();
         context.Services.AddTransient<IShopAiActionHandler, GetStockAdjustmentsAiHandler>();
         context.Services.AddTransient<IShopAiActionHandler, GetPhysicalStockCountsAiHandler>();
+
+        ConfigureShopPrintMappers(context);
+    }
+
+    // Same defensive explicit registration as IShopAiActionHandler above (see the comment on
+    // those registrations) - this codebase's conventional ITransientDependency scan has already
+    // been observed to silently miss multi-implementation interfaces once, so
+    // IShopPrintDocumentMapper implementations are registered explicitly rather than trusting it.
+    private static void ConfigureShopPrintMappers(ServiceConfigurationContext context)
+    {
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopSalePrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopSaleReturnPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopPurchaseOrderPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopGoodsReceiptPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopPurchaseReturnPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopCustomerPaymentPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopSupplierPaymentPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopCustomerLedgerStatementPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopSupplierLedgerStatementPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopExpensePrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopCashClosingSlipPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopBankTransactionPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopBankTransferPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopStockAdjustmentPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopStockCountPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopStockTransactionPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopProductBarcodeLabelPrintMapper>();
+        context.Services.AddTransient<IShopPrintDocumentMapper, ShopBatchExpiryLabelPrintMapper>();
     }
 
     // TEMPORARY diagnostic - remove once the intent-misclassification investigation is done.

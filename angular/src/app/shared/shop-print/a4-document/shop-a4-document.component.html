@@ -1,0 +1,50 @@
+<shop-print-header
+  [document]="document"
+  [labels]="labels"
+  [cashierName]="cashierName"
+  [showCashierName]="settings?.printCashierName ?? true"
+  [showDateTime]="settings?.printDateTime ?? true"
+  [copyLabel]="copyLabel"
+></shop-print-header>
+
+<shop-print-item-table
+  *ngIf="document.lines?.length"
+  [lines]="document.lines"
+  [labels]="labels"
+  [paperSize]="document.paperSize"
+  [currencySymbol]="document.business.currencySymbol"
+  [decimalPlaces]="document.business.decimalPlaces"
+  [showUnit]="settings?.printUnit ?? true"
+  [showItemCode]="settings?.printItemCode ?? false"
+  [showBatch]="settings?.printBatchNumber ?? true"
+  [showExpiry]="settings?.printExpiryDate ?? true"
+></shop-print-item-table>
+
+<div class="sp-notes" *ngIf="document.notes">{{ document.notes }}</div>
+
+<shop-print-totals
+  [totals]="document.totals"
+  [labels]="labels"
+  [currencySymbol]="document.business.currencySymbol"
+  [decimalPlaces]="document.business.decimalPlaces"
+></shop-print-totals>
+
+<shop-print-payment-summary
+  *ngIf="document.payment && (settings?.printPaymentDetails ?? true)"
+  [payment]="document.payment"
+  [labels]="labels"
+  [currencySymbol]="document.business.currencySymbol"
+  [decimalPlaces]="document.business.decimalPlaces"
+></shop-print-payment-summary>
+
+<shop-print-footer
+  [footerMessage]="document.footerMessage || labels.thankYou"
+  [termsAndConditions]="settings?.printTermsAndConditions"
+  [qrCodeValue]="document.qrCodeValue"
+  [barcodeValue]="document.barcodeValue"
+  [labels]="labels"
+></shop-print-footer>
+
+<!-- Best-effort only: live page numbering across print pages depends on the browser's print
+     engine (CSS Paged Media support), not on anything Angular can compute client-side. -->
+<div class="a4-page-number" *ngIf="settings?.printPageNumberForA4 ?? true"></div>

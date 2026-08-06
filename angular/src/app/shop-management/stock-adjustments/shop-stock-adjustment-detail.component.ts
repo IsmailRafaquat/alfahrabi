@@ -11,10 +11,13 @@ import {
   ShopStockAdjustmentStatus,
   ShopStockAdjustmentType,
 } from '../../proxy/shop-management/stock-adjustments';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-stock-adjustment-detail', standalone: false, templateUrl: './shop-stock-adjustment-detail.component.html', styleUrl: './shop-stock-adjustment-detail.component.scss' })
 export class ShopStockAdjustmentDetailComponent implements OnInit {
   private readonly service = inject(ShopStockAdjustmentService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -30,6 +33,7 @@ export class ShopStockAdjustmentDetailComponent implements OnInit {
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.StockAdjustments.Cancel');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.StockAdjustments.ViewCost');
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Inventory');
 
   id!: string;
   dto?: ShopStockAdjustmentDto;
@@ -75,6 +79,10 @@ export class ShopStockAdjustmentDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/stock-adjustments', this.id, 'edit']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.StockAdjustment, documentId: this.id });
   }
 
   back(): void {

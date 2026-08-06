@@ -9,6 +9,7 @@
 
   <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
     <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canPrint" type="button" class="btn btn-light btn-sm" (click)="print()"><i class="fas fa-print me-2"></i>Print</button>
     <button *ngIf="canEdit && d.status === ShopExpenseStatus.Draft" class="btn btn-light btn-sm" (click)="edit()"><i class="fas fa-pen me-2"></i>{{ '::EditExpense' | abpLocalization }}</button>
     <button *ngIf="canDelete && d.status === ShopExpenseStatus.Draft" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="remove()"><i class="fas fa-trash me-2"></i>{{ '::DeleteExpense' | abpLocalization }}</button>
     <button *ngIf="canCancel && d.status === ShopExpenseStatus.Posted" class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="openCancel()"><i class="fas fa-ban me-2"></i>{{ '::CancelExpense' | abpLocalization }}</button>

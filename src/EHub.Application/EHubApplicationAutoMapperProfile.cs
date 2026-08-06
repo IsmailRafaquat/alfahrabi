@@ -1,5 +1,6 @@
 using AutoMapper;
 using EHub.ShopManagement.Settings;
+using EHub.ShopManagement.PrintSettings;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
 using EHub.ShopManagement.Products;
@@ -42,6 +43,7 @@ public class EHubApplicationAutoMapperProfile : Profile
     {
         CreateMap<ShopSetting, ShopSettingDto>();
         CreateMap<CreateUpdateShopSettingDto, ShopSetting>();
+        CreateMap<ShopPrintSetting, ShopPrintSettingsDto>();
         CreateMap<ShopProductCategory, ShopProductCategoryDto>();
         CreateMap<ShopProductCategory, ShopProductCategoryLookupDto>();
         CreateMap<ShopUnit, ShopUnitDto>();

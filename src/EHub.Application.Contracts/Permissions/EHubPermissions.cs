@@ -16,6 +16,21 @@ public static class EHubPermissions
         public const string Manage = Default + ".Manage";
     }
 
+    public static class ShopPrint
+    {
+        public const string Default = ManagementMenus.Shop + ".Print";
+        public const string Sales = Default + ".Sales";
+        public const string Purchases = Default + ".Purchases";
+        public const string Payments = Default + ".Payments";
+        public const string Ledgers = Default + ".Ledgers";
+        public const string Expenses = Default + ".Expenses";
+        public const string Inventory = Default + ".Inventory";
+        public const string Reports = Default + ".Reports";
+        public const string ProfitLoss = Default + ".ProfitLoss";
+        public const string BarcodeLabels = Default + ".BarcodeLabels";
+        public const string ManageSettings = Default + ".ManageSettings";
+    }
+
     public static class ShopDashboard
     {
         public const string Default = ManagementMenus.Shop + ".Dashboard";

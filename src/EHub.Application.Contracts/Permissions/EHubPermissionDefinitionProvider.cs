@@ -14,6 +14,17 @@ public class EHubPermissionDefinitionProvider : PermissionDefinitionProvider
         var shopManagement = myGroup.AddPermission(EHubPermissions.ManagementMenus.Shop, L("Permission:ShopManagement"));
         var shopSettings = shopManagement.AddChild(EHubPermissions.ShopSettings.Default, L("Permission:ShopSettings"));
         shopSettings.AddChild(EHubPermissions.ShopSettings.Manage, L("Permission:ShopSettings.Manage"));
+        var shopPrint = shopManagement.AddChild(EHubPermissions.ShopPrint.Default, L("Permission:ShopPrint"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Sales, L("Permission:ShopPrint.Sales"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Purchases, L("Permission:ShopPrint.Purchases"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Payments, L("Permission:ShopPrint.Payments"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Ledgers, L("Permission:ShopPrint.Ledgers"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Expenses, L("Permission:ShopPrint.Expenses"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Inventory, L("Permission:ShopPrint.Inventory"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.Reports, L("Permission:ShopPrint.Reports"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.ProfitLoss, L("Permission:ShopPrint.ProfitLoss"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.BarcodeLabels, L("Permission:ShopPrint.BarcodeLabels"));
+        shopPrint.AddChild(EHubPermissions.ShopPrint.ManageSettings, L("Permission:ShopPrint.ManageSettings"));
         var shopDashboard = shopManagement.AddChild(EHubPermissions.ShopDashboard.Default, L("Permission:ShopDashboard"));
         shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewFinancialSummary, L("Permission:ShopDashboard.ViewFinancialSummary"));
         shopDashboard.AddChild(EHubPermissions.ShopDashboard.ViewInventoryValue, L("Permission:ShopDashboard.ViewInventoryValue"));

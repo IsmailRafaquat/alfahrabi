@@ -39,44 +39,7 @@ table { margin: 0; white-space: nowrap; thead th { background: #f8fafc; color: #
 
 @media(max-width:767.98px){.detail-page{padding:.65rem}.summary-grid{grid-template-columns:minmax(0,1fr)}.section-body{padding:.8rem}}
 
-.print-only { display: none; }
-
-// While generating the WhatsApp PDF, html2canvas needs the printable block actually
-// rendered in the layout (display:none elements have no box to capture), so briefly
-// render it off-screen instead of relying on the print-only media query.
-.print-only.capturing {
-  display: block;
-  position: fixed;
-  top: 0;
-  left: -10000px;
-  width: 800px;
-  padding: 24px;
-  background: #fff;
-  color: #000;
-  font-family: Arial, sans-serif;
-  z-index: -1;
-}
-
-// These rules apply whenever `.closing-print` is actually rendered — either during real
-// browser printing (`@media print` flips `.print-only` to display:block) or during
-// WhatsApp PDF capture (`.capturing` does the same). They must NOT live inside a
-// `@media print` block, because html2canvas renders the DOM in the normal screen
-// context and never matches print media queries.
-.closing-print { padding: 0; font-family: Arial, sans-serif; color: #000; }
-.statement-header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: .75rem; margin-bottom: 1rem; }
-.statement-header h2 { margin: 0 0 .2rem; font-size: 1.3rem; }
-.statement-header p { margin: 0; font-size: .8rem; }
-.statement-title { text-align: right; }
-.statement-title h3 { margin: 0; font-size: 1.1rem; }
-.closing-info { margin-bottom: 1rem; font-size: .85rem; }
-.closing-info p { margin: .1rem 0; }
-.statement-table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-bottom: 1rem; }
-.statement-table th, .statement-table td { border: 1px solid #999; padding: .4rem .5rem; }
-.statement-table th { background: #eee; text-align: left; }
-.statement-table.summary-table td { border: 1px solid #ccc; }
-.statement-table .grand td { font-weight: 700; border-top: 2px solid #000; }
-
-@media print {
-  .screen-only { display: none !important; }
-  .print-only { display: block !important; }
-}
+// Print/share/PDF styling now lives entirely in the shared shop-print module - this page no
+// longer renders its own print-only capture block, so the .screen-only class on <abp-page> is a
+// no-op now (the global print-isolation rule in styles.scss already hides it) but is left in
+// place since it's harmless and matches the pattern still used by not-yet-migrated pages.

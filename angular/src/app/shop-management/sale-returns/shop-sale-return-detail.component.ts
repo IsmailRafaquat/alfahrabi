@@ -11,10 +11,13 @@ import {
   ShopSaleReturnSettlementType,
   ShopSaleReturnStatus,
 } from '../../proxy/shop-management/sale-returns';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-sale-return-detail', standalone: false, templateUrl: './shop-sale-return-detail.component.html', styleUrl: './shop-sale-return-detail.component.scss' })
 export class ShopSaleReturnDetailComponent implements OnInit {
   private readonly service = inject(ShopSaleReturnService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -31,6 +34,7 @@ export class ShopSaleReturnDetailComponent implements OnInit {
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.SaleReturns.ViewCost');
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
   readonly canViewCustomerLedger = this.permissions.getGrantedPolicy('ShopManagement.CustomerLedger');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Sales');
 
   id!: string;
   dto?: ShopSaleReturnDto;
@@ -76,6 +80,10 @@ export class ShopSaleReturnDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/sale-returns', this.id, 'edit']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.SaleReturn, documentId: this.id });
   }
 
   back(): void {

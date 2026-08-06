@@ -5,10 +5,13 @@ import { PermissionService } from '@abp/ng.core';
 import { Confirmation, ConfirmationService, ToasterService } from '@abp/ng.theme.shared';
 import { finalize } from 'rxjs';
 import { ShopPurchaseOrderDto, ShopPurchaseOrderService, ShopPurchaseOrderStatus } from '../../proxy/shop-management/purchase-orders';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-purchase-order-detail', standalone: false, templateUrl: './shop-purchase-order-detail.component.html', styleUrl: './shop-purchase-order-detail.component.scss' })
 export class ShopPurchaseOrderDetailComponent implements OnInit {
   private readonly service = inject(ShopPurchaseOrderService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -25,6 +28,7 @@ export class ShopPurchaseOrderDetailComponent implements OnInit {
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.PurchaseOrders.Cancel');
   readonly canViewCost = this.permissions.getGrantedPolicy('ShopManagement.PurchaseOrders.ViewCost');
   readonly canReceiveGoods = this.permissions.getGrantedPolicy('ShopManagement.GoodsReceipts.Create');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Purchases');
 
   id!: string;
   dto?: ShopPurchaseOrderDto;
@@ -73,6 +77,10 @@ export class ShopPurchaseOrderDetailComponent implements OnInit {
 
   receiveGoods(): void {
     this.router.navigate(['/shop-management/goods-receipts/create', this.id]);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.PurchaseOrder, documentId: this.id });
   }
 
   back(): void {

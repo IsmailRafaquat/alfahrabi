@@ -1,0 +1,42 @@
+<hr class="shop-print-separator" />
+<div class="sp-totals" *ngIf="totals">
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.subTotal != null">
+    <span>{{ labels.subtotal }}:</span>
+    <span class="shop-print-amount">{{ totals.subTotal | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.discountAmount != null">
+    <span>{{ labels.discount }}:</span>
+    <span class="shop-print-amount">{{ totals.discountAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.taxAmount != null">
+    <span>{{ labels.tax }}:</span>
+    <span class="shop-print-amount">{{ totals.taxAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.otherChargesAmount != null">
+    <span>{{ labels.otherCharges }}:</span>
+    <span class="shop-print-amount">{{ totals.otherChargesAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.adjustmentAmount != null">
+    <span>{{ labels.adjustment }}:</span>
+    <span class="shop-print-amount">{{ totals.adjustmentAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+
+  <div class="sp-total-row shop-print-strong-total">
+    <span>{{ labels.total }}:</span>
+    <span class="shop-print-amount">{{ totals.netAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.paidAmount != null">
+    <span>{{ labels.paid }}:</span>
+    <span class="shop-print-amount">{{ totals.paidAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.pendingAmount != null">
+    <span>{{ labels.pending }}:</span>
+    <span class="shop-print-amount">{{ totals.pendingAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+  <div class="sp-total-row thermal-total-row" *ngIf="totals.changeAmount != null">
+    <span>{{ labels.change }}:</span>
+    <span class="shop-print-amount">{{ totals.changeAmount | shopPrintCurrency: currencySymbol:decimalPlaces }}</span>
+  </div>
+</div>
+<hr class="shop-print-separator" />

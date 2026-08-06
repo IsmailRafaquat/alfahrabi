@@ -10,10 +10,13 @@ import {
   ShopBankTransferStatus,
   ShopBankTransferType,
 } from '../../proxy/shop-management/bank-accounts';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-bank-transfer-detail', standalone: false, templateUrl: './shop-bank-transfer-detail.component.html', styleUrl: './shop-bank-transfer-detail.component.scss' })
 export class ShopBankTransferDetailComponent implements OnInit {
   private readonly service = inject(ShopBankTransferService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -26,6 +29,7 @@ export class ShopBankTransferDetailComponent implements OnInit {
   readonly canPost = this.permissions.getGrantedPolicy('ShopManagement.BankTransfers.Post');
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.BankTransfers.Cancel');
   readonly canViewAmount = this.permissions.getGrantedPolicy('ShopManagement.BankTransfers.ViewAmount');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Payments');
 
   transferId!: string;
   transfer: ShopBankTransferDto | null = null;
@@ -71,6 +75,10 @@ export class ShopBankTransferDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/bank-transfers', this.transferId, 'edit']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.BankTransfer, documentId: this.transferId });
   }
 
   back(): void {

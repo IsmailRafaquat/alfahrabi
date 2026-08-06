@@ -11,10 +11,13 @@ import {
   ShopSupplierPaymentStatus,
   ShopSupplierPaymentType,
 } from '../../proxy/shop-management/supplier-payments';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-supplier-payment-detail', standalone: false, templateUrl: './shop-supplier-payment-detail.component.html', styleUrl: './shop-supplier-payment-detail.component.scss' })
 export class ShopSupplierPaymentDetailComponent implements OnInit {
   private readonly service = inject(ShopSupplierPaymentService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -28,6 +31,7 @@ export class ShopSupplierPaymentDetailComponent implements OnInit {
   readonly canPost = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.Post');
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.Cancel');
   readonly canViewAmount = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.ViewAmount');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Payments');
 
   id!: string;
   dto?: ShopSupplierPaymentDto;
@@ -73,6 +77,10 @@ export class ShopSupplierPaymentDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/supplier-payments', this.id, 'edit']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.SupplierPayment, documentId: this.id });
   }
 
   back(): void {

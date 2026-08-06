@@ -1,0 +1,13 @@
+<div class="sp-label-grid" [class.sp-label-grid-a4]="document.paperSize === ShopPrintPaperSize.A4">
+  <div class="sp-label thermal-item" *ngFor="let i of copyIndexes">
+    <div class="sp-label-shop" *ngIf="document.business?.showShopName && document.business?.shopName">{{ document.business.shopName }}</div>
+    <div class="sp-label-name" *ngFor="let line of document.lines.slice(0, 1)">{{ line.productName }}</div>
+    <svg class="sp-label-barcode" [attr.data-value]="document.barcodeValue" #barcodeEl></svg>
+    <div class="sp-label-code" *ngIf="document.documentNumber">{{ document.documentNumber }}</div>
+    <ng-container *ngFor="let line of document.lines.slice(0, 1)">
+      <div class="sp-label-price">{{ line.unitPrice | shopPrintCurrency: document.business.currencySymbol:document.business.decimalPlaces }}</div>
+      <div class="sp-label-batch" *ngIf="line.batchNumber">{{ line.batchNumber }}</div>
+      <div class="sp-label-exp" *ngIf="line.expiryDate">Exp: {{ line.expiryDate | date: 'MM/yyyy' }}</div>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="sp-modal-backdrop no-print" (click)="close()">
+  <div class="sp-modal-card" (click)="$event.stopPropagation()">
+    <div class="sp-modal-header">
+      <h5>Print Preview</h5>
+      <button type="button" class="btn-close" (click)="close()" aria-label="Close"></button>
+    </div>
+
+    <div class="sp-modal-body">
+      <div class="sp-loading" *ngIf="loading">Loading print data...</div>
+      <div class="sp-error alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <div class="sp-preview-layout" *ngIf="!loading && !errorMessage && document">
+        <div class="sp-options no-print">
+          <div class="sp-option-group">
+            <label>Paper Size</label>
+            <select class="form-select form-select-sm" [ngModel]="paperSize" (ngModelChange)="onPaperSizeChange($event)">
+              <option [ngValue]="ShopPrintPaperSize.Thermal58Mm">58mm Thermal</option>
+              <option [ngValue]="ShopPrintPaperSize.Thermal80Mm">80mm Thermal</option>
+              <option [ngValue]="ShopPrintPaperSize.A4">A4</option>
+            </select>
+          </div>
+
+          <div class="sp-option-group" *ngIf="isLabelDocument">
+            <label>Copies</label>
+            <input type="number" class="form-control form-control-sm" min="1" max="200" [(ngModel)]="copies" />
+          </div>
+
+          <div class="sp-option-group">
+            <label>Language</label>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn" [class.btn-primary]="lang === 'en'" [class.btn-outline-primary]="lang !== 'en'" (click)="toggleLang('en')">English</button>
+              <button type="button" class="btn" [class.btn-primary]="lang === 'ur'" [class.btn-outline-primary]="lang !== 'ur'" (click)="toggleLang('ur')">اردو</button>
+            </div>
+          </div>
+
+          <div class="sp-option-group sp-checks">
+            <label class="form-check-label"><input type="checkbox" class="form-check-input" [(ngModel)]="showQrCode" /> Show QR Code</label>
+            <label class="form-check-label" *ngIf="!isLabelDocument"><input type="checkbox" class="form-check-input" [(ngModel)]="showBatch" /> Show Batch</label>
+            <label class="form-check-label" *ngIf="!isLabelDocument"><input type="checkbox" class="form-check-input" [(ngModel)]="showExpiry" /> Show Expiry</label>
+          </div>
+        </div>
+
+        <div class="sp-preview-paper" [class.sp-preview-paper-a4]="paperSize === ShopPrintPaperSize.A4">
+          <shop-print-layout
+            #printRoot
+            [document]="document"
+            [settings]="effectiveSettings"
+            [lang]="lang"
+            [cashierName]="cashierName"
+            [copies]="copies"
+          ></shop-print-layout>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp-modal-footer no-print">
+      <button type="button" class="btn btn-light btn-sm" (click)="close()">Close</button>
+      <button type="button" class="btn btn-outline-success btn-sm" *ngIf="whatsAppShareMessage" [disabled]="loading || !!errorMessage || sharing" (click)="shareOnWhatsApp()">
+        <i class="fab fa-whatsapp"></i> {{ sharing ? 'Preparing...' : 'Share' }}
+      </button>
+      <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="loading || !!errorMessage || downloading" (click)="downloadPdf()">
+        {{ downloading ? 'Preparing PDF...' : 'Download PDF' }}
+      </button>
+      <button type="button" class="btn btn-primary btn-sm" [disabled]="loading || !!errorMessage || printing" (click)="print()">
+        {{ printing ? 'Preparing...' : 'Print' }}
+      </button>
+    </div>
+  </div>
+</div>

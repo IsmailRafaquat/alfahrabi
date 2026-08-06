@@ -2,6 +2,7 @@ using EHub.Expenses.ExpenseCategories;
 using EHub.Expenses.ExpenseEntries;
 using EHub.Expenses.StaffSalaryPayments;
 using EHub.ShopManagement.Settings;
+using EHub.ShopManagement.PrintSettings;
 using EHub.ShopManagement.ProductCategories;
 using EHub.ShopManagement.Units;
 using EHub.ShopManagement.Products;
@@ -98,6 +99,7 @@ public class EHubDbContext :
     public DbSet<ExpenseEntry> ExpenseEntries { get; set; }
     public DbSet<StaffSalaryPayment> StaffSalaryPayments { get; set; }
     public DbSet<ShopSetting> ShopSettings { get; set; }
+    public DbSet<ShopPrintSetting> ShopPrintSettings { get; set; }
     public DbSet<ShopProductCategory> ShopProductCategories { get; set; }
     public DbSet<ShopUnit> ShopUnits { get; set; }
     public DbSet<ShopProduct> ShopProducts { get; set; }
@@ -816,6 +818,42 @@ public class EHubDbContext :
             b.Property(x => x.DefaultLowStockLevel).HasPrecision(18, 2).HasDefaultValue(5);
             b.Property(x => x.DecimalPlaces).HasDefaultValue(2);
             b.Property(x => x.IsConfigured).HasDefaultValue(false);
+        });
+
+        builder.Entity<ShopPrintSetting>(b =>
+        {
+            b.ToTable("ShopPrintSettings", EHubConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.HasKey(x => x.Id);
+            b.Property(x => x.TenantId).IsRequired();
+            b.HasIndex(x => x.TenantId).IsUnique();
+            b.Property(x => x.DefaultPrintPaperSize).HasDefaultValue(ShopPrintPaperSize.Thermal80Mm);
+            b.Property(x => x.PrintHeaderLogo).HasDefaultValue(false);
+            b.Property(x => x.PrintShopName).HasDefaultValue(true);
+            b.Property(x => x.PrintShopAddress).HasDefaultValue(true);
+            b.Property(x => x.PrintShopPhone).HasDefaultValue(true);
+            b.Property(x => x.PrintShopEmail).HasDefaultValue(false);
+            b.Property(x => x.PrintTaxNumber).HasDefaultValue(false);
+            b.Property(x => x.PrintFooterMessage).HasMaxLength(ShopPrintSettingConsts.FooterMessageMaxLength);
+            b.Property(x => x.PrintTermsAndConditions).HasMaxLength(ShopPrintSettingConsts.TermsAndConditionsMaxLength);
+            b.Property(x => x.PrintQrCode).HasDefaultValue(false);
+            b.Property(x => x.PrintBarcode).HasDefaultValue(false);
+            b.Property(x => x.PrintCustomerCopyLabel).IsRequired().HasMaxLength(ShopPrintSettingConsts.LabelMaxLength).HasDefaultValue("Customer Copy");
+            b.Property(x => x.PrintDuplicateCopyLabel).IsRequired().HasMaxLength(ShopPrintSettingConsts.LabelMaxLength).HasDefaultValue("Duplicate Copy");
+            b.Property(x => x.PrintItemCode).HasDefaultValue(false);
+            b.Property(x => x.PrintUnit).HasDefaultValue(true);
+            b.Property(x => x.PrintBatchNumber).HasDefaultValue(true);
+            b.Property(x => x.PrintExpiryDate).HasDefaultValue(true);
+            b.Property(x => x.PrintDiscount).HasDefaultValue(true);
+            b.Property(x => x.PrintTax).HasDefaultValue(true);
+            b.Property(x => x.PrintPaymentDetails).HasDefaultValue(true);
+            b.Property(x => x.PrintCashierName).HasDefaultValue(true);
+            b.Property(x => x.PrintDateTime).HasDefaultValue(true);
+            b.Property(x => x.PrintPageNumberForA4).HasDefaultValue(true);
+            b.Property(x => x.ThermalFontSize).HasDefaultValue(ShopThermalFontSize.Medium);
+            b.Property(x => x.ThermalPrintDensity).HasDefaultValue(ShopThermalPrintDensity.Normal);
+            b.Property(x => x.ThermalAutoCut).HasDefaultValue(false);
+            b.Property(x => x.ThermalOpenCashDrawer).HasDefaultValue(false);
         });
 
         builder.Entity<ShopProductCategory>(b =>

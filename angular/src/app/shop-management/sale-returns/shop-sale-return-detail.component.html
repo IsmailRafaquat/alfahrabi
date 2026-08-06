@@ -9,6 +9,7 @@
 
   <div topbarActions class="d-flex align-items-center flex-wrap gap-2" *ngIf="dto as d">
     <button type="button" class="btn btn-outline-primary btn-sm" (click)="back()"><i class="fas fa-arrow-left me-2"></i>{{ '::Back' | abpLocalization }}</button>
+    <button *ngIf="canPrint" type="button" class="btn btn-light btn-sm" (click)="print()"><i class="fas fa-print me-2"></i>Print</button>
     <button class="btn btn-light btn-sm" (click)="viewSale()"><i class="fas fa-receipt me-2"></i>{{ '::ViewSale' | abpLocalization }}</button>
     <button *ngIf="canViewCustomerLedger" class="btn btn-light btn-sm" (click)="viewCustomerLedger()"><i class="fas fa-book me-2"></i>{{ '::ViewCustomerLedger' | abpLocalization }}</button>
     <button *ngIf="canViewStockTransactions && d.status === ShopSaleReturnStatus.Completed" class="btn btn-light btn-sm" (click)="viewStockTransactions()"><i class="fas fa-exchange-alt me-2"></i>{{ '::ViewStockTransactions' | abpLocalization }}</button>

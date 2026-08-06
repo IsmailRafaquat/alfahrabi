@@ -1,0 +1,18 @@
+.sp-notes {
+  font-size: 0.9em;
+  margin: 6px 0;
+}
+
+.a4-page-number {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.8em;
+
+  &::after {
+    content: 'Page ' counter(page);
+  }
+}
+
+@page {
+  counter-increment: page;
+}

@@ -27,6 +27,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { NotificationBellModule } from './shared/notification-bell/notification-bell.module';
 import { NOTIFICATION_BELL_PROVIDER } from './shared/notification-bell/notification-bell.provider';
 import { SystemGuideModule } from './shared/system-guide/system-guide.module';
+import { ShopPrintModule } from './shared/shop-print/shop-print.module';
 
 registerLocaleData(en);
 registerLocaleData(ur);
@@ -45,6 +46,7 @@ storeLocaleData(ur, 'ur');
     FormsModule,
     NotificationBellModule,
     SystemGuideModule,
+    ShopPrintModule,
   ],
   providers: [
     APP_ROUTE_PROVIDER,

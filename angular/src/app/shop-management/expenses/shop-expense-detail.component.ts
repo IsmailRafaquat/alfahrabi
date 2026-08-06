@@ -10,10 +10,13 @@ import {
   ShopExpenseService,
   ShopExpenseStatus,
 } from '../../proxy/shop-management/expenses';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-expense-detail', standalone: false, templateUrl: './shop-expense-detail.component.html', styleUrl: './shop-expense-detail.component.scss' })
 export class ShopExpenseDetailComponent implements OnInit {
   private readonly service = inject(ShopExpenseService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -27,6 +30,7 @@ export class ShopExpenseDetailComponent implements OnInit {
   readonly canPost = this.permissions.getGrantedPolicy('ShopManagement.Expenses.Post');
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.Expenses.Cancel');
   readonly canViewAmount = this.permissions.getGrantedPolicy('ShopManagement.Expenses.ViewAmount');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Expenses');
 
   id!: string;
   dto?: ShopExpenseDto;
@@ -68,6 +72,10 @@ export class ShopExpenseDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/expenses', this.id, 'edit']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.ExpenseVoucher, documentId: this.id });
   }
 
   back(): void {

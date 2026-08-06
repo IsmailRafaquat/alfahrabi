@@ -11,10 +11,13 @@ import {
   ShopStockCountStatus,
 } from '../../proxy/shop-management/stock-counts';
 import { ShopStockAdjustmentType } from '../../proxy/shop-management/stock-adjustments';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-stock-count-detail', standalone: false, templateUrl: './shop-stock-count-detail.component.html', styleUrl: './shop-stock-count-detail.component.scss' })
 export class ShopStockCountDetailComponent implements OnInit {
   private readonly service = inject(ShopStockCountService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -31,6 +34,7 @@ export class ShopStockCountDetailComponent implements OnInit {
   readonly canCancel = this.permissions.getGrantedPolicy('ShopManagement.StockCounts.Cancel');
   readonly canViewStockTransactions = this.permissions.getGrantedPolicy('ShopManagement.StockTransactions');
   readonly canViewStockAdjustments = this.permissions.getGrantedPolicy('ShopManagement.StockAdjustments');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Inventory');
 
   id!: string;
   dto?: ShopStockCountDto;
@@ -87,6 +91,10 @@ export class ShopStockCountDetailComponent implements OnInit {
 
   count(): void {
     this.router.navigate(['/shop-management/stock-counts', this.id, 'count']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.StockCount, documentId: this.id });
   }
 
   back(): void {

@@ -11,10 +11,13 @@ import {
   ShopGoodsReceiptService,
   ShopGoodsReceiptStatus,
 } from '../../proxy/shop-management/goods-receipts';
+import { ShopPrintService } from '../../shared/shop-print/services/shop-print.service';
+import { SHOP_PRINT_DOCUMENT_TYPES } from '../../shared/shop-print/models/shop-print-document-types';
 
 @Component({ selector: 'app-shop-goods-receipt-detail', standalone: false, templateUrl: './shop-goods-receipt-detail.component.html', styleUrl: './shop-goods-receipt-detail.component.scss' })
 export class ShopGoodsReceiptDetailComponent implements OnInit {
   private readonly service = inject(ShopGoodsReceiptService);
+  private readonly printService = inject(ShopPrintService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly permissions = inject(PermissionService);
@@ -33,6 +36,7 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
   readonly canViewPaymentAmount = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.ViewAmount');
   readonly canCreateSupplierPayment = this.permissions.getGrantedPolicy('ShopManagement.SupplierPayments.Create');
   readonly canCreatePurchaseReturn = this.permissions.getGrantedPolicy('ShopManagement.PurchaseReturns.Create');
+  readonly canPrint = this.permissions.getGrantedPolicy('ShopManagement.Print.Purchases');
 
   id!: string;
   dto?: ShopGoodsReceiptDto;
@@ -102,6 +106,10 @@ export class ShopGoodsReceiptDetailComponent implements OnInit {
 
   edit(): void {
     this.router.navigate(['/shop-management/goods-receipts', this.id, 'edit']);
+  }
+
+  print(): void {
+    this.printService.openPreview({ documentType: SHOP_PRINT_DOCUMENT_TYPES.GoodsReceipt, documentId: this.id });
   }
 
   back(): void {
