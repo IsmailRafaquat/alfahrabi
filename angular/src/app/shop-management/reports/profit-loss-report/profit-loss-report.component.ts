@@ -16,11 +16,22 @@ export type ProfitLossStatus = 'profitable' | 'loss' | 'breakEven';
  * never re-runs a percentage/ratio calculation on every check - it just reads plain fields.
  */
 export interface ProfitLossView {
+  /** Renamed conceptually to "Net Sales" in the template - kept as `totalSales` here since it's
+   * referenced throughout as the revenue base for margin/ratio math. */
   totalSales: number;
+  grossSales: number;
+  salesReturns: number;
+  costOfGoodsSoldBeforeReturns: number;
+  returnedCostOfGoodsSold: number;
   costOfGoodsSold: number;
   totalExpenses: number;
   grossProfit: number;
   netProfit: number;
+  /** True when SalesReturns fully offset GrossSales for the period (Net Sales == 0 with returns
+   * present) - drives the "fully returned, no profit or loss" message instead of a generic one. */
+  isFullyReturnedPeriod: boolean;
+  /** True when there were returns but they didn't fully offset gross sales. */
+  isPartiallyReturnedPeriod: boolean;
   grossMarginPct: number;
   expenseRatioPct: number;
   netMarginPct: number;
@@ -191,10 +202,18 @@ export class ProfitLossReportComponent implements OnInit {
    * Diagnoses the actual cause instead of a generic "expenses exceeded sales" message that isn't
    * true for every loss (e.g. a return-heavy period with zero expenses, or COGS alone exceeding
    * net sales before expenses are even considered) - each condition is checked against the real
-   * numbers, not inferred from the net status alone.
+   * numbers, not inferred from the net status alone. A fully-returned period is called out
+   * specifically so it never reads as "expenses exceeded sales" when expenses were zero.
    */
   insightKey(view: ProfitLossView): string {
-    if (view.status === 'profitable') return '::ProfitLossInsightProfit';
+    // A fully-returned period nets Gross Profit to zero, so any remaining loss came entirely from
+    // operating expenses, not from the returned sale itself - called out explicitly rather than
+    // reusing the generic "fully returned, no profit or loss" message which would be misleading here.
+    if (view.isFullyReturnedPeriod && view.status === 'loss') return '::ProfitLossInsightFullyReturnedWithExpenseLoss';
+    if (view.isFullyReturnedPeriod && view.status === 'breakEven') return '::ProfitLossInsightFullyReturned';
+    if (view.status === 'profitable') {
+      return view.isPartiallyReturnedPeriod ? '::ProfitLossInsightPartiallyReturned' : '::ProfitLossInsightProfit';
+    }
     if (view.status === 'breakEven') return '::ProfitLossInsightBreakEven';
 
     // Loss: identify which component actually drove it.
@@ -203,9 +222,24 @@ export class ProfitLossReportComponent implements OnInit {
     return '::ProfitLossInsightLoss';
   }
 
+  /** Dynamic revenue-line label: once a return has occurred "Total Sales" is ambiguous, so the
+   * statement switches to the explicit Gross/Returns/Net breakdown and this becomes "Net Sales". */
+  revenueLabelKey(view: ProfitLossView): string {
+    return view.salesReturns > 0 ? '::NetSales' : '::TotalSales';
+  }
+
+  /** Same rationale as revenueLabelKey, for the cost side. */
+  costLabelKey(view: ProfitLossView): string {
+    return view.returnedCostOfGoodsSold > 0 ? '::NetCostOfGoodsSold' : '::CostOfGoodsSold';
+  }
+
   /** grossProfit is frontend-derived (totalSales - costOfGoodsSold); everything else uses the API's own totals. */
   private buildView(s: ShopProfitLossSummaryDto): ProfitLossView {
+    const grossSales = s.grossSales ?? 0;
+    const salesReturns = s.salesReturns ?? 0;
     const totalSales = s.netSales ?? 0;
+    const costOfGoodsSoldBeforeReturns = this.canViewCost ? (s.costOfGoodsSoldBeforeReturns ?? 0) : 0;
+    const returnedCostOfGoodsSold = this.canViewCost ? (s.returnedCostOfGoodsSold ?? 0) : 0;
     const costOfGoodsSold = this.canViewCost ? (s.costOfGoodsSold ?? 0) : 0;
     const totalExpenses = this.canViewExpenses ? (s.operatingExpenses ?? 0) : 0;
     const grossProfit = totalSales - costOfGoodsSold;
@@ -213,19 +247,31 @@ export class ProfitLossReportComponent implements OnInit {
 
     const status: ProfitLossStatus = netProfit > 0 ? 'profitable' : netProfit < 0 ? 'loss' : 'breakEven';
     const grossStatus: ProfitLossStatus = grossProfit > 0 ? 'profitable' : grossProfit < 0 ? 'loss' : 'breakEven';
-    const isZeroData = totalSales === 0 && costOfGoodsSold === 0 && totalExpenses === 0;
+    const isZeroData = totalSales === 0 && costOfGoodsSold === 0 && totalExpenses === 0 && salesReturns === 0;
+
+    // A "fully returned period" means the returns exactly offset gross sales (Net Sales == 0)
+    // AND there actually were returns - a genuinely empty period (isZeroData) is not the same
+    // thing and gets its own empty-state message instead.
+    const isFullyReturnedPeriod = salesReturns > 0 && grossSales > 0 && Math.abs(totalSales) < 0.005;
+    const isPartiallyReturnedPeriod = salesReturns > 0 && !isFullyReturnedPeriod;
 
     const maxComparisonValue = Math.max(totalSales, costOfGoodsSold, totalExpenses, 0);
     const barPct = (value: number) => (maxComparisonValue > 0 ? Math.min(100, Math.round((Math.abs(value) / maxComparisonValue) * 100)) : 0);
 
     return {
       totalSales,
+      grossSales,
+      salesReturns,
+      costOfGoodsSoldBeforeReturns,
+      returnedCostOfGoodsSold,
       costOfGoodsSold,
       totalExpenses,
       grossProfit,
       netProfit,
-      // Guarded on totalSales > 0 (not just !== 0), matching the spec: a negative net-sales
-      // period (returns exceeding gross sales) has no meaningful "margin" to express as a ratio.
+      isFullyReturnedPeriod,
+      isPartiallyReturnedPeriod,
+      // Guarded on totalSales > 0 (not just !== 0), matching the spec: a zero or negative net-sales
+      // period (returns matching or exceeding gross sales) has no meaningful "margin" ratio to show.
       grossMarginPct: totalSales > 0 ? (grossProfit / totalSales) * 100 : 0,
       expenseRatioPct: totalSales > 0 ? (totalExpenses / totalSales) * 100 : 0,
       netMarginPct: totalSales > 0 ? (netProfit / totalSales) * 100 : 0,

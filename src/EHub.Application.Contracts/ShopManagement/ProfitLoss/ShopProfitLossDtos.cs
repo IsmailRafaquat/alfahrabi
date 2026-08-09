@@ -55,6 +55,13 @@ public class ShopProfitLossSummaryDto
     public decimal SalesReturns { get; set; }
     public decimal NetSales { get; set; }
 
+    /// <summary>COGS from Sale stock-out activity only, before any return reversal.</summary>
+    public decimal? CostOfGoodsSoldBeforeReturns { get; set; }
+    /// <summary>COGS reversed by posted Sale Return activity (sourced from the original Sale
+    /// item's cost snapshot, never the product's current/average cost).</summary>
+    public decimal? ReturnedCostOfGoodsSold { get; set; }
+    /// <summary>Net COGS = CostOfGoodsSoldBeforeReturns - ReturnedCostOfGoodsSold. Authoritative
+    /// figure GrossProfit is computed from.</summary>
     public decimal? CostOfGoodsSold { get; set; }
     public decimal? GrossProfit { get; set; }
     public decimal? GrossProfitMarginPercentage { get; set; }

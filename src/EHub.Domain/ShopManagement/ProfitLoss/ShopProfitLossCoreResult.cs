@@ -13,6 +13,16 @@ public class ShopProfitLossCoreResult
     public decimal SalesReturns { get; set; }
     public decimal NetSales { get; set; }
 
+    /// <summary>COGS from posted Sale stock-out activity only, before any return reversal.</summary>
+    public decimal CostOfGoodsSoldBeforeReturns { get; set; }
+    /// <summary>COGS reversed by posted Sale Return stock-in activity - always sourced from the
+    /// original Sale item's UnitCostSnapshot (never the product's current/average cost), since
+    /// ShopSaleReturnItem copies UnitCostSnapshot straight from the ShopSaleItem it returns.</summary>
+    public decimal ReturnedCostOfGoodsSold { get; set; }
+    /// <summary>CostOfGoodsSoldBeforeReturns - ReturnedCostOfGoodsSold. This is the authoritative
+    /// net COGS figure GrossProfit is computed from - kept as its own field (not just derived at
+    /// the DTO layer) so ProfitLossNotificationGenerator and every other direct consumer of
+    /// ShopProfitLossCoreResult see the exact same net figure the P&amp;L statement uses.</summary>
     public decimal CostOfGoodsSold { get; set; }
     public decimal GrossProfit { get; set; }
 
