@@ -100,3 +100,36 @@
   text-align: center;
   padding: 2rem;
 }
+
+.sp-language-buttons {
+  gap: 0.5rem;
+}
+
+// The printable layout lives inside the preview modal. The backdrop itself must remain in the
+// print tree (putting .no-print on an ancestor makes every descendant display:none), while the
+// modal chrome is hidden by its own .no-print classes. Reset the modal sizing/overflow so the
+// receipt can occupy the browser's print page without being clipped by the screen preview.
+@media print {
+  .sp-modal-backdrop,
+  .sp-modal-card,
+  .sp-modal-body,
+  .sp-preview-layout,
+  .sp-preview-paper {
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  .sp-preview-paper ::ng-deep .shop-print-root {
+    zoom: 1 !important;
+  }
+}

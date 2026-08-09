@@ -11,8 +11,8 @@
   </div>
 
   <div topbarActions *ngIf="canPrint && customerId" class="statement-actions">
-    <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing" [title]="'::PrintStatement' | abpLocalization" (click)="openPrintLanguageDialog('print')">
-      <span *ngIf="printing" class="spinner-border spinner-border-sm"></span><i *ngIf="!printing" class="fas fa-print"></i>
+    <button class="btn btn-outline-primary btn-sm btn-icon" [disabled]="printing || printPreviewLoading" [title]="'::PrintStatement' | abpLocalization" (click)="openPrintPreview()">
+      <span *ngIf="printPreviewLoading" class="spinner-border spinner-border-sm"></span><i *ngIf="!printPreviewLoading" class="fas fa-print"></i>
     </button>
     <button class="btn btn-success btn-sm btn-icon" [disabled]="sharing" [title]="'::ShareOnWhatsApp' | abpLocalization" (click)="openPrintLanguageDialog('share')">
       <span *ngIf="sharing" class="spinner-border spinner-border-sm"></span><i *ngIf="!sharing" class="fab fa-whatsapp"></i>
@@ -121,7 +121,82 @@
   </ng-template>
 </abp-modal>
 
-<div #statementRef class="statement-print print-only" [class.rtl]="printLang === 'ur'" [class.capturing]="capturing" [attr.dir]="printLang === 'ur' ? 'rtl' : 'ltr'" *ngIf="statement">
+<div class="ledger-print-backdrop" *ngIf="printPreviewOpen && statement && ledger" (click)="printPreviewOpen = false">
+  <div class="ledger-print-modal" (click)="$event.stopPropagation()">
+    <div class="ledger-print-modal-header no-print">
+      <h5>Print Preview</h5>
+      <button type="button" class="btn-close" (click)="printPreviewOpen = false"></button>
+    </div>
+    <div class="ledger-print-modal-body">
+      <div class="ledger-print-options no-print">
+        <label>Paper Size</label>
+        <select class="form-select form-select-sm" [(ngModel)]="printPaperSize">
+          <option [ngValue]="ShopPrintPaperSize.Thermal58Mm">58mm Thermal</option>
+          <option [ngValue]="ShopPrintPaperSize.Thermal80Mm">80mm Thermal</option>
+          <option [ngValue]="ShopPrintPaperSize.A4">A4</option>
+        </select>
+        <label>Language</label>
+        <div class="ledger-language-buttons">
+          <button type="button" class="btn btn-sm" [class.btn-primary]="printLang === 'en'" [class.btn-outline-primary]="printLang !== 'en'" (click)="printLang = 'en'">English</button>
+          <button type="button" class="btn btn-sm" [class.btn-primary]="printLang === 'ur'" [class.btn-outline-primary]="printLang !== 'ur'" (click)="printLang = 'ur'">اردو</button>
+        </div>
+      </div>
+      <div class="ledger-print-preview">
+        <div class="customer-ledger-print shop-print-root print-only"
+          [class.thermal-print-58]="printPaperSize === ShopPrintPaperSize.Thermal58Mm"
+          [class.thermal-print-80]="printPaperSize === ShopPrintPaperSize.Thermal80Mm"
+          [class.a4-print]="printPaperSize === ShopPrintPaperSize.A4"
+          [attr.dir]="printLang === 'ur' ? 'rtl' : 'ltr'">
+          <div class="ledger-receipt-header">
+            <strong>{{ statement.shopName }}</strong>
+            <span *ngIf="statement.shopAddress">{{ statement.shopAddress }}</span>
+            <span *ngIf="statement.shopPhone">{{ statement.shopPhone }}</span>
+            <span *ngIf="statement.shopEmail">{{ statement.shopEmail }}</span>
+          </div>
+          <hr class="shop-print-separator">
+          <h4>{{ statementLabels.statementTitle }}</h4>
+          <div><strong>{{ statement.customerCode }} - {{ statement.customerName }}</strong></div>
+          <div *ngIf="statement.customerPhone">{{ statement.customerPhone }}</div>
+          <div *ngIf="statement.customerAddress">{{ statement.customerAddress }}</div>
+          <div>{{ statement.dateFrom ? (statement.dateFrom | date:'mediumDate') : '—' }} - {{ statement.dateTo ? (statement.dateTo | date:'mediumDate') : (statement.generatedDate | date:'mediumDate') }}</div>
+          <hr class="shop-print-separator">
+
+          <div class="ledger-print-entry thermal-line" *ngFor="let row of ledger.entries">
+            <div class="ledger-entry-head"><strong>{{ row.referenceNumber }}</strong><span>{{ row.transactionDate | date:'mediumDate' }}</span></div>
+            <div>{{ row.description }}</div>
+            <div class="ledger-entry-amounts">
+              <span>{{ statementLabels.debit }}: {{ row.debitAmount ? (row.debitAmount | number:'1.2-2') : '—' }}</span>
+              <span>{{ statementLabels.credit }}: {{ row.creditAmount ? (row.creditAmount | number:'1.2-2') : '—' }}</span>
+              <strong>{{ statementLabels.runningBalance }}: {{ row.runningBalance | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <hr class="shop-print-separator">
+          <div class="ledger-print-totals">
+            <div><span>{{ statementLabels.openingBalance }}</span><strong>{{ ledger.openingBalance | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.totalSales }}</span><strong>{{ ledger.totalSales | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.paidAtSale }}</span><strong>{{ ledger.totalInitialPaid | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.additionalPayments }}</span><strong>{{ ledger.totalAdditionalPayments | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.totalSaleReturns }}</span><strong>{{ ledger.totalSaleReturns | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.totalRefunds }}</span><strong>{{ ledger.totalRefunds | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.totalCustomerCredits }}</span><strong>{{ ledger.totalCustomerCredits | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.totalDebit }}</span><strong>{{ ledger.totalDebit | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.totalCredit }}</span><strong>{{ ledger.totalCredit | number:'1.2-2' }}</strong></div>
+            <div class="ledger-grand-total"><span>{{ statementLabels.closingBalance }}</span><strong>{{ ledger.closingBalance | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.receivableAmount }}</span><strong>{{ ledger.receivableAmount | number:'1.2-2' }}</strong></div>
+            <div><span>{{ statementLabels.advanceAmount }}</span><strong>{{ ledger.advanceAmount | number:'1.2-2' }}</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ledger-print-modal-footer no-print">
+      <button class="btn btn-light btn-sm" (click)="printPreviewOpen = false">Close</button>
+      <button class="btn btn-primary btn-sm" [disabled]="printing" (click)="printLedger()">{{ printing ? 'Preparing...' : 'Print' }}</button>
+    </div>
+  </div>
+</div>
+
+<div #statementRef class="statement-print print-only" [class.rtl]="printLang === 'ur'" [class.capturing]="capturing" [attr.dir]="printLang === 'ur' ? 'rtl' : 'ltr'" *ngIf="statement && !printPreviewOpen">
   <div class="statement-header">
     <div class="shop-info">
       <h2>{{ statement.shopName }}</h2>

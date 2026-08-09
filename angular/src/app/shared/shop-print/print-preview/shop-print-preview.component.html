@@ -1,4 +1,4 @@
-<div class="sp-modal-backdrop no-print" (click)="close()">
+<div class="sp-modal-backdrop" (click)="close()">
   <div class="sp-modal-card" (click)="$event.stopPropagation()">
     <div class="sp-modal-header">
       <h5>Print Preview</h5>
@@ -27,7 +27,7 @@
 
           <div class="sp-option-group">
             <label>Language</label>
-            <div class="btn-group btn-group-sm">
+            <div class="btn-group btn-group-sm sp-language-buttons">
               <button type="button" class="btn" [class.btn-primary]="lang === 'en'" [class.btn-outline-primary]="lang !== 'en'" (click)="toggleLang('en')">English</button>
               <button type="button" class="btn" [class.btn-primary]="lang === 'ur'" [class.btn-outline-primary]="lang !== 'ur'" (click)="toggleLang('ur')">اردو</button>
             </div>
@@ -58,7 +58,7 @@
       <button type="button" class="btn btn-outline-success btn-sm" *ngIf="whatsAppShareMessage" [disabled]="loading || !!errorMessage || sharing" (click)="shareOnWhatsApp()">
         <i class="fab fa-whatsapp"></i> {{ sharing ? 'Preparing...' : 'Share' }}
       </button>
-      <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="loading || !!errorMessage || downloading" (click)="downloadPdf()">
+      <button type="button" class="btn btn-outline-primary btn-sm d-none" [disabled]="loading || !!errorMessage || downloading" (click)="downloadPdf()">
         {{ downloading ? 'Preparing PDF...' : 'Download PDF' }}
       </button>
       <button type="button" class="btn btn-primary btn-sm" [disabled]="loading || !!errorMessage || printing" (click)="print()">

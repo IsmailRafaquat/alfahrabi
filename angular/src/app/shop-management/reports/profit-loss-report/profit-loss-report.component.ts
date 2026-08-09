@@ -16,15 +16,31 @@ export type ProfitLossStatus = 'profitable' | 'loss' | 'breakEven';
  * never re-runs a percentage/ratio calculation on every check - it just reads plain fields.
  */
 export interface ProfitLossView {
+  /** Renamed conceptually to "Net Sales" in the template - kept as `totalSales` here since it's
+   * referenced throughout as the revenue base for margin/ratio math. */
   totalSales: number;
+  grossSales: number;
+  salesReturns: number;
+  costOfGoodsSoldBeforeReturns: number;
+  returnedCostOfGoodsSold: number;
   costOfGoodsSold: number;
   totalExpenses: number;
   grossProfit: number;
   netProfit: number;
+  /** True when SalesReturns fully offset GrossSales for the period (Net Sales == 0 with returns
+   * present) - drives the "fully returned, no profit or loss" message instead of a generic one. */
+  isFullyReturnedPeriod: boolean;
+  /** True when there were returns but they didn't fully offset gross sales. */
+  isPartiallyReturnedPeriod: boolean;
   grossMarginPct: number;
   expenseRatioPct: number;
   netMarginPct: number;
+  /** Net result status (Total Sales - COGS - Operating Expenses). Drives the Net Profit/Loss card. */
   status: ProfitLossStatus;
+  /** Gross result status (Total Sales - COGS only) - can differ from `status`, e.g. a positive
+   * gross profit that operating expenses turn into a net loss (Scenario 4 in the spec this was
+   * built against), so "Gross Profit"/"Gross Loss" must be labeled independently of the net result. */
+  grossStatus: ProfitLossStatus;
   isZeroData: boolean;
   maxComparisonValue: number;
   salesBarPct: number;
@@ -124,11 +140,26 @@ export class ProfitLossReportComponent implements OnInit {
     }
   }
 
+  /** Plain magnitude, no sign - matches the "Less: X (Rs N.NN)" statement convention where the
+   * surrounding label/parens (not the number itself) carry the meaning. Use fmtSigned() for any
+   * figure that can legitimately go negative and has no dynamic label of its own to convey that. */
   fmt(value: number | null | undefined): string {
     if (value == null) return '—';
     const symbol = this.result?.currencySymbol;
     const formatted = Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return symbol ? `${symbol} ${formatted}` : formatted;
+  }
+
+  /**
+   * Standard accounting convention: negative amounts in parentheses, e.g. "(Rs 15.00)" for a
+   * Rs 15 loss - matches the exact "Gross Loss (Rs 5.00)" / "Net Loss (Rs 15.00)" format the
+   * dynamic labels below are built for. Also covers Total Sales/Cost of Goods Sold themselves,
+   * which have no dynamic label and would otherwise silently look identical whether a period was
+   * sales-driven or return-driven (a return-only day makes NetSales/CostOfGoodsSold negative).
+   */
+  fmtSigned(value: number | null | undefined): string {
+    if (value == null) return '—';
+    return value < 0 ? `(${this.fmt(value)})` : this.fmt(value);
   }
 
   pct(value: number): string {
@@ -143,38 +174,109 @@ export class ProfitLossReportComponent implements OnInit {
     }
   }
 
-  insightKey(status: ProfitLossStatus): string {
-    switch (status) {
-      case 'profitable': return '::ProfitLossInsightProfit';
-      case 'loss': return '::ProfitLossInsightLoss';
-      default: return '::ProfitLossInsightBreakEven';
+  /** "Gross Profit" vs "Gross Loss" - independent of the net result label below. */
+  grossResultLabelKey(view: ProfitLossView): string {
+    return view.grossStatus === 'loss' ? '::GrossLoss' : '::GrossProfit';
+  }
+
+  /** "Net Profit" vs "Net Loss" vs "Break Even" - per the net result status only. */
+  netResultLabelKey(view: ProfitLossView): string {
+    if (view.status === 'profitable') return '::NetProfit';
+    if (view.status === 'loss') return '::NetLoss';
+    return '::BreakEven';
+  }
+
+  isProfit(view: ProfitLossView): boolean {
+    return view.status === 'profitable';
+  }
+
+  isLoss(view: ProfitLossView): boolean {
+    return view.status === 'loss';
+  }
+
+  isBreakEven(view: ProfitLossView): boolean {
+    return view.status === 'breakEven';
+  }
+
+  /**
+   * Diagnoses the actual cause instead of a generic "expenses exceeded sales" message that isn't
+   * true for every loss (e.g. a return-heavy period with zero expenses, or COGS alone exceeding
+   * net sales before expenses are even considered) - each condition is checked against the real
+   * numbers, not inferred from the net status alone. A fully-returned period is called out
+   * specifically so it never reads as "expenses exceeded sales" when expenses were zero.
+   */
+  insightKey(view: ProfitLossView): string {
+    // A fully-returned period nets Gross Profit to zero, so any remaining loss came entirely from
+    // operating expenses, not from the returned sale itself - called out explicitly rather than
+    // reusing the generic "fully returned, no profit or loss" message which would be misleading here.
+    if (view.isFullyReturnedPeriod && view.status === 'loss') return '::ProfitLossInsightFullyReturnedWithExpenseLoss';
+    if (view.isFullyReturnedPeriod && view.status === 'breakEven') return '::ProfitLossInsightFullyReturned';
+    if (view.status === 'profitable') {
+      return view.isPartiallyReturnedPeriod ? '::ProfitLossInsightPartiallyReturned' : '::ProfitLossInsightProfit';
     }
+    if (view.status === 'breakEven') return '::ProfitLossInsightBreakEven';
+
+    // Loss: identify which component actually drove it.
+    if (view.costOfGoodsSold > view.totalSales) return '::ProfitLossInsightCogsExceededSales';
+    if (view.totalExpenses > view.grossProfit) return '::ProfitLossInsightExpensesExceededGrossProfit';
+    return '::ProfitLossInsightLoss';
+  }
+
+  /** Dynamic revenue-line label: once a return has occurred "Total Sales" is ambiguous, so the
+   * statement switches to the explicit Gross/Returns/Net breakdown and this becomes "Net Sales". */
+  revenueLabelKey(view: ProfitLossView): string {
+    return view.salesReturns > 0 ? '::NetSales' : '::TotalSales';
+  }
+
+  /** Same rationale as revenueLabelKey, for the cost side. */
+  costLabelKey(view: ProfitLossView): string {
+    return view.returnedCostOfGoodsSold > 0 ? '::NetCostOfGoodsSold' : '::CostOfGoodsSold';
   }
 
   /** grossProfit is frontend-derived (totalSales - costOfGoodsSold); everything else uses the API's own totals. */
   private buildView(s: ShopProfitLossSummaryDto): ProfitLossView {
+    const grossSales = s.grossSales ?? 0;
+    const salesReturns = s.salesReturns ?? 0;
     const totalSales = s.netSales ?? 0;
+    const costOfGoodsSoldBeforeReturns = this.canViewCost ? (s.costOfGoodsSoldBeforeReturns ?? 0) : 0;
+    const returnedCostOfGoodsSold = this.canViewCost ? (s.returnedCostOfGoodsSold ?? 0) : 0;
     const costOfGoodsSold = this.canViewCost ? (s.costOfGoodsSold ?? 0) : 0;
     const totalExpenses = this.canViewExpenses ? (s.operatingExpenses ?? 0) : 0;
     const grossProfit = totalSales - costOfGoodsSold;
     const netProfit = this.canViewBreakdown ? (s.netProfit ?? grossProfit - totalExpenses) : grossProfit - totalExpenses;
 
     const status: ProfitLossStatus = netProfit > 0 ? 'profitable' : netProfit < 0 ? 'loss' : 'breakEven';
-    const isZeroData = totalSales === 0 && costOfGoodsSold === 0 && totalExpenses === 0;
+    const grossStatus: ProfitLossStatus = grossProfit > 0 ? 'profitable' : grossProfit < 0 ? 'loss' : 'breakEven';
+    const isZeroData = totalSales === 0 && costOfGoodsSold === 0 && totalExpenses === 0 && salesReturns === 0;
+
+    // A "fully returned period" means the returns exactly offset gross sales (Net Sales == 0)
+    // AND there actually were returns - a genuinely empty period (isZeroData) is not the same
+    // thing and gets its own empty-state message instead.
+    const isFullyReturnedPeriod = salesReturns > 0 && grossSales > 0 && Math.abs(totalSales) < 0.005;
+    const isPartiallyReturnedPeriod = salesReturns > 0 && !isFullyReturnedPeriod;
 
     const maxComparisonValue = Math.max(totalSales, costOfGoodsSold, totalExpenses, 0);
     const barPct = (value: number) => (maxComparisonValue > 0 ? Math.min(100, Math.round((Math.abs(value) / maxComparisonValue) * 100)) : 0);
 
     return {
       totalSales,
+      grossSales,
+      salesReturns,
+      costOfGoodsSoldBeforeReturns,
+      returnedCostOfGoodsSold,
       costOfGoodsSold,
       totalExpenses,
       grossProfit,
       netProfit,
-      grossMarginPct: totalSales !== 0 ? (grossProfit / totalSales) * 100 : 0,
-      expenseRatioPct: totalSales !== 0 ? (totalExpenses / totalSales) * 100 : 0,
-      netMarginPct: totalSales !== 0 ? (netProfit / totalSales) * 100 : 0,
+      isFullyReturnedPeriod,
+      isPartiallyReturnedPeriod,
+      // Guarded on totalSales > 0 (not just !== 0), matching the spec: a zero or negative net-sales
+      // period (returns matching or exceeding gross sales) has no meaningful "margin" ratio to show.
+      grossMarginPct: totalSales > 0 ? (grossProfit / totalSales) * 100 : 0,
+      expenseRatioPct: totalSales > 0 ? (totalExpenses / totalSales) * 100 : 0,
+      netMarginPct: totalSales > 0 ? (netProfit / totalSales) * 100 : 0,
       status,
+      grossStatus,
       isZeroData,
       maxComparisonValue,
       salesBarPct: barPct(totalSales),

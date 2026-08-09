@@ -73,55 +73,96 @@
           <div class="pl-kpi-grid">
             <div class="pl-kpi-card pl-kpi-card--primary">
               <i class="fas fa-coins pl-kpi-icon"></i>
-              <span class="pl-kpi-label">{{ '::TotalSales' | abpLocalization }}</span>
-              <strong class="pl-kpi-value">{{ fmt(view.totalSales) }}</strong>
-              <span class="pl-kpi-subtitle">{{ '::TotalSalesSubtitle' | abpLocalization }}</span>
+              <span class="pl-kpi-label">{{ revenueLabelKey(view) | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmtSigned(view.totalSales) }}</strong>
+              <span class="pl-kpi-subtitle" *ngIf="view.salesReturns <= 0">{{ '::TotalSalesSubtitle' | abpLocalization }}</span>
+              <span class="pl-kpi-subtitle" *ngIf="view.salesReturns > 0">
+                {{ '::GrossSales' | abpLocalization }} {{ fmt(view.grossSales) }} &middot; {{ '::LessSaleReturns' | abpLocalization }} ({{ fmt(view.salesReturns) }})
+              </span>
             </div>
 
             <div class="pl-kpi-card pl-kpi-card--warning" *ngIf="canViewCost">
               <i class="fas fa-dolly pl-kpi-icon"></i>
-              <span class="pl-kpi-label">{{ '::CostOfGoodsSold' | abpLocalization }}</span>
-              <strong class="pl-kpi-value">{{ fmt(view.costOfGoodsSold) }}</strong>
-              <span class="pl-kpi-subtitle">{{ '::CostOfGoodsSoldSubtitle' | abpLocalization }}</span>
+              <span class="pl-kpi-label">{{ costLabelKey(view) | abpLocalization }}</span>
+              <strong class="pl-kpi-value">{{ fmtSigned(view.costOfGoodsSold) }}</strong>
+              <span class="pl-kpi-subtitle" *ngIf="view.returnedCostOfGoodsSold <= 0">{{ '::CostOfGoodsSoldSubtitle' | abpLocalization }}</span>
+              <span class="pl-kpi-subtitle" *ngIf="view.returnedCostOfGoodsSold > 0">
+                {{ '::OriginalCostOfGoodsSold' | abpLocalization }} {{ fmt(view.costOfGoodsSoldBeforeReturns) }} &middot; {{ '::LessReturnedCostOfGoodsSold' | abpLocalization }} ({{ fmt(view.returnedCostOfGoodsSold) }})
+              </span>
             </div>
 
             <div class="pl-kpi-card pl-kpi-card--danger" *ngIf="canViewExpenses">
               <i class="fas fa-file-invoice-dollar pl-kpi-icon"></i>
               <span class="pl-kpi-label">{{ '::TotalExpenses' | abpLocalization }}</span>
-              <strong class="pl-kpi-value">{{ fmt(view.totalExpenses) }}</strong>
+              <strong class="pl-kpi-value">{{ fmtSigned(view.totalExpenses) }}</strong>
               <span class="pl-kpi-subtitle">{{ '::TotalExpensesSubtitle' | abpLocalization }}</span>
             </div>
 
-            <div class="pl-kpi-card" [ngClass]="view.status === 'loss' ? 'pl-kpi-card--danger' : 'pl-kpi-card--success'" *ngIf="canViewBreakdown">
-              <i class="fas pl-kpi-icon" [ngClass]="view.status === 'loss' ? 'fa-long-arrow-alt-down' : 'fa-long-arrow-alt-up'"></i>
-              <span class="pl-kpi-label">{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
+            <div class="pl-kpi-card" [ngClass]="isLoss(view) ? 'pl-kpi-card--danger' : isBreakEven(view) ? 'pl-kpi-card--neutral' : 'pl-kpi-card--success'" *ngIf="canViewBreakdown">
+              <i class="fas pl-kpi-icon" [ngClass]="isLoss(view) ? 'fa-long-arrow-alt-down' : isBreakEven(view) ? 'fa-equals' : 'fa-long-arrow-alt-up'"></i>
+              <span class="pl-kpi-label">{{ netResultLabelKey(view) | abpLocalization }}</span>
               <strong class="pl-kpi-value">{{ fmt(view.netProfit) }}</strong>
-              <span class="pl-kpi-subtitle">{{ (view.status === 'loss' ? '::NetLossSubtitle' : '::NetProfitSubtitle') | abpLocalization }}</span>
+              <span class="pl-kpi-subtitle">{{ (isLoss(view) ? '::NetLossSubtitle' : isBreakEven(view) ? '::BreakEvenSubtitle' : '::NetProfitSubtitle') | abpLocalization }}</span>
             </div>
           </div>
 
           <div class="pl-breakdown-grid" *ngIf="canViewBreakdown">
             <div class="card pl-card p-3">
               <h5 class="pl-card-title">{{ '::ProfitCalculation' | abpLocalization }}</h5>
-              <div class="pl-calc-row">
-                <span>{{ '::TotalSales' | abpLocalization }}</span>
-                <span class="pl-calc-amount">{{ fmt(view.totalSales) }}</span>
-              </div>
-              <div class="pl-calc-row pl-calc-row--muted">
-                <span>{{ '::LessCostOfGoodsSold' | abpLocalization }}</span>
-                <span class="pl-calc-amount">({{ fmt(view.costOfGoodsSold) }})</span>
-              </div>
+
+              <ng-container *ngIf="view.salesReturns > 0; else simpleSalesRow">
+                <div class="pl-calc-row">
+                  <span>{{ '::GrossSales' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">{{ fmt(view.grossSales) }}</span>
+                </div>
+                <div class="pl-calc-row pl-calc-row--muted">
+                  <span>{{ '::LessSaleReturns' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">({{ fmt(view.salesReturns) }})</span>
+                </div>
+                <div class="pl-calc-row pl-calc-row--subtotal">
+                  <span>{{ '::NetSales' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">{{ fmtSigned(view.totalSales) }}</span>
+                </div>
+              </ng-container>
+              <ng-template #simpleSalesRow>
+                <div class="pl-calc-row">
+                  <span>{{ '::TotalSales' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">{{ fmtSigned(view.totalSales) }}</span>
+                </div>
+              </ng-template>
+
+              <ng-container *ngIf="view.returnedCostOfGoodsSold > 0; else simpleCogsRow">
+                <div class="pl-calc-row pl-calc-row--muted">
+                  <span>{{ '::OriginalCostOfGoodsSold' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">{{ fmt(view.costOfGoodsSoldBeforeReturns) }}</span>
+                </div>
+                <div class="pl-calc-row pl-calc-row--muted">
+                  <span>{{ '::LessReturnedCostOfGoodsSold' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">({{ fmt(view.returnedCostOfGoodsSold) }})</span>
+                </div>
+                <div class="pl-calc-row pl-calc-row--muted">
+                  <span>{{ '::NetCostOfGoodsSold' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">{{ fmt(view.costOfGoodsSold) }}</span>
+                </div>
+              </ng-container>
+              <ng-template #simpleCogsRow>
+                <div class="pl-calc-row pl-calc-row--muted">
+                  <span>{{ '::LessCostOfGoodsSold' | abpLocalization }}</span>
+                  <span class="pl-calc-amount">({{ fmt(view.costOfGoodsSold) }})</span>
+                </div>
+              </ng-template>
+
               <div class="pl-calc-row pl-calc-row--subtotal">
-                <span>{{ '::GrossProfit' | abpLocalization }}</span>
-                <span class="pl-calc-amount">{{ fmt(view.grossProfit) }}</span>
+                <span>{{ grossResultLabelKey(view) | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmtSigned(view.grossProfit) }}</span>
               </div>
               <div class="pl-calc-row pl-calc-row--muted">
                 <span>{{ '::LessOperatingExpenses' | abpLocalization }}</span>
                 <span class="pl-calc-amount">({{ fmt(view.totalExpenses) }})</span>
               </div>
               <div class="pl-calc-row pl-calc-row--result" [ngClass]="'pl-calc-row--' + view.status">
-                <span>{{ (view.status === 'loss' ? '::NetLoss' : '::NetProfit') | abpLocalization }}</span>
-                <span class="pl-calc-amount">{{ fmt(view.netProfit) }}</span>
+                <span>{{ netResultLabelKey(view) | abpLocalization }}</span>
+                <span class="pl-calc-amount">{{ fmtSigned(view.netProfit) }}</span>
               </div>
             </div>
 
@@ -131,12 +172,12 @@
               <div class="pl-bar-row">
                 <span class="pl-bar-label">{{ '::TotalSales' | abpLocalization }}</span>
                 <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--primary" [style.width.%]="view.salesBarPct"></div></div>
-                <span class="pl-bar-amount">{{ fmt(view.totalSales) }}</span>
+                <span class="pl-bar-amount">{{ fmtSigned(view.totalSales) }}</span>
               </div>
               <div class="pl-bar-row">
                 <span class="pl-bar-label">{{ '::CostOfGoodsSold' | abpLocalization }}</span>
                 <div class="pl-bar-track"><div class="pl-bar-fill pl-bar-fill--warning" [style.width.%]="view.costOfGoodsSoldBarPct"></div></div>
-                <span class="pl-bar-amount">{{ fmt(view.costOfGoodsSold) }}</span>
+                <span class="pl-bar-amount">{{ fmtSigned(view.costOfGoodsSold) }}</span>
               </div>
               <div class="pl-bar-row">
                 <span class="pl-bar-label">{{ '::TotalExpenses' | abpLocalization }}</span>
@@ -163,7 +204,7 @@
 
           <div class="pl-insight" [ngClass]="'pl-insight--' + view.status" *ngIf="canViewBreakdown">
             <i class="fas fa-info-circle"></i>
-            <span>{{ insightKey(view.status) | abpLocalization }}</span>
+            <span>{{ insightKey(view) | abpLocalization: [fmt(view.netProfit)] }}</span>
           </div>
         </ng-container>
       </ng-container>

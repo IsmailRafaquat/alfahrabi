@@ -74,7 +74,26 @@ export class ShopPrintService {
    * page for ShopPrintPaperSize.A4.
    */
   async downloadPdf(element: HTMLElement, doc: ShopPrintDocumentDto, fileName: string): Promise<Blob> {
-    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
+    // Capture the receipt itself, not the Angular host/preview wrapper. The on-screen preview uses
+    // CSS zoom for readability; baking that zoom into the bitmap and then shrinking it to thermal
+    // width produces blurry text and exaggerated spacing (especially for mixed Urdu/LTR content).
+    const receipt = element.querySelector<HTMLElement>('.shop-print-root') ?? element;
+    const previousZoom = receipt.style.zoom;
+    const previousMargin = receipt.style.margin;
+    receipt.style.zoom = '1';
+    receipt.style.margin = '0';
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const canvas = await html2canvas(receipt, {
+      scale: 3,
+      backgroundColor: '#ffffff',
+      foreignObjectRendering: true,
+      logging: false,
+      useCORS: true,
+    });
+
+    receipt.style.zoom = previousZoom;
+    receipt.style.margin = previousMargin;
     const imgData = canvas.toDataURL('image/png');
 
     let pdf: jsPDF;
@@ -97,11 +116,18 @@ export class ShopPrintService {
         heightLeft -= pageHeight;
       }
     } else {
-      const widthMm = doc.paperSize === ShopPrintPaperSize.Thermal58Mm ? 48 : 72;
-      const pxPerMm = canvas.width / widthMm;
+      const pageWidthMm = doc.paperSize === ShopPrintPaperSize.Thermal58Mm ? 58 : 80;
+      const horizontalMarginMm = doc.paperSize === ShopPrintPaperSize.Thermal58Mm ? 3 : 4;
+      const contentWidthMm = pageWidthMm - horizontalMarginMm * 2;
+      const pxPerMm = canvas.width / contentWidthMm;
       const heightMm = canvas.height / pxPerMm;
-      pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [widthMm, Math.max(heightMm, 40)] });
-      pdf.addImage(imgData, 'PNG', 0, 0, widthMm, heightMm);
+      const verticalMarginMm = 3;
+      pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [pageWidthMm, Math.max(heightMm + verticalMarginMm * 2, 40)],
+      });
+      pdf.addImage(imgData, 'PNG', horizontalMarginMm, verticalMarginMm, contentWidthMm, heightMm);
     }
 
     const blob = pdf.output('blob');

@@ -176,6 +176,8 @@ public partial class ShopProfitLossAppService : ApplicationService, IShopProfitL
 
         if (await CanAsync(EHubPermissions.ShopProfitLoss.ViewCost))
         {
+            dto.CostOfGoodsSoldBeforeReturns = core.CostOfGoodsSoldBeforeReturns;
+            dto.ReturnedCostOfGoodsSold = core.ReturnedCostOfGoodsSold;
             dto.CostOfGoodsSold = core.CostOfGoodsSold;
             dto.GrossProfit = core.GrossProfit;
             dto.OpeningInventoryValue = core.OpeningInventoryValue;

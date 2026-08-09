@@ -55,6 +55,8 @@ export interface ShopProfitLossSummaryDto {
   salesTax: number;
   salesReturns: number;
   netSales: number;
+  costOfGoodsSoldBeforeReturns?: number;
+  returnedCostOfGoodsSold?: number;
   costOfGoodsSold?: number;
   grossProfit?: number;
   grossProfitMarginPercentage?: number;

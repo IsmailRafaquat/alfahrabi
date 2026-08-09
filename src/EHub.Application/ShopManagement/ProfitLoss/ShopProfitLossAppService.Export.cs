@@ -41,7 +41,9 @@ public partial class ShopProfitLossAppService
 
         if (canCost)
         {
-            AddRow("Cost of Goods Sold", summary.CostOfGoodsSold?.ToString("N2"));
+            AddRow("Original Cost of Goods Sold", summary.CostOfGoodsSoldBeforeReturns?.ToString("N2"));
+            AddRow("Less: Returned Cost of Goods Sold", summary.ReturnedCostOfGoodsSold.HasValue ? $"({summary.ReturnedCostOfGoodsSold:N2})" : null);
+            AddRow("Net Cost of Goods Sold", summary.CostOfGoodsSold?.ToString("N2"));
             AddRow("Gross Profit", summary.GrossProfit?.ToString("N2"));
         }
 
